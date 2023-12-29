@@ -1,2 +1,3 @@
 /Backend/temp_server.js
-/.env
+/Backend/.env
+/Backend/node_modules/
