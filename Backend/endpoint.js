@@ -21,6 +21,12 @@ const poolDefaultPSP = mysql.createPool(dbConfigDefaultPSP);
 // Storing Tokens List
 const authenticatedTokens = {"dev": 668855471};
 
+// React Static
+app.use(express.static(path.resolve(__dirname + "/../frontend/build")));
+
+// CSS & JS static
+app.use("/cssjs", express.static(path.resolve(__dirname + "/../Frontend-old/"), { extensions: ["js", "css"] }));
+
 /************************************
  * Token / Authentication Functions *
  ***********************************/
@@ -91,12 +97,12 @@ async function checkTokenValidityIntents(token, intent) {
  * Routes to serve the frontend *
  *******************************/
 app.get("/", (req, res) => {
-    res.sendFile(path.resolve(__dirname + "/../Frontend/home/index.html"));
+    res.sendFile(path.resolve(__dirname + "/../Frontend-old/home/index.html"));
 });
 
 // Setting up the default login page route
 app.get("/login", (req, res) => {
-    res.sendFile(path.resolve(__dirname + "/../Frontend/login/index.html"));
+    res.sendFile(path.resolve(__dirname + "/../Frontend-old/login/index.html"));
 });
 
 
@@ -117,6 +123,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     // Check if the user exists
+
     const [rows, fields] = await poolDefaultPSP.query(`SELECT password FROM usuarios WHERE username = ${req.body.username}`);
 
     if (rows.length === 0) {

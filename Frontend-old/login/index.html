@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="cssjs/login/styles.css">
+        <script src="logic.js"></script>
+        <script src="cssjs/login/logic.js"></script>
+        <title>Gestão Polícia » Login</title>
+    </head>
+    <body>
+        <!-- Header -->
+        <div id="header">
+            <h1>Gestão Polícia » Login</h1>
+        </div>
+
+
+        <!-- Login Div -->
+
+        <div class="center" id="login">
+            <input type="text" name="username" id="username" placeholder="NIF" pattern="^[0-9]*$" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <button onclick="login()">Login</button>
+        </div>
+    </body>
+</html>
