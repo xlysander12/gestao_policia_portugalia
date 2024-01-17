@@ -70,7 +70,7 @@ async function checkTokenValidityIntents(token, intent) {
     }
 
     // If intent is null, then the user doesn't need special permissions
-    if (intent === null) {
+    if (intent === null || intent === undefined) {
         return [true, 0]; // Since the return was true, no HTTT Status Code is needed
     }
 
@@ -111,6 +111,27 @@ app.get("/login", (req, res) => {
  *************/
 
 /**
+ * Token Endpoint
+ **/
+
+app.get("/api/validateToken", (req, res) => {
+    // Check if the token is present
+    if (req.headers.authorization === undefined) {
+        res.status(401).send(); // TODO: Send JSON with error message
+        return;
+    }
+
+    // Check if the token exists
+    if (!authenticatedTokens[req.headers.authorization]) {
+        res.status(401).send(); // TODO: Send JSON with error message
+        return;
+    }
+
+    // If everything is correct, return a 200 status code
+    res.status(200).send(authenticatedTokens[req.headers.authorization].toString()); // TODO: Send JSON with success message
+});
+
+/**
  * Login endpoint
  **/
 
@@ -126,6 +147,7 @@ app.post("/api/login", async (req, res) => {
 
     const [rows, fields] = await poolDefaultPSP.query(`SELECT password FROM usuarios WHERE username = ${req.body.username}`);
 
+    // If the user doesn't exist, return an error
     if (rows.length === 0) {
         res.status(401).send(); // TODO: Send JSON with error message
         return;
@@ -168,7 +190,7 @@ app.patch("/api/login", (req, res) => {
  * Officer Information endpoint
  **/
 app.get("/api/officerInfo", async (req, res) => {
-    // Check if user is authenticated and if it has the correct intent to access this endpoint
+    // Check if user is authenticated
     let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).send(); // TODO: Send JSON with error message
@@ -182,6 +204,23 @@ app.get("/api/officerInfo", async (req, res) => {
 
     const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM agentes WHERE CONCAT(nome, callsign, nif, discord) LIKE "%${req.query.search}%"`);
     res.status(200).send(rows); // TODO: Send JSON with officer info
+});
+
+app.get("/api/officerInfo/:nif", async (req, res) => {
+    // Check if user is authenticated
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization);
+    if (!authenticatedPermission[0]) {
+        res.status(authenticatedPermission[1]).send(); // TODO: Send JSON with error message
+        return;
+    }
+
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM agentes WHERE nif = ${req.params.nif}`);
+
+    if (rows.length === 0) {
+        res.status(404).send(); // TODO: Send JSON with error message
+        return;
+    }
+    res.status(200).send(rows[0]); // TODO: Send JSON with officer info
 });
 
 module.exports = app;

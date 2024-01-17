@@ -1,0 +1,29 @@
+.mainNavbar {
+    background-color: rgb(31, 40, 51);
+    width: 100%;
+    height: 4rem;
+    color: white;
+    line-height: 4rem;
+    padding-left: 3px;
+}
+
+.subPathDiv {
+    display: inline-block;
+    height: fit-content;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+a:hover {
+    color: gray;
+}
+
+a, p {
+    font-size: 30px;
+    margin: 0 5px;
+    display: inline-block;
+    color: white;
+}
