@@ -26,7 +26,7 @@ class Dashboard extends Component {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Autorization": localStorage.getItem("token")
+                "Authorization": localStorage.getItem("token")
             }
         });
 
@@ -41,8 +41,10 @@ class Dashboard extends Component {
         }
 
         // If the request returned status 200, the token is valid
+        let nif = await response.text();
+        console.log("Updating the dashboard's state nif to " + nif);
         this.setState({
-            nif: response.text() // TODO This will soon be a JSON object
+            nif: nif // TODO This will soon be a JSON object
         });
     }
 

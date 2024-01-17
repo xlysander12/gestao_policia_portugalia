@@ -7,9 +7,24 @@
     padding-left: 3px;
 }
 
+.pathsDiv {
+    display: inline-block;
+    height: 100%;
+}
+
 .subPathDiv {
     display: inline-block;
-    height: fit-content;
+    height: 100%;
+}
+.userInfoDiv {
+    display: inline-block;
+    float: right;
+    height: 100%;
+}
+
+.officerName {
+    font-size: 20px;
+    margin-right: 7px;
 }
 
 a {

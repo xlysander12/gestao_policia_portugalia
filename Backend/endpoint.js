@@ -111,6 +111,30 @@ app.get("/login", (req, res) => {
  *************/
 
 /**
+ * Util Endpoints
+ **/
+
+app.get("/api/util/strPatente", async (req, res) => {
+    // Check if there is a search query and that it is a number
+    if (req.query.patent === undefined || isNaN(req.query.patent)) {
+        res.status(400).send(); // TODO: Send JSON with error message
+        return;
+    }
+
+    // Fetch the database to get the string related to the number in the query
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome FROM patentes WHERE num = ${req.query.patent}`);
+
+    // Check if the query returned any results
+    if (rows.length === 0) {
+        res.status(404).send(); // TODO: Send JSON with error message
+        return;
+    }
+
+    // Return the string
+    res.status(200).send(rows[0].nome); // TODO: Send JSON with string
+});
+
+/**
  * Token Endpoint
  **/
 
