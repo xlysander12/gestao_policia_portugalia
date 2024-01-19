@@ -15,7 +15,7 @@
     box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.5);
 }
 
-input {
+.loginInput {
     background-color: rgb(159, 163, 175);
     display: block;
     margin: 20px auto;
@@ -26,11 +26,11 @@ input {
     border: none;
 }
 
-input:focus {
+.loginInput:focus {
     outline-color: #25ADA5FF;
 }
 
-input[type="submit"] {
+.loginInput[type="submit"] {
     background: linear-gradient(180deg, rgb(37, 173, 165), rgb(33, 161, 156));
     color: black;
     cursor: pointer;

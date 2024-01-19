@@ -1,0 +1,15 @@
+.inlineDiv {
+    display: inline-block;
+}
+
+.officerListDiv {
+    /*padding-left: 5px;*/
+    height: calc(100vh - 4rem);
+    width: 50%;
+    border-right: solid 1px #e80000;
+}
+
+.officerInfoDiv {
+    height: calc(100vh - 4rem);
+    padding-left: 5px;
+}

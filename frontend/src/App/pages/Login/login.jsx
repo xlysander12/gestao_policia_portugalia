@@ -31,17 +31,17 @@ class Login extends Component {
 
         // If the request returned status 401, the username doens't exist or password is wrong
         if (response.status === 401) {
-            alert("NIF ou senha incorretos!");
+            alert((await response.json()).message);
             return;
         }
 
         // If the request returned status 200, the login was successful
         if (response.status === 200) {
             // Get the response body
-            let body = await response.text(); // TODO This will soon be a JSON object
+            let body = await response.json(); // TODO This will soon be a JSON object
 
             // Save the token in the local storage
-            localStorage.setItem("token", body);
+            localStorage.setItem("token", body.data);
 
             // Redirect to the main page
             window.location.href = "/";
@@ -60,11 +60,11 @@ class Login extends Component {
                         {/*Login form*/}
                         <form onSubmit={this.onLogin}>
 
-                            <input type="text" name="nif" pattern={"^[0-9]*$"} placeholder="NIF" required/>
+                            <input className={style.loginInput} type="text" name="nif" pattern={"^[0-9]*$"} placeholder="NIF" required/>
 
-                            <input type="password" name="password" placeholder="Senha" required/>
+                            <input className={style.loginInput} type="password" name="password" placeholder="Senha" required/>
 
-                            <input type="submit" value="Entrar"/>
+                            <input className={style.loginInput} type="submit" value="Entrar"/>
                         </form>
                     </div>
                 </div>

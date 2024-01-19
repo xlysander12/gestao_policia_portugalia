@@ -1,0 +1,36 @@
+.officerListSearchDiv {
+    display: flex;
+    align-items: center;
+    background-color: #1f2833;
+    height: 4rem;
+    padding: 0.7rem;
+}
+
+.officerListSearchInput {
+    width: 75%;
+    height: 2rem;
+    margin: 0.5rem;
+    background-color: #c3c4c5;
+    border: none;
+    padding-left: 3px;
+}
+
+.officerListSearchInput:focus {
+    outline: 1px solid #66fcf1;
+
+}
+
+.officerListSearchButton {
+    width: 20%;
+    height: 2rem;
+    margin: 1rem;
+    background-color: #1f2833;
+    border: 1px solid rgb(37, 173, 165);
+    color: rgb(37, 173, 165);
+}
+
+.officerListSearchButton:hover {
+    background-color: rgb(37, 173, 165);
+    color: black;
+    cursor: pointer;
+}

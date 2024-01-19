@@ -30,8 +30,8 @@ class Dashboard extends Component {
             }
         });
 
-        // If the request returned status 401, the token is invalid
-        if (response.status === 401) {
+        // If the request returned status different that 200, the token is invalid
+        if (response.status !== 200) {
             // Remove the token from the local storage
             localStorage.removeItem("token");
 
@@ -41,17 +41,17 @@ class Dashboard extends Component {
         }
 
         // If the request returned status 200, the token is valid
-        let nif = await response.text();
-        console.log("Updating the dashboard's state nif to " + nif);
+        let body = await response.json();
+        console.log("Updating the dashboard's state nif to " + body.data);
         this.setState({
-            nif: nif // TODO This will soon be a JSON object
+            nif: body.data
         });
     }
 
     render() {
         return (
             <div>
-                <Navbar userNif={this.state.nif}/>
+                <Navbar />
                 <h1>Dashboard</h1>
             </div>
         );

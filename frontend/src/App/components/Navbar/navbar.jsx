@@ -28,6 +28,62 @@ class Navbar extends Component {
         this.state = {
             fullName: ""
         }
+
+        this.buildOfficerName = this.buildOfficerName.bind(this);
+    }
+
+    async buildOfficerName(nif) {
+        // From the given NIF, get the patent and officer's full name
+        let response = await fetch(`/portugalia/gestao_policia/api/officerInfo/${nif}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token")
+            },
+        });
+
+        // From the response, get the patent and officer's full name
+        let body = await response.json();
+
+        // Now, get the string equivalent to its patent
+        response = await fetch(`/portugalia/gestao_policia/api/util/strPatente?patent=${body.data.patente}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+
+        this.setState({
+            fullName: `${(await response.json()).data} ${body.data.nome}`
+        });
+    }
+
+    async componentDidMount() {
+        // Check if there is a token in the local storage
+        if (!localStorage.getItem("token")) {
+            return;
+        }
+
+        // Making the request to check if the token is valid
+        let response = await fetch("/portugalia/gestao_policia/api/validateToken", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token")
+            }
+        });
+
+        // If the request returned status different that 200, the token is invalid
+        if (response.status !== 200) {
+            return;
+        }
+
+        // If the request returned status 200, the token is valid
+        let nif = (await response.json()).data;
+        console.log("Updating the navbar's state nif to " + nif);
+
+        await this.buildOfficerName(nif);
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
@@ -41,30 +97,7 @@ class Navbar extends Component {
             return;
         }
 
-        // From the given NIF, get the patent and officer's full name
-        let response = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.props.userNif}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
-            },
-        });
-
-        // From the response, get the patent and officer's full name
-        let body = await response.json();
-
-        // Now, get the string equivalent to its patent
-        response = await fetch(`/portugalia/gestao_policia/api/util/strPatente?patent=${body.patente}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/text",
-            },
-        });
-
-
-        this.setState({
-           fullName: `${await response.text()} ${body.nome}`
-        });
+        await this.buildOfficerName(this.props.userNif);
     }
 
     render() {

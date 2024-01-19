@@ -255,7 +255,7 @@ app.get("/api/officerInfo", async (req, res) => {
         req.query.search = "";
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome, patente, callsign, nif FROM agentes WHERE CONCAT(nome, callsign, nif, discord) LIKE "%${req.query.search}%"`);
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome, callsign, nif, telemovel FROM agentes WHERE CONCAT(nome, callsign, nif, discord) LIKE "%${req.query.search}%"`);
     res.status(200).json({
         message: "Operação bem sucedida",
         data: rows
