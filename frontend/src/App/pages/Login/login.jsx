@@ -29,7 +29,7 @@ class Login extends Component {
 
         console.log(response);
 
-        // If the request returned status 401, the username doens't exist or password is wrong
+        // If the request returned status 401, the username doesn't exist or password is wrong
         if (response.status === 401) {
             alert((await response.json()).message);
             return;

@@ -45,23 +45,20 @@ class Navbar extends Component {
         // From the response, get the patent and officer's full name
         let body = await response.json();
 
-        // Now, get the string equivalent to its patent
-        response = await fetch(`/portugalia/gestao_policia/api/util/strPatente?patent=${body.data.patente}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
 
         this.setState({
-            fullName: `${(await response.json()).data} ${body.data.nome}`
+            fullName: `${body.data.patente} ${body.data.nome}`
         });
     }
 
     async componentDidMount() {
+        if(window.location.pathname === "/login") {
+            return;
+        }
+
         // Check if there is a token in the local storage
-        if (!localStorage.getItem("token")) {
+        if ((!localStorage.getItem("token"))) {
+            window.location.href = "/login";
             return;
         }
 
@@ -76,6 +73,7 @@ class Navbar extends Component {
 
         // If the request returned status different that 200, the token is invalid
         if (response.status !== 200) {
+            window.location.href = "/login";
             return;
         }
 
