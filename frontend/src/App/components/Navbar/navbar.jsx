@@ -7,15 +7,15 @@ const SubPath = (props) => {
     if (props.path === "") {
         return (
             <div className={style.subPathDiv}>
-                <p>{props.name}</p>
+                <p className={style.navbarSubPathText}>{props.name}</p>
             </div>
         );
     }
 
     return (
         <div className={style.subPathDiv}>
-            <Link to={props.path}>{props.name}</Link>
-            <p>{props.only ? "": "»"}</p>
+            <Link className={style.navbarSubPathText} to={props.path}>{props.name}</Link>
+            <p className={style.navbarSubPathText}>{props.only ? "": "»"}</p>
         </div>
     );
 }
@@ -117,6 +117,7 @@ class Navbar extends Component {
             });
         }
 
+        // noinspection com.intellij.reactbuddy.ArrayToJSXMapInspection
         return (
             <div className={style.mainNavbar}>
                 {/*Add the div that will hold the paths*/}

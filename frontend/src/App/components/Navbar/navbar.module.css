@@ -17,8 +17,10 @@
     display: inline-block;
     height: 100%;
 }
+
 .userInfoDiv {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     float: right;
     height: 100%;
 }
@@ -28,16 +30,13 @@
     margin-right: 7px;
 }
 
-a {
-    text-decoration: none;
-    outline: none;
-}
-
-a:hover {
+.navbarSubPathText:hover {
     color: gray;
 }
 
-a, p {
+.navbarSubPathText {
+    text-decoration: none;
+    outline: none;
     font-size: 30px;
     margin: 0 5px;
     display: inline-block;
