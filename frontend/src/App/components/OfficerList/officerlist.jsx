@@ -13,7 +13,7 @@ class OfficerList extends Component {
             <div>
                 {/*Barra de pesquisa*/}
                 <div className={style.officerListSearchDiv}>
-                    <input className={style.officerListSearchInput} id={"officerSearch"} type={"text"} placeholder={"Pesquisar por nome, callsign, NIF ou telemóvel"}/>
+                    <input className={style.officerListSearchInput} id={"officerSearch"} type={"text"} placeholder={"Pesquisar por nome, patente, callsign, NIF, telemóvel ou discord ID"}/>
                     <button className={style.officerListSearchButton}>Pesquisar</button>
                 </div>
 
