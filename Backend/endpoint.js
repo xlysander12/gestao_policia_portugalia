@@ -92,7 +92,7 @@ async function checkTokenValidityIntents(token, intent) {
 }
 
 /********************************
- * Routes to serve the frontend *
+ * Routes to serve the frontend [DEPRECATED]*
  *******************************/
 app.get("/", (req, res) => {
     res.sendFile(path.resolve(__dirname + "/../Frontend-old/home/index.html"));
@@ -108,36 +108,6 @@ app.get("/login", (req, res) => {
  * API Routes *
  *************/
 
-/**
- * Util Endpoints
- **/
-
-app.get("/api/util/strPatente", async (req, res) => {
-    // Check if there is a patent query and that it is a number
-    if (req.query.patent === undefined || isNaN(req.query.patent)) {
-        res.status(400).json({
-            message: "Não foi atribuído um número de patente válido."
-        });
-        return;
-    }
-
-    // Fetch the database to get the string related to the number in the query
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome FROM patentes WHERE num = ${req.query.patent}`);
-
-    // Check if the query returned any results
-    if (rows.length === 0) {
-        res.status(404).json({
-            message: "Não foi encontrada nenhuma patente com o número fornecido."
-        });
-        return;
-    }
-
-    // Return the string
-    res.status(200).json({
-        message: "Operação bem sucedida",
-        data: rows[0].nome
-    });
-});
 
 /**
  * Token Endpoints
@@ -255,7 +225,7 @@ app.get("/api/officerInfo", async (req, res) => {
         req.query.search = "";
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome, callsign, nif, telemovel FROM agentes WHERE CONCAT(nome, callsign, nif, discord) LIKE "%${req.query.search}%"`);
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
     res.status(200).json({
         message: "Operação bem sucedida",
         data: rows
@@ -272,7 +242,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM agentes WHERE nif = ${req.params.nif}`);
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM efetivosV WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
