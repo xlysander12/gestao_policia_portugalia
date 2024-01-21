@@ -13,14 +13,14 @@ class OfficerInfo extends Component {
         return(
             <div>
                 <Navbar path={[["Efetivos", ""]]}/>
-                <div style={{"display": "flex"}}>
-                    <div className={[style.officerListDiv, style.inlineDiv].join(" ")}>
+                <div>
+                    <div className={style.officerListDiv}>
                         <OfficerList/>
                     </div>
 
-                    <div className={[style.officerInfoDiv, style.inlineDiv].join(" ")}>
-                        <h1>Officer Info</h1>
-                    </div>
+                    {/*<div className={style.officerInfoDiv}>*/}
+                    {/*    <h1>Officer Info</h1>*/}
+                    {/*</div>*/}
                 </div>
             </div>
         )

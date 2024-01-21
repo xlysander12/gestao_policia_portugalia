@@ -34,3 +34,48 @@
     color: black;
     cursor: pointer;
 }
+
+.officerListListDiv {
+    max-height: calc(100vh - calc(4rem + 125px));
+    padding: 0.7rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.officerListCardDiv {
+    display: flex;
+    width: 95%;
+    background-color: #1f2833;
+    margin: 5px auto;
+    padding: 10px;
+}
+
+.officerListCardDiv:hover {
+    background-color: #232325;
+    cursor: pointer;
+}
+
+.officerListCardName {
+    font-size: 1rem;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.officerListCardNif {
+    margin-top: 5px;
+    color: gray;
+}
+
+.officerListCardStatus {
+    /*Push this div to the right of the parent div*/
+    height: fit-content;
+    margin-top: 16px;
+    margin-left: auto;
+    margin-right: 15px;
+    border-radius: 7px;
+}
+
+.officerListCardStatusText {
+    margin: 5px;
+    font-size: 1.1rem;
+}
