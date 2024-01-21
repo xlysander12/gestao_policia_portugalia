@@ -37,11 +37,3 @@
     border: none;
 
 }
-
-body {
-    overflow: hidden;
-}
-
-* {
-    min-width: 0;
-}
