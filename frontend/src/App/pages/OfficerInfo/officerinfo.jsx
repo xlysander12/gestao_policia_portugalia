@@ -7,20 +7,32 @@ import OfficerList from "../../components/OfficerList/officerlist";
 class OfficerInfo extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            officerNif: ""
+        }
+
+        this.officerListCallback = this.officerListCallback.bind(this);
+    }
+
+    officerListCallback(nif) {
+        this.setState({
+            officerNif: nif
+        })
     }
 
     render(){
         return(
             <div>
                 <Navbar path={[["Efetivos", ""]]}/>
-                <div>
+                <div style={{display: "flex"}}>
                     <div className={style.officerListDiv}>
-                        <OfficerList/>
+                        <OfficerList callbackFunction={this.officerListCallback}/>
                     </div>
 
-                    {/*<div className={style.officerInfoDiv}>*/}
-                    {/*    <h1>Officer Info</h1>*/}
-                    {/*</div>*/}
+                    <div className={style.officerInfoDiv}>
+                        <h1>{this.state.officerNif}</h1>
+                    </div>
                 </div>
             </div>
         )
