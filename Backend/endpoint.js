@@ -108,6 +108,32 @@ app.get("/login", (req, res) => {
  * API Routes *
  *************/
 
+/**
+ * Util Endpoints
+ */
+
+app.get("/api/util/patents", async (req, res) => {
+    // Get the list from the database
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM patentes`);
+
+    // Send the list to the user
+    res.status(200).json({
+        message: "Operação bem sucedida",
+        data: rows
+    });
+});
+
+
+app.get("/api/util/statuses", async (req, res) => {
+    // Get the list from the database
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM status`);
+
+    // Send the list to the user
+    res.status(200).json({
+        message: "Operação bem sucedida",
+        data: rows
+    });
+});
 
 /**
  * Token Endpoints
@@ -242,7 +268,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM efetivosV WHERE nif = ${req.params.nif}`);
+    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
