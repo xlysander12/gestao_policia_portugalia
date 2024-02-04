@@ -36,6 +36,8 @@
 }
 
 .officerListListDiv {
+    display: flex;
+    flex-direction: column;
     max-height: calc(100vh - calc(4rem + 125px));
     padding: 0.7rem;
     overflow-x: hidden;
