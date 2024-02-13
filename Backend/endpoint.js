@@ -11,13 +11,14 @@ dotenv.config({path: __dirname + "\\.env"});
 
 
 // Import MySQL connection configurations
-const dbConfigDefaultPSP = require("./dbConfigDefaultPSP");
+const {dbConfigDefaultPSP, dbConfigDefaultGNR} = require("./dbConfigs");
 
 // Create MySQL Pools
 const poolDefaultPSP = mysql.createPool(dbConfigDefaultPSP);
+const poolDefaultGNR = mysql.createPool(dbConfigDefaultGNR);
 
 // Storing Tokens List
-const authenticatedTokens = {"dev": 668855471};
+const authenticatedTokens = {"dev": {nif: 668855471, forces: ["psp", "gnr"], lastUsed: "NE"}};
 
 // React Static
 app.use(express.static(path.resolve(__dirname + "/../frontend/build")));
@@ -56,7 +57,7 @@ function generateToken(username) {
     return token;
 }
 
-async function checkTokenValidityIntents(token, intent) {
+async function checkTokenValidityIntents(token, force, intent) {
     // Check if the token is present
     if (token === undefined) {
         return [false, 401, "Não foi fornecido um token de autenticação."];
@@ -67,13 +68,23 @@ async function checkTokenValidityIntents(token, intent) {
         return [false, 401, "O token fornecido é inválido."];
     }
 
+    // Making sure force is specified
+    if (force === undefined) {
+        return [false, 400, "Não foi fornecida uma força para a validação do token."];
+    }
+
+    // Check if the user has the force
+    if (authenticatedTokens[token].forces.indexOf(force) === -1) {
+        return [false, 403, "Não tens permissão para acessar a dados desta força"];
+    }
+
     // If intent is null, then the user doesn't need special permissions
     if (intent === null || intent === undefined) {
         return [true, 0]; // Since the return was true, no HTTT Status Code is needed
     }
 
     // Fetch the database the intents json of the user
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT intents FROM usuarios WHERE username = ${authenticatedTokens[token]}`);
+    const [rows, fields] = await queryDB(force, `SELECT intents FROM usuarios WHERE username = ${authenticatedTokens[token]}`);
 
     if (rows.length === 0) {
         return [false, 500, "Algo de errado ocorreu. Tente novamente mais tarde"];
@@ -87,9 +98,24 @@ async function checkTokenValidityIntents(token, intent) {
         return [true, 200];
     }
 
-    return [false, 403, "O usuário não tem permissão para realizar esta ação"];
+    return [false, 403, "Não tens permissão para realizar esta ação"];
 
 }
+
+/************************************
+ * Database Functions *
+ ***********************************/
+async function queryDB(force, query) {
+    switch (force) {
+        case "psp":
+            return await poolDefaultPSP.query(query);
+        case "gnr":
+            return await poolDefaultGNR.query(query);
+        default:
+            return;
+    }
+}
+
 
 /********************************
  * Routes to serve the frontend [DEPRECATED]*
@@ -113,8 +139,19 @@ app.get("/login", (req, res) => {
  */
 
 app.get("/api/util/patents", async (req, res) => {
+    // Get what force the user is trying to get the patents from
+    let force = req.headers.force;
+
+    // Check if the force is present
+    if (force === undefined) {
+        res.status(400).json({
+            message: "Não foi fornecida uma força para a obtenção das patentes."
+        });
+        return;
+    }
+
     // Get the list from the database
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM patentes`);
+    const [rows, fields] = await queryDB(force, `SELECT * FROM patentes`);
 
     // Send the list to the user
     res.status(200).json({
@@ -139,7 +176,7 @@ app.get("/api/util/statuses", async (req, res) => {
  * Token Endpoints
  **/
 
-app.get("/api/validateToken", (req, res) => {
+app.post("/api/validateToken", async (req, res) => {
     // Check if the token is present
     if (req.headers.authorization === undefined) {
         res.status(401).json({
@@ -156,10 +193,38 @@ app.get("/api/validateToken", (req, res) => {
         return;
     }
 
+    // Getting the force of the request
+    if (req.body.force === undefined) {
+        res.status(400).json({
+            message: "Não foi fornecida uma força para a validação do token."
+        });
+        return;
+    }
+
+    // Checking if the user has the force
+    if (authenticatedTokens[req.headers.authorization].forces.indexOf(req.body.force) === -1) {
+        res.status(403).json({
+            message: "Não tens permissão para acessar a dados desta força"
+        });
+        return;
+    }
+
+    // Checking the body for specified Intents
+    if (req.body.intent !== undefined) {
+        let intents = await checkTokenValidityIntents(req.headers.authorization, req.body.intent);
+
+        if (!intents[0]) {
+            res.status(intents[1]).json({
+                message: intents[2]
+            });
+            return;
+        }
+    }
+
     // If everything is correct, return a 200 status code
     res.status(200).json({
         message: "Operação bem sucedida",
-        data: authenticatedTokens[req.headers.authorization]
+        data: authenticatedTokens[req.headers.authorization].nif
     });
 });
 
@@ -169,6 +234,7 @@ app.get("/api/validateToken", (req, res) => {
 
 // Post Endpoint to login
 // TODO: Re-do this endpoint. There is code repetition
+// TODO: The login endpoint needs to check which force the user belongs to or even all of them
 app.post("/api/login", async (req, res) => {
     // Check if the request has the correct body
     if (!req.body.username || !req.body.password) {
@@ -238,11 +304,11 @@ app.patch("/api/login", (req, res) => {
  **/
 app.get("/api/officerInfo", async (req, res) => {
     // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization);
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers.force);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
-        }); // TODO: Send JSON with error message
+        });
         return;
     }
 
@@ -251,7 +317,7 @@ app.get("/api/officerInfo", async (req, res) => {
         req.query.search = "";
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
+    const [rows, fields] = await queryDB(req.headers.force, `SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
     res.status(200).json({
         message: "Operação bem sucedida",
         data: rows
@@ -260,7 +326,7 @@ app.get("/api/officerInfo", async (req, res) => {
 
 app.get("/api/officerInfo/:nif", async (req, res) => {
     // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization);
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers.force);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -268,7 +334,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
+    const [rows, fields] = await queryDB(req.headers.force, `SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
