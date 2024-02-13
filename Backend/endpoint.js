@@ -177,7 +177,7 @@ app.get("/api/util/statuses", async (req, res) => {
  **/
 
 app.post("/api/validateToken", async (req, res) => {
-    let validation = await checkTokenValidityIntents(req.headers.authorization, req.body.intent);
+    let validation = await checkTokenValidityIntents(req.headers.authorization, req.headers.force, req.body.intent);
 
     if (!validation[0]) {
         res.status(validation[1]).json({
