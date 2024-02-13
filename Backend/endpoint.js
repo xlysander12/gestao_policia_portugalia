@@ -177,48 +177,13 @@ app.get("/api/util/statuses", async (req, res) => {
  **/
 
 app.post("/api/validateToken", async (req, res) => {
-    // Check if the token is present
-    if (req.headers.authorization === undefined) {
-        res.status(401).json({
-            message: "Não foi fornecido um token de autenticação."
+    let validation = await checkTokenValidityIntents(req.headers.authorization, req.body.intent);
+
+    if (!validation[0]) {
+        res.status(validation[1]).json({
+            message: validation[2]
         });
         return;
-    }
-
-    // Check if the token exists
-    if (!authenticatedTokens[req.headers.authorization]) {
-        res.status(401).json({
-            message: "O token fornecido é inválido."
-        });
-        return;
-    }
-
-    // Getting the force of the request
-    if (req.body.force === undefined) {
-        res.status(400).json({
-            message: "Não foi fornecida uma força para a validação do token."
-        });
-        return;
-    }
-
-    // Checking if the user has the force
-    if (authenticatedTokens[req.headers.authorization].forces.indexOf(req.body.force) === -1) {
-        res.status(403).json({
-            message: "Não tens permissão para acessar a dados desta força"
-        });
-        return;
-    }
-
-    // Checking the body for specified Intents
-    if (req.body.intent !== undefined) {
-        let intents = await checkTokenValidityIntents(req.headers.authorization, req.body.intent);
-
-        if (!intents[0]) {
-            res.status(intents[1]).json({
-                message: intents[2]
-            });
-            return;
-        }
     }
 
     // If everything is correct, return a 200 status code
