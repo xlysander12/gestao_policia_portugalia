@@ -155,7 +155,7 @@ app.get("/login", (req, res) => {
 
 app.get("/api/util/patents", async (req, res) => {
     // Get what force the user is trying to get the patents from
-    let force = req.headers.force;
+    let force = req.headers["x-portalseguranca-force"];
 
     // Check if the force is present
     if (force === undefined) {
@@ -192,7 +192,7 @@ app.get("/api/util/statuses", async (req, res) => {
  **/
 
 app.post("/api/validateToken", async (req, res) => {
-    let validation = await checkTokenValidityIntents(req.headers.authorization, req.headers.force, req.body.intent);
+    let validation = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], req.body.intent);
 
     if (!validation[0]) {
         res.status(validation[1]).json({
@@ -285,7 +285,7 @@ app.patch("/api/login", (req, res) => {
  **/
 app.get("/api/officerInfo", async (req, res) => {
     // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers.force);
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -298,7 +298,7 @@ app.get("/api/officerInfo", async (req, res) => {
         req.query.search = "";
     }
 
-    const [rows, fields] = await queryDB(req.headers.force, `SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
+    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
     res.status(200).json({
         message: "Operação bem sucedida",
         data: rows
@@ -307,7 +307,7 @@ app.get("/api/officerInfo", async (req, res) => {
 
 app.get("/api/officerInfo/:nif", async (req, res) => {
     // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers.force);
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -315,7 +315,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await queryDB(req.headers.force, `SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
+    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
