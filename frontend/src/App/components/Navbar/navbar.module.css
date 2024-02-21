@@ -1,7 +1,12 @@
 .mainNavbar {
     background-color: rgb(31, 40, 51);
-    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    width: 100vw;
     height: 4rem;
+    min-height: fit-content;
     line-height: 4rem;
     color: white;
     padding-left: 3px;
@@ -19,7 +24,7 @@
 }
 
 .userInfoDiv {
-    float: right;
+    margin-left: auto;
     height: 100%;
 }
 
@@ -41,4 +46,26 @@
     margin: 0 5px;
     display: inline-block;
     color: white;
+}
+
+.navButtonsDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 20px;
+    height: 100%;
+    line-height: 4.2rem;
+}
+
+.navButton {
+    font-size: 25px;
+    outline: none;
+    color: white;
+    text-decoration: none;
+    padding: 0 10px;
+}
+
+.navButton:hover {
+    color: gray;
+    border-bottom: gray 2px solid;
 }

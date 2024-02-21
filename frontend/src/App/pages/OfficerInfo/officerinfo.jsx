@@ -34,15 +34,16 @@ class OfficerInfo extends Component {
         this.officerListCallback = this.officerListCallback.bind(this);
         this.fillInputs = this.fillInputs.bind(this);
         this.enableEditMode = this.enableEditMode.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     async fetchOfficerInfo() {
-        const response = await fetch("portugalia/gestao_policia/api/officerInfo/" + this.state.nif, {
+        const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${this.state.nif}?raw`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": localStorage.getItem("token"),
-                "Raw": true
+                "X-Portalseguranca-Force": localStorage.getItem("force")
             }
         });
 
@@ -70,7 +71,8 @@ class OfficerInfo extends Component {
         const patentsResponse = await fetch("portugalia/gestao_policia/api/util/patents", {
             method: "GET",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-Portalseguranca-Force": localStorage.getItem("force")
             }
         });
 
@@ -79,7 +81,8 @@ class OfficerInfo extends Component {
         const statusResponse = await fetch("portugalia/gestao_policia/api/util/statuses", {
             method: "GET",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-Portalseguranca-Force": localStorage.getItem("force")
             }
         });
 
@@ -131,8 +134,11 @@ class OfficerInfo extends Component {
         });
     }
 
-    handleInputChange(event, key) {
-        this.state[key] = event.target.value;
+    handleInputChange(event) {
+        console.log(event.target.name);
+        this.setState({
+            [event.target.name]: event.target.value
+        });
     }
 
     render() {
@@ -144,9 +150,6 @@ class OfficerInfo extends Component {
         const statusOptions = this.state.statuses.map((status) => {
            return <option value={status.num}>{status.nome}</option>
         });
-
-        console.log("Patentes: ", patentesOptions);
-        console.log("Status: ", statusOptions);
 
         return(
             <div>
@@ -173,21 +176,21 @@ class OfficerInfo extends Component {
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
                                             <label className={style.officerInfoDetailLabel}>Nome:</label>
-                                            <input className={style.officerInfoInput} type={"text"}
+                                            <input name="nome" className={style.officerInfoInput} type={"text"}
                                                    disabled={!this.state.editMode}
-                                                   value={this.fillInputs("nome")} onChange={(e) => {this.handleInputChange(e, "nome")}}/>
+                                                   value={this.fillInputs("nome")} onChange={this.handleInputChange}/>
 
                                             {/*NIF pair*/}
                                             <label className={style.officerInfoDetailLabel}>NIF:</label>
                                             <input className={style.officerInfoInput} type={"text"}
                                                    disabled={!this.state.editMode}
-                                                   value={this.fillInputs("nif")} onChange={() => {}}/>
+                                                   value={this.fillInputs("nif")} onChange={(e) => {this.handleInputChange(e, "nif")}}/>
 
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
                                             <input pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
                                                    disabled={!this.state.editMode}
-                                                   value={this.fillInputs("telemovel")} onChange={() => {}}/>
+                                                   value={this.fillInputs("telemovel")} onChange={this.handleInputChange}/>
 
                                             {/*IBAN pair*/}
                                             <label className={style.officerInfoDetailLabel}>IBAN:</label>

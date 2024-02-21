@@ -74,13 +74,15 @@ class OfficerList extends Component {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
+                "Authorization": localStorage.getItem("token"),
+                "X-PortalSeguranca-Force": localStorage.getItem("force")
             }
         });
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {
-            alert("Ocorreu um erro ao pesquisar. Por favor, tente novamente.");
+            const response_json = await response.json();
+            alert(response_json["message"]);
             return;
         }
 

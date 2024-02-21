@@ -26,7 +26,7 @@ class Navbar extends Component {
         super(props);
 
         this.state = {
-            fullName: ""
+            fullName: "",
         }
 
         this.buildOfficerName = this.buildOfficerName.bind(this);
@@ -38,7 +38,8 @@ class Navbar extends Component {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
+                "Authorization": localStorage.getItem("token"),
+                "X-PortalSeguranca-Force": localStorage.getItem("force")
             },
         });
 
@@ -57,46 +58,69 @@ class Navbar extends Component {
         }
 
         // Check if there is a token in the local storage
-        if ((!localStorage.getItem("token"))) {
-            window.location.href = "/login";
+        if (!localStorage.getItem("token")) {
+            window.location.href = "/login"; // If there isn't, redirect to the login page
             return;
         }
 
-        // Making the request to check if the token is valid
-        let response = await fetch("/portugalia/gestao_policia/api/validateToken", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token")
+        let forces = {
+            psp: false,
+            gnr: false
+        }
+        let nif;
+
+        // Making the request to check if the token is valid for all forces
+        for (const force of ["psp", "gnr"]) {
+            const response = await fetch("/portugalia/gestao_policia/api/validateToken", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": localStorage.getItem("token"),
+                    "X-PortalSeguranca-Force": force
+                }
+            });
+
+            // If the request returned status of 200, the token is valid for that force
+            if (response.status === 200) {
+                nif = (await response.json()).data;
+
+                // Set the force to true and also get the NIF of the user
+                forces[force] = true;
             }
-        });
+        }
 
-        // If the request returned status different that 200, the token is invalid
-        if (response.status !== 200) {
+        // If the user is not from any force, redirect to the login page
+        if (!forces.psp && !forces.gnr) {
             window.location.href = "/login";
             return;
         }
 
-        // If the request returned status 200, the token is valid
-        let nif = (await response.json()).data;
-        console.log("Updating the navbar's state nif to " + nif);
+        // If there is no force set in the local storage, set it to the first force the user is from
+        if (!localStorage.getItem("force")) {
+            if (forces.psp) {
+                localStorage.setItem("force", "psp");
+            } else {
+                localStorage.setItem("force", "gnr");
+            }
+        }
 
+        // If the user is from atleast one force, get the full name + patent of the user for the first one
         await this.buildOfficerName(nif);
     }
 
-    async componentDidUpdate(prevProps, prevState, snapshot) {
-        // If nothing changed, no need to update anything
-        if (prevProps.userNif === this.props.userNif) {
-            return;
-        }
-
-        // Check if there was any NIF passed in as props. If there isn't, don't update anything
-        if (this.props.userNif === undefined || this.props.userNif === "" || this.props.userNif === null) {
-            return;
-        }
-
-        await this.buildOfficerName(this.props.userNif);
-    }
+    // async componentDidUpdate(prevProps, prevState, snapshot) {
+    //     // If nothing changed, no need to update anything
+    //     if (prevProps === this.props) {
+    //         return;
+    //     }
+    //
+    //     // Check if there was any NIF passed in as props. If there isn't, don't update anything
+    //     if (this.props.userNif === undefined || this.props.userNif === "" || this.props.userNif === null) {
+    //         return;
+    //     }
+    //
+    //     await this.buildOfficerName(this.props.userNif);
+    // }
 
     render() {
         // Create the array of elements for the pathsdiv
@@ -123,6 +147,13 @@ class Navbar extends Component {
                 {/*Add the div that will hold the paths*/}
                 <div className={style.pathsDiv}>
                     {paths}
+                </div>
+
+                <div className={style.navButtonsDiv}>
+                    <Link to="/efetivos" className={style.navButton}>Efetivos</Link>
+                    <Link to="/" className={style.navButton}>Inatividade</Link>
+                    <Link to="/" className={style.navButton}>Avaliações</Link>
+                    <Link to="/" className={style.navButton}>Patrulhas</Link>
                 </div>
 
                 {/*Add the div that will hold the user info*/}

@@ -10,7 +10,7 @@ class Login extends Component {
     }
 
     async onLogin(event) {
-        // Prevent the page from realoading and reidireting by itself
+        // Prevent the page from reloading and reidireting by itself
         event.preventDefault();
 
         console.log("Logged in with NIF: " + event.target.nif.value + " and password: " + event.target.password.value);
@@ -22,12 +22,10 @@ class Login extends Component {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                username: event.target.nif.value,
+                nif: event.target.nif.value,
                 password: event.target.password.value
             })
         });
-
-        console.log(response);
 
         // If the request returned status 401, the username doesn't exist or password is wrong
         if (response.status === 401) {
