@@ -17,9 +17,6 @@ const {dbConfigDefaultPSP, dbConfigDefaultGNR} = require("./dbConfigs");
 const poolDefaultPSP = mysql.createPool(dbConfigDefaultPSP);
 const poolDefaultGNR = mysql.createPool(dbConfigDefaultGNR);
 
-// Storing Tokens List
-const authenticatedTokens = {"dev": {nif: 668855471, forces: ["psp", "gnr"], lastUsed: "NE"}};
-
 // Forces list
 const forces = ["psp", "gnr"];
 
@@ -49,9 +46,9 @@ async function queryDB(force, query) {
 
 async function generateToken(nif) {
     // Before generating a token, making sure the user doesn't have any tokens already, and if it does, delete them
-    for (const force in forces) {
-        await queryDB(force, `DELETE FROM tokens WHERE nif = ${nif}`)
-    }
+    // for (const force of forces) {
+    //     await queryDB(force, `DELETE FROM tokens WHERE nif = ${nif}`)
+    // }
 
     // Repeat the generation process until an unique token is generated
     let unique = false;
@@ -64,18 +61,16 @@ async function generateToken(nif) {
         }
 
         // After generating the token, check if it already exists
-        let [rows, fields] = await queryDB("psp", `SELECT * FROM tokens WHERE token = ${token}`);
-        if (rows.length !== 0) {
-            continue;
+        let exists = false;
+        for (const force of forces) {
+            let [rows, fields] = await queryDB(force, `SELECT * FROM tokens WHERE token = "${token}"`);
+            if (rows.length !== 0) {
+                exists = true;
+            }
         }
 
-        [rows, fields] = await queryDB("gnr", `SELECT * FROM tokens WHERE token = ${token}`);
-        if (rows.length !== 0) {
-            continue;
-        }
-
-        // If it doesn't exist, exit out of the loop
-        unique = true;
+        // If the token doesn't exist, set unique to true
+        unique = !exists;
     }
 
     // Return the token
@@ -94,7 +89,7 @@ async function checkTokenValidityIntents(token, force, intent) {
     }
 
     // Querying the Database to check if the token exists
-    let [rows, fields] = await queryDB(force, `SELECT nif FROM tokens WHERE token = ${token}`);
+    let [rows, fields] = await queryDB(force, `SELECT nif FROM tokens WHERE token = "${token}"`);
     if (rows.length === 0) {
         return [false, 401, "O token fornecido não é válido."];
     }
@@ -104,13 +99,13 @@ async function checkTokenValidityIntents(token, force, intent) {
 
     // Once it has been confirmed the token exists, the lastUsed field should be updated in all databases
     // It's used the `then()` method to avoid waiting for the query to finish since the result is not needed
-    for (const forcesKey in forces) {
-        queryDB(forcesKey, `UPDATE tokens SET ultimouso = CURRENT_TIMESTAMP() WHERE token = ${token}`).then(_ => {});
+    for (const forcesKey of forces) {
+        queryDB(forcesKey, `UPDATE tokens SET ultimouso = CURRENT_TIMESTAMP() WHERE token = "${token}"`).then(_ => {});
     }
 
     // If intent is null, then the user doesn't need special permissions
     if (intent === null || intent === undefined) {
-        return [true, 0]; // Since the return was true, no HTTT Status Code is needed
+        return [true, 0, nif]; // Since the return was true, no HTTT Status Code is needed
     }
 
     // Fetch from the database the intents json of the user
@@ -129,7 +124,7 @@ async function checkTokenValidityIntents(token, force, intent) {
     }
 
 
-    return [true, 200];
+    return [true, 200, nif];
 }
 
 /********************************
@@ -204,7 +199,7 @@ app.post("/api/validateToken", async (req, res) => {
     // If everything is correct, return a 200 status code
     res.status(200).json({
         message: "Operação bem sucedida",
-        data: authenticatedTokens[req.headers.authorization].nif
+        data: validation[2]
     });
 });
 
@@ -228,7 +223,7 @@ app.post("/api/login", async (req, res) => {
     let found_results = [];
 
     // Getting the row corresponding the nif and adding it to the found_results array
-    for (const force in forces) {
+    for (const force of forces) {
         const [rows, fields] = await queryDB(force, `SELECT password FROM usuarios WHERE nif = ${req.body.nif}`);
         found_results.push(...rows);
     }
@@ -261,10 +256,10 @@ app.post("/api/login", async (req, res) => {
     }
 
     // If everything is correct, generate a token
-    const token = generateToken(req.body.nif);
+    const token = await generateToken(req.body.nif);
 
     // After generating the token, store it in the databases of the forces the user belongs to
-    for (const force in forces) {
+    for (const force of forces) {
         await queryDB(force, `INSERT INTO tokens (token, nif) SELECT "${token}", ${req.body.nif} FROM dual WHERE EXISTS ( SELECT 1 FROM usuarios WHERE nif = ${req.body.nif})`);
     }
 
@@ -315,7 +310,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.headers.raw === "true" ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
+    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
