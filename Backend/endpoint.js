@@ -44,7 +44,7 @@ async function queryDB(force, query) {
  * Token / Authentication Functions *
  ***********************************/
 
-async function generateToken(nif) {
+async function generateToken() {
     // Before generating a token, making sure the user doesn't have any tokens already, and if it does, delete them
     // for (const force of forces) {
     //     await queryDB(force, `DELETE FROM tokens WHERE nif = ${nif}`)
@@ -256,7 +256,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     // If everything is correct, generate a token
-    const token = await generateToken(req.body.nif);
+    const token = await generateToken();
 
     // After generating the token, store it in the databases of the forces the user belongs to
     for (const force of forces) {
