@@ -52,7 +52,7 @@ class OfficerInfo extends Component {
         // Check if the response is ok
         if (!response.ok) {
             console.error(responseJson.message);
-            return;
+            return false;
         }
 
         // Fetch the actual data from the response
@@ -64,6 +64,8 @@ class OfficerInfo extends Component {
 
         // Update the state with the new data
         this.setState(data);
+
+        return true;
     }
 
     async componentDidMount() {
@@ -76,6 +78,11 @@ class OfficerInfo extends Component {
             }
         });
 
+        // Mandatory check if the status code was 200
+        if (!patentsResponse.ok) {
+            return;
+        }
+
         const patentsJson = (await patentsResponse.json()).data;
 
         const statusResponse = await fetch("portugalia/gestao_policia/api/util/statuses", {
@@ -85,6 +92,11 @@ class OfficerInfo extends Component {
                 "X-Portalseguranca-Force": localStorage.getItem("force")
             }
         });
+
+        // Mandatory check if the status code was 200
+        if (!statusResponse.ok) {
+            return;
+        }
 
         const statusJson = (await statusResponse.json()).data;
 
@@ -107,7 +119,9 @@ class OfficerInfo extends Component {
 
 
         // Since we now the nif has changed, we can fetch the new officer info and apply it to the state
-        await this.fetchOfficerInfo();
+        const result = await this.fetchOfficerInfo();
+
+        if (!result) return;
 
         // After applying everything, we can set the choosen state to true if it isn't already
         if (!this.state.choosen) {

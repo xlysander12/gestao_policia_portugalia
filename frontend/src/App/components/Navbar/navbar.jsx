@@ -48,6 +48,11 @@ class Navbar extends Component {
         // From the response, get the patent and officer's full name
         let body = await response.json();
 
+        // Mandatory check if the status code was 200
+        if (!response.ok) {
+            console.log(body.message)
+            return;
+        }
 
         this.setState({
             fullName: `${body.data.patente} ${body.data.nome}`
