@@ -8,7 +8,7 @@ class PrivateRoute extends Component {
         super(props);
 
         this.state = {
-            authorized: true
+            authorized: undefined
         }
     }
 
@@ -57,9 +57,21 @@ class PrivateRoute extends Component {
                 localStorage.setItem("force", "gnr");
             }
         }
+
+        this.setState({
+            authorized: true
+        });
     }
 
     render() {
+        if (this.state.authorized === undefined) {
+            return (
+                <div>
+                    A Autenticar...
+                </div>
+            );
+        }
+
         return this.state.authorized ? <this.props.element /> : <Navigate to="/login"/>
     }
 }
