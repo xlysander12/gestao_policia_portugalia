@@ -26,6 +26,8 @@ class Navbar extends Component {
         super(props);
 
         this.state = {
+            isLogin: false,
+
             fullName: "",
         }
 
@@ -53,13 +55,10 @@ class Navbar extends Component {
     }
 
     async componentDidMount() {
-        if(window.location.pathname === "/login") {
-            return;
-        }
-
-        // Check if there is a token in the local storage
-        if (!localStorage.getItem("token")) {
-            window.location.href = "/login"; // If there isn't, redirect to the login page
+        if (window.location.pathname === "/login") {
+            this.setState({
+                isLogin: true
+            });
             return;
         }
 
@@ -89,38 +88,9 @@ class Navbar extends Component {
             }
         }
 
-        // If the user is not from any force, redirect to the login page
-        if (!forces.psp && !forces.gnr) {
-            window.location.href = "/login";
-            return;
-        }
-
-        // If there is no force set in the local storage, set it to the first force the user is from
-        if (!localStorage.getItem("force")) {
-            if (forces.psp) {
-                localStorage.setItem("force", "psp");
-            } else {
-                localStorage.setItem("force", "gnr");
-            }
-        }
-
         // If the user is from atleast one force, get the full name + patent of the user for the first one
         await this.buildOfficerName(nif);
     }
-
-    // async componentDidUpdate(prevProps, prevState, snapshot) {
-    //     // If nothing changed, no need to update anything
-    //     if (prevProps === this.props) {
-    //         return;
-    //     }
-    //
-    //     // Check if there was any NIF passed in as props. If there isn't, don't update anything
-    //     if (this.props.userNif === undefined || this.props.userNif === "" || this.props.userNif === null) {
-    //         return;
-    //     }
-    //
-    //     await this.buildOfficerName(this.props.userNif);
-    // }
 
     render() {
         // Create the array of elements for the pathsdiv
@@ -149,7 +119,7 @@ class Navbar extends Component {
                     {paths}
                 </div>
 
-                <div className={style.navButtonsDiv}>
+                <div className={style.navButtonsDiv} style={this.state.isLogin ? {display: "none"}: {}}>
                     <Link to="/efetivos" className={style.navButton}>Efetivos</Link>
                     <Link to="/" className={style.navButton}>Inatividade</Link>
                     <Link to="/" className={style.navButton}>Avaliações</Link>
