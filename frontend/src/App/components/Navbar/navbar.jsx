@@ -54,9 +54,13 @@ class Navbar extends Component {
             return;
         }
 
+        // Set the full name of the officer
         this.setState({
             fullName: `${body.data.patente} ${body.data.nome}`
         });
+
+        // Save the full name in the session storage
+        sessionStorage.setItem("navbarFullName", `${body.data.patente} ${body.data.nome}`);
     }
 
     async componentDidMount() {
@@ -133,7 +137,7 @@ class Navbar extends Component {
 
                 {/*Add the div that will hold the user info*/}
                 <div className={style.userInfoDiv}>
-                    <p className={style.officerName}>{this.state.fullName}</p>
+                    <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && this.state.fullName === "" ? sessionStorage.getItem("navbarFullName"): this.state.fullName}</p>
                 </div>
             </div>
         );
