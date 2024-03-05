@@ -219,7 +219,7 @@ class OfficerInfo extends Component {
                             <form id={"information-form"}>
                                 {/*Loader Div*/}
                                 <div className={style.officerInfoDetailsDiv} style={{justifyContent: "center", alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
-                                    <Loader />
+                                    <Loader color={"#3498db"}/>
                                 </div>
 
                                 {/*Information div*/}
