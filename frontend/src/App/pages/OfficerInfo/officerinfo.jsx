@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import style from "./officerinfo.module.css";
 import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
+import Loader from "../../components/Loader/loader";
 
 
 class OfficerInfo extends Component {
@@ -9,6 +10,7 @@ class OfficerInfo extends Component {
         super(props);
 
         this.state = {
+            loading: false,
             choosen: false,
             editMode: false,
 
@@ -38,6 +40,11 @@ class OfficerInfo extends Component {
     }
 
     async fetchOfficerInfo() {
+        // First, we need to set the loading state to true
+        this.setState({
+            loading: true
+        });
+
         const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${this.state.nif}?raw`, {
             method: "GET",
             headers: {
@@ -64,6 +71,11 @@ class OfficerInfo extends Component {
 
         // Update the state with the new data
         this.setState(data);
+
+        // After fetching the data, we can set the loading state to false
+        this.setState({
+            loading: false
+        });
 
         return true;
     }
@@ -167,13 +179,21 @@ class OfficerInfo extends Component {
 
         return(
             <div>
+                {/*Navbar*/}
                 <Navbar path={[["Efetivos", ""]]}/>
+
+                {/*Div that splits the screen*/}
                 <div style={{display: "flex"}}>
+
+                    {/*Div that will hold the officer's list*/}
                     <div className={style.officerListDiv}>
                         <OfficerList callbackFunction={this.officerListCallback}/>
                     </div>
 
+                    {/*Div that will hold the officer's info*/}
                     <div className={style.officerInfoOuterDiv}>
+
+                        {/*Div where content's will be*/}
                         <div className={style.officerInfoInnerDiv}>
                             <div className={style.officerInfoAlterbarDiv}>
                                 <button type={"submit"} form={"information-form"} className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")} hidden={!this.state.editMode}>Guardar</button>
@@ -183,7 +203,13 @@ class OfficerInfo extends Component {
                             </div>
 
                             <form id={"information-form"}>
-                                <div className={style.officerInfoDetailsDiv}>
+                                {/*Loader Div*/}
+                                <div className={style.officerInfoDetailsDiv} style={{justifyContent: "center", alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
+                                    <Loader />
+                                </div>
+
+                                {/*Information div*/}
+                                <div className={style.officerInfoDetailsDiv} style={this.state.loading ? {display: "none"}: {}}>
                                     <fieldset disabled={!this.state.choosen}>
                                         <legend>Informação Pessoal</legend>
 
