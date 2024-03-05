@@ -62,7 +62,9 @@ class OfficerInfo extends Component {
 
         // Check if the response is ok
         if (!response.ok) {
+            alert(responseJson.message);
             console.error(responseJson.message);
+            return;
         }
 
         // Fetch the actual data from the response
@@ -100,7 +102,7 @@ class OfficerInfo extends Component {
     }
 
     async componentDidMount() {
-        // When the page loads, we need to fetch the available patentes and status
+        // When the page loads, we need to fetch the available patents and statuses
         const patentsResponse = await fetch("portugalia/gestao_policia/api/util/patents", {
             method: "GET",
             headers: {
@@ -137,9 +139,12 @@ class OfficerInfo extends Component {
             statuses: statusJson
         });
 
-
-        // TODO: If the nif is present in the URL, then we can fetch the officer info
-
+        // Checking if there's a nif in the query params to instantly load the officer's info
+        const queryParams = new URLSearchParams(window.location.search);
+        const queryNif = queryParams.get("nif");
+        if (queryNif) {
+            this.fetchOfficerInfo(queryNif).then(() => {});
+        }
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
