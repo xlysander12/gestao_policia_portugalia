@@ -15,7 +15,7 @@ const SubPath = (props) => {
 
     return (
         <div className={style.subPathDiv}>
-            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={props.path}>{props.name}</Link>
+            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={props.path} reloadDocument={true}>{props.name}</Link>
             <p className={style.navbarSubPathText}>{props.only ? "": "»"}</p>
         </div>
     );
@@ -127,10 +127,10 @@ class Navbar extends Component {
                 </div>
 
                 <div className={style.navButtonsDiv} style={this.isLogin ? {display: "none"}: {}}>
-                    <Link to="/efetivos" className={style.navButton}>Efetivos</Link>
-                    <Link to="/" className={style.navButton}>Inatividade</Link>
-                    <Link to="/" className={style.navButton}>Avaliações</Link>
-                    <Link to="/" className={style.navButton}>Patrulhas</Link>
+                    <Link to="/efetivos" className={style.navButton} reloadDocument={true}>Efetivos</Link>
+                    <Link to="/" className={style.navButton} reloadDocument={true}>Inatividade</Link>
+                    <Link to="/" className={style.navButton} reloadDocument={true}>Avaliações</Link>
+                    <Link to="/" className={style.navButton} reloadDocument={true}>Patrulhas</Link>
                 </div>
 
                 {/*Add the div that will hold the user info*/}

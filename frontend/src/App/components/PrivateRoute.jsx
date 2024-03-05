@@ -8,56 +8,57 @@ class PrivateRoute extends Component {
         super(props);
 
         this.state = {
-            authorized: undefined
+            authorized: undefined,
+
+            msgVisible: false
         }
+
+        setTimeout(() => {
+            this.setState({
+                msgVisible: true
+            });
+        }, 3000);
     }
 
     async componentDidMount() {
-        // Check if there is a token in the local storage
+        // Check if there is a token in the local storage. If there isn't, return to login
         if (!localStorage.getItem("token")) {
             this.setState({
                 authorized: false
             });
+
+            return;
         }
 
-        let forces = {
-            psp: false,
-            gnr: false
-        }
-
-        for (const force of ["psp", "gnr"]) {
-            const response = await fetch("/portugalia/gestao_policia/api/validateToken", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": localStorage.getItem("token"),
-                    "X-PortalSeguranca-Force": force
-                }
-            });
-
-            // If the request returned status of 200, the token is valid for that force
-            if (response.status === 200) {
-                // Set the force to true
-                forces[force] = true;
-            }
-        }
-
-        // If the user is not from any force, redirect to the login page
-        if (!forces.psp && !forces.gnr) {
+        // Check if there is a force stored in the local storage
+        if (!localStorage.getItem("force")) {
             this.setState({
                 authorized: false
             });
+
+            return;
         }
 
-        // If there is no force set in the local storage, set it to the first force the user is from
-        if (!localStorage.getItem("force")) {
-            if (forces.psp) {
-                localStorage.setItem("force", "psp");
-            } else {
-                localStorage.setItem("force", "gnr");
+        // Since there's a force in local storage, check if the token is valid for that force
+        const response = await fetch("/portugalia/gestao_policia/api/validateToken", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token"),
+                "X-PortalSeguranca-Force": localStorage.getItem("force")
             }
+        });
+
+        // If the request returned status different of 200, the token isn't valid and the user should be redirected to login
+        if (response.status !== 200) {
+            this.setState({
+                authorized: false
+            });
+
+            return
         }
 
+        // Since the token is valid for the force, redirect the user to the requested page
         this.setState({
             authorized: true
         });
@@ -66,9 +67,7 @@ class PrivateRoute extends Component {
     render() {
         if (this.state.authorized === undefined) {
             return (
-                <div>
-                    A Autenticar...
-                </div>
+                <h1 style={this.state.msgVisible ? {}: {display: "none"}}>A Autenticar... Por favor, aguarde</h1>
             );
         }
 
