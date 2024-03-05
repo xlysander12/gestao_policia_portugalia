@@ -4,6 +4,7 @@ import {Link} from "react-router-dom";
 
 const SubPath = (props) => {
 
+    // Not a reidirect
     if (props.path === "") {
         return (
             <div className={style.subPathDiv}>
@@ -14,7 +15,7 @@ const SubPath = (props) => {
 
     return (
         <div className={style.subPathDiv}>
-            <Link className={style.navbarSubPathText} to={props.path}>{props.name}</Link>
+            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={props.path}>{props.name}</Link>
             <p className={style.navbarSubPathText}>{props.only ? "": "»"}</p>
         </div>
     );
@@ -107,17 +108,12 @@ class Navbar extends Component {
         let paths = [];
 
         // First thing that needs to be done is to add the main title to the navbar
-        paths.push(<SubPath key="main" path="/" name="Portal Segurança" only={this.props.path === undefined}/>);
+        paths.push(<SubPath key="navbarMainPath" path="/" name="Portal Segurança" only={this.props.path === undefined}/>);
 
         // If there are paths passed in as props, add them to the navbar
         if (this.props.path !== undefined) {
             this.props.path.forEach(path => {
-
-                if (path[1] === "") { // If the path doesn't have a redirect, add it like a finished path
-                    paths.push(<SubPath key={path[0]} path="" name={path[0]}/>);
-                } else { // If the path has a redirect, add it to the navbar aswell
-                    paths.push(<SubPath key={path[0]} path={path[1]} name={path[0]}/>);
-                }
+                paths.push(<SubPath key={`navbarPath${path[0]}`} path={path[1]} name={path[0]}/>);
             });
         }
 
