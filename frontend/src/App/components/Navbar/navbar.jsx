@@ -25,12 +25,15 @@ class Navbar extends Component {
     constructor(props) {
         super(props);
 
+        // Set the state of the component
         this.state = {
-            isLogin: false,
-
             fullName: "",
         }
 
+        // Check if we are in the login page
+        this.isLogin = window.location.pathname === "/login";
+
+        // Bind the function to the component
         this.buildOfficerName = this.buildOfficerName.bind(this);
     }
 
@@ -64,10 +67,8 @@ class Navbar extends Component {
     }
 
     async componentDidMount() {
-        if (window.location.pathname === "/login") {
-            this.setState({
-                isLogin: true
-            });
+        // If we are in the login page, there's nothing to do
+        if (this.isLogin) {
             return;
         }
 
@@ -123,12 +124,13 @@ class Navbar extends Component {
         // noinspection com.intellij.reactbuddy.ArrayToJSXMapInspection
         return (
             <div className={style.mainNavbar}>
+
                 {/*Add the div that will hold the paths*/}
                 <div className={style.pathsDiv}>
                     {paths}
                 </div>
 
-                <div className={style.navButtonsDiv} style={this.state.isLogin ? {display: "none"}: {}}>
+                <div className={style.navButtonsDiv} style={this.isLogin ? {display: "none"}: {}}>
                     <Link to="/efetivos" className={style.navButton}>Efetivos</Link>
                     <Link to="/" className={style.navButton}>Inatividade</Link>
                     <Link to="/" className={style.navButton}>Avaliações</Link>
