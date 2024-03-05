@@ -1,3 +1,10 @@
+.officerListMainDiv {
+    height: 100%;
+    width: 100%;
+    /*background-color: #0b0c10;*/
+    box-sizing: border-box;
+}
+
 .officerListSearchDiv {
     display: flex;
     align-items: center;
@@ -38,7 +45,8 @@
 .officerListListDiv {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - calc(4rem + 125px));
+    height: calc(100vh - calc(4rem + 125px));
+    max-width: 100%;
     padding: 0.7rem;
     overflow-x: hidden;
     overflow-y: auto;

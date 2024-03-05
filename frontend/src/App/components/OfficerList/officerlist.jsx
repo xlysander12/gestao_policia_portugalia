@@ -1,5 +1,6 @@
-import {Component} from "react";
+import React, {Component} from "react";
 import style from "./officerlist.module.css";
+import Loader from "../Loader/loader";
 
 
 class OfficerCard extends Component {
@@ -51,7 +52,8 @@ class OfficerList extends Component {
         super(props);
 
         this.state = {
-            officers: []
+            officers: [],
+            loading: false
         }
 
         this.search = this.search.bind(this);
@@ -66,6 +68,9 @@ class OfficerList extends Component {
     }
 
     async search(query) {
+        // Set the loading state to true
+        this.setState({loading: true});
+
          // if query is undefined, then the user didn't search for anything
         if (query === undefined) query = "";
 
@@ -82,7 +87,7 @@ class OfficerList extends Component {
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {
             const response_json = await response.json();
-            alert(response_json["message"]);
+            console.log(response_json["message"]);
             return;
         }
 
@@ -92,6 +97,9 @@ class OfficerList extends Component {
 
         // Update the state with the new officers
         this.setState({officers: responseJSON});
+
+        // Set the loading state to false
+        this.setState({loading: false});
     }
 
     async handleSearch(event) {
@@ -110,23 +118,27 @@ class OfficerList extends Component {
         let officersCards = [];
 
         for (let i = 0; i < this.state.officers.length; i++) {
-            officersCards.push(<OfficerCard key={this.state.officers[i]["nif"]} name={`${this.state.officers[i]["callsign"]} ${this.state.officers[i]["patente"]} ${this.state.officers[i]["nome"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick}/>);
+            officersCards.push(<OfficerCard key={"officer" + this.state.officers[i]["nif"]} name={`[${this.state.officers[i]["callsign"]}] ${this.state.officers[i]["patente"]} ${this.state.officers[i]["nome"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick}/>);
         }
 
         return(
-            <div>
+            <div className={style.officerListMainDiv}>
                 {/*Barra de pesquisa*/}
                 <form onSubmit={this.handleSearch}>
                     <div className={style.officerListSearchDiv}>
                         <input className={style.officerListSearchInput} id={"officerSearch"} type={"text"}
-                               placeholder={"Pesquisar por nome, patente, callsign, NIF, telemóvel ou discord ID"} name={"search"}/>
+                               placeholder={"Nome, patente, callsign, NIF, telemóvel ou discord ID"} name={"search"}/>
                         <input type={"submit"} className={style.officerListSearchButton} value={"Pesquisar"}/>
                     </div>
                 </form>
 
+                {/*Loader para lista de efetivos*/}
+                <div className={style.officerListListDiv} style={this.state.loading ? {alignItems: "center", justifyContent: "center"}: {display: "none"}}>
+                    <Loader/>
+                </div>
 
                 {/*Lista de efetivos*/}
-                <div className={style.officerListListDiv}>
+                <div className={style.officerListListDiv} style={this.state.loading ? {display: "none"}: {}} hidden={this.state.loading}>
                     {officersCards}
                 </div>
             </div>
