@@ -9,25 +9,29 @@ class OfficerInfo extends Component {
     constructor(props) {
         super(props);
 
+        this.officerInfo = {
+            personal: {
+                nome: undefined,
+                nif: undefined,
+                telemovel: undefined,
+                iban: undefined,
+                kms: undefined,
+                discord: undefined,
+                steam: undefined,
+            },
+            professional: {
+                patente: undefined,
+                callsign: undefined,
+                data_entrada: undefined,
+                data_subida: undefined,
+                status: undefined
+            }
+        }
+
         this.state = {
-            loading: false,
+            loading: true,
             choosen: false,
             editMode: false,
-
-            nome: "",
-            nif: "",
-            telemovel: "",
-            iban:"",
-            kms: "",
-            discord: "",
-            steam: "",
-
-
-            patente: "",
-            callsign: "",
-            data_entrada: "",
-            data_subida: "",
-            status: "",
 
             patentes: [],
             statuses: []
@@ -39,13 +43,13 @@ class OfficerInfo extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
     }
 
-    async fetchOfficerInfo() {
+    async fetchOfficerInfo(nif) {
         // First, we need to set the loading state to true
         this.setState({
             loading: true
         });
 
-        const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${this.state.nif}?raw`, {
+        const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${nif}?raw`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -59,7 +63,6 @@ class OfficerInfo extends Component {
         // Check if the response is ok
         if (!response.ok) {
             console.error(responseJson.message);
-            return false;
         }
 
         // Fetch the actual data from the response
@@ -69,15 +72,31 @@ class OfficerInfo extends Component {
         data.data_entrada = data.data_entrada.split("T")[0];
         data.data_subida = data.data_subida.split("T")[0];
 
-        // Update the state with the new data
-        this.setState(data);
+        // Apply the data to the officerInfo object
+        // // Personal Data
+        this.officerInfo.personal = {
+            nome: data.nome,
+            nif: data.nif,
+            telemovel: data.telemovel,
+            iban: data.iban,
+            kms: data.kms,
+            discord: data.discord,
+            steam: data.steam
+        }
+
+        // Professional Data
+        this.officerInfo.professional = {
+            patente: data.patente,
+            callsign: data.callsign,
+            data_entrada: data.data_entrada,
+            data_subida: data.data_subida,
+            status: data.status
+        }
 
         // After fetching the data, we can set the loading state to false
         this.setState({
             loading: false
         });
-
-        return true;
     }
 
     async componentDidMount() {
@@ -129,12 +148,6 @@ class OfficerInfo extends Component {
             return;
         }
 
-
-        // Since we now the nif has changed, we can fetch the new officer info and apply it to the state
-        const result = await this.fetchOfficerInfo();
-
-        if (!result) return;
-
         // After applying everything, we can set the choosen state to true if it isn't already
         if (!this.state.choosen) {
             this.setState({
@@ -143,15 +156,16 @@ class OfficerInfo extends Component {
         }
     }
 
-    fillInputs(key) {
-        return this.state[key] ? this.state[key] : "N/A";
+    fillInputs(category, key) {
+        return this.officerInfo[category][key] ? this.officerInfo[category][key] : "N/A";
     }
 
     officerListCallback(nif) {
         this.setState({
             editMode: false,
-            nif: nif
         });
+
+        this.fetchOfficerInfo(nif).then(() => {});
     }
 
     enableEditMode() {
@@ -210,86 +224,82 @@ class OfficerInfo extends Component {
 
                                 {/*Information div*/}
                                 <div className={style.officerInfoDetailsDiv} style={this.state.loading ? {display: "none"}: {}}>
-                                    <fieldset disabled={!this.state.choosen}>
+                                    <fieldset disabled={!this.state.editMode}>
                                         <legend>Informação Pessoal</legend>
 
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
                                             <label className={style.officerInfoDetailLabel}>Nome:</label>
                                             <input name="nome" className={style.officerInfoInput} type={"text"}
-                                                   disabled={!this.state.editMode}
-                                                   value={this.fillInputs("nome")} onChange={this.handleInputChange}/>
+                                                   value={this.fillInputs("personal", "nome")} onChange={this.handleInputChange}/>
 
                                             {/*NIF pair*/}
                                             <label className={style.officerInfoDetailLabel}>NIF:</label>
                                             <input className={style.officerInfoInput} type={"text"}
-                                                   disabled={!this.state.editMode}
-                                                   value={this.fillInputs("nif")} onChange={(e) => {this.handleInputChange(e, "nif")}}/>
+                                                   value={this.fillInputs("personal", "nif")} onChange={(e) => {this.handleInputChange(e, "nif")}}/>
 
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
                                             <input pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
-                                                   disabled={!this.state.editMode}
-                                                   value={this.fillInputs("telemovel")} onChange={this.handleInputChange}/>
+                                                   value={this.fillInputs("personal", "telemovel")} onChange={this.handleInputChange}/>
 
                                             {/*IBAN pair*/}
                                             <label className={style.officerInfoDetailLabel}>IBAN:</label>
                                             <input pattern={"^PT[0-9]{5,8}$"} className={style.officerInfoInput}
-                                                   disabled={!this.state.editMode}
-                                                   value={this.fillInputs("iban")} onChange={() => {}}/>
+                                                   value={this.fillInputs("personal", "iban")} onChange={() => {}}/>
 
                                             {/*KMs pair*/}
                                             <label className={style.officerInfoDetailLabel}>KMs:</label>
-                                            <input className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("kms")} onChange={() => {}}/>
+                                            <input className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "kms")} onChange={() => {}}/>
 
                                             {/*Discord pair*/}
                                             <label className={style.officerInfoDetailLabel}>Discord ID:</label>
-                                            <input className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("discord")} onChange={() => {}}/>
+                                            <input className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "discord")} onChange={() => {}}/>
 
                                             {/*Steam pair*/}
                                             <label className={style.officerInfoDetailLabel}>Steam ID:</label>
-                                            <input className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("steam")} onChange={() => {}}/>
+                                            <input className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "steam")} onChange={() => {}}/>
                                         </div>
                                     </fieldset>
 
-                                    <fieldset disabled={!this.state.choosen}>
+                                    <fieldset disabled={!this.state.editMode}>
                                         <legend>Informação Profissional</legend>
 
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Patente pair*/}
                                             <label className={style.officerInfoDetailLabel}>Patente:</label>
-                                            <select className={style.officerInfoInput} disabled={!this.state.editMode} value={this.state.patente}>
+                                            <select className={style.officerInfoInput} value={this.fillInputs("professional", "patente")}>
                                                 <option value={"-2"} disabled={true}>N/A</option>
                                                 {patentesOptions}
                                             </select>
 
                                             {/*CallSign pair*/}
                                             <label className={style.officerInfoDetailLabel}>CallSign:</label>
-                                            <input className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("callsign")} onChange={() => {
+                                            <input className={style.officerInfoInput}
+                                                   value={this.fillInputs("professional", "callsign")} onChange={() => {
                                             }}/>
 
                                             {/*Status pair*/}
                                             <label className={style.officerInfoDetailLabel}>Status:</label>
-                                            <select className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                    value={this.state.status}>
+                                            <select className={style.officerInfoInput}
+                                                    value={this.fillInputs("professional", "status")}>
                                                 <option value={"-2"} disabled={true}>N/A</option>
                                                 {statusOptions}
                                             </select>
 
                                             {/*Data de Entrada pair*/}
                                             <label className={style.officerInfoDetailLabel}>Data de Entrada:</label>
-                                            <input type={"date"} className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("data_entrada")} onChange={() => {
+                                            <input type={"date"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("professional", "data_entrada")} onChange={() => {
                                             }}/>
 
                                             {/*Data de Subida pair*/}
                                             <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
-                                            <input type={"date"} className={style.officerInfoInput} disabled={!this.state.editMode}
-                                                   value={this.fillInputs("data_subida")} onChange={() => {
+                                            <input type={"date"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("professional", "data_subida")} onChange={() => {
                                             }}/>
                                         </div>
                                     </fieldset>
