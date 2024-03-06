@@ -9,6 +9,9 @@ class OfficerInfo extends Component {
     constructor(props) {
         super(props);
 
+        this.editIntents = false;
+        this.loggedPatent = undefined;
+
         this.officerInfo = {
             personal: {
                 nome: undefined,
@@ -30,8 +33,8 @@ class OfficerInfo extends Component {
 
         this.state = {
             loading: true,
-            choosen: false,
             editMode: false,
+            hasEditPermissions: false,
 
             patentes: [],
             statuses: []
@@ -44,10 +47,11 @@ class OfficerInfo extends Component {
     }
 
     async fetchOfficerInfo(nif) {
-        // First, we need to set the loading state to true
-        this.setState({
-            loading: true
-        });
+        // First, we need to set the loading state to true if not already
+        if (!this.state.loading)
+            this.setState({
+                loading: true
+            });
 
         const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${nif}?raw`, {
             method: "GET",
@@ -95,6 +99,13 @@ class OfficerInfo extends Component {
             status: data.status
         }
 
+        // If the logged user has edit permissions, check if it's lower than the officer's patente
+        if (this.editIntents) {
+            this.setState({
+                hasEditPermissions: this.loggedPatent > data.patente
+            });
+        }
+
         // After fetching the data, we can set the loading state to false
         this.setState({
             loading: false
@@ -102,6 +113,42 @@ class OfficerInfo extends Component {
     }
 
     async componentDidMount() {
+        // First, we need to check if the user has edit permissions
+        const editIntentsResponse = await fetch("portugalia/gestao_policia/api/validateToken", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token"),
+                "X-Portalseguranca-Force": localStorage.getItem("force")
+            },
+            body: JSON.stringify({
+                "intent": "officer"
+            })
+        });
+
+        // Sinc the response is OK, we can set the editIntents to true and fetch the officers patent
+        if (editIntentsResponse.ok) {
+            this.editIntents = true;
+            const loggedNif = (await editIntentsResponse.json()).data
+
+            // Get the logged officers's patent as an int
+            const loggedOfficerResponse = await fetch(`portugalia/gestao_policia/api/officerInfo/${loggedNif}?raw`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": localStorage.getItem("token"),
+                    "X-Portalseguranca-Force": localStorage.getItem("force")
+                }
+            });
+
+            if (!loggedOfficerResponse.ok) {
+                return;
+            }
+
+            this.loggedPatent = (await loggedOfficerResponse.json()).data.patente;
+        }
+
+
         // When the page loads, we need to fetch the available patents and statuses
         const patentsResponse = await fetch("portugalia/gestao_policia/api/util/patents", {
             method: "GET",
@@ -144,20 +191,6 @@ class OfficerInfo extends Component {
         const queryNif = queryParams.get("nif");
         if (queryNif) {
             this.fetchOfficerInfo(queryNif).then(() => {});
-        }
-    }
-
-    async componentDidUpdate(prevProps, prevState, snapshot) {
-        // Only update if nif has changed
-        if (prevState.nif === this.state.nif) {
-            return;
-        }
-
-        // After applying everything, we can set the choosen state to true if it isn't already
-        if (!this.state.choosen) {
-            this.setState({
-                choosen: true
-            });
         }
     }
 
@@ -216,9 +249,9 @@ class OfficerInfo extends Component {
                         <div className={style.officerInfoInnerDiv}>
                             <div className={style.officerInfoAlterbarDiv}>
                                 <button type={"submit"} form={"information-form"} className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")} hidden={!this.state.editMode}>Guardar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode}>Recrutar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")} hidden={this.state.editMode} onClick={this.enableEditMode}>Editar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")} hidden={this.state.editMode}>Despedir</button>
+                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Recrutar</button>
+                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions} onClick={this.enableEditMode}>Editar</button>
+                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>
                             </div>
 
                             <form id={"information-form"}>
@@ -309,7 +342,7 @@ class OfficerInfo extends Component {
                                         </div>
                                     </fieldset>
 
-                                    <fieldset disabled={!this.state.choosen}>
+                                    <fieldset disabled={this.state.loading}>
                                         <legend>Atividade</legend>
 
                                         <p>Justificação ativa: <span></span>
@@ -320,7 +353,7 @@ class OfficerInfo extends Component {
                                             semana: <span>{"N/A"}</span>
                                         </p>
                                     </fieldset>
-                                    <fieldset disabled={!this.state.choosen}>
+                                    <fieldset disabled={this.state.loading}>
                                         <legend>Punições</legend>
 
                                         <p>Punição Ativa: <span></span>
