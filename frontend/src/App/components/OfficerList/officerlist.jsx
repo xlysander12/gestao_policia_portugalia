@@ -21,6 +21,8 @@ class OfficerCard extends Component {
                     return ["#00fd00", "#000000"];
                 case "Inativo":
                     return ["#fd0000", "#FFFFFF"];
+                case "Suspenso":
+                    return ["#fd0000", "#FFFFFF"];
                 case "Provisório":
                     return ["#efc032", "#000000"];
                 default:
