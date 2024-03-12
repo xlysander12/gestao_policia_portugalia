@@ -21,10 +21,10 @@ const poolDefaultGNR = mysql.createPool(dbConfigDefaultGNR);
 const forces = ["psp", "gnr"];
 
 // React Static
-app.use(express.static(path.resolve(__dirname + "/../frontend/build")));
+app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
 // CSS & JS static
-app.use("/cssjs", express.static(path.resolve(__dirname + "/../Frontend-old/"), { extensions: ["js", "css"] }));
+// app.use("/cssjs", express.static(path.resolve(__dirname + "/../Frontend-old/"), { extensions: ["js", "css"] }));
 
 /************************************
  * Database Functions *
@@ -130,14 +130,14 @@ async function checkTokenValidityIntents(token, force, intent) {
 /********************************
  * Routes to serve the frontend [DEPRECATED]*
  *******************************/
-app.get("/", (req, res) => {
-    res.sendFile(path.resolve(__dirname + "/../Frontend-old/home/index.html"));
-});
-
-// Setting up the default login page route
-app.get("/login", (req, res) => {
-    res.sendFile(path.resolve(__dirname + "/../Frontend-old/login/index.html"));
-});
+// app.get("/", (req, res) => {
+//     res.sendFile(path.resolve(__dirname + "/../Frontend-old/home/index.html"));
+// });
+//
+// // Setting up the default login page route
+// app.get("/login", (req, res) => {
+//     res.sendFile(path.resolve(__dirname + "/../Frontend-old/login/index.html"));
+// });
 
 
 /***************
@@ -322,6 +322,11 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         message: "Operação bem sucedida",
         data: rows[0]
     });
+});
+
+// React Build
+app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "frontend", "build", "index.html"));
 });
 
 module.exports = app;

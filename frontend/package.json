@@ -20,6 +20,7 @@
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080",
+  "homepage": "http://localhost/portugalia/gestao_policia",
   "eslintConfig": {
     "extends": [
       "react-app",

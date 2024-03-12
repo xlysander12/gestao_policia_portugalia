@@ -10,7 +10,7 @@ class App extends Component {
     render() {
         const App = () => (
             <div>
-                <BrowserRouter>
+                <BrowserRouter basename={"/portugalia/gestao_policia"}>
                     <Routes>
                         <Route path="/login" element={<Login/>}/>
 

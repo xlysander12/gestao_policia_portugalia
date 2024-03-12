@@ -53,7 +53,7 @@ class OfficerInfo extends Component {
                 loading: true
             });
 
-        const response = await fetch(`portugalia/gestao_policia/api/officerInfo/${nif}?raw`, {
+        const response = await fetch(`/portugalia/gestao_policia/api/officerInfo/${nif}?raw`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -114,7 +114,7 @@ class OfficerInfo extends Component {
 
     async componentDidMount() {
         // First, we need to check if the user has edit permissions
-        const editIntentsResponse = await fetch("portugalia/gestao_policia/api/validateToken", {
+        const editIntentsResponse = await fetch("/portugalia/gestao_policia/api/validateToken", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -132,7 +132,7 @@ class OfficerInfo extends Component {
             const loggedNif = (await editIntentsResponse.json()).data
 
             // Get the logged officers's patent as an int
-            const loggedOfficerResponse = await fetch(`portugalia/gestao_policia/api/officerInfo/${loggedNif}?raw`, {
+            const loggedOfficerResponse = await fetch(`/portugalia/gestao_policia/api/officerInfo/${loggedNif}?raw`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -150,7 +150,7 @@ class OfficerInfo extends Component {
 
 
         // When the page loads, we need to fetch the available patents and statuses
-        const patentsResponse = await fetch("portugalia/gestao_policia/api/util/patents", {
+        const patentsResponse = await fetch("/portugalia/gestao_policia/api/util/patents", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -165,7 +165,7 @@ class OfficerInfo extends Component {
 
         const patentsJson = (await patentsResponse.json()).data;
 
-        const statusResponse = await fetch("portugalia/gestao_policia/api/util/statuses", {
+        const statusResponse = await fetch("/portugalia/gestao_policia/api/util/statuses", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

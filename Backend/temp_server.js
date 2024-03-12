@@ -11,6 +11,5 @@ app.use("/portugalia/gestao_policia", endpoint);
 
 
 app.listen(8080, () => {
-   console.log(__dirname + "\\.env");
    console.log('Server started!');
 });
