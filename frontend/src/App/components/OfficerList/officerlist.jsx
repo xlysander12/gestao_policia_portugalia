@@ -11,6 +11,9 @@ class OfficerCard extends Component {
     }
 
     handleDivClick() {
+        if (this.props.disabled)
+            return;
+
         this.props.clickFunction(this.props.nif);
     }
 
@@ -33,7 +36,7 @@ class OfficerCard extends Component {
         const [statusDivColor, statusTextColor] = statusToColor(this.props.status);
 
         return(
-            <div className={style.officerListCardDiv} onClick={this.handleDivClick} id={"officer" + this.props["nif"]}>
+            <div className={this.props.disabled ? style.officerListCardDivDisabled :style.officerListCardDiv} onClick={this.handleDivClick} id={"officer" + this.props["nif"]}>
                 <div>
                     <p className={style.officerListCardName}>{this.props.name}</p>
                     <p className={style.officerListCardNif}>(#{this.props.nif})</p>
@@ -120,7 +123,7 @@ class OfficerList extends Component {
         let officersCards = [];
 
         for (let i = 0; i < this.state.officers.length; i++) {
-            officersCards.push(<OfficerCard key={"officer" + this.state.officers[i]["nif"]} name={`[${this.state.officers[i]["callsign"]}] ${this.state.officers[i]["patente"]} ${this.state.officers[i]["nome"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick}/>);
+            officersCards.push(<OfficerCard key={"officer" + this.state.officers[i]["nif"]} name={`[${this.state.officers[i]["callsign"]}] ${this.state.officers[i]["patente"]} ${this.state.officers[i]["nome"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick} disabled={this.props.disabled}/>);
         }
 
         return(
@@ -129,8 +132,8 @@ class OfficerList extends Component {
                 <form onSubmit={this.handleSearch}>
                     <div className={style.officerListSearchDiv}>
                         <input className={style.officerListSearchInput} id={"officerSearch"} type={"text"}
-                               placeholder={"Nome, patente, callsign, NIF, telemóvel ou discord ID"} name={"search"}/>
-                        <input type={"submit"} className={style.officerListSearchButton} value={"Pesquisar"}/>
+                               placeholder={"Nome, patente, callsign, NIF, telemóvel ou discord ID"} name={"search"} disabled={this.props.disabled}/>
+                        <input type={"submit"} className={style.officerListSearchButton} value={"Pesquisar"} disabled={this.props.disabled}/>
                     </div>
                 </form>
 

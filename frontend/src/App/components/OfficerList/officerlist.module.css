@@ -24,7 +24,10 @@
 
 .officerListSearchInput:focus {
     outline: 1px solid #66fcf1;
+}
 
+.officerListSearchInput:hover:disabled {
+    cursor: not-allowed;
 }
 
 .officerListSearchButton {
@@ -40,6 +43,12 @@
     background-color: rgb(37, 173, 165);
     color: black;
     cursor: pointer;
+}
+
+.officerListSearchButton:hover:disabled {
+    background-color: #1f2833;
+    color: rgb(37, 173, 165);
+    cursor: not-allowed;
 }
 
 .officerListListDiv {
@@ -63,6 +72,19 @@
 .officerListCardDiv:hover {
     background-color: #4e6581;
     cursor: pointer;
+}
+
+.officerListCardDivDisabled {
+    display: flex;
+    width: 95%;
+    background-color: #1f2833;
+    margin: 5px auto;
+    padding: 10px;
+}
+
+.officerListCardDivDisabled:hover {
+    background-color: #4e6581;
+    cursor: not-allowed;
 }
 
 .officerListCardName {
