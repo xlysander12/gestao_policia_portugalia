@@ -128,7 +128,7 @@ class Navbar extends Component {
 
                 <div className={style.navButtonsDiv} style={this.isLogin ? {display: "none"}: {}}>
                     <Link to="/efetivos" className={style.navButton} reloadDocument={true}>Efetivos</Link>
-                    <Link to="/" className={style.navButton} reloadDocument={true}>Inatividade</Link>
+                    <Link to="/" className={style.navButton} reloadDocument={true}>Atividade</Link>
                     <Link to="/" className={style.navButton} reloadDocument={true}>Avaliações</Link>
                     <Link to="/" className={style.navButton} reloadDocument={true}>Patrulhas</Link>
                 </div>
