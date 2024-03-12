@@ -249,7 +249,7 @@ class OfficerInfo extends Component {
                         <div className={style.officerInfoInnerDiv}>
                             <div className={style.officerInfoAlterbarDiv}>
                                 <button type={"submit"} form={"information-form"} className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")} hidden={!this.state.editMode}>Guardar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Recrutar</button>
+                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode || !this.editIntents}>Recrutar</button>
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions} onClick={this.enableEditMode}>Editar</button>
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>
                             </div>
