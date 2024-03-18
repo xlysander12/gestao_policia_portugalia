@@ -182,6 +182,32 @@ app.get("/api/util/statuses", async (req, res) => {
     });
 });
 
+app.get("/api/util/specialunits", async (req, res) => {
+    let force = req.headers["x-portalseguranca-force"];
+
+    // Check if the force is present
+    if (force === undefined) {
+        res.status(400).json({
+            message: "Não foi fornecida uma força para a obtenção das patentes."
+        });
+        return;
+    }
+
+    // Get all the special units from the database
+    let [rows, fields] = await queryDB(force, `SELECT * FROM unidades_especiais`);
+    let response = {};
+    response.units = rows;
+
+    // Get all the roles for the units
+    [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM cargos_unidades`);
+    response.roles = rows;
+
+    res.status(200).json({
+        message: "Operação bem sucedida",
+        data: response
+    });
+});
+
 /**
  * Token Endpoints
  **/
@@ -300,7 +326,7 @@ app.get("/api/officerInfo", async (req, res) => {
     });
 });
 
-app.get("/api/officerInfo/:nif", async (req, res) => {
+app.get("/api/officerInfo/:nif", async (req, res) => { // TODO: build proper structured JSON
     // Check if user is authenticated
     let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
@@ -310,7 +336,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
@@ -318,9 +344,18 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         });
         return;
     }
+
+    const info = rows[0];
+    info.unidades = [];
+
+    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT unidade, cargo FROM efetivos_unidades WHERE nif = ${req.params.nif} ORDER BY cargo DESC, unidade DESC`);
+    rows.forEach((row) => {
+        info.unidades.push({"id": row.unidade, "cargo": row.cargo});
+    });
+
     res.status(200).json({
         message: "Operação bem sucedida",
-        data: rows[0]
+        data: info
     });
 });
 

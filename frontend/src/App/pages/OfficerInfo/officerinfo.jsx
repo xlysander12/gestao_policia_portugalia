@@ -28,22 +28,27 @@ class OfficerInfo extends Component {
                 data_entrada: undefined,
                 data_subida: undefined,
                 status: undefined
-            }
+            },
+            special_units: []
         }
+
+        this.patents = [];
+        this.statuses = [];
+        this.specialUnits = [];
+        this.unitsRoles = [];
 
         this.state = {
             loading: true,
             editMode: false,
             hasEditPermissions: false,
-
-            patentes: [],
-            statuses: []
         }
 
         this.officerListCallback = this.officerListCallback.bind(this);
         this.fillInputs = this.fillInputs.bind(this);
         this.enableEditMode = this.enableEditMode.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.doesUserBelongToUnit = this.doesUserBelongToUnit.bind(this);
+        this.getUnitNameFromId = this.getUnitNameFromId.bind(this);
     }
 
     async fetchOfficerInfo(nif) {
@@ -90,7 +95,7 @@ class OfficerInfo extends Component {
             steam: data.steam
         }
 
-        // Professional Data
+        // // Professional Data
         this.officerInfo.professional = {
             patente: data.patente,
             callsign: data.callsign,
@@ -98,6 +103,10 @@ class OfficerInfo extends Component {
             data_subida: data.data_subida,
             status: data.status
         }
+
+        // Add the units to the info object
+        console.log(data.unidades);
+        this.officerInfo.special_units = data.unidades;
 
         // If the logged user has edit permissions, check if it's lower than the officer's patente
         if (this.editIntents) {
@@ -163,7 +172,8 @@ class OfficerInfo extends Component {
             return;
         }
 
-        const patentsJson = (await patentsResponse.json()).data;
+        // Apply the data to the class object
+        this.patents = (await patentsResponse.json()).data;
 
         const statusResponse = await fetch("/portugalia/gestao_policia/api/util/statuses", {
             method: "GET",
@@ -178,13 +188,26 @@ class OfficerInfo extends Component {
             return;
         }
 
-        const statusJson = (await statusResponse.json()).data;
+        // Apply the data to the class object
+        this.statuses = (await statusResponse.json()).data;
 
-        // After fetching the data, apply it to the state
-        this.setState({
-            patentes: patentsJson,
-            statuses: statusJson
+        const specialUnitsResponse = await fetch("/portugalia/gestao_policia/api/util/specialunits", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Portalseguranca-Force": localStorage.getItem("force")
+            }
         });
+
+        if (!specialUnitsResponse.ok)
+            return;
+
+        const specialUnitsResponseJson = await specialUnitsResponse.json();
+
+        // Apply the units and their roles to the objects of the class
+        this.specialUnits = specialUnitsResponseJson.data["units"];
+        this.unitsRoles = specialUnitsResponseJson.data["roles"];
+
 
         // Checking if there's a nif in the query params to instantly load the officer's info
         const queryParams = new URLSearchParams(window.location.search);
@@ -192,6 +215,23 @@ class OfficerInfo extends Component {
         if (queryNif) {
             this.fetchOfficerInfo(queryNif).then(() => {});
         }
+    }
+
+    getUnitNameFromId(unitId) {
+        for (let unit of this.specialUnits) {
+            if (unit.id === unitId) {
+                return unit.nome;
+            }
+        }
+    }
+
+    doesUserBelongToUnit(unit_id) {
+        for (let unit of this.officerInfo.special_units) {
+            if (unit.id === unit_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     fillInputs(category, key) {
@@ -213,20 +253,32 @@ class OfficerInfo extends Component {
     }
 
     handleInputChange(event) {
-        console.log(event.target.name);
-        this.setState({
-            [event.target.name]: event.target.value
-        });
+        // Check if key exists
+        if (this.officerInfo.personal[event.target.name])
+            this.officerInfo.personal[event.target.name] = event.target.value;
+        else if (this.officerInfo.professional[event.target.name])
+            this.officerInfo.professional[event.target.name] = event.target.value;
+
+        this.forceUpdate();
     }
 
     render() {
         // Before rendering the page, we need to build the patentes and status options
-        const patentesOptions = this.state.patentes.map((patente) => {
-            return <option value={patente.num}>{patente.nome}</option>
+        const patentesOptions = this.patents.map((patente) => {
+            return <option key={`patent${patente.num}`} value={patente.num} disabled={patente.num > this.loggedPatent}>{patente.nome}</option>
         });
 
-        const statusOptions = this.state.statuses.map((status) => {
-           return <option value={status.num}>{status.nome}</option>
+        const statusOptions = this.statuses.map((status) => {
+           return <option key={`status${status.num}`} value={status.num}>{status.nome}</option>
+        });
+
+        const specialUnitsOptions = this.specialUnits.map((unit) => {
+           if (!this.doesUserBelongToUnit(unit.id))
+               return <option key={`unit${unit.id}`} value={unit.id}>{unit.nome}</option>
+        });
+
+        const specialUnitsRolesOptions = this.unitsRoles.map((role) => {
+            return <option key={`role${role.id}`} value={role.id}>{role.cargo}</option>
         });
 
         return(
@@ -252,6 +304,7 @@ class OfficerInfo extends Component {
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode || !this.editIntents}>Recrutar</button>
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions} onClick={this.enableEditMode}>Editar</button>
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>
+                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")} style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar do HUB</button>
                             </div>
 
                             <form id={"information-form"}>
@@ -273,33 +326,33 @@ class OfficerInfo extends Component {
 
                                             {/*NIF pair*/}
                                             <label className={style.officerInfoDetailLabel}>NIF:</label>
-                                            <input className={style.officerInfoInput} type={"text"}
+                                            <input name={"nif"} className={style.officerInfoInput} type={"text"}
                                                    value={this.fillInputs("personal", "nif")} onChange={(e) => {this.handleInputChange(e, "nif")}}/>
 
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
-                                            <input pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
+                                            <input name={"telemovel"} pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
                                                    value={this.fillInputs("personal", "telemovel")} onChange={this.handleInputChange}/>
 
                                             {/*IBAN pair*/}
                                             <label className={style.officerInfoDetailLabel}>IBAN:</label>
-                                            <input pattern={"^PT[0-9]{5,8}$"} className={style.officerInfoInput}
-                                                   value={this.fillInputs("personal", "iban")} onChange={() => {}}/>
+                                            <input name={"iban"} pattern={"^PT[0-9]{5,8}$"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "iban")} onChange={this.handleInputChange}/>
 
                                             {/*KMs pair*/}
                                             <label className={style.officerInfoDetailLabel}>KMs:</label>
-                                            <input className={style.officerInfoInput}
-                                                   value={this.fillInputs("personal", "kms")} onChange={() => {}}/>
+                                            <input name={"kms"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "kms")} onChange={this.handleInputChange}/>
 
                                             {/*Discord pair*/}
                                             <label className={style.officerInfoDetailLabel}>Discord ID:</label>
-                                            <input className={style.officerInfoInput}
-                                                   value={this.fillInputs("personal", "discord")} onChange={() => {}}/>
+                                            <input name={"discord"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "discord")} onChange={this.handleInputChange}/>
 
                                             {/*Steam pair*/}
                                             <label className={style.officerInfoDetailLabel}>Steam ID:</label>
-                                            <input className={style.officerInfoInput}
-                                                   value={this.fillInputs("personal", "steam")} onChange={() => {}}/>
+                                            <input name={"steam"} className={style.officerInfoInput}
+                                                   value={this.fillInputs("personal", "steam")} onChange={this.handleInputChange}/>
                                         </div>
                                     </fieldset>
 
@@ -309,7 +362,7 @@ class OfficerInfo extends Component {
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Patente pair*/}
                                             <label className={style.officerInfoDetailLabel}>Patente:</label>
-                                            <select className={style.officerInfoInput} value={this.fillInputs("professional", "patente")}>
+                                            <select className={style.officerInfoInput} value={this.fillInputs("professional", "patente")} onChange={this.handleInputChange}>
                                                 <option value={"-2"} disabled={true}>N/A</option>
                                                 {patentesOptions}
                                             </select>
@@ -317,13 +370,12 @@ class OfficerInfo extends Component {
                                             {/*CallSign pair*/}
                                             <label className={style.officerInfoDetailLabel}>CallSign:</label>
                                             <input className={style.officerInfoInput}
-                                                   value={this.fillInputs("professional", "callsign")} onChange={() => {
-                                            }}/>
+                                                   value={this.fillInputs("professional", "callsign")} onChange={this.handleInputChange}/>
 
                                             {/*Status pair*/}
                                             <label className={style.officerInfoDetailLabel}>Status:</label>
                                             <select className={style.officerInfoInput}
-                                                    value={this.fillInputs("professional", "status")}>
+                                                    value={this.fillInputs("professional", "status")} onChange={this.handleInputChange}>
                                                 <option value={"-2"} disabled={true}>N/A</option>
                                                 {statusOptions}
                                             </select>
@@ -331,14 +383,47 @@ class OfficerInfo extends Component {
                                             {/*Data de Entrada pair*/}
                                             <label className={style.officerInfoDetailLabel}>Data de Entrada:</label>
                                             <input type={"date"} className={style.officerInfoInput}
-                                                   value={this.fillInputs("professional", "data_entrada")} onChange={() => {
-                                            }}/>
+                                                   value={this.fillInputs("professional", "data_entrada")} onChange={this.handleInputChange}/>
 
                                             {/*Data de Subida pair*/}
                                             <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
                                             <input type={"date"} className={style.officerInfoInput}
-                                                   value={this.fillInputs("professional", "data_subida")} onChange={() => {
-                                            }}/>
+                                                   value={this.fillInputs("professional", "data_subida")} onChange={this.handleInputChange}/>
+
+                                            {/*Unidades Especiais*/}
+                                            <label className={style.officerInfoDetailLabel}>Unidades Especiais:</label>
+                                            <table className={style.officerInfoUnitsTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th style={{width: "50%"}}>Unidade</th>
+                                                        <th>Cargo</th>
+                                                        <th hidden={!this.state.editMode}>Ação</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {this.officerInfo.special_units.map((unit) => {
+                                                        console.log(unit);
+                                                        return <tr key={`unit${unit.id}`}>
+                                                            <td style={{fontSize: "0.8rem"}}>{this.getUnitNameFromId(unit.id)}</td>
+                                                            <td><select className={style.officerInfoUnitsSelect} value={unit.cargo}>
+                                                                {specialUnitsRolesOptions}
+                                                            </select></td>
+                                                            <td hidden={!this.state.editMode}><button type={"button"}>Remover</button></td>
+                                                        </tr>
+                                                    })}
+                                                </tbody>
+                                                <tfoot hidden={!this.state.editMode}> {/*Only show the add button if the edit mode is enabled*/}
+                                                    <tr>
+                                                        <td><select>
+                                                            {specialUnitsOptions}
+                                                        </select></td>
+                                                        <td><select>
+                                                            {specialUnitsRolesOptions}
+                                                        </select></td>
+                                                        <td><button type={"button"}>Adicionar</button></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </fieldset>
 

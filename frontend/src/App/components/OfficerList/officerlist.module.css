@@ -99,7 +99,6 @@
 }
 
 .officerListCardStatus {
-    /*Push this div to the right of the parent div*/
     height: fit-content;
     margin-top: 16px;
     margin-left: auto;
