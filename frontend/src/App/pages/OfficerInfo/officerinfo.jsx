@@ -327,7 +327,7 @@ class OfficerInfo extends Component {
                                             {/*NIF pair*/}
                                             <label className={style.officerInfoDetailLabel}>NIF:</label>
                                             <input name={"nif"} className={style.officerInfoInput} type={"text"}
-                                                   value={this.fillInputs("personal", "nif")} onChange={(e) => {this.handleInputChange(e, "nif")}}/>
+                                                   value={this.fillInputs("personal", "nif")} disabled={true}/>
 
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
