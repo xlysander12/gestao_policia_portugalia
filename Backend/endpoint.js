@@ -391,13 +391,19 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     }
 
     // If everything checks out, update the officer's basic info
-    let updateQuery = `UPDATE efetivos SET nome = "${req.body.nome}, patente = ${req.body.patente}, callsign = "${req.body.callsign}", status = "${req.body.status}", data_entrada = "${req.body.data_entrada}", data_subida = "${req.body.data_subida}", telemovel = ${req.body.telemovel}, iban = "${req.body.iban}", kms = ${req.body.kms}, discord = ${req.body.discord}, steam = "${req.body.steam}" WHERE nif = ${req.params.nif}`;
+    let updateQuery = `UPDATE efetivos SET nome = "${req.body.nome}", patente = ${req.body.patente}, 
+                              callsign = "${req.body.callsign}", status = ${req.body.status}, 
+                              data_entrada = "${req.body.data_entrada}", data_subida = "${req.body.data_subida}", 
+                              telemovel = ${req.body.telemovel}, iban = "${req.body.iban}", kms = ${req.body.kms}, 
+                              discord = ${req.body.discord}, steam = "${req.body.steam}" WHERE nif = ${req.params.nif}`;
     await queryDB(req.headers["x-portalseguranca-force"], updateQuery);
 
     // Now, update the special units the officer belongs to
-    await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM efetivos_unidades WHERE nif = ${req.params.nif}`);
-    for (const unidade of req.body.unidades) {
-        await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos_unidades (nif, unidade, cargo) VALUES (${req.params.nif}, ${unidade.id}, "${unidade.cargo}")`);
+    if (req.body.unidades !== undefined) {
+        await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM efetivos_unidades WHERE nif = ${req.params.nif}`);
+        for (const unidade of req.body.unidades) {
+            await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos_unidades (nif, unidade, cargo) VALUES (${req.params.nif}, ${unidade.id}, "${unidade.cargo}")`);
+        }
     }
 
     // After all is complete, return a 200 status code
