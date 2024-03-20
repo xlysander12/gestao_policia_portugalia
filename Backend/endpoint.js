@@ -326,7 +326,7 @@ app.get("/api/officerInfo", async (req, res) => {
     });
 });
 
-app.get("/api/officerInfo/:nif", async (req, res) => { // TODO: build proper structured JSON
+app.get("/api/officerInfo/:nif", async (req, res) => {
     // Check if user is authenticated
     let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
@@ -358,6 +358,54 @@ app.get("/api/officerInfo/:nif", async (req, res) => { // TODO: build proper str
         data: info
     });
 });
+
+app.patch("/api/officerInfo/:nif", async (req, res) => {
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officer");
+    if (!authenticatedPermission[0]) {
+        res.status(authenticatedPermission[1]).json({
+            message: authenticatedPermission[2]
+        });
+        return;
+    }
+
+    // Check if the requested officer exists
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patente FROM efetivos WHERE nif = ${req.params.nif}`);
+    if (rows.length === 0) {
+        res.status(404).json({
+            message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
+        });
+        return;
+    }
+
+    // Check if the user can edit the requested officer
+    const requestedOfficerPatente = rows[0].patente;
+
+    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patente FROM efetivos WHERE nif = ${authenticatedPermission[2]}`);
+    const requestingOfficerPatente = rows[0].patente;
+
+    if (requestedOfficerPatente > requestingOfficerPatente) {
+        res.status(403).json({
+            message: "Não tens permissão para editar este efetivo."
+        });
+        return;
+    }
+
+    // If everything checks out, update the officer's basic info
+    let updateQuery = `UPDATE efetivos SET nome = "${req.body.nome}, patente = ${req.body.patente}, callsign = "${req.body.callsign}", status = "${req.body.status}", data_entrada = "${req.body.data_entrada}", data_subida = "${req.body.data_subida}", telemovel = ${req.body.telemovel}, iban = "${req.body.iban}", kms = ${req.body.kms}, discord = ${req.body.discord}, steam = "${req.body.steam}" WHERE nif = ${req.params.nif}`;
+    await queryDB(req.headers["x-portalseguranca-force"], updateQuery);
+
+    // Now, update the special units the officer belongs to
+    await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM efetivos_unidades WHERE nif = ${req.params.nif}`);
+    for (const unidade of req.body.unidades) {
+        await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos_unidades (nif, unidade, cargo) VALUES (${req.params.nif}, ${unidade.id}, "${unidade.cargo}")`);
+    }
+
+    // After all is complete, return a 200 status code
+    res.status(200).json({
+        message: "Operação bem sucedida"
+    });
+});
+
 
 // React Build
 app.get("/*", (req, res) => {
