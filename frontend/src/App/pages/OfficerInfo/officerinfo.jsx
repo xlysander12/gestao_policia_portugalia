@@ -322,7 +322,10 @@ class OfficerInfo extends Component {
                                             {/*Name pair*/}
                                             <label className={style.officerInfoDetailLabel}>Nome:</label>
                                             <input name="nome" className={style.officerInfoInput} type={"text"}
-                                                   value={this.fillInputs("personal", "nome")} onChange={this.handleInputChange}/>
+                                                   value={this.fillInputs("personal", "nome")} onChange={(e) => {
+                                                         this.officerInfo.personal.nome = e.target.value;
+                                                         this.forceUpdate();
+                                            }}/>
 
                                             {/*NIF pair*/}
                                             <label className={style.officerInfoDetailLabel}>NIF:</label>
@@ -332,7 +335,10 @@ class OfficerInfo extends Component {
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
                                             <input name={"telemovel"} pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
-                                                   value={this.fillInputs("personal", "telemovel")} onChange={this.handleInputChange}/>
+                                                   value={this.fillInputs("personal", "telemovel")} onChange={(event) => {
+                                                     this.officerInfo.personal.telemovel = event.target.value;
+                                                     this.forceUpdate();
+                                            }}/>
 
                                             {/*IBAN pair*/}
                                             <label className={style.officerInfoDetailLabel}>IBAN:</label>
