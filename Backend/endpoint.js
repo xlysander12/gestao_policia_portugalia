@@ -79,7 +79,7 @@ async function generateToken() {
 
 async function checkTokenValidityIntents(token, force, intent) {
     // Check if the token is present
-    if (token === undefined) {
+    if (token === undefined || token === null) {
         return [false, 401, "Não foi fornecido um token de autenticação."];
     }
 
