@@ -47,6 +47,7 @@ class OfficerInfo extends Component {
         this.enableEditMode = this.enableEditMode.bind(this);
         this.doesUserBelongToUnit = this.doesUserBelongToUnit.bind(this);
         this.getUnitNameFromId = this.getUnitNameFromId.bind(this);
+        this.updateOfficerInfo = this.updateOfficerInfo.bind(this);
     }
 
     async fetchOfficerInfo(nif) {
@@ -116,6 +117,68 @@ class OfficerInfo extends Component {
         this.setState({
             loading: false
         });
+    }
+
+    async updateOfficerInfo(event) {
+        // Prevent the form from submitting
+        event.preventDefault();
+
+        // Check if every field has valid data
+        let formIsValid = true;
+        console.log(event.target);
+        for (let element of event.target.elements) {
+            if (!element.checkValidity()) {
+                element.title = "Este campo está inválido"
+                formIsValid = false;
+            }
+        }
+
+        if (!formIsValid) return;
+
+
+        // Then, we need to set the loading state to true if not already
+        if (!this.state.loading)
+            this.setState({
+                loading: true
+            });
+
+        // Make the request to update the officer's info
+        const updateRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.state.officerInfo.personal.nif}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token"),
+                "X-Portalseguranca-Force": localStorage.getItem("force")
+            },
+            body: JSON.stringify({
+                // Personal Info
+                nome: this.state.officerInfo.personal.nome,
+                telemovel: this.state.officerInfo.personal.telemovel,
+                iban: this.state.officerInfo.personal.iban,
+                kms: this.state.officerInfo.personal.kms,
+                discord: this.state.officerInfo.personal.discord,
+                steam: this.state.officerInfo.personal.steam,
+
+                // Professional Info
+                patente: this.state.officerInfo.professional.patente,
+                callsign: this.state.officerInfo.professional.callsign,
+                status: this.state.officerInfo.professional.status,
+                data_entrada: this.state.officerInfo.professional.data_entrada,
+                data_subida: this.state.officerInfo.professional.data_subida,
+
+                // Special Units
+                unidades: this.state.officerInfo.professional.special_units
+            })
+        });
+
+        // Check if the response is ok
+        if (!updateRequest.ok) {
+            alert((await updateRequest.json()).message);
+            return;
+        }
+
+        // After updating the data, we can reload the page using the officer's nif as a query param
+        window.location = `/portugalia/gestao_policia/efetivos?nif=${this.state.officerInfo.personal.nif}`;
     }
 
     async componentDidMount() {
@@ -290,7 +353,7 @@ class OfficerInfo extends Component {
                                 <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")} style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar do HUB</button>
                             </div>
 
-                            <form id={"information-form"}>
+                            <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
                                 {/*Loader Div*/}
                                 <div className={style.officerInfoDetailsDiv} style={{justifyContent: "center", alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
                                     <Loader color={"#3498db"}/>
@@ -324,7 +387,7 @@ class OfficerInfo extends Component {
 
                                             {/*Cellphone pair*/}
                                             <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
-                                            <input name={"telemovel"} pattern={"^[0-9]{9}$"} className={style.officerInfoInput}
+                                            <input name={"telemovel"} pattern={"^[0-9]{9}$"} title={"O telemóvel é um número composto por 9 dígitos"} className={style.officerInfoInput}
                                                    value={this.state.officerInfo.personal.telemovel} onChange={(event) => {
                                                          this.setState({
                                                               officerInfo: {
@@ -339,7 +402,7 @@ class OfficerInfo extends Component {
 
                                             {/*IBAN pair*/}
                                             <label className={style.officerInfoDetailLabel}>IBAN:</label>
-                                            <input name={"iban"} pattern={"^PT[0-9]{5,8}$"} className={style.officerInfoInput}
+                                            <input name={"iban"} pattern={"^PT[0-9]{5,8}$"} title={"O IBAN é uma sequência de \"PT\" seguido de 5 a 9 dígitos"} className={style.officerInfoInput}
                                                    value={this.state.officerInfo.personal.iban} onChange={(event) => {
                                                             this.setState({
                                                                 officerInfo: {
