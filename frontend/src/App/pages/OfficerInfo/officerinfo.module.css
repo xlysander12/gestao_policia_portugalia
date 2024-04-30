@@ -168,7 +168,7 @@
     border: 0;
     outline: none;
     font-size: 1rem;
-    color: black
+    color: black;
 }
 
 .officerInfoUnitsSelect:disabled {
