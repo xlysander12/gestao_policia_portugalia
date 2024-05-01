@@ -346,11 +346,33 @@ class OfficerInfo extends Component {
                         {/*Div where content's will be*/}
                         <div className={style.officerInfoInnerDiv}>
                             <div className={style.officerInfoAlterbarDiv}>
-                                <button type={"submit"} form={"information-form"} className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")} hidden={!this.state.editMode}>Guardar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")} hidden={this.state.editMode || !this.editIntents}>Recrutar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions} onClick={this.enableEditMode}>Editar</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")} hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>
-                                <button className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")} style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar do HUB</button>
+                                <button type={"submit"} form={"information-form"}
+                                        className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
+                                        hidden={!this.state.editMode}>Guardar
+                                </button>
+                                <button
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
+                                    hidden={this.state.editMode || !this.editIntents}>Recrutar
+                                </button>
+                                <button
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
+                                    hidden={this.state.editMode || !this.state.hasEditPermissions}
+                                    onClick={this.enableEditMode}>Editar
+                                </button>
+                                <button
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
+                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir
+                                </button>
+                                {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
+                                <button
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
+                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Gerir Conta
+                                </button>
+                                <button
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
+                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar
+                                    do HUB
+                                </button>
                             </div>
 
                             <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
@@ -558,25 +580,74 @@ class OfficerInfo extends Component {
                                                 </thead>
                                                 <tbody>
                                                     {this.state.officerInfo.professional.special_units.map((unit) => {
-                                                        console.log(unit);
                                                         return <tr key={`unit${unit.id}`}>
                                                             <td style={{fontSize: "0.8rem"}}>{this.getUnitNameFromId(unit.id)}</td>
-                                                            <td><select className={style.officerInfoUnitsSelect} value={unit.cargo}>
+                                                            <td><select className={style.officerInfoUnitsSelect} value={unit.cargo} onChange={(event) => {
+                                                                // Update the unit's role
+                                                                let current_units = this.state.officerInfo.professional.special_units;
+                                                                const index = current_units.indexOf(unit);
+                                                                current_units[index].cargo = parseInt(event.target.value);
+
+                                                                this.setState({
+                                                                    officerInfo: {
+                                                                        ...this.state.officerInfo,
+                                                                        professional: {
+                                                                            ...this.state.officerInfo.professional,
+                                                                            special_units: current_units
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }}>
                                                                 {specialUnitsRolesOptions}
                                                             </select></td>
-                                                            <td hidden={!this.state.editMode}><button type={"button"}>Remover</button></td>
+                                                            <td hidden={!this.state.editMode}><button type={"button"} onClick={(event) => {
+                                                                let current_units = this.state.officerInfo.professional.special_units;
+                                                                const index = current_units.indexOf(unit);
+                                                                console.log("Index de unidade a remover: " + index);
+                                                                current_units.splice(index, 1);
+
+                                                                console.log("Unidades atuais: " + JSON.stringify(current_units));
+                                                                this.setState({
+                                                                   officerInfo: {
+                                                                       ...this.state.officerInfo,
+                                                                       professional: {
+                                                                           ...this.state.officerInfo.professional,
+                                                                           special_units: current_units
+                                                                       }
+                                                                   }
+                                                                });
+                                                            }}>Remover</button></td>
                                                         </tr>
                                                     })}
                                                 </tbody>
                                                 <tfoot hidden={!this.state.editMode}> {/*Only show the add button if the edit mode is enabled*/}
                                                     <tr>
-                                                        <td><select>
+                                                        <td><select id={"officerInfoNewUnitValue"}>
                                                             {specialUnitsOptions}
                                                         </select></td>
-                                                        <td><select>
+                                                        <td><select id={"officerInfoNewUnitRole"}>
                                                             {specialUnitsRolesOptions}
                                                         </select></td>
-                                                        <td><button type={"button"}>Adicionar</button></td>
+                                                        <td><button type={"button"} onClick={() => {
+                                                            // Add the unit to the state
+                                                            let current_units = this.state.officerInfo.professional.special_units;
+                                                            console.log(JSON.stringify(current_units));
+                                                            current_units.push({
+                                                                id: parseInt(document.getElementById("officerInfoNewUnitValue").value),
+                                                                cargo: parseInt(document.getElementById("officerInfoNewUnitRole").value)
+                                                            });
+                                                            console.log("Pushed new unit")
+                                                            console.log(JSON.stringify(current_units));
+                                                            this.setState({
+                                                                officerInfo: {
+                                                                    ...this.state.officerInfo,
+                                                                    professional: {
+                                                                        ...this.state.officerInfo.professional,
+                                                                        special_units: current_units
+                                                                    }
+                                                                }
+                                                            });
+                                                        }}>Adicionar</button></td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
