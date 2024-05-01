@@ -3,6 +3,8 @@ import style from "./officerinfo.module.css";
 import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
 
 
 class OfficerInfo extends Component {
@@ -350,10 +352,17 @@ class OfficerInfo extends Component {
                                         className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
                                         hidden={!this.state.editMode}>Guardar
                                 </button>
-                                <button
+
+                                <Popup trigger={<button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
                                     hidden={this.state.editMode || !this.editIntents}>Recrutar
-                                </button>
+                                </button>} modal>
+                                    <div>
+                                        <h1>Recrutar</h1>
+                                    </div>
+                                </Popup>
+
+
                                 <button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
                                     hidden={this.state.editMode || !this.state.hasEditPermissions}
@@ -600,13 +609,10 @@ class OfficerInfo extends Component {
                                                             }}>
                                                                 {specialUnitsRolesOptions}
                                                             </select></td>
-                                                            <td hidden={!this.state.editMode}><button type={"button"} onClick={(event) => {
+                                                            <td hidden={!this.state.editMode}><button type={"button"} onClick={() => {
                                                                 let current_units = this.state.officerInfo.professional.special_units;
                                                                 const index = current_units.indexOf(unit);
-                                                                console.log("Index de unidade a remover: " + index);
                                                                 current_units.splice(index, 1);
-
-                                                                console.log("Unidades atuais: " + JSON.stringify(current_units));
                                                                 this.setState({
                                                                    officerInfo: {
                                                                        ...this.state.officerInfo,
