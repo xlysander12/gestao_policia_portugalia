@@ -15,6 +15,12 @@ class RecruitModal extends Component {
             console.error("No trigger was passed to the RecruitModal component");
             return;
         }
+
+        this.recruitMember = this.recruitMember.bind(this);
+    }
+
+    async recruitMember(event) {
+        event.preventDefault();
     }
 
     render () {
@@ -23,28 +29,31 @@ class RecruitModal extends Component {
                 <div className={modalsStyle.modal}>
                     <div className={modalsStyle.header}>Recrutar novo efetivo</div>
                     <div className={modalsStyle.content}>
-                        <form>
+                        <form onSubmit={this.recruitMember}>
                             <div className={modalsStyle.formDiv}>
+                                {/* TODO: add proper titles to explain the custom patterns */}
                                 <label>Nome:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"nome"} type={"text"} required/>
 
                                 <label>NIF:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"nif"} type={"text"} pattern={"^[0-9]{9}$"}/>
 
                                 <label>Telemóvel:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"telemovel"} type={"text"} pattern={"^[0-9]{9}$"} required/>
 
                                 <label>IBAN:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"iban"} type={"text"} pattern={"^PT[0-9]{5,8}$"} required/>
 
                                 <label>KMs:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"kms"} type={"number"} required/>
 
                                 <label>Discord ID:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"discord"} type={"text"} pattern={"[0-9]+"} required/>
 
                                 <label>Steam ID:</label>
-                                <input type={"text"} required={true}/>
+                                <input name={"steam"} type={"text"} pattern={"steam\:.+"} required/>
+
+                                <button className={modalsStyle.submitButton} type={"submit"}>Recrutar</button>
                             </div>
                         </form>
                     </div>
