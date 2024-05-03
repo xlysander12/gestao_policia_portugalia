@@ -23,8 +23,6 @@ const forces = ["psp", "gnr"];
 // React Static
 app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
-// CSS & JS static
-// app.use("/cssjs", express.static(path.resolve(__dirname + "/../Frontend-old/"), { extensions: ["js", "css"] }));
 
 /************************************
  * Database Functions *
@@ -126,19 +124,6 @@ async function checkTokenValidityIntents(token, force, intent) {
 
     return [true, 200, nif];
 }
-
-/********************************
- * Routes to serve the frontend [DEPRECATED]*
- *******************************/
-// app.get("/", (req, res) => {
-//     res.sendFile(path.resolve(__dirname + "/../Frontend-old/home/index.html"));
-// });
-//
-// // Setting up the default login page route
-// app.get("/login", (req, res) => {
-//     res.sendFile(path.resolve(__dirname + "/../Frontend-old/login/index.html"));
-// });
-
 
 /***************
  * API Routes *
