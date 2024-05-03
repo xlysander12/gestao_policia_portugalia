@@ -1,10 +1,58 @@
 import React, {Component} from "react";
 import style from "./officerinfo.module.css";
+import modalsStyle from "./officerinfomodals.module.css";
 import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
 import Popup from "reactjs-popup";
-import "reactjs-popup/dist/index.css";
+
+class RecruitModal extends Component {
+    constructor(props) {
+        super(props);
+
+        // Check if a trigger is present
+        if (!props.trigger) {
+            console.error("No trigger was passed to the RecruitModal component");
+            return;
+        }
+    }
+
+    render () {
+        return (
+            <Popup trigger={this.props.trigger} modal>
+                <div className={modalsStyle.modal}>
+                    <div className={modalsStyle.header}>Recrutar novo efetivo</div>
+                    <div className={modalsStyle.content}>
+                        <form>
+                            <div className={modalsStyle.formDiv}>
+                                <label>Nome:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>NIF:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>Telemóvel:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>IBAN:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>KMs:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>Discord ID:</label>
+                                <input type={"text"} required={true}/>
+
+                                <label>Steam ID:</label>
+                                <input type={"text"} required={true}/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </Popup>
+        );
+    }
+}
 
 
 class OfficerInfo extends Component {
@@ -329,6 +377,12 @@ class OfficerInfo extends Component {
             return <option key={`role${role.id}`} value={role.id}>{role.cargo}</option>
         });
 
+        // Build the Recruit Button
+        let recruitButton = (<button
+            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
+            hidden={this.state.editMode || !this.editIntents}>Recrutar</button>);
+
+
         return(
             <div>
                 {/*Navbar*/}
@@ -353,15 +407,7 @@ class OfficerInfo extends Component {
                                         hidden={!this.state.editMode}>Guardar
                                 </button>
 
-                                <Popup trigger={<button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
-                                    hidden={this.state.editMode || !this.editIntents}>Recrutar
-                                </button>} modal>
-                                    <div>
-                                        <h1>Recrutar</h1>
-                                    </div>
-                                </Popup>
-
+                                <RecruitModal trigger={recruitButton}></RecruitModal>
 
                                 <button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
@@ -375,7 +421,8 @@ class OfficerInfo extends Component {
                                 {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
                                 <button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Gerir Conta
+                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Gerir
+                                    Conta
                                 </button>
                                 <button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
@@ -386,7 +433,9 @@ class OfficerInfo extends Component {
 
                             <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
                                 {/*Loader Div*/}
-                                <div className={style.officerInfoDetailsDiv} style={{justifyContent: "center", alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
+                                <div className={style.officerInfoDetailsDiv} style={{
+                                    justifyContent: "center",
+                                    alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
                                     <Loader color={"#3498db"}/>
                                 </div>
 
@@ -565,7 +614,8 @@ class OfficerInfo extends Component {
                                             {/*Data de Subida pair*/}
                                             <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
                                             <input type={"date"} className={style.officerInfoInput}
-                                                   value={this.state.officerInfo.professional.data_subida} onChange={(event) => {
+                                                   value={this.state.officerInfo.professional.data_subida}
+                                                   onChange={(event) => {
                                                 this.setState({
                                                     officerInfo: {
                                                         ...this.state.officerInfo,
