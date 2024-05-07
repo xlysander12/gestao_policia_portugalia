@@ -370,11 +370,11 @@ class OfficerInfo extends Component {
     render() {
         // Before rendering the page, we need to build the patentes and status options
         const patentesOptions = this.patents.map((patente) => {
-            return <option key={`patent${patente.num}`} value={patente.num} disabled={patente.num > this.loggedPatent}>{patente.nome}</option>
+            return <option key={`patent${patente.id}`} value={patente.id} disabled={patente.id > this.loggedPatent}>{patente.nome}</option>
         });
 
         const statusOptions = this.statuses.map((status) => {
-           return <option key={`status${status.num}`} value={status.num}>{status.nome}</option>
+           return <option key={`status${status.id}`} value={status.id}>{status.nome}</option>
         });
 
         const specialUnitsOptions = this.specialUnits.map((unit) => {
