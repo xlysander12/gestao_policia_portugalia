@@ -16,11 +16,43 @@ class RecruitModal extends Component {
             return;
         }
 
+        this.info = {
+            nome: undefined,
+            nif: undefined,
+            telemovel: undefined,
+            iban: undefined,
+            kms: undefined,
+            discord: undefined,
+            steam: undefined,
+
+            cadete: false
+        }
+
         this.recruitMember = this.recruitMember.bind(this);
     }
 
     async recruitMember(event) {
         event.preventDefault();
+
+        // Make the request to recruit the new member
+        const recruitRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.info.nif}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": localStorage.getItem("token"),
+                "X-Portalseguranca-Force": localStorage.getItem("force")
+            },
+            body: JSON.stringify(this.info)
+        });
+
+        // Check if the response is ok
+        if (!recruitRequest.ok) {
+            alert((await recruitRequest.json()).message);
+            return;
+        }
+
+        // After recruiting the new member, we can reload the page using the officer's nif as a query param
+        window.location = `/portugalia/gestao_policia/efetivos?nif=${this.info.nif}`;
     }
 
     render () {
@@ -32,26 +64,32 @@ class RecruitModal extends Component {
                         <form onSubmit={this.recruitMember}>
                             <div className={modalsStyle.formDiv}>
                                 {/* TODO: add proper titles to explain the custom patterns */}
-                                <label>Nome:</label>
-                                <input name={"nome"} type={"text"} required/>
+                                <label htmlFor={"recruitname"}>Nome:</label>
+                                <input id={"recruitname"} name={"nome"} type={"text"} onChange={(event) => {this.info.nome = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>NIF:</label>
-                                <input name={"nif"} type={"text"} pattern={"^[0-9]{9}$"}/>
+                                <label htmlFor={"recruitnif"}>NIF:</label>
+                                <input id={"recruitnif"} name={"nif"} type={"text"} pattern={"^[0-9]{9}$"} onChange={(event) => {this.info.nif = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>Telemóvel:</label>
-                                <input name={"telemovel"} type={"text"} pattern={"^[0-9]{9}$"} required/>
+                                <label htmlFor={"recruitphone"}>Telemóvel:</label>
+                                <input id={"recuitphone"} name={"telemovel"} type={"text"} pattern={"^[0-9]{9}$"} onChange={(event) => {this.info.telemovel = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>IBAN:</label>
-                                <input name={"iban"} type={"text"} pattern={"^PT[0-9]{5,8}$"} required/>
+                                <label htmlFor={"recruitiban"}>IBAN:</label>
+                                <input id={"recruitiban"} name={"iban"} type={"text"} pattern={"^PT[0-9]{5,8}$"} onChange={(event) => {this.info.iban = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>KMs:</label>
-                                <input name={"kms"} type={"number"} required/>
+                                <label htmlFor={"recruitkms"}>KMs:</label>
+                                <input id={"recruitkms"} name={"kms"} type={"number"} step={100} onChange={(event) => {this.info.kms = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>Discord ID:</label>
-                                <input name={"discord"} type={"text"} pattern={"[0-9]+"} required/>
+                                <label htmlFor={"recruitdiscord"}>Discord ID:</label>
+                                <input id={"recruitdiscord"} name={"discord"} type={"text"} pattern={"[0-9]+"} onChange={(event) => {this.info.discord = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>Steam ID:</label>
-                                <input name={"steam"} type={"text"} pattern={"steam\:.+"} required/>
+                                <label htmlFor={"recruitsteam"}>Steam ID:</label>
+                                <input id={"recruitsteam"} name={"steam"} type={"text"} pattern={"steam:.+"} onChange={(event) => {this.info.steam = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+
+                                <label>Recrutar como Cadete <input className={modalsStyle.cadetCheckBox} id={"recruitcadet"} name={"cadete"} type={"checkbox"}
+                                                                   onChange={(event) => {
+                                                                       this.info.cadete = event.target.value
+                                                                   }}/></label>
+
 
                                 <button className={modalsStyle.submitButton} type={"submit"}>Recrutar</button>
                             </div>

@@ -27,7 +27,8 @@
     color: white;
 }
 
-.formDiv > input {
+.formDiv > input[type="text"],
+.formDiv > input[type="number"] {
     width: 37vw;
     background-color: transparent;
     border: 0;
@@ -39,6 +40,16 @@
 .formDiv > input:focus {
     border-bottom: 3px solid #00fdfd;
     outline: 0;
+}
+
+.invalidInput {
+    border-bottom: 3px solid red !important;
+}
+
+.cadetCheckBox {
+    font-size: 16px;
+    margin-top: 8px;
+    margin-bottom: 0;
 }
 
 .submitButton {
