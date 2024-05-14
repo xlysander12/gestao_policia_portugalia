@@ -331,6 +331,11 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
     }
 
     const info = rows[0];
+
+    // Alter the dates to be a proper string
+    info.data_entrada = info.data_entrada.toISOString().split("T")[0];
+    info.data_subida = info.data_subida !== null ? info.data_subida.toISOString().split("T")[0]: null;
+
     info.unidades = [];
 
     [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT unidade, cargo FROM efetivos_unidades WHERE nif = ${req.params.nif} ORDER BY cargo DESC, unidade DESC`);

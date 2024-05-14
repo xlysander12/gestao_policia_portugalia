@@ -175,10 +175,6 @@ class OfficerInfo extends Component {
         // Fetch the actual data from the response
         const data = responseJson.data;
 
-        // Format the dates to match the requirements of the input type date
-        data.data_entrada = data.data_entrada.split("T")[0];
-        data.data_subida = data.data_subida.split("T")[0];
-
         // Apply the data to the officerInfo object
         this.setState({
            officerInfo: {
@@ -196,6 +192,7 @@ class OfficerInfo extends Component {
                professional: {
                    patente: data.patente,
                    callsign: data.callsign,
+                   // TODO: Dates in the frontend always appear 1 day behind
                    data_entrada: data.data_entrada,
                    data_subida: data.data_subida,
                    status: data.status,
