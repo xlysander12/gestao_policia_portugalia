@@ -397,6 +397,53 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     });
 });
 
+app.put("/api/officerInfo/:nif", async (req, res) => {
+    // Making sure requesting user has permission to add officers
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officer");
+    if (!authenticatedPermission[0]) {
+        res.status(authenticatedPermission[1]).json({
+            message: authenticatedPermission[2]
+        });
+        return;
+    }
+
+    // Making sure the user has provided all necessary information
+    if (req.body.nome === undefined || req.body.telemovel === undefined || req.body.iban === undefined || req.body.kms === undefined || req.body.discord === undefined || req.body.steam === undefined) {
+        res.status(400).json({
+            message: "Não foram fornecidos todos os dados necessários."
+        });
+        return;
+    }
+
+    // Making sure the provided nif doesn't already exist
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM efetivos WHERE nif = ${req.params.nif}`);
+    if (rows.length !== 0) {
+        res.status(400).json({
+            message: "O NIF fornecido já pertence a um outro efetivo."
+        });
+        return;
+    }
+
+    // Checking if the patent will be a recruit or not
+    let patente = req.query.hasOwnProperty("recruit") ? -1: 0;
+
+    // Calculating what the new callsign will be, if it's not a recruit
+    let callsign = null
+    if (patente === 0) {
+        [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT callsign FROM efetivos WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC`);
+        let callsign_number = (Number.parseInt(rows[0].callsign.split("-")[1]) + 1);
+        callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
+    }
+
+    // Adding the officer to the database
+    await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos (nome, patente, callsign, telemovel, nif, iban, kms, discord, steam) VALUES ("${req.body.nome}", ${patente}, "${callsign}", ${req.body.telemovel}, ${req.params.nif}, "${req.body.iban}", ${req.body.kms}, ${req.body.discord}, "${req.body.steam}")`);
+
+    // If everything went according to plan, return a 200 status code
+    res.status(200).json({
+        message: "Operação bem sucedida"
+    });
+
+});
 
 // React Build
 app.get("/*", (req, res) => {
