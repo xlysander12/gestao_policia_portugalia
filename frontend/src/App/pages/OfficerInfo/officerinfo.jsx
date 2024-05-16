@@ -35,7 +35,7 @@ class RecruitModal extends Component {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.info.nif}`, {
+        const recruitRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.info.nif}${this.info.cadete ? "?recruit": ""}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -85,10 +85,12 @@ class RecruitModal extends Component {
                                 <label htmlFor={"recruitsteam"}>Steam ID:</label>
                                 <input id={"recruitsteam"} name={"steam"} type={"text"} pattern={"steam:.+"} onChange={(event) => {this.info.steam = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <label>Recrutar como Cadete <input className={modalsStyle.cadetCheckBox} id={"recruitcadet"} name={"cadete"} type={"checkbox"}
+                                <label>Recrutar como Cadete:
+                                    <input className={modalsStyle.cadetCheckBox} id={"recruitcadet"} name={"cadete"} type={"checkbox"}
                                                                    onChange={(event) => {
                                                                        this.info.cadete = event.target.value
-                                                                   }}/></label>
+                                                                   }}/>
+                                </label>
 
 
                                 <button className={modalsStyle.submitButton} type={"submit"}>Recrutar</button>
