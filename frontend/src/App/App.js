@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component, StrictMode} from "react";
 import {Route, Routes, BrowserRouter} from "react-router-dom";
 import "./App.css";
 import Login from "./pages/Login/login";
@@ -22,7 +22,9 @@ class App extends Component {
         );
 
         return (
-            <App/>
+            <StrictMode>
+                <App/>
+            </StrictMode>
         );
     }
 }
