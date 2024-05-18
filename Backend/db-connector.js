@@ -2,8 +2,8 @@ const mysql= require("mysql2/promise");
 
 // Database connection details
 let dbConfigDefaultPSP = {
-    host: "mysql.crunchypi.xyz",
-    user: "portugalia_gestao_policia",
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: "portugalia_gestao_psp",
     waitForConnections: true,
@@ -12,8 +12,8 @@ let dbConfigDefaultPSP = {
 }
 
 let dbConfigDefaultGNR = {
-    host: "mysql.crunchypi.xyz",
-    user: "portugalia_gestao_policia",
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: "portugalia_gestao_gnr",
     waitForConnections: true,
