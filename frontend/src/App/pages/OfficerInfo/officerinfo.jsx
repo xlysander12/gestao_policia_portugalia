@@ -194,7 +194,6 @@ class OfficerInfo extends Component {
                professional: {
                    patent: data.patent,
                    callsign: data.callsign,
-                   // TODO: Dates in the frontend always appear 1 day behind
                    entry_date: data.entry_date,
                    promotion_date: data.promotion_date,
                    status: data.status,

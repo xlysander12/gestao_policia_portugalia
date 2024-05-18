@@ -328,9 +328,9 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
 
     const info = rows[0];
 
-    // Alter the dates to be a proper string
-    info.entry_date = info.entry_date.toISOString().split("T")[0];
-    info.promotion_date = info.promotion_date !== null ? info.promotion_date.toISOString().split("T")[0]: null;
+    // Alter the dates to be a proper string (There's a lot of unknown shit going on here. For more information on wtf is going on, check https://stackoverflow.com/a/29774197)
+    info.entry_date = new Date(info.entry_date.getTime() - (info.entry_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+    info.promotion_date = info.promotion_date !== null ? new Date(info.promotion_date.getTime() - (info.promotion_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]: null;
 
     info.special_units = [];
 
