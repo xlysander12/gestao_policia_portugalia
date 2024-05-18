@@ -367,6 +367,8 @@ class OfficerInfo extends Component {
         const queryNif = queryParams.get("nif");
         if (queryNif) {
             this.fetchOfficerInfo(queryNif).then(() => {});
+        } else {
+            this.fetchOfficerInfo(loggedNif).then(() => {});
         }
     }
 
