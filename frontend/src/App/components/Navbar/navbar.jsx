@@ -49,22 +49,26 @@ class Navbar extends Component {
             },
         });
 
-        // From the response, get the patent and officer's full name
-        let body = await response.json();
-
         // Mandatory check if the status code was 200
         if (!response.ok) {
-            console.log(body.message)
+            // If the status code wasn't 200, the token is most likely invalid or something really bad happened, redirect to the login page
+            window.location.href = "/login";
             return;
         }
 
+        // From the response, get the patent and officer's full name
+        let body = await response.json();
+
+        // Build the officer's full name
+        let fullName = `${body.data.patent} ${body.data.name}`;
+
         // Set the full name of the officer
         this.setState({
-            fullName: `${body.data.patente} ${body.data.nome}`
+            fullName: fullName
         });
 
         // Save the full name in the session storage
-        sessionStorage.setItem("navbarFullName", `${body.data.patente} ${body.data.nome}`);
+        sessionStorage.setItem("navbarFullName", fullName);
     }
 
     async componentDidMount() {
@@ -100,6 +104,7 @@ class Navbar extends Component {
         }
 
         // If the user is from atleast one force, get the full name + patent of the user for the first one
+        // TODO: this needs to be changed to the selected force, when the user can select the force
         await this.buildOfficerName(nif);
     }
 
@@ -132,6 +137,8 @@ class Navbar extends Component {
                     <Link to="/" className={style.navButton} reloadDocument={true}>Avaliações</Link>
                     <Link to="/" className={style.navButton} reloadDocument={true}>Patrulhas</Link>
                 </div>
+
+                {/*TODO: Add a force selector here, floating to the right side of the navbar*/}
 
                 {/*Add the div that will hold the user info*/}
                 <div className={style.userInfoDiv}>

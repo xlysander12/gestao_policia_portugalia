@@ -32,6 +32,7 @@
 
 .officerListSearchButton {
     width: 20%;
+    min-width: fit-content;
     height: 2rem;
     margin: 1rem;
     background-color: #1f2833;

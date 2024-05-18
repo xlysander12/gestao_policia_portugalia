@@ -28,6 +28,8 @@ class OfficerCard extends Component {
                     return ["#fd0000", "#FFFFFF"];
                 case "Provisório":
                     return ["#efc032", "#000000"];
+                case "Formação":
+                    return ["#9800fd", "#000000"];
                 default:
                     return ["#000000", "#FFFFFF"];
             }
@@ -123,7 +125,7 @@ class OfficerList extends Component {
         let officersCards = [];
 
         for (let i = 0; i < this.state.officers.length; i++) {
-            officersCards.push(<OfficerCard key={"officer" + this.state.officers[i]["nif"]} name={`[${this.state.officers[i]["callsign"]}] ${this.state.officers[i]["patente"]} ${this.state.officers[i]["nome"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick} disabled={this.props.disabled}/>);
+            officersCards.push(<OfficerCard key={"officer" + this.state.officers[i]["nif"]} name={`[${this.state.officers[i]["callsign"]}] ${this.state.officers[i]["patent"]} ${this.state.officers[i]["name"]}`} nif={this.state.officers[i]["nif"]} status={this.state.officers[i]["status"]} clickFunction={this.handleClick} disabled={this.props.disabled}/>);
         }
 
         return(
@@ -132,7 +134,7 @@ class OfficerList extends Component {
                 <form onSubmit={this.handleSearch}>
                     <div className={style.officerListSearchDiv}>
                         <input className={style.officerListSearchInput} id={"officerSearch"} type={"text"}
-                               placeholder={"Nome, patente, callsign, NIF, telemóvel ou discord ID"} name={"search"} disabled={this.props.disabled}/>
+                               placeholder={"Pesquisar por efetivo"} name={"search"} disabled={this.props.disabled}/>
                         <input type={"submit"} className={style.officerListSearchButton} value={"Pesquisar"} disabled={this.props.disabled}/>
                     </div>
                 </form>

@@ -1,21 +1,12 @@
+// Importing dotenv and initializing it
+const dotenv = require("dotenv");
+dotenv.config({path: __dirname + "\\.env"});
+
 // Importing necessary modules
 const express = require("express");
 const app = express.Router(); // This app is a router to compartimentalize routes
-const mysql = require("mysql2/promise");
 const path = require("path");
-
-const dotenv = require("dotenv");
-
-// Initialize dotenv
-dotenv.config({path: __dirname + "\\.env"});
-
-
-// Import MySQL connection configurations
-const {dbConfigDefaultPSP, dbConfigDefaultGNR} = require("./dbConfigs");
-
-// Create MySQL Pools
-const poolDefaultPSP = mysql.createPool(dbConfigDefaultPSP);
-const poolDefaultGNR = mysql.createPool(dbConfigDefaultGNR);
+const {queryDB} = require("./db-connector");
 
 // Forces list
 const forces = ["psp", "gnr"];
@@ -23,20 +14,6 @@ const forces = ["psp", "gnr"];
 // React Static
 app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
-
-/************************************
- * Database Functions *
- ***********************************/
-async function queryDB(force, query) {
-    switch (force) {
-        case "psp":
-            return await poolDefaultPSP.query(query);
-        case "gnr":
-            return await poolDefaultGNR.query(query);
-        default:
-            return;
-    }
-}
 
 /************************************
  * Token / Authentication Functions *
@@ -98,7 +75,7 @@ async function checkTokenValidityIntents(token, force, intent) {
     // Once it has been confirmed the token exists, the lastUsed field should be updated in all databases
     // It's used the `then()` method to avoid waiting for the query to finish since the result is not needed
     for (const forcesKey of forces) {
-        queryDB(forcesKey, `UPDATE tokens SET ultimouso = CURRENT_TIMESTAMP() WHERE token = "${token}"`).then(_ => {});
+        queryDB(forcesKey, `UPDATE tokens SET last_used = CURRENT_TIMESTAMP WHERE token = "${token}"`).then(_ => {});
     }
 
     // If intent is null, then the user doesn't need special permissions
@@ -107,7 +84,7 @@ async function checkTokenValidityIntents(token, force, intent) {
     }
 
     // Fetch from the database the intents json of the user
-    [rows, fields] = await queryDB(force, `SELECT intents FROM usuarios WHERE nif = ${nif}`);
+    [rows, fields] = await queryDB(force, `SELECT intents FROM users WHERE nif = ${nif}`);
 
     // Converting the row to a JSON object
     let userIntents = JSON.parse(rows[0].intents);
@@ -146,7 +123,7 @@ app.get("/api/util/patents", async (req, res) => {
     }
 
     // Get the list from the database
-    const [rows, fields] = await queryDB(force, `SELECT * FROM patentes`);
+    const [rows, fields] = await queryDB(force, `SELECT * FROM patents`);
 
     // Send the list to the user
     res.status(200).json({
@@ -157,8 +134,18 @@ app.get("/api/util/patents", async (req, res) => {
 
 
 app.get("/api/util/statuses", async (req, res) => {
+    let force = req.headers["x-portalseguranca-force"];
+
+    // Check if the force is present
+    if (force === undefined) {
+        res.status(400).json({
+            message: "Não foi fornecida uma força para a obtenção das patentes."
+        });
+        return;
+    }
+
     // Get the list from the database
-    const [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM status`);
+    const [rows, fields] = await queryDB(force, `SELECT * FROM status`);
 
     // Send the list to the user
     res.status(200).json({
@@ -179,12 +166,12 @@ app.get("/api/util/specialunits", async (req, res) => {
     }
 
     // Get all the special units from the database
-    let [rows, fields] = await queryDB(force, `SELECT * FROM unidades_especiais`);
+    let [rows, fields] = await queryDB(force, `SELECT * FROM special_units`);
     let response = {};
     response.units = rows;
 
     // Get all the roles for the units
-    [rows, fields] = await poolDefaultPSP.query(`SELECT * FROM cargos_unidades`);
+    [rows, fields] = await queryDB(force, `SELECT * FROM specialunits_roles`);
     response.roles = rows;
 
     res.status(200).json({
@@ -235,7 +222,7 @@ app.post("/api/login", async (req, res) => {
 
     // Getting the row corresponding the nif and adding it to the found_results array
     for (const force of forces) {
-        const [rows, fields] = await queryDB(force, `SELECT password FROM usuarios WHERE nif = ${req.body.nif}`);
+        const [rows, fields] = await queryDB(force, `SELECT password FROM users WHERE nif = ${req.body.nif}`);
         found_results.push(...rows);
     }
 
@@ -271,7 +258,16 @@ app.post("/api/login", async (req, res) => {
 
     // After generating the token, store it in the databases of the forces the user belongs to
     for (const force of forces) {
-        await queryDB(force, `INSERT INTO tokens (token, nif) SELECT "${token}", ${req.body.nif} FROM dual WHERE EXISTS ( SELECT 1 FROM usuarios WHERE nif = ${req.body.nif})`);
+        try {
+            await queryDB(force, `INSERT INTO tokens (token, nif) SELECT "${token}", ${req.body.nif}`);
+        } catch (e) { // This error would only be if trying to store a token for an user that doesn't exist
+            res.status(500).json({
+                message: "Erro ao tentar guardar o token"
+            });
+
+            return;
+        }
+
     }
 
     // Send the token to the user
@@ -283,7 +279,7 @@ app.post("/api/login", async (req, res) => {
 
 // Patch Endpoint to change password
 app.patch("/api/login", (req, res) => {
-    // TODO: Implement this endpoint
+    // TODO: Implement this endpoint to change user's password
 });
 
 /**
@@ -304,7 +300,7 @@ app.get("/api/officerInfo", async (req, res) => {
         req.query.search = "";
     }
 
-    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT nome, patente, callsign, status, nif FROM efetivosV WHERE CONCAT(nome, patente, callsign, nif, telemovel, discord) LIKE "%${req.query.search}%"`);
+    const [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE "%${req.query.search}%"`);
     res.status(200).json({
         message: "Operação bem sucedida",
         data: rows
@@ -321,7 +317,7 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "efetivos" : "efetivosV"} WHERE nif = ${req.params.nif}`);
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ${req.params.nif}`);
 
     if (rows.length === 0) {
         res.status(404).json({
@@ -333,14 +329,14 @@ app.get("/api/officerInfo/:nif", async (req, res) => {
     const info = rows[0];
 
     // Alter the dates to be a proper string
-    info.data_entrada = info.data_entrada.toISOString().split("T")[0];
-    info.data_subida = info.data_subida !== null ? info.data_subida.toISOString().split("T")[0]: null;
+    info.entry_date = info.entry_date.toISOString().split("T")[0];
+    info.promotion_date = info.promotion_date !== null ? info.promotion_date.toISOString().split("T")[0]: null;
 
-    info.unidades = [];
+    info.special_units = [];
 
-    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT unidade, cargo FROM efetivos_unidades WHERE nif = ${req.params.nif} ORDER BY cargo DESC, unidade DESC`);
+    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT unit, role FROM specialunits_officers WHERE nif = ${req.params.nif} ORDER BY role DESC, unit DESC`);
     rows.forEach((row) => {
-        info.unidades.push({"id": row.unidade, "cargo": row.cargo});
+        info.special_units.push({"id": row.unit, "role": row.role});
     });
 
     res.status(200).json({
@@ -359,7 +355,7 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     }
 
     // Check if the requested officer exists
-    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patente FROM efetivos WHERE nif = ${req.params.nif}`);
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ${req.params.nif}`);
     if (rows.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
@@ -368,10 +364,10 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     }
 
     // Check if the user can edit the requested officer
-    const requestedOfficerPatente = rows[0].patente;
+    const requestedOfficerPatente = rows[0].patent;
 
-    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patente FROM efetivos WHERE nif = ${authenticatedPermission[2]}`);
-    const requestingOfficerPatente = rows[0].patente;
+    [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ${authenticatedPermission[2]}`);
+    const requestingOfficerPatente = rows[0].patent;
 
     if (requestedOfficerPatente > requestingOfficerPatente) {
         res.status(403).json({
@@ -380,19 +376,21 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
+    // TODO: Before updating the values check if the officer's patent has changed or if it's status has changed from "Formação" to "Ativo" or "Provisório" to "Ativo"
+
     // If everything checks out, update the officer's basic info
-    let updateQuery = `UPDATE efetivos SET nome = "${req.body.nome}", patente = ${req.body.patente}, 
+    let updateQuery = `UPDATE officers SET name = "${req.body.name}", patent = ${req.body.patent}, 
                               callsign = "${req.body.callsign}", status = ${req.body.status}, 
-                              data_entrada = "${req.body.data_entrada}", data_subida = "${req.body.data_subida}", 
-                              telemovel = ${req.body.telemovel}, iban = "${req.body.iban}", kms = ${req.body.kms}, 
+                              entry_date = "${req.body.entry_date}", promotion_date = "${req.body.promotion_date}", 
+                              phone = ${req.body.phone}, iban = "${req.body.iban}", kms = ${req.body.kms}, 
                               discord = ${req.body.discord}, steam = "${req.body.steam}" WHERE nif = ${req.params.nif}`;
     await queryDB(req.headers["x-portalseguranca-force"], updateQuery);
 
     // Now, update the special units the officer belongs to
-    if (req.body.unidades !== undefined) {
-        await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM efetivos_unidades WHERE nif = ${req.params.nif}`);
-        for (const unidade of req.body.unidades) {
-            await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos_unidades (nif, unidade, cargo) VALUES (${req.params.nif}, ${unidade.id}, "${unidade.cargo}")`);
+    if (req.body.special_units !== undefined) {
+        await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM specialunits_officers WHERE nif = ${req.params.nif}`);
+        for (const unit of req.body.unidades) {
+            await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO specialunits_officers (nif, unit, role) VALUES (${req.params.nif}, ${unit.id}, "${unit.role}")`);
         }
     }
 
@@ -413,18 +411,18 @@ app.put("/api/officerInfo/:nif", async (req, res) => {
     }
 
     // Making sure the user has provided all necessary information
-    if (req.body.nome === undefined || req.body.telemovel === undefined || req.body.iban === undefined || req.body.kms === undefined || req.body.discord === undefined || req.body.steam === undefined) {
+    if (req.body.name === undefined || req.body.phone === undefined || req.body.iban === undefined || req.body.kms === undefined || req.body.discord === undefined || req.body.steam === undefined) {
         res.status(400).json({
-            message: "Não foram fornecidos todos os dados necessários."
+            message: "Não foram fornecidos todos os dados necessários. É necessário fornecer nome, telemovel, iban, kms, discord e steam."
         });
         return;
     }
 
     // Making sure the provided nif doesn't already exist
-    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM efetivos WHERE nif = ${req.params.nif}`);
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM officers WHERE nif = ${req.params.nif}`);
     if (rows.length !== 0) {
         res.status(400).json({
-            message: "O NIF fornecido já pertence a um outro efetivo."
+            message: "Já existe um outro efetivo com esse NIF."
         });
         return;
     }
@@ -435,13 +433,13 @@ app.put("/api/officerInfo/:nif", async (req, res) => {
     // Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
     if (patente === 0) {
-        [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT callsign FROM efetivos WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC`);
+        [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC`);
         let callsign_number = (Number.parseInt(rows[0].callsign.split("-")[1]) + 1);
         callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
     }
 
     // Adding the officer to the database
-    await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO efetivos (nome, patente, callsign, telemovel, nif, iban, kms, discord, steam) VALUES ("${req.body.nome}", ${patente}, "${callsign}", ${req.body.telemovel}, ${req.params.nif}, "${req.body.iban}", ${req.body.kms}, ${req.body.discord}, "${req.body.steam}")`);
+    await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES ("${req.body.name}", ${patent}, "${callsign}", ${req.body.phone}, ${req.params.nif}, "${req.body.iban}", ${req.body.kms}, ${req.body.discord}, "${req.body.steam}")`);
 
     // If everything went according to plan, return a 200 status code
     res.status(200).json({
