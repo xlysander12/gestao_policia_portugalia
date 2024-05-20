@@ -694,7 +694,6 @@ class OfficerInfo extends Component {
                                             </div>
 
                                             {/*Data de Subida pair*/}
-                                            {/*TODO: This field shouldn't be editable. It should automatically be updated by the backend when a change prompts it*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
                                                 <input type={"date"} className={style.officerInfoInput}
