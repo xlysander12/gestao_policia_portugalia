@@ -355,13 +355,20 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     }
 
     // Check if the requested officer exists
-    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ${req.params.nif}`);
+    let [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent, status FROM officers WHERE nif = ${req.params.nif}`);
     if (rows.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
         });
         return;
     }
+
+    // After making sure the officer exists, figure out if this change is considered a promotion
+    // TODO: This needs to be properly address when additional forces are added. Statuses may vary between them.
+    let isPromotion = rows[0].patent !== req.body.patent // If patent has changed
+        || (rows[0].status === 1 && req.body.status === 3)  // If status has changed from "Formação" to "Ativo"
+        || (rows[0].status === 2 && req.body.status === 3); // If status has changed from "Provisório" to "Ativo"
+
 
     // Check if the user can edit the requested officer
     const requestedOfficerPatente = rows[0].patent;
@@ -376,15 +383,18 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
         return;
     }
 
-    // TODO: Before updating the values check if the officer's patent has changed or if it's status has changed from "Formação" to "Ativo" or "Provisório" to "Ativo"
-
     // If everything checks out, update the officer's basic info
     let updateQuery = `UPDATE officers SET name = "${req.body.name}", patent = ${req.body.patent}, 
                               callsign = "${req.body.callsign}", status = ${req.body.status}, 
-                              entry_date = "${req.body.entry_date}", promotion_date = "${req.body.promotion_date}", 
+                              entry_date = "${req.body.entry_date}", 
                               phone = ${req.body.phone}, iban = "${req.body.iban}", kms = ${req.body.kms}, 
                               discord = ${req.body.discord}, steam = "${req.body.steam}" WHERE nif = ${req.params.nif}`;
     await queryDB(req.headers["x-portalseguranca-force"], updateQuery);
+
+    // If the change is considered a promotion, update the promotion date
+    if (isPromotion) {
+        await queryDB(req.headers["x-portalseguranca-force"], `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ${req.params.nif}`);
+    }
 
     // Now, update the special units the officer belongs to
     if (req.body.special_units !== undefined) {

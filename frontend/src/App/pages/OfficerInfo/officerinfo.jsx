@@ -698,18 +698,7 @@ class OfficerInfo extends Component {
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
                                                 <input type={"date"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.professional.promotion_date}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   professional: {
-                                                                       ...this.state.officerInfo.professional,
-                                                                       promotion_date: event.target.value
-                                                                   }
-                                                               }
-                                                           });
-                                                       }}/>
+                                                       value={this.state.officerInfo.professional.promotion_date} readOnly/>
                                             </div>
 
                                             {/*Unidades Especiais*/}
