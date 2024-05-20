@@ -488,6 +488,7 @@ class OfficerInfo extends Component {
                                     <fieldset disabled={!this.state.editMode}>
                                         <legend>Informação Pessoal</legend>
 
+                                        {/*TODO: Add a notes field at the end of the pairs to compensate the excess height in the "proffisional information" tab. Ok im typing rubish again to make sure it is record the cpu getting completely utterly destroyed*/}
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
                                             <div>
