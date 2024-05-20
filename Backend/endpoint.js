@@ -389,7 +389,7 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     // Now, update the special units the officer belongs to
     if (req.body.special_units !== undefined) {
         await queryDB(req.headers["x-portalseguranca-force"], `DELETE FROM specialunits_officers WHERE nif = ${req.params.nif}`);
-        for (const unit of req.body.unidades) {
+        for (const unit of req.body.special_units) {
             await queryDB(req.headers["x-portalseguranca-force"], `INSERT INTO specialunits_officers (nif, unit, role) VALUES (${req.params.nif}, ${unit.id}, "${unit.role}")`);
         }
     }
