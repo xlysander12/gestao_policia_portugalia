@@ -12,15 +12,15 @@ class PrivateRoute extends Component {
 
             msgVisible: false
         }
+    }
 
+    async componentDidMount() {
         setTimeout(() => {
             this.setState({
                 msgVisible: true
             });
         }, 3000);
-    }
 
-    async componentDidMount() {
         // Check if there is a token in the local storage. If there isn't, return to login
         if (!localStorage.getItem("token")) {
             this.setState({
@@ -54,7 +54,6 @@ class PrivateRoute extends Component {
             this.setState({
                 authorized: false
             });
-
             return
         }
 
@@ -74,4 +73,5 @@ class PrivateRoute extends Component {
         return this.state.authorized ? <this.props.element /> : <Navigate to="/login"/>
     }
 }
+
 export default PrivateRoute;
