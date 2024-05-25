@@ -3,19 +3,10 @@
     border: 10px solid #1f2833;
 }
 
-.header {
-    box-sizing: border-box;
-    width: 100%;
-    font-size: 20px;
-    color: #c3c4c5;
-    background-color: #1f2833;
-    border-bottom:5px solid black;
-    text-align: center;
-    padding: 5px;
-}
-
 .content {
     padding: 10px 5px;
+    background-color: #617c9d;
+    border: 10px solid #1f2833;
 }
 
 .formDiv {

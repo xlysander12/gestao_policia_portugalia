@@ -4,7 +4,7 @@ import modalsStyle from "./officerinfomodals.module.css";
 import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
-import Modal from "../../components/Modal";
+import Modal from "../../components/Modal/Modal";
 
 
 class RecruitModal extends Component {
@@ -58,9 +58,7 @@ class RecruitModal extends Component {
 
     render () {
         return (
-            <Modal width={"37%"} trigger={this.props.trigger} className={"recruit-modal"} modal>
-                <div className={modalsStyle.modal}>
-                    <div className={modalsStyle.header}>Recrutar novo efetivo</div>
+            <Modal width={"37%"} trigger={this.props.trigger} title={"Recrutar novo efetivo"} modal>
                     <div className={modalsStyle.content}>
                         <form onSubmit={this.recruitMember}>
                             <div className={modalsStyle.formDiv}>
@@ -100,7 +98,6 @@ class RecruitModal extends Component {
                             </div>
                         </form>
                     </div>
-                </div>
             </Modal>
         );
     }

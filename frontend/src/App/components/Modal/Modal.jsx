@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import Popup from "reactjs-popup";
+import React, {Component} from "react";
+import style from "./modal.module.css";
 
-const StyledRecruitModal = styled(Popup)`
+// TODO: This must be a templete of how a modal should look like
+const ModalStyle = styled(Popup)`
     @keyframes anvil {
         0% {
             transform: scale(1) translateY(0px);
@@ -32,4 +35,26 @@ const StyledRecruitModal = styled(Popup)`
     
     `;
 
-export default StyledRecruitModal;
+class Modal extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <ModalStyle
+                trigger={this.props.trigger}
+                width={this.props.width}
+                modal
+            >
+                {/*Header of the modal*/}
+                <div className={style.header}>{this.props.title}</div>
+
+                {/*Body of the modal*/}
+                {this.props.children}
+            </ModalStyle>
+        );
+    }
+}
+
+export default Modal;
