@@ -376,7 +376,7 @@ app.patch("/api/officerInfo/:nif", async (req, res) => {
     [rows, fields] = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ${authenticatedPermission[2]}`);
     const requestingOfficerPatente = rows[0].patent;
 
-    if (requestedOfficerPatente > requestingOfficerPatente) {
+    if (requestedOfficerPatente >= requestingOfficerPatente) {
         res.status(403).json({
             message: "Não tens permissão para editar este efetivo."
         });
