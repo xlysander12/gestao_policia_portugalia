@@ -5,6 +5,7 @@ import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
+import {make_request} from "../../utils/requests";
 
 
 class RecruitModal extends Component {
@@ -100,6 +101,57 @@ class RecruitModal extends Component {
                     </div>
             </Modal>
         );
+    }
+}
+
+class FireModal extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            fireReason: ""
+        }
+
+        this.fireOfficer = this.fireOfficer.bind(this);
+    }
+
+    async fireOfficer(event) {
+        // Prevent the form from submitting and therefore reloading the page
+        event.preventDefault();
+
+        const fireRequest = await make_request(
+            `/portugalia/gestao_policia/api/officerInfo/${this.props.officerNIF}`,
+            "DELETE", {reason: this.state.fireReason}
+        );
+
+        // Check if the response is ok
+        if (!fireRequest.ok) {
+            alert((await fireRequest.json()).message);
+            return;
+        }
+
+        // After firing the officer, we can reload the page to the officer's list
+        window.location = "/portugalia/gestao_policia/efetivos";
+    }
+
+    render() {
+        return (
+            <Modal trigger={this.props.trigger} title={`Despedir ${this.props.officerFullName}`}>
+                <div className={modalsStyle.content}>
+                    <form onSubmit={this.fireOfficer}>
+                        <div className={modalsStyle.formDiv}>
+                            {/*Text area to input the firing reason*/}
+                            <label style={{fontSize: "1.1rem"}}>Motivo de despedimento:</label> {/*I know it's stupid to set the font size like this. Bite me*/}
+                            <textarea className={modalsStyle.fireTextArea} value={this.state.fireReason} onChange={(event) => {this.setState({fireReason: `${event.target.value}`})}}/>
+
+                            {/*Button to submit the form and, therefore, fire the officer*/}
+                            <button className={modalsStyle.fireButton} type={"submit"}>Despedir</button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
+        )
+
     }
 }
 
@@ -455,10 +507,11 @@ class OfficerInfo extends Component {
                                     hidden={this.state.editMode || !this.state.hasEditPermissions}
                                     onClick={this.enableEditMode}>Editar
                                 </button>
-                                <button
+
+                                <FireModal trigger={<button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
-                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir
-                                </button>
+                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>} officerFullName={`${this.patents.length === 0 ? "Agente": (this.patents[this.state.officerInfo.professional.patent + 1]["name"])} ${this.state.officerInfo.personal.name}`} officerNIF={this.state.officerInfo.personal.nif}></FireModal>
+
                                 {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
                                 <button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
