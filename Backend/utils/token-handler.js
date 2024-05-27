@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedReference
 
 const {forces} = require("./constants");
-const {queryDB} = require("../db-connector");
+const {queryDB} = require("./db-connector");
 
 async function generateToken() {
     // Repeat the generation process until an unique token is generated

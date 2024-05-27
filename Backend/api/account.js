@@ -3,7 +3,7 @@ const app = express.Router();
 
 // Import utils
 const {checkTokenValidityIntents, generateToken} = require("../utils/token-handler");
-const {queryDB} = require("../db-connector");
+const {queryDB} = require("../utils/db-connector");
 
 // Import constants
 const {forces} = require("../utils/constants");

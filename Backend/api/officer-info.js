@@ -5,7 +5,7 @@ const app = express.Router();
 
 // Import utils
 const {checkTokenValidityIntents} = require("../utils/token-handler");
-const {queryDB} = require("../db-connector");
+const {queryDB} = require("../utils/db-connector");
 
 
 app.get("/", async (req, res) => {
