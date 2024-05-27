@@ -1,6 +1,7 @@
 import {Component} from "react";
 import style from "./navbar.module.css";
-import {Link} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
+import {make_request} from "../../utils/requests";
 
 const SubPath = (props) => {
 
@@ -29,10 +30,11 @@ class Navbar extends Component {
         // Set the state of the component
         this.state = {
             fullName: "",
+            validLogin: true
         }
 
         // Check if we are in the login page
-        this.isLogin = window.location.pathname === "/login";
+        this.isLogin = window.location.pathname === "/portugalia/portalseguranca/login";
 
         // Bind the function to the component
         this.buildOfficerName = this.buildOfficerName.bind(this);
@@ -40,19 +42,14 @@ class Navbar extends Component {
 
     async buildOfficerName(nif) {
         // From the given NIF, get the patent and officer's full name
-        let response = await fetch(`/portugalia/gestao_policia/api/officerInfo/${nif}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-PortalSeguranca-Force": localStorage.getItem("force")
-            },
-        });
+        let response = await make_request(`/officerInfo/${nif}`, "GET");
 
         // Mandatory check if the status code was 200
         if (!response.ok) {
             // If the status code wasn't 200, the token is most likely invalid or something really bad happened, redirect to the login page
-            window.location.href = "/login";
+            this.setState({
+                validLogin: false
+            })
             return;
         }
 
@@ -81,18 +78,12 @@ class Navbar extends Component {
             psp: false,
             gnr: false
         }
+
         let nif;
 
         // Making the request to check if the token is valid for all forces
         for (const force of ["psp", "gnr"]) {
-            const response = await fetch("/portugalia/gestao_policia/api/validateToken", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": localStorage.getItem("token"),
-                    "X-PortalSeguranca-Force": force
-                }
-            });
+            const response = await make_request("/account/validateToken", "POST", undefined, force);
 
             // If the request returned status of 200, the token is valid for that force
             if (response.status === 200) {
@@ -109,6 +100,12 @@ class Navbar extends Component {
     }
 
     render() {
+        if (!this.state.validLogin) {
+            return (
+                <Navigate to="/login"/>
+            );
+        }
+
         // Create the array of elements for the pathsdiv
         let paths = [];
 
@@ -141,6 +138,7 @@ class Navbar extends Component {
                 {/*TODO: Add a force selector here, floating to the right side of the navbar*/}
 
                 {/*Add the div that will hold the user info*/}
+                {/*TODO: This needs to be a dropdown menu to logout, change password, etc*/}
                 <div className={style.userInfoDiv}>
                     <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && this.state.fullName === "" ? sessionStorage.getItem("navbarFullName"): this.state.fullName}</p>
                 </div>

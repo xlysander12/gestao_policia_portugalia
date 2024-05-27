@@ -1,10 +1,15 @@
 import React, {Component} from "react";
 import style from "./login.module.css";
 import Navbar from "../../components/Navbar/navbar";
+import {Navigate} from "react-router-dom";
 
 class Login extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            loggedOn: false
+        }
 
         this.onLogin = this.onLogin.bind(this);
     }
@@ -36,17 +41,23 @@ class Login extends Component {
         // If the request returned status 200, the login was successful
         if (response.status === 200) {
             // Get the response body
-            let body = await response.json(); // TODO This will soon be a JSON object
+            let body = await response.json();
 
             // Save the token in the local storage
             localStorage.setItem("token", body.data);
 
-            // Redirect to the main page
-            window.location.href = "/";
+            // Set the state to loggedOn
+            this.setState({
+                loggedOn: true
+            })
         }
     }
 
     render() {
+        if (this.state.loggedOn) {
+            return (<Navigate to={"/"} />)
+        }
+
         return (
             <div>
                 {/*Adding the navbar to the page*/}

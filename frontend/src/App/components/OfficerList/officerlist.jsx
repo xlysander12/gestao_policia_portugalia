@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import style from "./officerlist.module.css";
 import Loader from "../Loader/loader";
+import {make_request} from "../../utils/requests";
 
 
 class OfficerCard extends Component {
@@ -82,14 +83,7 @@ class OfficerList extends Component {
         if (query === undefined) query = "";
 
         // Send the request to the API to get the results from the search
-        const response = await fetch("/portugalia/gestao_policia/api/officerInfo?search=" + query, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-PortalSeguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const response = await make_request(`/officerInfo?search=${query}`, "GET");
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {

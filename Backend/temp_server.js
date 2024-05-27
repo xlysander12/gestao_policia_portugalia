@@ -2,12 +2,12 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
 
-const endpoint = require("./endpoint.js");
+const endpoint = require("./main.js");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/portugalia/gestao_policia", endpoint);
+app.use("/portugalia/portalseguranca", endpoint);
 
 
 app.listen(8080, () => {

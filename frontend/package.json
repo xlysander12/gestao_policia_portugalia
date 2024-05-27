@@ -22,7 +22,7 @@
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080",
-  "homepage": "http://localhost/portugalia/gestao_policia",
+  "homepage": "/portugalia/portalseguranca",
   "eslintConfig": {
     "extends": [
       "react-app",

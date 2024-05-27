@@ -6,7 +6,7 @@
   </component>
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DatabaseBrowserManager">
@@ -16,8 +16,8 @@
     <loaded-nodes />
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="200786db-16d9-48ec-aaa0-f7bc6960fe12">
-      <console name="Remote DB (PSP)" type="STANDARD" schema="" session="Main" />
+    <connection id="0988594a-5a7f-4441-9797-d7eec6e3950a">
+      <console name="Remote DB" type="STANDARD" schema="" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
@@ -27,11 +27,21 @@
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="200786db-16d9-48ec-aaa0-f7bc6960fe12" />
+    <connection id="0988594a-5a7f-4441-9797-d7eec6e3950a" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-actions connection-id="200786db-16d9-48ec-aaa0-f7bc6960fe12" dataset="portugalia_gestao_psp.officers" active-filter-id="EMPTY_FILTER" />
-    <filter-actions connection-id="200786db-16d9-48ec-aaa0-f7bc6960fe12" dataset="portugalia_gestao_gnr.officers" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="0988594a-5a7f-4441-9797-d7eec6e3950a" dataset="portugalia_gestao_psp.officers" active-filter-id="EMPTY_FILTER" />
+  </component>
+  <component name="DBNavigator.Project.ExecutionManager">
+    <retain-sticky-names value="false" />
+  </component>
+  <component name="DBNavigator.Project.MethodExecutionManager">
+    <method-browser />
+    <execution-history>
+      <group-entries value="true" />
+      <execution-inputs />
+    </execution-history>
+    <argument-values-cache />
   </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
@@ -39,22 +49,18 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="200786db-16d9-48ec-aaa0-f7bc6960fe12" active="true" signed="true">
+      <connection id="0988594a-5a7f-4441-9797-d7eec6e3950a" active="true" signed="true">
         <database>
           <name value="Remote DB" />
           <description value="" />
-          <database-type value="MYSQL" />
-          <config-type value="BASIC" />
-          <database-version value="5.5" />
-          <driver-source value="BUNDLED" />
-          <driver-library value="" />
-          <driver value="" />
-          <url-type value="DATABASE" />
-          <host value="mysql.crunchypi.xyz" />
-          <port value="3306" />
-          <database value="" />
-          <tns-folder value="" />
-          <tns-profile value="" />
+          <database-type value="GENERIC" />
+          <config-type value="CUSTOM" />
+          <database-version value="10.6" />
+          <driver-source value="EXTERNAL" />
+          <driver-library value="D:\MySQL Drivers\mariadb-java-client-3.4.0.jar" />
+          <driver value="org.mariadb.jdbc.Driver" />
+          <url-type value="CUSTOM" />
+          <url value="jdbc:mariadb://mysql.crunchypi.xyz:3306/portugalia_gestao_psp" />
           <type value="USER_PASSWORD" />
           <user value="portugalia_gestao_policia" />
           <deprecated-pwd value="Y29udHJvbG9wb2xpY2lhZ2FsaWE=" />
@@ -275,13 +281,13 @@
     <code-editor-settings>
       <general>
         <show-object-navigation-gutter value="false" />
-        <show-spec-declaration-navigation-gutter value="true" />
-        <enable-spellchecking value="true" />
+        <show-spec-declaration-navigation-gutter value="false" />
+        <enable-spellchecking value="false" />
         <enable-reference-spellchecking value="false" />
       </general>
       <confirmations>
         <save-changes value="false" />
-        <revert-changes value="true" />
+        <revert-changes value="false" />
         <exit-on-changes value="ASK" />
       </confirmations>
     </code-editor-settings>

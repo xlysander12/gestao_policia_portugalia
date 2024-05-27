@@ -1,5 +1,8 @@
+// noinspection JSXUnresolvedComponent
+
 import {Navigate} from "react-router-dom";
 import {Component} from "react";
+import {make_request} from "../utils/requests";
 
 
 class PrivateRoute extends Component {
@@ -21,8 +24,8 @@ class PrivateRoute extends Component {
             });
         }, 3000);
 
-        // Check if there is a token in the local storage. If there isn't, return to login
-        if (!localStorage.getItem("token")) {
+        // Check if there is a token or force in the local storage. If there isn't, return to login
+        if (!localStorage.getItem("token") || !localStorage.getItem("force")) {
             this.setState({
                 authorized: false
             });
@@ -30,24 +33,8 @@ class PrivateRoute extends Component {
             return;
         }
 
-        // Check if there is a force stored in the local storage
-        if (!localStorage.getItem("force")) {
-            this.setState({
-                authorized: false
-            });
-
-            return;
-        }
-
-        // Since there's a force in local storage, check if the token is valid for that force
-        const response = await fetch("/portugalia/gestao_policia/api/validateToken", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-PortalSeguranca-Force": localStorage.getItem("force")
-            }
-        });
+        // Since there's a token and force in local storage, check if the token is valid for that force
+        const response = await make_request("/account/validateToken", "POST");
 
         // If the request returned status different of 200, the token isn't valid and the user should be redirected to login
         if (response.status !== 200) {

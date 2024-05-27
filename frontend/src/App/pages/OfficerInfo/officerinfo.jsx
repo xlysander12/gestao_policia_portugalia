@@ -6,6 +6,7 @@ import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
 import {make_request} from "../../utils/requests";
+import {base_url} from "../../utils/constants";
 
 
 class RecruitModal extends Component {
@@ -37,15 +38,7 @@ class RecruitModal extends Component {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.info.nif}${this.info.recruit ? "?recruit": ""}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            },
-            body: JSON.stringify(this.info)
-        });
+        const recruitRequest = await make_request(`/officerInfo/${this.info.nif}${this.info.recruit ? "?recruit": ""}`, "PUT", this.info);
 
         // Check if the response is ok
         if (!recruitRequest.ok) {
@@ -54,7 +47,7 @@ class RecruitModal extends Component {
         }
 
         // After recruiting the new member, we can reload the page using the officer's nif as a query param
-        window.location = `/portugalia/gestao_policia/efetivos?nif=${this.info.nif}`;
+        window.location = `${base_url}/efetivos?nif=${this.info.nif}`;
     }
 
     render () {
@@ -120,7 +113,7 @@ class FireModal extends Component {
         event.preventDefault();
 
         const fireRequest = await make_request(
-            `/portugalia/gestao_policia/api/officerInfo/${this.props.officerNIF}`,
+            `/officerInfo/${this.props.officerNIF}`,
             "DELETE", {reason: this.state.fireReason}
         );
 
@@ -131,7 +124,7 @@ class FireModal extends Component {
         }
 
         // After firing the officer, we can reload the page to the officer's list
-        window.location = "/portugalia/gestao_policia/efetivos";
+        window.location = `${base_url}/efetivos`;
     }
 
     render() {
@@ -208,14 +201,7 @@ class OfficerInfo extends Component {
                 loading: true
             });
 
-        const response = await fetch(`/portugalia/gestao_policia/api/officerInfo/${nif}?raw`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const response = await make_request(`/officerInfo/${nif}?raw`, "GET");
 
         const responseJson = await response.json();
 
@@ -279,32 +265,25 @@ class OfficerInfo extends Component {
             });
 
         // Make the request to update the officer's info
-        const updateRequest = await fetch(`/portugalia/gestao_policia/api/officerInfo/${this.state.officerInfo.personal.nif}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            },
-            body: JSON.stringify({
-                // Personal Info
-                name: this.state.officerInfo.personal.name,
-                phone: this.state.officerInfo.personal.phone,
-                iban: this.state.officerInfo.personal.iban,
-                kms: this.state.officerInfo.personal.kms,
-                discord: this.state.officerInfo.personal.discord,
-                steam: this.state.officerInfo.personal.steam,
+        const updateRequest = await make_request(`/officerInfo/${this.state.officerInfo.personal.nif}`, "PATCH",
+            {
+            // Personal Info
+            name: this.state.officerInfo.personal.name,
+            phone: this.state.officerInfo.personal.phone,
+            iban: this.state.officerInfo.personal.iban,
+            kms: this.state.officerInfo.personal.kms,
+            discord: this.state.officerInfo.personal.discord,
+            steam: this.state.officerInfo.personal.steam,
 
-                // Professional Info
-                patent: this.state.officerInfo.professional.patent,
-                callsign: this.state.officerInfo.professional.callsign,
-                status: this.state.officerInfo.professional.status,
-                entry_date: this.state.officerInfo.professional.entry_date,
-                promotion_date: this.state.officerInfo.professional.promotion_date,
+            // Professional Info
+            patent: this.state.officerInfo.professional.patent,
+            callsign: this.state.officerInfo.professional.callsign,
+            status: this.state.officerInfo.professional.status,
+            entry_date: this.state.officerInfo.professional.entry_date,
+            promotion_date: this.state.officerInfo.professional.promotion_date,
 
-                // Special Units
-                special_units: this.state.officerInfo.professional.special_units
-            })
+            // Special Units
+            special_units: this.state.officerInfo.professional.special_units
         });
 
         // Check if the response is ok
@@ -314,23 +293,13 @@ class OfficerInfo extends Component {
         }
 
         // After updating the data, we can reload the page using the officer's nif as a query param
-        window.location = `/portugalia/gestao_policia/efetivos?nif=${this.state.officerInfo.personal.nif}`;
+        window.location = `${base_url}/efetivos?nif=${this.state.officerInfo.personal.nif}`;
     }
 
     async componentDidMount() {
         // TODO: make this in a separate function to be better organize this function
         // First, we need to check if the user has edit permissions
-        const editIntentsResponse = await fetch("/portugalia/gestao_policia/api/validateToken", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            },
-            body: JSON.stringify({
-                "intent": "officer"
-            })
-        });
+        const editIntentsResponse = await make_request("/account/validateToken", "POST", {intent: "officer"});
 
         // Make sure the response is OK
         if (!editIntentsResponse.ok) {
@@ -342,14 +311,7 @@ class OfficerInfo extends Component {
         const loggedNif = (await editIntentsResponse.json()).data
 
         // Get the logged officers's patent as an int
-        const loggedOfficerResponse = await fetch(`/portugalia/gestao_policia/api/officerInfo/${loggedNif}?raw`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": localStorage.getItem("token"),
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const loggedOfficerResponse = await make_request(`/officerInfo/${loggedNif}?raw`, "GET");
 
         if (!loggedOfficerResponse.ok) {
             return;
@@ -360,13 +322,7 @@ class OfficerInfo extends Component {
 
         // TODO: make this in a separate function to be better organize this function
         // When the page loads, we need to fetch the available patents and statuses
-        const patentsResponse = await fetch("/portugalia/gestao_policia/api/util/patents", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const patentsResponse = await make_request("/util/patents", "GET");
 
         // Mandatory check if the status code was 200
         // TODO: Do something actually useful with the error
@@ -377,13 +333,7 @@ class OfficerInfo extends Component {
         // Apply the data to the class object
         this.patents = (await patentsResponse.json()).data;
 
-        const statusResponse = await fetch("/portugalia/gestao_policia/api/util/statuses", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const statusResponse = await make_request("/util/statuses", "GET");
 
         // Mandatory check if the status code was 200
         // TODO: Do something actually useful with the error
@@ -394,13 +344,7 @@ class OfficerInfo extends Component {
         // Apply the data to the class object
         this.statuses = (await statusResponse.json()).data;
 
-        const specialUnitsResponse = await fetch("/portugalia/gestao_policia/api/util/specialunits", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Portalseguranca-Force": localStorage.getItem("force")
-            }
-        });
+        const specialUnitsResponse = await make_request("/util/specialunits", "GET");
 
         // Mandatory check if the status code was 200
         // TODO: Do something actually useful with the error
@@ -510,7 +454,7 @@ class OfficerInfo extends Component {
 
                                 <FireModal trigger={<button
                                     className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
-                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>} officerFullName={`${this.patents.length === 0 ? "Agente": (this.patents[this.state.officerInfo.professional.patent + 1]["name"])} ${this.state.officerInfo.personal.name}`} officerNIF={this.state.officerInfo.personal.nif}></FireModal>
+                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>} officerFullName={`${this.state.loading ? "Agente": (this.patents[this.state.officerInfo.professional.patent + 1]["name"])} ${this.state.officerInfo.personal.name}`} officerNIF={this.state.officerInfo.personal.nif}></FireModal>
 
                                 {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
                                 <button
