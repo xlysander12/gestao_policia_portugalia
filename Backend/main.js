@@ -7,6 +7,7 @@ const express = require("express");
 const app = express.Router(); // This app is a router to compartimentalize routes
 const path = require("path");
 
+// TODO: Make sure every environment variable is set
 
 // React Static
 app.use(express.static(path.join(__dirname, "..", "Frontend", "build")));
