@@ -1,10 +1,12 @@
 import React, {Component, StrictMode} from "react";
 import {Route, Routes, BrowserRouter} from "react-router-dom";
 import "./App.css";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/login";
 import Dashboard from "./pages/Dashboard/dashboard";
 import OfficerInfo from "./pages/OfficerInfo/officerinfo";
 import PrivateRoute from "./components/PrivateRoute";
+import {Bounce, ToastContainer} from "react-toastify";
 
 class App extends Component {
     render() {
@@ -18,6 +20,18 @@ class App extends Component {
                         <Route path="/efetivos" element={<PrivateRoute element={OfficerInfo} />} />
                     </Routes>
                 </BrowserRouter>
+
+                <ToastContainer
+                    position={"top-right"}
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    pauseOnHover
+                    theme={"dark"}
+                    transition={Bounce}
+                />
             </div>
         );
 
