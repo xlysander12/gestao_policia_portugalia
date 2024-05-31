@@ -1,7 +1,8 @@
-import {Component} from "react";
+import React, {Component} from "react";
 import style from "./navbar.module.css";
 import {Link, Navigate} from "react-router-dom";
 import {make_request} from "../../utils/requests";
+import {toast} from "react-toastify";
 
 const SubPath = (props) => {
 
@@ -45,6 +46,7 @@ class Navbar extends Component {
         let response = await make_request(`/officerInfo/${nif}`, "GET");
 
         // Mandatory check if the status code was 200
+        // This shouldn't ever happen because PrivateRoute should redirect to the login page if the token is invalid, but you never know...
         if (!response.ok) {
             // If the status code wasn't 200, the token is most likely invalid or something really bad happened, redirect to the login page
             this.setState({
@@ -138,11 +140,42 @@ class Navbar extends Component {
                 {/*TODO: Add a force selector here, floating to the right side of the navbar*/}
 
                 {/*Add the div that will hold the user info*/}
-                {/*TODO: This needs to be a dropdown menu to logout, change password, etc*/}
-                <div className={style.userInfoDiv}>
+                {/*TODO: This needs to be a dropdown menu to logout, change password, etc. Check https://www.w3schools.com/css/css_dropdowns.asp for info*/}
+                <div style={{display: `${this.isLogin ? 'none': 'block'}`}} className={style.userInfoDiv}>
                     <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && this.state.fullName === "" ? sessionStorage.getItem("navbarFullName"): this.state.fullName}</p>
+                    <div className={style.userInfoDropdown}>
+                        <div>
+                            <p className={style.userInfoDropdownLink}>Atualizar data última cerimónia</p>
+                        </div>
+
+                        {/*Separator*/}
+                        <div style={{width: "100%", height: 0, borderBottom: "3px black solid"}}></div>
+
+                        <div>
+                            <p className={style.userInfoDropdownLink} onClick={() => {
+                                console.log("Reportar problema");
+                                toast.error("A funcionalidade de reportar problemas ainda não foi implementada");
+                            }}>Reportar problema</p>
+                        </div>
+
+                        <div>
+                            <p className={style.userInfoDropdownLink}>Colocar sugestão</p>
+                        </div>
+
+                        {/*Separator*/}
+                        <div style={{width: "100%", height: 0, borderBottom: "3px black solid"}}></div>
+
+                        <div>
+                            <p className={style.userInfoDropdownLink}>Alterar palavra-passe</p>
+                        </div>
+
+                        <div>
+                            <p className={style.userInfoDropdownLink}>Terminar sessão</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         );
     }
 }

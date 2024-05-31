@@ -25,15 +25,48 @@
 }
 
 .userInfoDiv {
+    position: relative;
     margin-left: auto;
     height: 100%;
+    padding: 0 5px;
+}
+
+.userInfoDiv:hover {
+    background-color: rgb(17, 22, 28);
+    cursor: pointer;
+}
+
+.userInfoDiv:hover .userInfoDropdown {
+    display: block;
+}
+
+.userInfoDropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    background-color: rgb(31, 40, 51);
+    border: 1px solid rgb(17, 22, 28);
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.userInfoDropdownLink {
+    display: block;
+    margin: 0;
+    color: white;
+    font-size: 14px;
+    padding: 0 5px;
+}
+
+.userInfoDropdownLink:hover {
+    background-color: rgb(17, 22, 28);
 }
 
 .officerName {
     font-size: 20px;
     margin-top: 0;
     margin-bottom: 0;
-    margin-right: 7px;
 }
 
 .navbarRedirect:hover {
