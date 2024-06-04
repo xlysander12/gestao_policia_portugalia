@@ -7,6 +7,44 @@ import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
 import {make_request} from "../../utils/requests";
 import {base_url} from "../../utils/constants";
+import {FormControlLabel, MenuItem, Select, Switch} from "@mui/material";
+import {styled} from  "@mui/material/styles"
+
+const OfficerInfoSelectSlotProps = {
+    root: {
+        sx: {
+            "&:before": {
+                borderBottom: "3px solid #1f2833"
+            },
+
+            "&.Mui-disabled:before": {
+                border: 0
+            },
+
+            "&:after": {
+                borderBottom: "3px solid #00fdfd"
+            },
+
+            "&. MuiSelect-icon.Mui-disabled": {
+                display: "none"
+            }
+        }
+    }
+}
+
+const StyledSelect = styled(Select)(({theme}) => ({
+        "& .MuiSelect-icon": {
+            "&.Mui-disabled": {
+                display: "none"
+            },
+        },
+
+        "& .MuiInput-input": {
+            "&.Mui-disabled": {
+                "-webkit-text-fill-color": "black"
+            }
+        }
+}));
 
 
 class RecruitModal extends Component {
@@ -78,15 +116,10 @@ class RecruitModal extends Component {
                                 <label htmlFor={"recruitsteam"}>Steam ID:</label>
                                 <input id={"recruitsteam"} name={"steam"} type={"text"} pattern={"steam:.+"} onChange={(event) => {this.info.steam = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
 
-                                <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                                    <input className={modalsStyle.cadetCheckBox} id={"recruitcadet"} name={"cadete"}
-                                           type={"checkbox"}
-                                           onChange={(event) => {
-                                               this.info.recruit = event.target.value
-                                           }}/>
+                                <FormControlLabel control={<Switch onChange={(event) => {
+                                    this.info.recruit = event.target.checked;
+                                }}/>} label={"Recrutar como Cadete"} />
 
-                                    <label className={modalsStyle.cadetCheckBoxLabel} htmlFor={"recruitcadet"}>Recrutar como Cadete</label>
-                                </div>
 
                                 <button className={modalsStyle.submitButton} type={"submit"}>Recrutar</button>
                             </div>
@@ -168,20 +201,20 @@ class OfficerInfo extends Component {
 
             officerInfo: {
                 personal: {
-                    name: undefined,
-                    nif: undefined,
-                    phone: undefined,
-                    iban: undefined,
-                    kms: undefined,
-                    discord: undefined,
-                    steam: undefined,
+                    name: null,
+                    nif: null,
+                    phone: null,
+                    iban: null,
+                    kms: null,
+                    discord: null,
+                    steam: null,
                 },
                 professional: {
-                    patent: undefined,
-                    callsign: undefined,
-                    entry_date: undefined,
-                    promotion_date: undefined,
-                    status: undefined,
+                    patent: null,
+                    callsign: null,
+                    entry_date: null,
+                    promotion_date: null,
+                    status: null,
                     special_units: []
                 }
             }
@@ -402,11 +435,11 @@ class OfficerInfo extends Component {
     render() {
         // Before rendering the page, we need to build the patentes and status options
         const patentesOptions = this.patents.map((patent) => {
-            return <option key={`patent${patent.id}`} value={patent.id} disabled={patent.id > this.loggedPatent}>{patent.name}</option>
+            return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > this.loggedPatent}>{patent.name}</MenuItem>
         });
 
         const statusOptions = this.statuses.map((status) => {
-           return <option key={`status${status.id}`} value={status.id}>{status.name}</option>
+           return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
         });
 
         const specialUnitsOptions = this.specialUnits.map((unit) => {
@@ -612,22 +645,26 @@ class OfficerInfo extends Component {
                                             {/*Patente pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Patente:</label>
-                                                <select className={style.officerInfoInput}
-                                                        value={this.state.officerInfo.professional.patent}
-                                                        onChange={(event) => {
-                                                            this.setState({
-                                                                officerInfo: {
-                                                                    ...this.state.officerInfo,
-                                                                    professional: {
-                                                                        ...this.state.officerInfo.professional,
-                                                                        patent: event.target.value
-                                                                    }
+                                                <StyledSelect
+                                                    className={style.officerInfoInputSelect}
+                                                    value={this.state.officerInfo.professional.patent}
+                                                    onChange={(event) => {
+                                                        this.setState({
+                                                            officerInfo: {
+                                                                ...this.state.officerInfo,
+                                                                professional: {
+                                                                    ...this.state.officerInfo.professional,
+                                                                    patent: event.target.value
                                                                 }
-                                                            });
-                                                        }}>
-                                                    <option value={"-2"} disabled={true}>N/A</option>
+                                                            }
+                                                        });
+                                                    }}
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    slotProps={OfficerInfoSelectSlotProps}>
+                                                    <MenuItem value={-2} disabled={true}>N/A</MenuItem>
                                                     {patentesOptions}
-                                                </select>
+                                                </StyledSelect>
                                             </div>
 
                                             {/*CallSign pair*/}
@@ -651,7 +688,7 @@ class OfficerInfo extends Component {
                                             {/*Status pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Status:</label>
-                                                <select className={style.officerInfoInput}
+                                                <StyledSelect className={style.officerInfoInputSelect}
                                                         value={this.state.officerInfo.professional.status}
                                                         onChange={(event) => {
                                                             this.setState({
@@ -663,10 +700,12 @@ class OfficerInfo extends Component {
                                                                     }
                                                                 }
                                                             });
-                                                        }}>
-                                                    <option value={"-2"} disabled={true}>N/A</option>
+                                                        }}
+                                                        variant={"standard"}
+                                                        disabled={!this.state.editMode}
+                                                        slotProps={OfficerInfoSelectSlotProps}>
                                                     {statusOptions}
-                                                </select>
+                                                </StyledSelect>
                                             </div>
 
                                             {/*Data de Entrada pair*/}
