@@ -7,12 +7,16 @@ import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
 import {make_request} from "../../utils/requests";
 import {base_url} from "../../utils/constants";
-import {FormControlLabel, MenuItem, Select, Switch} from "@mui/material";
+import {FormControl, FormControlLabel, MenuItem, Select, Switch, TextField} from "@mui/material";
 import {styled} from  "@mui/material/styles"
 
 const OfficerInfoSelectSlotProps = {
     root: {
         sx: {
+            "label+&": {
+                margin: 0
+            },
+
             "&:before": {
                 borderBottom: "3px solid #1f2833"
             },
@@ -24,16 +28,12 @@ const OfficerInfoSelectSlotProps = {
             "&:after": {
                 borderBottom: "3px solid #00fdfd"
             },
-
-            "&. MuiSelect-icon.Mui-disabled": {
-                display: "none"
-            }
         }
     }
 }
 
 const StyledSelect = styled(Select)(({theme}) => ({
-        "& .MuiSelect-icon": {
+    "& .MuiSelect-icon": {
             "&.Mui-disabled": {
                 display: "none"
             },
@@ -41,9 +41,39 @@ const StyledSelect = styled(Select)(({theme}) => ({
 
         "& .MuiInput-input": {
             "&.Mui-disabled": {
-                "-webkit-text-fill-color": "black"
+                WebkitTextFillColor: "black",
+                WebkitUserSelect: "auto",
+                userSelect: "auto"
             }
         }
+}));
+
+const StyledInput = styled(TextField)(({theme}) => ({
+    "& .MuiInput-input.Mui-disabled": {
+        WebkitTextFillColor: "black",
+    },
+
+    "& .MuiInput-input.Mui-error": {
+        borderBottomColor: "red"
+    },
+
+    "& .MuiInputBase-root": {
+        "&:before": {
+            borderBottom: "3px solid #1f2833"
+        },
+
+        "& .Mui-error:before": {
+            borderBottomColor: "red"
+        },
+
+        "&.Mui-disabled:before": {
+            border: 0
+        },
+
+        "&:after": {
+            borderBottom: "3px solid #00fdfd"
+        },
+    }
 }));
 
 
@@ -220,6 +250,7 @@ class OfficerInfo extends Component {
             }
         }
 
+        this.fetchOfficerInfo = this.fetchOfficerInfo.bind(this);
         this.officerListCallback = this.officerListCallback.bind(this);
         this.enableEditMode = this.enableEditMode.bind(this);
         this.doesUserBelongToUnit = this.doesUserBelongToUnit.bind(this);
@@ -502,6 +533,7 @@ class OfficerInfo extends Component {
                                 </button>
                             </div>
 
+                            {/*TODO: This form isn't validanting the inputs*/}
                             <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
                                 {/*Loader Div*/}
                                 <div className={style.officerInfoDetailsDiv} style={{
@@ -512,7 +544,7 @@ class OfficerInfo extends Component {
 
                                 {/*Information div*/}
                                 <div className={style.officerInfoDetailsDiv} style={this.state.loading ? {display: "none"}: {}}>
-                                    <fieldset disabled={!this.state.editMode}>
+                                    <fieldset>
                                         <legend>Informação Pessoal</legend>
 
                                         {/*TODO: Add a notes field at the end of the pairs to compensate the excess height in the "proffisional information" tab. Ok im typing rubish again to make sure it is record the cpu getting completely utterly destroyed*/}
@@ -520,125 +552,156 @@ class OfficerInfo extends Component {
                                             {/*Name pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Nome:</label>
-                                                <input name="nome" className={style.officerInfoInput} type={"text"}
-                                                       value={this.state.officerInfo.personal.name}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       name: event.target.value
-                                                                   }
-                                                               }
-                                                           });
-                                                       }}/>
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    type={"text"}
+                                                    error={!(/^[a-zA-Z ]+$/.test(this.state.officerInfo.personal.name))}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.name}
+                                                    onChange={(event) => {
+                                                        this.setState({
+                                                            officerInfo: {
+                                                                ...this.state.officerInfo,
+                                                                personal: {
+                                                                    ...this.state.officerInfo.personal,
+                                                                    name: event.target.value
+                                                                }
+                                                            }
+                                                        });
+                                                    }}
+                                                />
                                             </div>
 
                                             {/*NIF pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>NIF:</label>
-                                                <input name={"nif"} className={style.officerInfoInput} type={"text"}
-                                                       value={this.state.officerInfo.personal.nif} readOnly={true}/>
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    className={style.officerInfoInput}
+                                                    type={"text"}
+                                                    value={this.state.officerInfo.personal.nif}
+                                                    disabled
+                                                />
                                             </div>
 
                                             {/*Cellphone pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
-                                                <input name={"telemovel"} pattern={"^[0-9]{9}$"}
-                                                       title={"O telemóvel é um número composto por 9 dígitos"}
-                                                       className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.personal.phone}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       phone: event.target.value
-                                                                   }
-                                                               }
-                                                           });
-                                                       }}/>
+                                                <StyledInput
+                                                    error={!(/^[0-9]{9}$/.test(this.state.officerInfo.personal.phone))}
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.phone}
+                                                    onChange={(event) => {
+                                                        this.setState({
+                                                            officerInfo: {
+                                                                ...this.state.officerInfo,
+                                                                personal: {
+                                                                    ...this.state.officerInfo.personal,
+                                                                    phone: event.target.value
+                                                                }
+                                                            }
+                                                        });
+                                                    }}
+                                                />
                                             </div>
 
                                             {/*IBAN pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>IBAN:</label>
-                                                <input name={"iban"} pattern={"^PT[0-9]{5,8}$"}
-                                                       title={"O IBAN é uma sequência de \"PT\" seguido de 5 a 9 dígitos"}
-                                                       className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.personal.iban}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       iban: event.target.value
-                                                                   }
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    error={!(/^PT[0-9]{5,8}$/.test(this.state.officerInfo.personal.iban))}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.iban}
+                                                    onChange={(event) => {
+                                                       this.setState({
+                                                           officerInfo: {
+                                                               ...this.state.officerInfo,
+                                                               personal: {
+                                                                   ...this.state.officerInfo.personal,
+                                                                   iban: event.target.value
                                                                }
-                                                           });
-                                                       }}/>
+                                                           }
+                                                       });
+                                                   }}
+                                                />
                                             </div>
 
                                             {/*KMs pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>KMs:</label>
-                                                <input name={"kms"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.personal.kms}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       kms: event.target.value
-                                                                   }
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    type={"number"}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.kms}
+                                                    onChange={(event) => {
+                                                        this.setState({
+                                                           officerInfo: {
+                                                               ...this.state.officerInfo,
+                                                               personal: {
+                                                                   ...this.state.officerInfo.personal,
+                                                                   kms: event.target.value
                                                                }
-                                                           });
-                                                       }}/>
+                                                           }
+                                                       });
+                                                    }}
+                                                />
                                             </div>
 
                                             {/*Discord pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Discord ID:</label>
-                                                <input name={"discord"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.personal.discord}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       discord: event.target.value
-                                                                   }
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.discord}
+                                                    onChange={(event) => {
+                                                       this.setState({
+                                                           officerInfo: {
+                                                               ...this.state.officerInfo,
+                                                               personal: {
+                                                                   ...this.state.officerInfo.personal,
+                                                                   discord: event.target.value
                                                                }
-                                                           });
-                                                       }}/>
+                                                           }
+                                                       });
+                                                    }}
+                                                />
                                             </div>
 
                                             {/*Steam pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Steam ID:</label>
-                                                <input name={"steam"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.personal.steam}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   personal: {
-                                                                       ...this.state.officerInfo.personal,
-                                                                       iban: event.target.value
-                                                                   }
-                                                               }
-                                                           });
-                                                       }}/>
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    error={this.state.officerInfo.personal.steam !== null && !(/^steam:.+/.test(this.state.officerInfo.personal.steam))}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.personal.steam}
+                                                    onChange={(event) => {
+                                                        this.setState({
+                                                            officerInfo: {
+                                                                ...this.state.officerInfo,
+                                                                personal: {
+                                                                    ...this.state.officerInfo.personal,
+                                                                    iban: event.target.value
+                                                                }
+                                                            }
+                                                        });
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     </fieldset>
 
-                                    <fieldset disabled={!this.state.editMode}>
+                                    <fieldset>
                                         <legend>Informação Profissional</legend>
 
                                         <div className={style.officerInfoInnerFieldsetDiv}>
@@ -662,7 +725,6 @@ class OfficerInfo extends Component {
                                                     variant={"standard"}
                                                     disabled={!this.state.editMode}
                                                     slotProps={OfficerInfoSelectSlotProps}>
-                                                    <MenuItem value={-2} disabled={true}>N/A</MenuItem>
                                                     {patentesOptions}
                                                 </StyledSelect>
                                             </div>
@@ -670,19 +732,24 @@ class OfficerInfo extends Component {
                                             {/*CallSign pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>CallSign:</label>
-                                                <input className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.professional.callsign}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   professional: {
-                                                                       ...this.state.officerInfo.professional,
-                                                                       callsign: event.target.value
-                                                                   }
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    error={this.state.officerInfo.professional.callsign !== null && !(/^[FSTODCZAG]-([0-9]){2}$/.test(this.state.officerInfo.professional.callsign))}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.professional.callsign}
+                                                    onChange={(event) => {
+                                                       this.setState({
+                                                           officerInfo: {
+                                                               ...this.state.officerInfo,
+                                                               professional: {
+                                                                   ...this.state.officerInfo.professional,
+                                                                   callsign: event.target.value
                                                                }
-                                                           });
-                                                       }}/>
+                                                           }
+                                                       });
+                                                   }}
+                                                />
                                             </div>
 
                                             {/*Status pair*/}
@@ -711,26 +778,35 @@ class OfficerInfo extends Component {
                                             {/*Data de Entrada pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Entrada:</label>
-                                                <input type={"date"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.professional.entry_date}
-                                                       onChange={(event) => {
-                                                           this.setState({
-                                                               officerInfo: {
-                                                                   ...this.state.officerInfo,
-                                                                   professional: {
-                                                                       ...this.state.officerInfo.professional,
-                                                                       entry_date: event.target.value
-                                                                   }
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled={!this.state.editMode}
+                                                    type={"date"}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.professional.entry_date}
+                                                    onChange={(event) => {
+                                                       this.setState({
+                                                           officerInfo: {
+                                                               ...this.state.officerInfo,
+                                                               professional: {
+                                                                   ...this.state.officerInfo.professional,
+                                                                   entry_date: event.target.value
                                                                }
-                                                           });
-                                                       }}/>
+                                                           }
+                                                       });
+                                                   }}
+                                                />
                                             </div>
 
                                             {/*Data de Subida pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
-                                                <input type={"date"} className={style.officerInfoInput}
-                                                       value={this.state.officerInfo.professional.promotion_date} readOnly/>
+                                                <StyledInput
+                                                    variant={"standard"}
+                                                    disabled
+                                                    type={"date"}
+                                                    className={style.officerInfoInput}
+                                                    value={this.state.officerInfo.professional.promotion_date} />
                                             </div>
 
                                             {/*Unidades Especiais*/}
@@ -827,7 +903,7 @@ class OfficerInfo extends Component {
                                         </div>
                                     </fieldset>
 
-                                    <fieldset disabled={this.state.loading}>
+                                    <fieldset>
                                         <legend>Atividade</legend>
 
                                         <p>Justificação ativa: <span></span>
@@ -838,7 +914,7 @@ class OfficerInfo extends Component {
                                             semana: <span>{"N/A"}</span>
                                         </p>
                                     </fieldset>
-                                    <fieldset disabled={this.state.loading}>
+                                    <fieldset>
                                         <legend>Punições</legend>
 
                                         <p>Punição Ativa: <span></span>
