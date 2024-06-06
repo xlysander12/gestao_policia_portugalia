@@ -566,7 +566,7 @@ class OfficerInfo extends Component {
                                 <div className={style.officerInfoDetailsDiv} style={{
                                     justifyContent: "center",
                                     alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
-                                    <Loader color={"#3498db"}/>
+                                    <Loader/>
                                 </div>
 
                                 {/*Information div*/}

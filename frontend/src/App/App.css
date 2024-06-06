@@ -30,10 +30,40 @@ body {
   }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #1f2833;
-}
+/*::-webkit-scrollbar {*/
+/*  visibility: hidden;*/
+/*  width: 10px;*/
+/*  height: 10px;*/
+/*}*/
 
-::-webkit-scrollbar-thumb:hover {
-  background: #4e6581;
-}
+/*::-webkit-scrollbar-track {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: #1b2631;*/
+/*}*/
+
+/*::-webkit-scrollbar-track:hover {*/
+/*  visibility: visible;*/
+/*  animation: ease-in 1s;*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb:hover {*/
+/*  visibility: visible;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*  animation: FadeInScrollBar ease 3s;*/
+/*}*/
+
+/*@keyframes FadeInScrollBar {*/
+/*  0% {*/
+/*    visibility: hidden;*/
+/*  }*/
+/*  100% {*/
+/*    visibility: visible;*/
+/*  }*/
+/*}*/
