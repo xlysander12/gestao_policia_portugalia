@@ -7,7 +7,7 @@ import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
 import {make_request} from "../../utils/requests";
 import {base_url} from "../../utils/constants";
-import {FormControl, FormControlLabel, MenuItem, Select, Switch, TextField} from "@mui/material";
+import {Divider, FormControl, FormControlLabel, MenuItem, Select, Switch, TextField} from "@mui/material";
 import {styled} from  "@mui/material/styles"
 
 const OfficerInfoSelectSlotProps = {
@@ -18,7 +18,7 @@ const OfficerInfoSelectSlotProps = {
             },
 
             "&:before": {
-                borderBottom: "3px solid #1f2833"
+                borderBottom: "3px solid #049985"
             },
 
             "&.Mui-disabled:before": {
@@ -49,8 +49,13 @@ const StyledSelect = styled(Select)(({theme}) => ({
 }));
 
 const StyledInput = styled(TextField)(({theme}) => ({
+    "& .MuiInput-input": {
+        WebkitTextFillColor: "#d0c7d3",
+        fontWeight: "bold",
+    },
+
     "& .MuiInput-input.Mui-disabled": {
-        WebkitTextFillColor: "black",
+        WebkitTextFillColor: "#d0c7d3",
     },
 
     "& .MuiInput-input.Mui-error": {
@@ -59,7 +64,7 @@ const StyledInput = styled(TextField)(({theme}) => ({
 
     "& .MuiInputBase-root": {
         "&:before": {
-            borderBottom: "3px solid #1f2833"
+            borderBottom: "3px solid #049985"
         },
 
         "& .Mui-error:before": {
@@ -197,8 +202,30 @@ class FireModal extends Component {
                     <form onSubmit={this.fireOfficer}>
                         <div className={modalsStyle.formDiv}>
                             {/*Text area to input the firing reason*/}
-                            <label style={{fontSize: "1.1rem"}}>Motivo de despedimento:</label> {/*I know it's stupid to set the font size like this. Bite me*/}
-                            <textarea className={modalsStyle.fireTextArea} value={this.state.fireReason} onChange={(event) => {this.setState({fireReason: `${event.target.value}`})}}/>
+                            <TextField
+                                label={"Motivo do despedimento"}
+                                fullWidth
+                                multiline
+                                maxRows={5}
+                                className={modalsStyle.fireTextArea}
+                                value={this.state.fireReason}
+                                onChange={(event) => {
+                                    this.setState({
+                                        fireReason: `${event.target.value}`
+                                    });
+                                }}
+                                sx={{
+                                    "& label.Mui-focused": {
+                                      color: "white"
+                                    },
+
+                                    "& .MuiOutlinedInput-root": {
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#00fdfd"
+                                        }
+                                    }
+                                }}
+                            />
 
                             {/*Button to submit the form and, therefore, fire the officer*/}
                             <button className={modalsStyle.fireButton} type={"submit"}>Despedir</button>
@@ -547,7 +574,7 @@ class OfficerInfo extends Component {
                                     <fieldset>
                                         <legend>Informação Pessoal</legend>
 
-                                        {/*TODO: Add a notes field at the end of the pairs to compensate the excess height in the "proffisional information" tab. Ok im typing rubish again to make sure it is record the cpu getting completely utterly destroyed*/}
+                                        {/*TODO: Add a notes field at the end of the pairs to compensate the excess height in the "proffisional information" tab.*/}
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
                                             <div>
@@ -556,7 +583,7 @@ class OfficerInfo extends Component {
                                                     variant={"standard"}
                                                     disabled={!this.state.editMode}
                                                     type={"text"}
-                                                    error={!(/^[a-zA-Z ]+$/.test(this.state.officerInfo.personal.name))}
+                                                    error={!(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(this.state.officerInfo.personal.name))}
                                                     className={style.officerInfoInput}
                                                     value={this.state.officerInfo.personal.name}
                                                     onChange={(event) => {
@@ -572,7 +599,7 @@ class OfficerInfo extends Component {
                                                     }}
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*NIF pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>NIF:</label>
@@ -584,7 +611,7 @@ class OfficerInfo extends Component {
                                                     disabled
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*Cellphone pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
@@ -607,7 +634,7 @@ class OfficerInfo extends Component {
                                                     }}
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*IBAN pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>IBAN:</label>
@@ -630,7 +657,7 @@ class OfficerInfo extends Component {
                                                    }}
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*KMs pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>KMs:</label>
@@ -653,7 +680,7 @@ class OfficerInfo extends Component {
                                                     }}
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*Discord pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Discord ID:</label>
@@ -675,7 +702,7 @@ class OfficerInfo extends Component {
                                                     }}
                                                 />
                                             </div>
-
+                                            <Divider flexItem/>
                                             {/*Steam pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Steam ID:</label>
@@ -691,7 +718,7 @@ class OfficerInfo extends Component {
                                                                 ...this.state.officerInfo,
                                                                 personal: {
                                                                     ...this.state.officerInfo.personal,
-                                                                    iban: event.target.value
+                                                                    steam: event.target.value
                                                                 }
                                                             }
                                                         });
@@ -728,7 +755,7 @@ class OfficerInfo extends Component {
                                                     {patentesOptions}
                                                 </StyledSelect>
                                             </div>
-
+                                            <Divider/>
                                             {/*CallSign pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>CallSign:</label>
@@ -751,7 +778,7 @@ class OfficerInfo extends Component {
                                                    }}
                                                 />
                                             </div>
-
+                                            <Divider/>
                                             {/*Status pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Status:</label>
@@ -774,7 +801,7 @@ class OfficerInfo extends Component {
                                                     {statusOptions}
                                                 </StyledSelect>
                                             </div>
-
+                                            <Divider/>
                                             {/*Data de Entrada pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Entrada:</label>
@@ -797,7 +824,7 @@ class OfficerInfo extends Component {
                                                    }}
                                                 />
                                             </div>
-
+                                            <Divider/>
                                             {/*Data de Subida pair*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
@@ -808,7 +835,7 @@ class OfficerInfo extends Component {
                                                     className={style.officerInfoInput}
                                                     value={this.state.officerInfo.professional.promotion_date} />
                                             </div>
-
+                                            <Divider/>
                                             {/*Unidades Especiais*/}
                                             <div>
                                                 <label className={style.officerInfoDetailLabel}>Unidades
