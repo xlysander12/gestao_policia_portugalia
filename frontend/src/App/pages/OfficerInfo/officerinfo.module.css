@@ -90,10 +90,11 @@
     padding: 0.5rem;
     background-color: rgb(31, 40, 51);
     overflow-y: auto;
+    font-family: "Open Sans", sans-serif;
 }
 
 .officerInfoDetailsDiv > fieldset {
-    background-color: #647fa1;
+    background-color: #1A1A1F;
     min-height: fit-content;
     width: 40%;
     padding: 10px;
@@ -119,6 +120,7 @@
 }
 
 .officerInfoDetailLabel {
+    color: #049985;
     margin: 0;
     font-size: 1rem;
     font-weight: bold;

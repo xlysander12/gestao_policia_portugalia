@@ -39,15 +39,15 @@ class OfficerCard extends Component {
         const [statusDivColor, statusTextColor] = statusToColor(this.props.status);
 
         return(
-            <div className={this.props.disabled ? style.officerListCardDivDisabled : style.officerListCardDiv} onClick={this.handleDivClick} id={"officer" + this.props["nif"]}>
-                <div style={{maxWidth: "70%"}}>
+            <div className={this.props.disabled ? style.officerListCardDivDisabled : style.officerListCardDiv} style={{borderColor: `${statusDivColor}`}} onClick={this.handleDivClick} id={"officer" + this.props["nif"]}>
+                <div>
                     <p className={style.officerListCardName}>{this.props.name}</p>
                     <p className={style.officerListCardNif}>(#{this.props.nif})</p>
                 </div>
 
-                <div className={style.officerListCardStatus} style={{backgroundColor: statusDivColor}}>
-                    <p className={style.officerListCardStatusText} style={{color: statusTextColor}}>{this.props.status}</p>
-                </div>
+                {/*<div className={style.officerListCardStatus} style={{backgroundColor: statusDivColor}}>*/}
+                {/*    <p className={style.officerListCardStatusText} style={{color: statusTextColor}}>{this.props.status}</p>*/}
+                {/*</div>*/}
             </div>
         );
     }
