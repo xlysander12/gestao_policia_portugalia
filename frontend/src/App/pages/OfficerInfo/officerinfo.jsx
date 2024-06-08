@@ -160,7 +160,6 @@ class RecruitModal extends Component {
                     <ModalSection title={"Informações Pessoais"}>
                         <div className={modalsStyle.formDiv}>
                             {/* TODO: add proper titles to explain the custom patterns */}
-                            {/* TODO: Add pattern checking*/}
                             <StyledInput
                                 variant={"standard"}
                                 fullWidth
