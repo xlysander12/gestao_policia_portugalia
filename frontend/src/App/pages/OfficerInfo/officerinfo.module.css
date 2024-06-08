@@ -7,7 +7,6 @@
 
 .officerInfoOuterDiv {
     display: inline-block;
-    height: calc(100vh - calc(4rem + 16px));
     padding: 0 10px;
     width: 70%;
 }
@@ -93,7 +92,8 @@
 }
 
 .officerInfoDetailsDiv > fieldset {
-    background-color: #1b2631;
+    /*background-color: #1b2631;*/
+    background-color: transparent;
     min-height: fit-content;
     width: 40%;
     padding: 10px;

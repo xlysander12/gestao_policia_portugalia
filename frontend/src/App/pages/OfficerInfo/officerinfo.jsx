@@ -3,10 +3,18 @@ import style from "./officerinfo.module.css";
 import modalsStyle from "./officerinfomodals.module.css";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
-import Modal from "../../components/Modal/Modal";
+import {Modal, ModalSection} from "../../components/Modal/modal";
 import {make_request} from "../../utils/requests";
 import {base_url} from "../../utils/constants";
-import {Divider, FormControl, FormControlLabel, MenuItem, Select, Switch, TextField} from "@mui/material";
+import {
+    Button,
+    Divider,
+    FormControlLabel,
+    MenuItem,
+    Select,
+    Switch,
+    TextField,
+} from "@mui/material";
 import {styled} from  "@mui/material/styles"
 
 const OfficerInfoSelectSlotProps = {
@@ -114,14 +122,14 @@ class RecruitModal extends Component {
             return;
         }
 
-        this.info = {
-            name: undefined,
-            nif: undefined,
-            phone: undefined,
-            iban: undefined,
-            kms: undefined,
-            discord: undefined,
-            steam: undefined,
+        this.state = {
+            name: "",
+            nif: "",
+            phone: "",
+            iban: "",
+            kms: 0,
+            discord: "",
+            steam: "",
 
             recruit: false
         }
@@ -133,7 +141,7 @@ class RecruitModal extends Component {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await make_request(`/officerInfo/${this.info.nif}${this.info.recruit ? "?recruit": ""}`, "PUT", this.info);
+        const recruitRequest = await make_request(`/officerInfo/${this.state.nif}${this.state.recruit ? "?recruit": ""}`, "PUT", this.state);
 
         // Check if the response is ok
         if (!recruitRequest.ok) {
@@ -148,40 +156,152 @@ class RecruitModal extends Component {
     render () {
         return (
             <Modal width={"37%"} trigger={this.props.trigger} title={"Recrutar novo efetivo"} modal>
-                    <div className={modalsStyle.content}>
-                        <form onSubmit={this.recruitMember}>
-                            <div className={modalsStyle.formDiv}>
-                                {/* TODO: add proper titles to explain the custom patterns */}
-                                <label htmlFor={"recruitname"}>Nome:</label>
-                                <input id={"recruitname"} name={"nome"} type={"text"} onChange={(event) => {this.info.name = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                <form onSubmit={this.recruitMember}>
+                    <ModalSection title={"Informações Pessoais"}>
+                        <div className={modalsStyle.formDiv}>
+                            {/* TODO: add proper titles to explain the custom patterns */}
+                            {/* TODO: Add pattern checking*/}
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"Nome"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                        name: event.target.value
+                                    });
+                                }}
+                                error={this.state.name !== "" && !(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(this.state.name))}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitnif"}>NIF:</label>
-                                <input id={"recruitnif"} name={"nif"} type={"text"} pattern={"^[0-9]{9}$"} onChange={(event) => {this.info.nif = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"NIF"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                        nif: event.target.value
+                                    });
+                                }}
+                                error={this.state.nif !== "" && !(/^[0-9]{7,9}$/.test(this.state.nif))}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitphone"}>Telemóvel:</label>
-                                <input id={"recuitphone"} name={"telemovel"} type={"text"} pattern={"^[0-9]{9}$"} onChange={(event) => {this.info.phone = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"Telemóvel"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                        phone: event.target.value
+                                    });
+                                }}
+                                error={this.state.phone !== "" && !(/^[0-9]{9}$/.test(this.state.phone))}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitiban"}>IBAN:</label>
-                                <input id={"recruitiban"} name={"iban"} type={"text"} pattern={"^PT[0-9]{5,8}$"} onChange={(event) => {this.info.iban = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"IBAN"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                        iban: event.target.value
+                                    });
+                                }}
+                                error={this.state.iban !== "" && !(/^PT[0-9]{5,8}$/.test(this.state.iban))}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitkms"}>KMs:</label>
-                                <input id={"recruitkms"} name={"kms"} type={"number"} step={100} onChange={(event) => {this.info.kms = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"KMs"}
+                                defaultValue={0}
+                                type={"number"}
+                                inputProps={{step: 100}}
+                                onChange={(event) => {
+                                    this.setState({
+                                       kms: event.target.value
+                                    });
+                                }}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitdiscord"}>Discord ID:</label>
-                                <input id={"recruitdiscord"} name={"discord"} type={"text"} pattern={"[0-9]+"} onChange={(event) => {this.info.discord = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"Discord ID"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                       discord: event.target.value
+                                    });
+                                }}
+                                sx={{margin: "10px 0 0 0"}}
+                                required
+                            />
 
-                                <label htmlFor={"recruitsteam"}>Steam ID:</label>
-                                <input id={"recruitsteam"} name={"steam"} type={"text"} pattern={"steam:.+"} onChange={(event) => {this.info.steam = event.target.value; event.target.className = ""}} onInvalid={(event) => {event.target.className += modalsStyle.invalidInput}} required/>
+                            <StyledInput
+                                variant={"standard"}
+                                fullWidth
+                                label={"Steam ID / URL"}
+                                type={"text"}
+                                onChange={(event) => {
+                                    this.setState({
+                                        steam: event.target.value
+                                    });
+                                }}
+                                sx={{margin: "10px 0 0 0"}}
+                                error={this.state.steam !== "" && !(/^steam:[0-9]{9}$/.test(this.state.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(this.state.steam))}
+                                required
+                            />
 
-                                <FormControlLabel control={<Switch onChange={(event) => {
-                                    this.info.recruit = event.target.checked;
-                                }}/>} label={"Recrutar como Cadete"} />
+                            <FormControlLabel
+                                control={<Switch
+                                    onChange={(event) => {
+                                        this.setState({
+                                            recruit: event.target.checked
+                                        });
+                                    }}
+                                />}
+                                label={"Recrutar como Cadete"}
+                                sx={{
+                                    margin: "10px 0 0 0",
 
+                                }}
+                            />
 
-                                <button className={modalsStyle.submitButton} type={"submit"}>Recrutar</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </ModalSection>
+
+                    <Button
+                        type={"submit"}
+                        variant={"outlined"}
+                        fullWidth
+                        sx={{
+                            marginTop: "20px",
+                            color: "green",
+                            borderColor: "green",
+
+                            "&:hover": {
+                                borderColor: "darkgreen",
+                                backgroundColor: "rgba(0, 100, 0, 0.4)",
+                            }
+                        }}
+                    >
+                        Recrutar
+                    </Button>
+                </form>
             </Modal>
         );
     }
@@ -266,7 +386,7 @@ class OfficerInfo extends Component {
         super(props);
 
         this.editIntents = false;
-        this.loggedPatent = undefined;
+        this.loggedPatent = null;
 
         this.patents = [];
         this.statuses = [];
