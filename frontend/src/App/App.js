@@ -7,18 +7,23 @@ import Dashboard from "./pages/Dashboard/dashboard";
 import OfficerInfo from "./pages/OfficerInfo/officerinfo";
 import PrivateRoute from "./components/PrivateRoute";
 import {Bounce, ToastContainer} from "react-toastify";
+import Navbar from "./components/Navbar/navbar";
+import {base_url} from "./utils/constants";
 
 class App extends Component {
     render() {
         const App = () => (
             <div>
-                <BrowserRouter basename={"/portugalia/portalseguranca"}>
-                    <Routes>
-                        <Route path="/login" element={<Login/>}/>
+                <BrowserRouter basename={base_url}>
+                    <Navbar/>
+                    <div style={{height: "calc(100vh - calc(4rem + 16px))"}}>
+                        <Routes>
+                            <Route path="/login" element={<Login/>}/>
 
-                        <Route exact path="/" element={<PrivateRoute element={Dashboard} />} />
-                        <Route path="/efetivos" element={<PrivateRoute element={OfficerInfo} />} />
-                    </Routes>
+                            <Route exact path="/" element={<PrivateRoute element={Dashboard} />} />
+                            <Route path="/efetivos" element={<PrivateRoute element={OfficerInfo} />} />
+                        </Routes>
+                    </div>
                 </BrowserRouter>
 
                 <ToastContainer

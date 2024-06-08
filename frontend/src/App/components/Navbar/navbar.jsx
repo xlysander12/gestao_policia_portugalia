@@ -3,11 +3,13 @@ import style from "./navbar.module.css";
 import {Link, Navigate} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {toast} from "react-toastify";
+import {base_url} from "../../utils/constants";
+import {Divider} from "@mui/material";
 
 const SubPath = (props) => {
 
     // Not a reidirect
-    if (props.path === "") {
+    if (props.path === undefined || props.path === "") {
         return (
             <div className={style.subPathDiv}>
                 <p className={style.navbarSubPathText}>{props.name}</p>
@@ -35,7 +37,7 @@ class Navbar extends Component {
         }
 
         // Check if we are in the login page
-        this.isLogin = window.location.pathname === "/portugalia/portalseguranca/login";
+        this.isLogin = window.location.pathname === `${base_url}/login`;
 
         // Bind the function to the component
         this.buildOfficerName = this.buildOfficerName.bind(this);
@@ -111,14 +113,15 @@ class Navbar extends Component {
         // Create the array of elements for the pathsdiv
         let paths = [];
 
-        // First thing that needs to be done is to add the main title to the navbar
-        paths.push(<SubPath key="navbarMainPath" path="/" name="Portal Segurança" only={this.props.path === undefined}/>);
+        // Get the current path minus the base url
+        let currentPath = window.location.pathname.replace(`${base_url}`, "").replace("/", "");
 
-        // If there are paths passed in as props, add them to the navbar
-        if (this.props.path !== undefined) {
-            this.props.path.forEach(path => {
-                paths.push(<SubPath key={`navbarPath${path[0]}`} path={path[1]} name={path[0]}/>);
-            });
+        // First thing that needs to be done is to add the main title to the navbar
+        paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === ""}/>);
+
+        // If we're in a path different than the main one, add the main path to the paths array
+        if (currentPath !== "") {
+            paths.push(<SubPath key={`navbarPath${currentPath}`} name={currentPath[0].toUpperCase() + currentPath.slice(1)}/>);
         }
 
         // noinspection com.intellij.reactbuddy.ArrayToJSXMapInspection
@@ -129,6 +132,13 @@ class Navbar extends Component {
                 <div className={style.pathsDiv}>
                     {paths}
                 </div>
+
+                {/*<Divider flexItem orientation={"vertical"} sx={{*/}
+                {/*    margin: "0 0 0 10px",*/}
+                {/*    borderColor: "rgba(197, 198, 199)",*/}
+                {/*    borderWidth: "2px",*/}
+                {/*    borderRadius: "10px"*/}
+                {/*}}/>*/}
 
                 <div className={style.navButtonsDiv} style={this.isLogin ? {display: "none"}: {}}>
                     <Link to="/efetivos" className={style.navButton} reloadDocument={true}>Efetivos</Link>

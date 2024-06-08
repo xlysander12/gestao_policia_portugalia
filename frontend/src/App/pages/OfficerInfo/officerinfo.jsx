@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import style from "./officerinfo.module.css";
 import modalsStyle from "./officerinfomodals.module.css";
-import Navbar from "../../components/Navbar/navbar";
 import OfficerList from "../../components/OfficerList/officerlist";
 import Loader from "../../components/Loader/loader";
 import Modal from "../../components/Modal/Modal";
@@ -512,7 +511,7 @@ class OfficerInfo extends Component {
         return(
             <div>
                 {/*Navbar*/}
-                <Navbar path={[["Efetivos", ""]]}/>
+                {/*<Navbar path={[["Efetivos", ""]]}/>*/}
 
                 {/*Div that splits the screen*/}
                 <div style={{display: "flex"}}>
