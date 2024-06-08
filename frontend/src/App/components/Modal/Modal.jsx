@@ -2,8 +2,8 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {Component} from "react";
 import style from "./modal.module.css";
+import {Divider} from "@mui/material";
 
-// TODO: This must be a templete of how a modal should look like
 const ModalStyle = styled(Popup)`
     @keyframes anvil {
         0% {
@@ -30,12 +30,14 @@ const ModalStyle = styled(Popup)`
     &-content {
         animation: anvil 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
         width: ${(props) => props.width || "37%"};
-        border: 2px solid #3498db;
+        min-width: fit-content;
+        border: 2px solid black;
+        border-radius: 3px;
     }
     
     `;
 
-class Modal extends Component {
+export class Modal extends Component {
     render() {
         return (
             <ModalStyle
@@ -46,11 +48,30 @@ class Modal extends Component {
                 {/*Header of the modal*/}
                 <div className={style.header}>{this.props.title}</div>
 
+                <Divider
+                    sx={{
+                        borderWidth: "1px",
+                        borderColor: "rgba(0, 0, 0, 0.3)"
+                    }}
+                />
+
                 {/*Body of the modal*/}
-                {this.props.children}
+                <div className={style.content}>
+                    {this.props.children}
+                </div>
+
             </ModalStyle>
         );
     }
 }
 
-export default Modal;
+export class ModalSection extends Component {
+    render() {
+        return (
+            <fieldset className={style.section}>
+                {this.props.title ? <legend>{this.props.title}</legend>: null}
+                {this.props.children}
+            </fieldset>
+        );
+    }
+}
