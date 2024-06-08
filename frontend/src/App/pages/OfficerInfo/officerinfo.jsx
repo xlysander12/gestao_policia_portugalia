@@ -20,6 +20,10 @@ const OfficerInfoSelectSlotProps = {
                 borderBottom: "3px solid #049985"
             },
 
+            "&:hover:not(.Mui-disabled, .Mui.error):before": {
+                borderBottom: "3px solid #049985"
+            },
+
             "&.Mui-disabled:before": {
                 border: 0
             },
@@ -33,36 +37,55 @@ const OfficerInfoSelectSlotProps = {
 
 const StyledSelect = styled(Select)(({theme}) => ({
     "& .MuiSelect-icon": {
-            "&.Mui-disabled": {
-                display: "none"
-            },
-        },
+        color: "#049985",
 
-        "& .MuiInput-input": {
-            "&.Mui-disabled": {
-                WebkitTextFillColor: "black",
-                WebkitUserSelect: "auto",
-                userSelect: "auto"
-            }
+        "&.Mui-disabled": {
+            display: "none",
+        },
+    },
+
+    "& .MuiInput-input": {
+        fontWeight: 500,
+        WebkitTextFillColor: "#d0c7d3",
+
+        "&.Mui-disabled": {
+            WebkitTextFillColor: "#d0c7d3",
+            WebkitUserSelect: "auto",
+            userSelect: "auto"
         }
+    }
 }));
 
 const StyledInput = styled(TextField)(({theme}) => ({
+    "& .MuiInputLabel-root": {
+        color: "white",
+
+        "&.Mui-focused": {
+            color: "#00fdfd"
+        }
+    },
+
     "& .MuiInput-input": {
         WebkitTextFillColor: "#d0c7d3",
-        fontWeight: "bold",
-    },
+        fontWeight: 500,
 
-    "& .MuiInput-input.Mui-disabled": {
-        WebkitTextFillColor: "#d0c7d3",
-    },
+        "&.Mui-disabled": {
+            WebkitTextFillColor: "#d0c7d3",
+        },
 
-    "& .MuiInput-input.Mui-error": {
-        borderBottomColor: "red"
+        "&.Mui-error": {
+            borderBottomColor: "red"
+        }
     },
 
     "& .MuiInputBase-root": {
+        caretColor: "white",
+
         "&:before": {
+            borderBottom: "3px solid #049985"
+        },
+
+        "&:hover:not(.Mui-disabled, .Mui-error):before": {
             borderBottom: "3px solid #049985"
         },
 
@@ -664,6 +687,7 @@ class OfficerInfo extends Component {
                                                     variant={"standard"}
                                                     disabled={!this.state.editMode}
                                                     type={"number"}
+                                                    inputProps={{step: 100}}
                                                     className={style.officerInfoInput}
                                                     value={this.state.officerInfo.personal.kms}
                                                     onChange={(event) => {
