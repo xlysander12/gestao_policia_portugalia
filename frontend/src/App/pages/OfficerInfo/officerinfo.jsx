@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import style from "./officerinfo.module.css";
 import modalsStyle from "./officerinfomodals.module.css";
-import OfficerList from "../../components/OfficerList/officerlist";
+import OfficerList from "../../components/OfficerList/officer-list";
 import Loader from "../../components/Loader/loader";
 import {Modal, ModalSection} from "../../components/Modal/modal";
 import {make_request} from "../../utils/requests";

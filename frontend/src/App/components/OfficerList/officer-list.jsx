@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import style from "./officerlist.module.css";
+import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
 

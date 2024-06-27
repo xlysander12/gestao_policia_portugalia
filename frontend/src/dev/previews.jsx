@@ -1,6 +1,6 @@
 import {ComponentPreview, Previews} from '@react-buddy/ide-toolbox'
 import {PaletteTree} from './palette'
-import OfficerList from "../App/components/OfficerList/officerlist";
+import OfficerList from "../App/components/OfficerList/officer-list";
 import OfficerInfo from "../App/pages/OfficerInfo/officerinfo";
 import {ModalSection} from "../App/components/Modal/modal";
 

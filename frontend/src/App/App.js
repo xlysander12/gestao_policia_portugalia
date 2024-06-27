@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login/login";
 import Dashboard from "./pages/Dashboard/dashboard";
 import OfficerInfo from "./pages/OfficerInfo/officerinfo";
-import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute from "./components/private-route";
 import {Bounce, ToastContainer} from "react-toastify";
 import Navbar from "./components/Navbar/navbar";
 import {base_url} from "./utils/constants";
