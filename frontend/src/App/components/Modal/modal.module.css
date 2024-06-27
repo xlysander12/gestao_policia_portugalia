@@ -14,6 +14,8 @@
     background-color: #1f2833;
     text-align: center;
     padding: 15px 10px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .section {
