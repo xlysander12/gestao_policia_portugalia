@@ -338,13 +338,16 @@ class FireModal extends Component {
 
     render() {
         return (
-            <Modal trigger={this.props.trigger} title={`Despedir ${this.props.officerFullName}`}>
-                <div className={modalsStyle.content}>
-                    <form onSubmit={this.fireOfficer}>
-                        <div className={modalsStyle.formDiv}>
-                            {/*Text area to input the firing reason*/}
+            <Modal
+                trigger={this.props.trigger}
+                title={`Despedir ${this.props.officerFullName}`}
+            >
+                <form onSubmit={this.fireOfficer}>
+                    <div className={modalsStyle.formDiv}>
+                        {/*Text area to input the firing reason*/}
+                        <ModalSection title={"Dados do Despedimento"}>
                             <TextField
-                                label={"Motivo do despedimento"}
+                                label={"Motivo"}
                                 fullWidth
                                 multiline
                                 maxRows={5}
@@ -367,12 +370,12 @@ class FireModal extends Component {
                                     }
                                 }}
                             />
+                        </ModalSection>
 
-                            {/*Button to submit the form and, therefore, fire the officer*/}
-                            <button className={modalsStyle.fireButton} type={"submit"}>Despedir</button>
-                        </div>
-                    </form>
-                </div>
+                        {/*Button to submit the form and, therefore, fire the officer*/}
+                        <button className={modalsStyle.fireButton} type={"submit"}>Despedir</button>
+                    </div>
+                </form>
             </Modal>
         )
 
