@@ -173,6 +173,9 @@ class RecruitModal extends Component {
                                 error={this.state.name !== "" && !(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(this.state.name))}
                                 sx={{margin: "10px 0 0 0"}}
                                 required
+                                inputProps={{
+                                    name: "officerName"
+                                }}
                             />
 
                             <StyledInput
@@ -188,6 +191,9 @@ class RecruitModal extends Component {
                                 error={this.state.nif !== "" && !(/^[0-9]{7,9}$/.test(this.state.nif))}
                                 sx={{margin: "10px 0 0 0"}}
                                 required
+                                inputProps={{
+                                    name: "officerNIF"
+                                }}
                             />
 
                             <StyledInput
@@ -203,6 +209,9 @@ class RecruitModal extends Component {
                                 error={this.state.phone !== "" && !(/^[0-9]{9}$/.test(this.state.phone))}
                                 sx={{margin: "10px 0 0 0"}}
                                 required
+                                inputProps={{
+                                    name: "officerPhone"
+                                }}
                             />
 
                             <StyledInput
@@ -218,6 +227,9 @@ class RecruitModal extends Component {
                                 error={this.state.iban !== "" && !(/^PT[0-9]{5,8}$/.test(this.state.iban))}
                                 sx={{margin: "10px 0 0 0"}}
                                 required
+                                inputProps={{
+                                    name: "officerIBAN"
+                                }}
                             />
 
                             <StyledInput
@@ -226,7 +238,7 @@ class RecruitModal extends Component {
                                 label={"KMs"}
                                 defaultValue={0}
                                 type={"number"}
-                                inputProps={{step: 100}}
+                                inputProps={{step: 100, name: "officerKMs"}}
                                 onChange={(event) => {
                                     this.setState({
                                        kms: event.target.value
@@ -248,6 +260,9 @@ class RecruitModal extends Component {
                                 }}
                                 sx={{margin: "10px 0 0 0"}}
                                 required
+                                inputProps={{
+                                    name: "officerDiscord"
+                                }}
                             />
 
                             <StyledInput
@@ -263,6 +278,9 @@ class RecruitModal extends Component {
                                 sx={{margin: "10px 0 0 0"}}
                                 error={this.state.steam !== "" && !(/^steam:[0-9]{9}$/.test(this.state.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(this.state.steam))}
                                 required
+                                inputProps={{
+                                    name: "officerSteam"
+                                }}
                             />
 
                             <FormControlLabel
@@ -382,6 +400,47 @@ class FireModal extends Component {
     }
 }
 
+const InformationPair = ({label, value, type = "text", pattern, editMode, onChange, step, isSelect = false, children}) => {
+    // If it's not a select, return a basic input
+    if (!isSelect) {
+        return (
+            <div className={style.informationPairDiv}>
+                <label>{label}</label>
+                <StyledInput
+                    variant={"standard"}
+                    fullWidth
+                    disabled={!editMode}
+                    type={type}
+                    error={(pattern !== undefined) && !(pattern.test(value))}
+                    value={value}
+                    onChange={onChange}
+                    inputProps={{
+                        step: step,
+                        pattern: pattern
+                    }}
+                />
+            </div>
+        );
+    }
+
+    // If it's a select, return a select input
+    return (
+        <div className={style.informationPairDiv}>
+            <label>{label}</label>
+            <StyledSelect
+                variant={"standard"}
+                fullWidth
+                disabled={!editMode}
+                value={value}
+                onChange={onChange}
+                slotProps={OfficerInfoSelectSlotProps}
+            >
+                {children}
+            </StyledSelect>
+        </div>
+    );
+
+}
 
 class OfficerInfo extends Component {
     constructor(props) {
@@ -655,9 +714,6 @@ class OfficerInfo extends Component {
 
         return(
             <div>
-                {/*Navbar*/}
-                {/*<Navbar path={[["Efetivos", ""]]}/>*/}
-
                 {/*Div that splits the screen*/}
                 <div style={{display: "flex"}}>
 
@@ -671,6 +727,7 @@ class OfficerInfo extends Component {
 
                         {/*Div where content's will be*/}
                         <div className={style.officerInfoInnerDiv}>
+                            {/*Div that holds the buttons to alter the officer's info*/}
                             <div className={style.officerInfoAlterbarDiv}>
                                 <button type={"submit"} form={"information-form"}
                                         className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
@@ -718,158 +775,127 @@ class OfficerInfo extends Component {
                                     <fieldset>
                                         <legend>Informação Pessoal</legend>
 
-                                        {/*TODO: Add a notes field at the end of the pairs to compensate the excess height in the "proffisional information" tab.*/}
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Nome:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    type={"text"}
-                                                    error={!(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(this.state.officerInfo.personal.name))}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.name}
-                                                    onChange={(event) => {
-                                                        this.setState({
-                                                            officerInfo: {
-                                                                ...this.state.officerInfo,
-                                                                personal: {
-                                                                    ...this.state.officerInfo.personal,
-                                                                    name: event.target.value
-                                                                }
+                                            <InformationPair
+                                                label={"Nome:"}
+                                                value={this.state.officerInfo.personal.name}
+                                                pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                name: event.target.value
                                                             }
-                                                        });
-                                                    }}
-                                                />
-                                            </div>
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider flexItem/>
                                             {/*NIF pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>NIF:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    className={style.officerInfoInput}
-                                                    type={"text"}
-                                                    value={this.state.officerInfo.personal.nif}
-                                                    disabled
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"NIF:"}
+                                                value={this.state.officerInfo.personal.nif}
+                                                editMode={false}
+                                            />
                                             <Divider flexItem/>
                                             {/*Cellphone pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Telemóvel:</label>
-                                                <StyledInput
-                                                    error={!(/^[0-9]{9}$/.test(this.state.officerInfo.personal.phone))}
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.phone}
-                                                    onChange={(event) => {
-                                                        this.setState({
-                                                            officerInfo: {
-                                                                ...this.state.officerInfo,
-                                                                personal: {
-                                                                    ...this.state.officerInfo.personal,
-                                                                    phone: event.target.value
-                                                                }
+                                            <InformationPair
+                                                label={"Telemóvel:"}
+                                                value={this.state.officerInfo.personal.phone}
+                                                pattern={/^[0-9]{9}$/}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                phone: event.target.value
                                                             }
-                                                        });
-                                                    }}
-                                                />
-                                            </div>
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider flexItem/>
                                             {/*IBAN pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>IBAN:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    error={!(/^PT[0-9]{5,8}$/.test(this.state.officerInfo.personal.iban))}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.iban}
-                                                    onChange={(event) => {
-                                                       this.setState({
-                                                           officerInfo: {
-                                                               ...this.state.officerInfo,
-                                                               personal: {
-                                                                   ...this.state.officerInfo.personal,
-                                                                   iban: event.target.value
-                                                               }
-                                                           }
-                                                       });
-                                                   }}
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"IBAN:"}
+                                                value={this.state.officerInfo.personal.iban}
+                                                pattern={/^PT[0-9]{3,6}$/}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                iban: event.target.value
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider flexItem/>
                                             {/*KMs pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>KMs:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    type={"number"}
-                                                    inputProps={{step: 100}}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.kms}
-                                                    onChange={(event) => {
-                                                        this.setState({
-                                                           officerInfo: {
-                                                               ...this.state.officerInfo,
-                                                               personal: {
-                                                                   ...this.state.officerInfo.personal,
-                                                                   kms: event.target.value
-                                                               }
-                                                           }
-                                                       });
-                                                    }}
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"KMs:"}
+                                                value={this.state.officerInfo.personal.kms}
+                                                editMode={this.state.editMode}
+                                                type={"number"}
+                                                step={100}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                kms: parseInt(event.target.value)
+                                                            }
+                                                        }
+                                                    })
+                                                }}
+                                            />
                                             <Divider flexItem/>
                                             {/*Discord pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Discord ID:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.discord}
-                                                    onChange={(event) => {
-                                                       this.setState({
-                                                           officerInfo: {
-                                                               ...this.state.officerInfo,
-                                                               personal: {
-                                                                   ...this.state.officerInfo.personal,
-                                                                   discord: event.target.value
-                                                               }
-                                                           }
-                                                       });
-                                                    }}
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"Discord:"}
+                                                value={this.state.officerInfo.personal.discord}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                discord: event.target.value
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider flexItem/>
                                             {/*Steam pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Steam ID:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    error={this.state.officerInfo.personal.steam !== null && !(/^steam:.+/.test(this.state.officerInfo.personal.steam))}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.personal.steam}
-                                                    onChange={(event) => {
-                                                        this.setState({
-                                                            officerInfo: {
-                                                                ...this.state.officerInfo,
-                                                                personal: {
-                                                                    ...this.state.officerInfo.personal,
-                                                                    steam: event.target.value
-                                                                }
+                                            <InformationPair
+                                                label={"Steam:"}
+                                                value={this.state.officerInfo.personal.steam}
+                                                pattern={/^steam:[0-9]{9}$|^http(s)?:\/\/steamcommunity.com\/id\/.+/}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            personal: {
+                                                                ...this.state.officerInfo.personal,
+                                                                steam: event.target.value
                                                             }
-                                                        });
-                                                    }}
-                                                />
-                                            </div>
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                         </div>
                                     </fieldset>
 
@@ -878,112 +904,96 @@ class OfficerInfo extends Component {
 
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Patente pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Patente:</label>
-                                                <StyledSelect
-                                                    className={style.officerInfoInputSelect}
-                                                    value={this.state.officerInfo.professional.patent}
-                                                    onChange={(event) => {
-                                                        this.setState({
-                                                            officerInfo: {
-                                                                ...this.state.officerInfo,
-                                                                professional: {
-                                                                    ...this.state.officerInfo.professional,
-                                                                    patent: event.target.value
-                                                                }
+                                            <InformationPair
+                                                label={"Patente:"}
+                                                value={this.state.officerInfo.professional.patent}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            professional: {
+                                                                ...this.state.officerInfo.professional,
+                                                                patent: event.target.value
                                                             }
-                                                        });
-                                                    }}
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    slotProps={OfficerInfoSelectSlotProps}>
-                                                    {patentesOptions}
-                                                </StyledSelect>
-                                            </div>
+                                                        }
+                                                    });
+                                                }}
+                                                isSelect
+                                            >
+                                                {patentesOptions}
+                                            </InformationPair>
                                             <Divider/>
                                             {/*CallSign pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>CallSign:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    error={this.state.officerInfo.professional.callsign !== null && !(/^[FSTODCZAG]-([0-9]){2}$/.test(this.state.officerInfo.professional.callsign))}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.professional.callsign}
-                                                    onChange={(event) => {
-                                                       this.setState({
-                                                           officerInfo: {
-                                                               ...this.state.officerInfo,
-                                                               professional: {
-                                                                   ...this.state.officerInfo.professional,
-                                                                   callsign: event.target.value
-                                                               }
-                                                           }
-                                                       });
-                                                   }}
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"CallSign:"}
+                                                value={this.state.officerInfo.professional.callsign}
+                                                pattern={/^[FSTODCZAG]-([0-9]){2}$/}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            professional: {
+                                                                ...this.state.officerInfo.professional,
+                                                                callsign: event.target.value
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider/>
                                             {/*Status pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Status:</label>
-                                                <StyledSelect className={style.officerInfoInputSelect}
-                                                        value={this.state.officerInfo.professional.status}
-                                                        onChange={(event) => {
-                                                            this.setState({
-                                                                officerInfo: {
-                                                                    ...this.state.officerInfo,
-                                                                    professional: {
-                                                                        ...this.state.officerInfo.professional,
-                                                                        status: event.target.value
-                                                                    }
-                                                                }
-                                                            });
-                                                        }}
-                                                        variant={"standard"}
-                                                        disabled={!this.state.editMode}
-                                                        slotProps={OfficerInfoSelectSlotProps}>
-                                                    {statusOptions}
-                                                </StyledSelect>
-                                            </div>
+                                            <InformationPair
+                                                label={"Status:"}
+                                                value={this.state.officerInfo.professional.status}
+                                                isSelect
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            professional: {
+                                                                ...this.state.officerInfo.professional,
+                                                                status: event.target.value
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                            >
+                                                {statusOptions}
+                                            </InformationPair>
                                             <Divider/>
                                             {/*Data de Entrada pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Data de Entrada:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled={!this.state.editMode}
-                                                    type={"date"}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.professional.entry_date}
-                                                    onChange={(event) => {
-                                                       this.setState({
-                                                           officerInfo: {
-                                                               ...this.state.officerInfo,
-                                                               professional: {
-                                                                   ...this.state.officerInfo.professional,
-                                                                   entry_date: event.target.value
-                                                               }
-                                                           }
-                                                       });
-                                                   }}
-                                                />
-                                            </div>
+                                            <InformationPair
+                                                label={"Data de Entrada:"}
+                                                value={this.state.officerInfo.professional.entry_date}
+                                                type={"date"}
+                                                editMode={this.state.editMode}
+                                                onChange={(event) => {
+                                                    this.setState({
+                                                        officerInfo: {
+                                                            ...this.state.officerInfo,
+                                                            professional: {
+                                                                ...this.state.officerInfo.professional,
+                                                                entry_date: event.target.value
+                                                            }
+                                                        }
+                                                    });
+                                                }}
+                                            />
                                             <Divider/>
                                             {/*Data de Subida pair*/}
-                                            <div>
-                                                <label className={style.officerInfoDetailLabel}>Data de Subida:</label>
-                                                <StyledInput
-                                                    variant={"standard"}
-                                                    disabled
-                                                    type={"date"}
-                                                    className={style.officerInfoInput}
-                                                    value={this.state.officerInfo.professional.promotion_date} />
-                                            </div>
+                                            <InformationPair
+                                                label={"Data de Subida:"}
+                                                value={this.state.officerInfo.professional.promotion_date}
+                                                type={"date"}
+                                                editMode={false}
+                                            />
                                             <Divider/>
                                             {/*Unidades Especiais*/}
                                             <div>
-                                                <label className={style.officerInfoDetailLabel}>Unidades
+                                                <label className={style.informationPairLabel}>Unidades
                                                     Especiais:</label>
                                                 <table className={style.officerInfoUnitsTable}>
                                                     <thead>

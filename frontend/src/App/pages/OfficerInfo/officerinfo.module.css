@@ -118,7 +118,11 @@
     height: 100%;
 }
 
-.officerInfoDetailLabel {
+.informationPairDiv {
+    width: 100%;
+}
+
+.informationPairDiv > label {
     color: #049985;
     margin: 0;
     font-size: 1rem;
