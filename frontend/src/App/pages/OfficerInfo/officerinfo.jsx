@@ -9,7 +9,7 @@ import {base_url} from "../../utils/constants";
 import {
     Button,
     Divider,
-    FormControlLabel,
+    FormControlLabel, Menu,
     MenuItem,
     Select,
     Switch,
@@ -693,6 +693,19 @@ class OfficerInfo extends Component {
         });
     }
 
+    handleInformationChange(category, info, value) {
+        this.setState({
+            officerInfo: {
+                ...this.state.officerInfo,
+                [category]: {
+                    ...this.state.officerInfo[category],
+                    [info]: value
+                }
+            }
+
+        })
+    }
+
     render() {
         // Before rendering the page, we need to build the patentes and status options
         const patentesOptions = this.patents.map((patent) => {
@@ -777,24 +790,16 @@ class OfficerInfo extends Component {
 
                                         <div className={style.officerInfoInnerFieldsetDiv}>
                                             {/*Name pair*/}
+                                            {/*Pattern Unit tests: https://regex101.com/r/pdl46q/1*/}
                                             <InformationPair
                                                 label={"Nome:"}
                                                 value={this.state.officerInfo.personal.name}
                                                 pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                name: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "name", event.target.value)}
                                             />
                                             <Divider flexItem/>
+
                                             {/*NIF pair*/}
                                             <InformationPair
                                                 label={"NIF:"}
@@ -802,44 +807,27 @@ class OfficerInfo extends Component {
                                                 editMode={false}
                                             />
                                             <Divider flexItem/>
+
                                             {/*Cellphone pair*/}
                                             <InformationPair
                                                 label={"Telemóvel:"}
                                                 value={this.state.officerInfo.personal.phone}
                                                 pattern={/^[0-9]{9}$/}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                phone: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "phone", event.target.value)}
                                             />
                                             <Divider flexItem/>
+
                                             {/*IBAN pair*/}
                                             <InformationPair
                                                 label={"IBAN:"}
                                                 value={this.state.officerInfo.personal.iban}
                                                 pattern={/^PT[0-9]{3,6}$/}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                iban: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "iban", event.target.value)}
                                             />
                                             <Divider flexItem/>
+
                                             {/*KMs pair*/}
                                             <InformationPair
                                                 label={"KMs:"}
@@ -847,54 +835,27 @@ class OfficerInfo extends Component {
                                                 editMode={this.state.editMode}
                                                 type={"number"}
                                                 step={100}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                kms: parseInt(event.target.value)
-                                                            }
-                                                        }
-                                                    })
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "kms", event.target.value)}
                                             />
                                             <Divider flexItem/>
+
                                             {/*Discord pair*/}
                                             <InformationPair
                                                 label={"Discord:"}
                                                 value={this.state.officerInfo.personal.discord}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                discord: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "discord", event.target.value)}
                                             />
                                             <Divider flexItem/>
+
                                             {/*Steam pair*/}
+                                            {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
                                             <InformationPair
                                                 label={"Steam:"}
                                                 value={this.state.officerInfo.personal.steam}
-                                                pattern={/^steam:[0-9]{9}$|^http(s)?:\/\/steamcommunity.com\/id\/.+/}
+                                                pattern={/^steam:([0-9]|[a-z])+$|^http(s)?:\/\/steamcommunity\.com\/id\/.+/}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            personal: {
-                                                                ...this.state.officerInfo.personal,
-                                                                steam: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("personal", "steam", event.target.value)}
                                             />
                                         </div>
                                     </fieldset>
@@ -908,81 +869,45 @@ class OfficerInfo extends Component {
                                                 label={"Patente:"}
                                                 value={this.state.officerInfo.professional.patent}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            professional: {
-                                                                ...this.state.officerInfo.professional,
-                                                                patent: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("professional", "patent", event.target.value)}
                                                 isSelect
                                             >
                                                 {patentesOptions}
                                             </InformationPair>
                                             <Divider/>
+
                                             {/*CallSign pair*/}
                                             <InformationPair
                                                 label={"CallSign:"}
                                                 value={this.state.officerInfo.professional.callsign}
                                                 pattern={/^[FSTODCZAG]-([0-9]){2}$/}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            professional: {
-                                                                ...this.state.officerInfo.professional,
-                                                                callsign: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("professional", "callsign", event.target.value)}
                                             />
                                             <Divider/>
+
                                             {/*Status pair*/}
                                             <InformationPair
                                                 label={"Status:"}
                                                 value={this.state.officerInfo.professional.status}
                                                 isSelect
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            professional: {
-                                                                ...this.state.officerInfo.professional,
-                                                                status: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("professional", "status", event.target.value)}
                                             >
                                                 {statusOptions}
                                             </InformationPair>
                                             <Divider/>
+
                                             {/*Data de Entrada pair*/}
                                             <InformationPair
                                                 label={"Data de Entrada:"}
                                                 value={this.state.officerInfo.professional.entry_date}
                                                 type={"date"}
                                                 editMode={this.state.editMode}
-                                                onChange={(event) => {
-                                                    this.setState({
-                                                        officerInfo: {
-                                                            ...this.state.officerInfo,
-                                                            professional: {
-                                                                ...this.state.officerInfo.professional,
-                                                                entry_date: event.target.value
-                                                            }
-                                                        }
-                                                    });
-                                                }}
+                                                onChange={(event) => this.handleInformationChange("professional", "entry_date", event.target.value)}
                                             />
                                             <Divider/>
+
                                             {/*Data de Subida pair*/}
                                             <InformationPair
                                                 label={"Data de Subida:"}
@@ -991,6 +916,7 @@ class OfficerInfo extends Component {
                                                 editMode={false}
                                             />
                                             <Divider/>
+
                                             {/*Unidades Especiais*/}
                                             <div>
                                                 <label className={style.informationPairLabel}>Unidades
