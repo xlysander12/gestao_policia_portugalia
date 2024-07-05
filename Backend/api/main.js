@@ -4,6 +4,9 @@ const app = express.Router();
 // Import util routes
 app.use("/util", require("./util"));
 
+// Import metrics routes
+app.use("/metrics", require("./metrics"));
+
 // Import account routes
 app.use("/account", require("./account"));
 

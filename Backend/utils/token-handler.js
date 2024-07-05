@@ -3,7 +3,7 @@
 const {forces} = require("./constants");
 const {queryDB} = require("./db-connector");
 
-export async function generateToken() {
+exports.generateToken = async () => {
     // Repeat the generation process until an unique token is generated
     let unique = false;
     let token = "";
@@ -31,7 +31,7 @@ export async function generateToken() {
     return token;
 }
 
-export async function checkTokenValidityIntents(token, force, intent) {
+async function checkTokenValidityIntents(token, force, intent) {
     // Check if the token is present
     if (token === undefined || token === null) {
         return [false, 401, "Não foi fornecido um token de autenticação."];
@@ -76,6 +76,8 @@ export async function checkTokenValidityIntents(token, force, intent) {
 
     return [true, 200, nif];
 }
-export async function checkTokenValidityIntentsHeaders(headers, intent) {
+module.exports.checkTokenValidityIntents = checkTokenValidityIntents;
+
+exports.checkTokenValidityIntentsHeaders = async (headers, intent) => {
     return await checkTokenValidityIntents(headers.authorization, headers["x-portalseguranca-force"], intent);
 }
