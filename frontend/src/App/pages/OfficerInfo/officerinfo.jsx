@@ -401,6 +401,15 @@ class FireModal extends Component {
 }
 
 const InformationPair = ({label, value, type = "text", pattern, editMode, onChange, step, isSelect = false, children}) => {
+    // Sanitaze the pattern to be conpatible with the input pattern attribute
+    let safePattern = pattern;
+    if (pattern !== undefined) {
+        let stringPattern = pattern.toString();
+        if (stringPattern[0] === "/" && stringPattern[stringPattern.length - 1] === "/") {
+            safePattern = stringPattern.substring(1, stringPattern.length - 1);
+        }
+    }
+
     // If it's not a select, return a basic input
     if (!isSelect) {
         return (
@@ -416,7 +425,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                     onChange={onChange}
                     inputProps={{
                         step: step,
-                        pattern: pattern
+                        pattern: safePattern
                     }}
                 />
             </div>
