@@ -111,6 +111,10 @@
     margin: auto;
 }
 
+.officerInfoDetailsDiv hr {
+    margin-bottom: 5px;
+}
+
 .officerInfoInnerFieldsetDiv {
     display: flex;
     flex-direction: column;
