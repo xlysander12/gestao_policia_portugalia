@@ -79,11 +79,8 @@ class OfficerList extends Component {
         // Set the loading state to true
         this.setState({loading: true});
 
-         // if query is undefined, then the user didn't search for anything
-        if (query === undefined) query = "";
-
         // Send the request to the API to get the results from the search
-        const response = await make_request(`/officerInfo?search=${query}`, "GET");
+        const response = await make_request(`/officerInfo${query ? `?search=${query}`: ""}`, "GET");
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {

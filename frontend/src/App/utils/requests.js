@@ -3,7 +3,7 @@
 // It will be a wrapper around the fetch API, making it easier to use
 const {base_api_url} = require("./constants");
 
-async function make_request(url, method, body= undefined, force= undefined, useAuth= true, useBaseAPIURL= true) {
+async function make_request(url, method, body = undefined, force = undefined, useAuth= true, useBaseAPIURL= true) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
         url = '/' + url;
@@ -29,6 +29,7 @@ async function make_request(url, method, body= undefined, force= undefined, useA
     });
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reaload the current page
+    // TODO: Add a toast with the error code
     if (response.status >= 500) {
         window.location.reload();
         return;
