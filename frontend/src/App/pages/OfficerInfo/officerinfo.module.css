@@ -19,7 +19,7 @@
 .officerInfoAlterbarDiv {
     width: 100%;
     height: 4rem;
-    padding: 0.7rem;
+    padding: 0.7rem 0;
     background-color: rgb(31, 40, 51);
 }
 

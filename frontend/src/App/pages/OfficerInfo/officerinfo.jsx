@@ -16,6 +16,7 @@ import {
     TextField,
 } from "@mui/material";
 import {styled} from  "@mui/material/styles"
+import ScreenSplit from "../../components/ScreenSplit/screen-split";
 
 const OfficerInfoSelectSlotProps = {
     root: {
@@ -495,6 +496,7 @@ class OfficerInfo extends Component {
         this.doesUserBelongToUnit = this.doesUserBelongToUnit.bind(this);
         this.getUnitNameFromId = this.getUnitNameFromId.bind(this);
         this.updateOfficerInfo = this.updateOfficerInfo.bind(this);
+        this.handleInformationChange = this.handleInformationChange.bind(this);
     }
 
     async fetchOfficerInfo(nif) {
@@ -737,175 +739,169 @@ class OfficerInfo extends Component {
         return(
             <div>
                 {/*Div that splits the screen*/}
-                <div style={{display: "flex"}}>
+                <ScreenSplit
+                    leftSidePercentage={30}
+                    leftSideComponent={<OfficerList callbackFunction={this.officerListCallback}/>}
+                >
+                    {/*Div where content's will be*/}
+                    <div className={style.officerInfoInnerDiv}>
+                        {/*Div that holds the buttons to alter the officer's info*/}
+                        <div className={style.officerInfoAlterbarDiv}>
+                            <button type={"submit"} form={"information-form"}
+                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
+                                    hidden={!this.state.editMode}>Guardar
+                            </button>
 
-                    {/*Div that will hold the officer's list*/}
-                    <div className={style.officerListDiv}>
-                        <OfficerList callbackFunction={this.officerListCallback}/>
-                    </div>
+                            <RecruitModal trigger={<button
+                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
+                                hidden={this.state.editMode || !this.editIntents}>Recrutar</button>}></RecruitModal>
 
-                    {/*Div that will hold the officer's info*/}
-                    <div className={style.officerInfoOuterDiv}>
+                            <button
+                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
+                                hidden={this.state.editMode || !this.state.hasEditPermissions}
+                                onClick={this.enableEditMode}>Editar
+                            </button>
 
-                        {/*Div where content's will be*/}
-                        <div className={style.officerInfoInnerDiv}>
-                            {/*Div that holds the buttons to alter the officer's info*/}
-                            <div className={style.officerInfoAlterbarDiv}>
-                                <button type={"submit"} form={"information-form"}
-                                        className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
-                                        hidden={!this.state.editMode}>Guardar
-                                </button>
+                            <FireModal trigger={<button
+                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
+                                hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>} officerFullName={`${this.state.loading ? "Agente": (this.patents[this.state.officerInfo.professional.patent + 1]["name"])} ${this.state.officerInfo.personal.name}`} officerNIF={this.state.officerInfo.personal.nif}></FireModal>
 
-                                <RecruitModal trigger={<button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
-                                    hidden={this.state.editMode || !this.editIntents}>Recrutar</button>}></RecruitModal>
+                            {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
+                            <button
+                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
+                                style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Gerir
+                                Conta
+                            </button>
+                            <button
+                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
+                                style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar
+                                do HUB
+                            </button>
+                        </div>
 
-                                <button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
-                                    hidden={this.state.editMode || !this.state.hasEditPermissions}
-                                    onClick={this.enableEditMode}>Editar
-                                </button>
-
-                                <FireModal trigger={<button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
-                                    hidden={this.state.editMode || !this.state.hasEditPermissions}>Despedir</button>} officerFullName={`${this.state.loading ? "Agente": (this.patents[this.state.officerInfo.professional.patent + 1]["name"])} ${this.state.officerInfo.personal.name}`} officerNIF={this.state.officerInfo.personal.nif}></FireModal>
-
-                                {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
-                                <button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Gerir
-                                    Conta
-                                </button>
-                                <button
-                                    className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                                    style={{float: "left"}} hidden={this.state.editMode || !this.editIntents}>Importar
-                                    do HUB
-                                </button>
+                        {/*TODO: This form isn't validanting the inputs*/}
+                        <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
+                            {/*Loader Div*/}
+                            <div className={style.officerInfoDetailsDiv} style={{
+                                justifyContent: "center",
+                                alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
+                                <Loader/>
                             </div>
 
-                            {/*TODO: This form isn't validanting the inputs*/}
-                            <form id={"information-form"} onSubmit={this.updateOfficerInfo}>
-                                {/*Loader Div*/}
-                                <div className={style.officerInfoDetailsDiv} style={{
-                                    justifyContent: "center",
-                                    alignItems: "center", display: `${this.state.loading ? "flex": "none"}`}}>
-                                    <Loader/>
-                                </div>
+                            {/*Information div*/}
+                            <div className={style.officerInfoDetailsDiv} style={this.state.loading ? {display: "none"}: {}}>
+                                <fieldset>
+                                    <legend>Informação Pessoal</legend>
 
-                                {/*Information div*/}
-                                <div className={style.officerInfoDetailsDiv} style={this.state.loading ? {display: "none"}: {}}>
-                                    <fieldset>
-                                        <legend>Informação Pessoal</legend>
+                                    <div className={style.officerInfoInnerFieldsetDiv}>
+                                        {/*Name pair*/}
+                                        {/*Pattern Unit tests: https://regex101.com/r/pdl46q/1*/}
+                                        <InformationPair
+                                            label={"Nome:"}
+                                            value={this.state.officerInfo.personal.name}
+                                            pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("personal", "name", event.target.value)}
+                                        />
+                                        <Divider flexItem/>
 
-                                        <div className={style.officerInfoInnerFieldsetDiv}>
-                                            {/*Name pair*/}
-                                            {/*Pattern Unit tests: https://regex101.com/r/pdl46q/1*/}
-                                            <InformationPair
-                                                label={"Nome:"}
-                                                value={this.state.officerInfo.personal.name}
-                                                pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("personal", "name", event.target.value)}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*NIF pair*/}
+                                        <InformationPair
+                                            label={"NIF:"}
+                                            value={this.state.officerInfo.personal.nif}
+                                            editMode={false}
+                                        />
+                                        <Divider flexItem/>
 
-                                            {/*NIF pair*/}
-                                            <InformationPair
-                                                label={"NIF:"}
-                                                value={this.state.officerInfo.personal.nif}
-                                                editMode={false}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*Cellphone pair*/}
+                                        <InformationPair
+                                            label={"Telemóvel:"}
+                                            value={this.state.officerInfo.personal.phone}
+                                            pattern={/^[0-9]{9}$/}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("personal", "phone", event.target.value)}
+                                        />
+                                        <Divider flexItem/>
 
-                                            {/*Cellphone pair*/}
-                                            <InformationPair
-                                                label={"Telemóvel:"}
-                                                value={this.state.officerInfo.personal.phone}
-                                                pattern={/^[0-9]{9}$/}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("personal", "phone", event.target.value)}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*IBAN pair*/}
+                                        <InformationPair
+                                            label={"IBAN:"}
+                                            value={this.state.officerInfo.personal.iban}
+                                            pattern={/^PT[0-9]{3,6}$/}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("personal", "iban", event.target.value)}
+                                        />
+                                        <Divider flexItem/>
 
-                                            {/*IBAN pair*/}
-                                            <InformationPair
-                                                label={"IBAN:"}
-                                                value={this.state.officerInfo.personal.iban}
-                                                pattern={/^PT[0-9]{3,6}$/}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("personal", "iban", event.target.value)}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*KMs pair*/}
+                                        <InformationPair
+                                            label={"KMs:"}
+                                            value={this.state.officerInfo.personal.kms}
+                                            editMode={this.state.editMode}
+                                            type={"number"}
+                                            step={100}
+                                            onChange={(event) => this.handleInformationChange("personal", "kms", event.target.value)}
+                                        />
+                                        <Divider flexItem/>
 
-                                            {/*KMs pair*/}
-                                            <InformationPair
-                                                label={"KMs:"}
-                                                value={this.state.officerInfo.personal.kms}
-                                                editMode={this.state.editMode}
-                                                type={"number"}
-                                                step={100}
-                                                onChange={(event) => this.handleInformationChange("personal", "kms", event.target.value)}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*Discord pair*/}
+                                        <InformationPair
+                                            label={"Discord:"}
+                                            value={this.state.officerInfo.personal.discord}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("personal", "discord", event.target.value)}
+                                        />
+                                        <Divider flexItem/>
 
-                                            {/*Discord pair*/}
-                                            <InformationPair
-                                                label={"Discord:"}
-                                                value={this.state.officerInfo.personal.discord}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("personal", "discord", event.target.value)}
-                                            />
-                                            <Divider flexItem/>
+                                        {/*Steam pair*/}
+                                        {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
+                                        <InformationPair
+                                            label={"Steam:"}
+                                            value={this.state.officerInfo.personal.steam}
+                                            pattern={/^steam:([0-9]|[a-z])+$|^http(s)?:\/\/steamcommunity\.com\/id\/.+/}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("personal", "steam", event.target.value)}
+                                        />
+                                    </div>
+                                </fieldset>
 
-                                            {/*Steam pair*/}
-                                            {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
-                                            <InformationPair
-                                                label={"Steam:"}
-                                                value={this.state.officerInfo.personal.steam}
-                                                pattern={/^steam:([0-9]|[a-z])+$|^http(s)?:\/\/steamcommunity\.com\/id\/.+/}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("personal", "steam", event.target.value)}
-                                            />
-                                        </div>
-                                    </fieldset>
+                                <fieldset>
+                                    <legend>Informação Profissional</legend>
 
-                                    <fieldset>
-                                        <legend>Informação Profissional</legend>
+                                    <div className={style.officerInfoInnerFieldsetDiv}>
+                                        {/*Patente pair*/}
+                                        <InformationPair
+                                            label={"Patente:"}
+                                            value={this.state.officerInfo.professional.patent}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("professional", "patent", event.target.value)}
+                                            isSelect
+                                        >
+                                            {patentesOptions}
+                                        </InformationPair>
+                                        <Divider/>
 
-                                        <div className={style.officerInfoInnerFieldsetDiv}>
-                                            {/*Patente pair*/}
-                                            <InformationPair
-                                                label={"Patente:"}
-                                                value={this.state.officerInfo.professional.patent}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("professional", "patent", event.target.value)}
-                                                isSelect
-                                            >
-                                                {patentesOptions}
-                                            </InformationPair>
-                                            <Divider/>
+                                        {/*CallSign pair*/}
+                                        <InformationPair
+                                            label={"CallSign:"}
+                                            value={this.state.officerInfo.professional.callsign}
+                                            pattern={/^[FSTODCZAG]-([0-9]){2}$/}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("professional", "callsign", event.target.value)}
+                                        />
+                                        <Divider/>
 
-                                            {/*CallSign pair*/}
-                                            <InformationPair
-                                                label={"CallSign:"}
-                                                value={this.state.officerInfo.professional.callsign}
-                                                pattern={/^[FSTODCZAG]-([0-9]){2}$/}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("professional", "callsign", event.target.value)}
-                                            />
-                                            <Divider/>
-
-                                            {/*Status pair*/}
-                                            <InformationPair
-                                                label={"Status:"}
-                                                value={this.state.officerInfo.professional.status}
-                                                isSelect
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("professional", "status", event.target.value)}
-                                            >
-                                                {statusOptions}
-                                            </InformationPair>
-                                            <Divider/>
+                                        {/*Status pair*/}
+                                        <InformationPair
+                                            label={"Status:"}
+                                            value={this.state.officerInfo.professional.status}
+                                            isSelect
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("professional", "status", event.target.value)}
+                                        >
+                                            {statusOptions}
+                                        </InformationPair>
+                                        <Divider/>
 
                                             {/*Data de Entrada pair*/}
                                             <InformationPair
@@ -916,15 +912,24 @@ class OfficerInfo extends Component {
                                                 onChange={(event) => this.handleInformationChange("professional", "entry_date", event.target.value)}
                                             />
                                             <Divider/>
+                                        {/*Data de Entrada pair*/}
+                                        <InformationPair
+                                            label={"Data de Entrada:"}
+                                            value={this.state.officerInfo.professional.entry_date}
+                                            type={"date"}
+                                            editMode={this.state.editMode}
+                                            onChange={(event) => this.handleInformationChange("professional", "entry_date", event.target.value)}
+                                        />
+                                        <Divider/>
 
-                                            {/*Data de Subida pair*/}
-                                            <InformationPair
-                                                label={"Data de Subida:"}
-                                                value={this.state.officerInfo.professional.promotion_date}
-                                                type={"date"}
-                                                editMode={false}
-                                            />
-                                            <Divider/>
+                                        {/*Data de Subida pair*/}
+                                        <InformationPair
+                                            label={"Data de Subida:"}
+                                            value={this.state.officerInfo.professional.promotion_date}
+                                            type={"date"}
+                                            editMode={false}
+                                        />
+                                        <Divider/>
 
                                             {/*Unidades Especiais*/}
                                             <div>
@@ -1020,30 +1025,29 @@ class OfficerInfo extends Component {
                                         </div>
                                     </fieldset>
 
-                                    <fieldset>
-                                        <legend>Atividade</legend>
+                                <fieldset>
+                                    <legend>Atividade</legend>
 
-                                        <p>Justificação ativa: <span></span>
-                                        </p>
-                                        <p>Última picagem: <span></span>
-                                        </p>
-                                        <p>Última
-                                            semana: <span>{"N/A"}</span>
-                                        </p>
-                                    </fieldset>
-                                    <fieldset>
-                                        <legend>Punições</legend>
+                                    <p>Justificação ativa: <span></span>
+                                    </p>
+                                    <p>Última picagem: <span></span>
+                                    </p>
+                                    <p>Última
+                                        semana: <span>{"N/A"}</span>
+                                    </p>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Punições</legend>
 
-                                        <p>Punição Ativa: <span></span>
-                                        </p>
-                                        <p>Histórico: <span></span>
-                                        </p>
-                                    </fieldset>
-                                </div>
-                            </form>
-                        </div>
+                                    <p>Punição Ativa: <span></span>
+                                    </p>
+                                    <p>Histórico: <span></span>
+                                    </p>
+                                </fieldset>
+                            </div>
+                        </form>
                     </div>
-                </div>
+                </ScreenSplit>
             </div>
         )
     }
