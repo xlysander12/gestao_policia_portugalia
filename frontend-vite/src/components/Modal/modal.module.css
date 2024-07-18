@@ -1,0 +1,38 @@
+.header {
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 20px;
+    color: #c3c4c5;
+    text-align: center;
+    padding: 5px 10px;
+}
+
+.content {
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #1f2833;
+    text-align: center;
+    padding: 15px 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.section {
+    box-sizing: border-box;
+    height: fit-content;
+    width: 100%;
+    color: #c3c4c5;
+    background-color: transparent;
+    padding: 10px;
+    margin: 0;
+    border: 5px solid #049985;
+    border-radius: 10px;
+    box-shadow: black 0 0 30px 0;
+}
+
+.section > legend {
+    color: #049985;
+    font-size: 1.12rem;
+    font-weight: bold;
+    margin: auto;
+}
