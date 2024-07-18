@@ -1,0 +1,25 @@
+.mainDiv {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.leftDiv {
+    padding-left: 0 !important;
+}
+
+.rightDiv {
+    padding-right: 0 !important;
+}
+
+.leftDiv, .rightDiv {
+    box-sizing: border-box;
+    padding: 0 10px;
+    height: 100%;
+}
