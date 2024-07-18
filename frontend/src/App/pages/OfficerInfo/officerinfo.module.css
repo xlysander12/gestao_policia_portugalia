@@ -156,46 +156,8 @@
     border-bottom: 3px solid #00fdfd;
 }
 
-
 .officerInfoInput:disabled {
     background-color: transparent;
     color: black;
     border: 0;
-}
-
-.officerInfoUnitsTable {
-    width: 100%;
-    border-collapse: collapse;
-    border-bottom: 1px Solid #1f2833;
-    border-right: 1px Solid #1f2833;
-}
-
-.officerInfoUnitsTable td, .officerInfoUnitsTable th {
-    border-left: 1px solid #1f2833;
-    border-top: 1px solid #1f2833;
-    border-bottom: none;
-    border-right: none;
-}
-
-.officerInfoUnitsTable td select, .officerInfoUnitsTable td button {
-    width: 100%;
-}
-
-.officerInfoUnitsSelect {
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-    border: 0;
-    outline: none;
-    font-size: 1rem;
-    color: black;
-}
-
-.officerInfoUnitsSelect:disabled {
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-    border: 0;
-    outline: none;
-    color: black
 }

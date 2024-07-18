@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
 import modalsStyle from "./officerinfomodals.module.css";
 import OfficerList from "../../components/OfficerList/officer-list";
@@ -9,10 +9,10 @@ import {base_url} from "../../utils/constants";
 import {
     Button,
     Divider,
-    FormControlLabel, Menu,
+    FormControlLabel,
     MenuItem,
     Select,
-    Switch,
+    Switch, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow,
     TextField,
 } from "@mui/material";
 import {styled} from  "@mui/material/styles"
@@ -44,7 +44,7 @@ const OfficerInfoSelectSlotProps = {
     }
 }
 
-const StyledSelect = styled(Select)(({theme}) => ({
+const StyledSelect = styled(Select)(() => ({
     "& .MuiSelect-icon": {
         color: "#049985",
 
@@ -111,7 +111,6 @@ const StyledInput = styled(TextField)(({theme}) => ({
         },
     }
 }));
-
 
 class RecruitModal extends Component {
     constructor(props) {
@@ -452,6 +451,174 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
 
 }
 
+const SpecialUnitsTableRow = ({selectSx, unit, unitName, unitRoles, editMode, onChange, onRemove}) => {
+    return (
+        <TableRow
+            key={`unitstableunit#${unit.id}`}
+            sx={!editMode ? {'&:last-child td, &:last-child th': { border: 0 }}: {'&:last-child td, &:last-child th': { borderColor: "#049985", borderBottomStyle: "dashed" }}}
+        >
+            <TableCell sx={{color: "#d0c7d3"}}>{unitName}</TableCell>
+            <TableCell>
+                <Select
+                    value={unit.role}
+                    disabled={!editMode}
+                    onChange={(event) => onChange(event, unit.id)}
+                    fullWidth
+                    sx={selectSx}
+                >
+                    {unitRoles.map((role) => {
+                        return (
+                            <MenuItem key={`role${role.id}`} value={role.id}>{role.name}</MenuItem>
+                        )
+                    })}
+                </Select>
+            </TableCell>
+            {!editMode ? "":
+                <TableCell>
+                    {/*TODO: Add the handler for the onRemove event*/}
+                    <button>Remover</button>
+                </TableCell>
+            }
+        </TableRow>
+    )
+}
+
+const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, onAdd}) => {
+    const SelectSx= {
+        "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
+            paddingRight: "32px !important",
+
+            "&, &.Mui-disabled": {
+                WebkitTextFillColor: "#d0c7d3",
+            },
+
+            "&.Mui-disabled": {
+                paddingRight: "14px !important"
+            },
+
+            "&.MuiSelect-select": {
+                textAlign: "center"
+            },
+
+            padding: "1px 14px 1px 0",
+        },
+
+        "& .MuiOutlinedInput-notchedOutline": {
+            display: "none"
+        },
+
+        "& .MuiSvgIcon-root.MuiSelect-icon": {
+            color: "#d0c7d3",
+
+            "&.Mui-disabled": {
+                display: "none"
+            }
+        }
+    }
+
+    const [specialUnits, setSpecialUnits] = useState([]);
+    const [specialUnitsRoles, setSpecialUnitsRoles] = useState([]);
+
+    useEffect(() => {
+        async function getSpecialUnits() {
+            const specialUnitsResponse = await make_request("/util/specialunits", "GET");
+
+            // Mandatory check if the status code was 200
+            // TODO: Do something actually useful with the error
+            if (!specialUnitsResponse.ok)
+                return;
+
+            const specialUnitsResponseJson = await specialUnitsResponse.json();
+
+            // Apply the units and their roles to the objects of the class
+            setSpecialUnits(specialUnitsResponseJson.data["units"]);
+            setSpecialUnitsRoles(specialUnitsResponseJson.data["roles"]);
+        }
+
+        getSpecialUnits();
+    }, []);
+
+    // Defining util functions
+    function getUnitNameFromId(unitId) {
+        for (let unit of specialUnits) {
+            if (unit.id === unitId) {
+                return unit.name;
+            }
+        }
+    }
+
+    return (
+        <TableContainer>
+            <Table component={"paper"} size={"small"} padding={"normal"}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Unidade</TableCell>
+                        <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Cargo</TableCell>
+                        {!editMode ? "":
+                            <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Ação</TableCell>
+                        }
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {/*Cycle through all units of the officer and display it's roles*/}
+                    {officerSpecialUnits.map((unit) => {
+                        return (
+                            <SpecialUnitsTableRow
+                                selectSx={SelectSx}
+                                unit={unit}
+                                unitName={getUnitNameFromId(unit.id)}
+                                unitRoles={specialUnitsRoles}
+                                editMode={editMode}
+                                onChange={onChange}
+                            />
+                        );
+                    })}
+                </TableBody>
+                {!editMode ? "":
+                    <TableFooter>
+                        <TableRow>
+                            {/*Select to change Unit*/}
+                            <TableCell>
+                                <Select
+                                    fullWidth
+                                    sx={SelectSx}
+                                >
+                                    {/*TODO: This must use a function that only return the units the officer doesn't belong to*/}
+                                    {specialUnits.map((unit) => {
+                                        return (
+                                            <MenuItem key={`newUnit${unit.id}`} value={unit.id}>{unit.name}</MenuItem>
+                                        )
+                                    })}
+                                </Select>
+                            </TableCell>
+
+                            {/*Select to change role*/}
+                            <TableCell>
+                                <Select
+                                    fullWidth
+                                    sx={SelectSx}
+                                >
+                                    {specialUnitsRoles.map((role) => {
+                                        return (
+                                            <MenuItem key={`newUniRole${role.id}`} value={role.id}>{role.name}</MenuItem>
+                                        )
+                                    })}
+                                </Select>
+
+                            </TableCell>
+
+                            {/*Select to commit addition*/}
+                            <TableCell>
+                                <button>Adicionar</button>
+                            </TableCell>
+                        </TableRow>
+                    </TableFooter>
+                }
+            </Table>
+        </TableContainer>
+    )
+}
+
 class OfficerInfo extends Component {
     constructor(props) {
         super(props);
@@ -494,9 +661,9 @@ class OfficerInfo extends Component {
         this.officerListCallback = this.officerListCallback.bind(this);
         this.enableEditMode = this.enableEditMode.bind(this);
         this.doesUserBelongToUnit = this.doesUserBelongToUnit.bind(this);
-        this.getUnitNameFromId = this.getUnitNameFromId.bind(this);
         this.updateOfficerInfo = this.updateOfficerInfo.bind(this);
         this.handleInformationChange = this.handleInformationChange.bind(this);
+        this.handleSpecialUnitsEdit = this.handleSpecialUnitsEdit.bind(this);
     }
 
     async fetchOfficerInfo(nif) {
@@ -649,35 +816,15 @@ class OfficerInfo extends Component {
         // Apply the data to the class object
         this.statuses = (await statusResponse.json()).data;
 
-        const specialUnitsResponse = await make_request("/util/specialunits", "GET");
-
-        // Mandatory check if the status code was 200
-        // TODO: Do something actually useful with the error
-        if (!specialUnitsResponse.ok)
-            return;
-
-        const specialUnitsResponseJson = await specialUnitsResponse.json();
-
-        // Apply the units and their roles to the objects of the class
-        this.specialUnits = specialUnitsResponseJson.data["units"];
-        this.unitsRoles = specialUnitsResponseJson.data["roles"];
-
-
         // Checking if there's a nif in the query params to instantly load the officer's info
         const queryParams = new URLSearchParams(window.location.search);
         const queryNif = queryParams.get("nif");
         if (queryNif) {
-            this.fetchOfficerInfo(queryNif).then(() => {});
+            this.fetchOfficerInfo(queryNif).then(() => {
+            });
         } else {
-            this.fetchOfficerInfo(loggedNif).then(() => {});
-        }
-    }
-
-    getUnitNameFromId(unitId) {
-        for (let unit of this.specialUnits) {
-            if (unit.id === unitId) {
-                return unit.name;
-            }
+            this.fetchOfficerInfo(loggedNif).then(() => {
+            });
         }
     }
 
@@ -717,6 +864,32 @@ class OfficerInfo extends Component {
         })
     }
 
+    handleSpecialUnitsEdit(event, unitId) {
+        // Create a copy of the units the officer belongs to
+        const specialUnits = this.state.officerInfo.professional.special_units;
+
+        // Get the unit from the officer's special units
+        const unit = specialUnits.find((unit) => unit.id === unitId);
+
+        // Update the unit's role
+        unit.role = event.target.value;
+
+        // Push the unit back to the officer's special units, while replacing the old one
+        specialUnits[specialUnits.findIndex((unit) => unit.id === unitId)] = unit;
+
+        // Update the officer's special units
+        this.setState({
+            officerInfo: {
+                ...this.state.officerInfo,
+                professional: {
+                    ...this.state.officerInfo.professional,
+                    special_units: specialUnits
+                }
+            }
+        });
+
+    }
+
     render() {
         // Before rendering the page, we need to build the patentes and status options
         const patentesOptions = this.patents.map((patent) => {
@@ -730,10 +903,6 @@ class OfficerInfo extends Component {
         const specialUnitsOptions = this.specialUnits.map((unit) => {
            if (!this.doesUserBelongToUnit(unit.id))
                return <option key={`unit${unit.id}`} value={unit.id}>{unit.name}</option>
-        });
-
-        const specialUnitsRolesOptions = this.unitsRoles.map((role) => {
-            return <option key={`role${role.id}`} value={role.id}>{role.name}</option>
         });
 
         return(
@@ -827,7 +996,7 @@ class OfficerInfo extends Component {
                                         <InformationPair
                                             label={"IBAN:"}
                                             value={this.state.officerInfo.personal.iban}
-                                            pattern={/^PT[0-9]{3,6}$/}
+                                            pattern={/^PT[0-9]{5,8}$/}
                                             editMode={this.state.editMode}
                                             onChange={(event) => this.handleInformationChange("personal", "iban", event.target.value)}
                                         />
@@ -903,15 +1072,6 @@ class OfficerInfo extends Component {
                                         </InformationPair>
                                         <Divider/>
 
-                                            {/*Data de Entrada pair*/}
-                                            <InformationPair
-                                                label={"Data de Entrada:"}
-                                                value={this.state.officerInfo.professional.entry_date}
-                                                type={"date"}
-                                                editMode={this.state.editMode}
-                                                onChange={(event) => this.handleInformationChange("professional", "entry_date", event.target.value)}
-                                            />
-                                            <Divider/>
                                         {/*Data de Entrada pair*/}
                                         <InformationPair
                                             label={"Data de Entrada:"}
@@ -931,99 +1091,19 @@ class OfficerInfo extends Component {
                                         />
                                         <Divider/>
 
-                                            {/*Unidades Especiais*/}
-                                            <div>
-                                                <label className={style.informationPairLabel}>Unidades
-                                                    Especiais:</label>
-                                                <table className={style.officerInfoUnitsTable}>
-                                                    <thead>
-                                                    <tr>
-                                                        <th style={{width: "50%"}}>Unidade</th>
-                                                        <th>Cargo</th>
-                                                        <th hidden={!this.state.editMode}>Ação</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    {this.state.officerInfo.professional.special_units.map((unit) => {
-                                                        return <tr key={`unit${unit.id}`}>
-                                                            <td style={{fontSize: "0.8rem"}}>{this.getUnitNameFromId(unit.id)}</td>
-                                                            <td><select className={style.officerInfoUnitsSelect}
-                                                                        value={unit.role} onChange={(event) => {
-                                                                // Update the unit's role
-                                                                let current_units = this.state.officerInfo.professional.special_units;
-                                                                const index = current_units.indexOf(unit);
-                                                                current_units[index].role = parseInt(event.target.value);
-
-                                                                this.setState({
-                                                                    officerInfo: {
-                                                                        ...this.state.officerInfo,
-                                                                        professional: {
-                                                                            ...this.state.officerInfo.professional,
-                                                                            special_units: current_units
-                                                                        }
-                                                                    }
-                                                                });
-                                                            }}>
-                                                                {specialUnitsRolesOptions}
-                                                            </select></td>
-                                                            <td hidden={!this.state.editMode}>
-                                                                <button type={"button"} onClick={() => {
-                                                                    let current_units = this.state.officerInfo.professional.special_units;
-                                                                    const index = current_units.indexOf(unit);
-                                                                    current_units.splice(index, 1);
-                                                                    this.setState({
-                                                                        officerInfo: {
-                                                                            ...this.state.officerInfo,
-                                                                            professional: {
-                                                                                ...this.state.officerInfo.professional,
-                                                                                special_units: current_units
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                }}>Remover
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    })}
-                                                    </tbody>
-                                                    <tfoot
-                                                        hidden={!this.state.editMode}> {/*Only show the add button if the edit mode is enabled*/}
-                                                    <tr>
-                                                        <td><select id={"officerInfoNewUnitValue"}>
-                                                            {specialUnitsOptions}
-                                                        </select></td>
-                                                        <td><select id={"officerInfoNewUnitRole"}>
-                                                            {specialUnitsRolesOptions}
-                                                        </select></td>
-                                                        <td>
-                                                            <button type={"button"} onClick={() => {
-                                                                // Add the unit to the state
-                                                                let current_units = this.state.officerInfo.professional.special_units;
-                                                                console.log(JSON.stringify(current_units));
-                                                                current_units.push({
-                                                                    id: parseInt(document.getElementById("officerInfoNewUnitValue").value),
-                                                                    role: parseInt(document.getElementById("officerInfoNewUnitRole").value)
-                                                                });
-                                                                console.log("Pushed new unit")
-                                                                console.log(JSON.stringify(current_units));
-                                                                this.setState({
-                                                                    officerInfo: {
-                                                                        ...this.state.officerInfo,
-                                                                        professional: {
-                                                                            ...this.state.officerInfo.professional,
-                                                                            special_units: current_units
-                                                                        }
-                                                                    }
-                                                                });
-                                                            }}>Adicionar
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
+                                        {/*Unidades Especiais*/}
+                                        <div className={style.informationPairDiv}>
+                                            <label>Unidades Especiais:</label>
+                                            <SpecialUnitsTable
+                                                editMode={this.state.editMode}
+                                                officerSpecialUnits={this.state.officerInfo.professional.special_units}
+                                                onChange={this.handleSpecialUnitsEdit}
+                                                onRemove={() => {}}
+                                                onAdd={() => {}}
+                                            />
                                         </div>
-                                    </fieldset>
+                                    </div>
+                                </fieldset>
 
                                 <fieldset>
                                     <legend>Atividade</legend>
