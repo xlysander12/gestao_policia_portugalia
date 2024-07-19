@@ -1,38 +1,69 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+* {
+  min-width: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+*::before, *::after {
+  margin: 0;
+  padding: 0;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden;
+  user-select: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: spin infinite 20s linear;
+body {
+  background-color: rgb(197, 198, 199);
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.card {
-  padding: 2em;
-}
+/*::-webkit-scrollbar {*/
+/*  visibility: hidden;*/
+/*  width: 10px;*/
+/*  height: 10px;*/
+/*}*/
 
-.read-the-docs {
-  color: #888;
-}
+/*::-webkit-scrollbar-track {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: #1b2631;*/
+/*}*/
+
+/*::-webkit-scrollbar-track:hover {*/
+/*  visibility: visible;*/
+/*  animation: ease-in 1s;*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb:hover {*/
+/*  visibility: visible;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*  animation: FadeInScrollBar ease 3s;*/
+/*}*/
+
+/*@keyframes FadeInScrollBar {*/
+/*  0% {*/
+/*    visibility: hidden;*/
+/*  }*/
+/*  100% {*/
+/*    visibility: visible;*/
+/*  }*/
+/*}*/
