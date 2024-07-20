@@ -21,15 +21,6 @@ body {
   background-color: rgb(197, 198, 199);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /*::-webkit-scrollbar {*/
 /*  visibility: hidden;*/
 /*  width: 10px;*/

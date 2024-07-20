@@ -3,7 +3,7 @@ import style from "./navbar.module.css";
 import {Link, Navigate, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {toast} from "react-toastify";
-import {base_url} from "../../utils/constants";
+import {BASE_URL} from "../../utils/constants";
 import {Divider} from "@mui/material";
 
 type SubPathProps = {
@@ -42,7 +42,8 @@ function Navbar() {
     const location = useLocation();
 
     // Check if we are in the login page
-    const isLogin = location.pathname === `${base_url}/login`;
+    console.log(location.pathname);
+    const isLogin = location.pathname === `/login`;
 
     const buildOfficerName = async (nif: string) => {
         // From the given NIF, get the patent and officer's full name
@@ -106,7 +107,7 @@ function Navbar() {
     let paths = [];
 
     // Get the current path minus the base url
-    let currentPath = location.pathname.replace(`${base_url}`, "").replace("/", "");
+    let currentPath = location.pathname.replace(`${BASE_URL}`, "").replace("/", "");
 
     // First thing that needs to be done is to add the main title to the navbar
     paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === ""}/>);
