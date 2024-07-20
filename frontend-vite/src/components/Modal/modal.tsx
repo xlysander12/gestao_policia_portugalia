@@ -4,7 +4,7 @@ import {ReactElement} from "react";
 import style from "./modal.module.css";
 import {Divider} from "@mui/material";
 
-const ModalStyle = styled(Popup)<{width: string}>`
+const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
         0% {
             transform: scale(1) translateY(0px);
@@ -22,11 +22,11 @@ const ModalStyle = styled(Popup)<{width: string}>`
             box-shadow: 0 0 500px rgb(241, 241, 241, 0);
         }
     }
-    
+
     &-overlay {
         background-color: rgba(0, 0, 0, 0.7);
     }
-    
+
     &-content {
         animation: anvil 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
         width: ${props => props.width || "37%"};
@@ -35,15 +35,14 @@ const ModalStyle = styled(Popup)<{width: string}>`
         border: 2px solid black;
         border-radius: 3px;
     }
-    
-    `;
+
+`;
 
 type ModalProps = {
-    trigger: ReactElement;
-    width: string;
-    title: string;
-    children: [ReactElement];
-
+    trigger: ReactElement,
+    width?: string,
+    title: string,
+    children: ReactElement | [ReactElement],
 }
 
 export function Modal({trigger, width, title, children}: ModalProps): ReactElement {
@@ -74,7 +73,7 @@ export function Modal({trigger, width, title, children}: ModalProps): ReactEleme
 
 type ModalSectionProps = {
     title: string;
-    children: [ReactElement];
+    children: ReactElement | [ReactElement];
 }
 
 export function ModalSection({title, children}: ModalSectionProps): ReactElement {

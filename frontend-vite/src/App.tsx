@@ -23,11 +23,12 @@ function App() {
                       {/*Login route, doesn't need the PrivateRoute Component*/}
                       <Route path={"/login"} element={<Login />} />
 
-                  {/*Routes that require the user to be logged in*/}
-                  <Route path={"/"} element={<Dashboard />} />
-              </Routes>
-          </div>
-      </BrowserRouter>
+                      {/*Routes that require the user to be logged in*/}
+                      <Route path={"/"} element={<PrivateRoute  element={<Dashboard />}/>} />
+                      <Route path={"/efetivos"} element={<PrivateRoute  element={<OfficerInfo />}/>} />
+                  </Routes>
+              </div>
+            </BrowserRouter>
 
             <ToastContainer
                 position={"top-right"}
