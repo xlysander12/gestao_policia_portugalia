@@ -1,4 +1,4 @@
-import React, {ChangeEvent, Component, ReactElement, useContext, useEffect, useState} from "react";
+import React, {ChangeEvent, ReactElement, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
 import modalsStyle from "./officerinfomodals.module.css";
 import OfficerList from "../../components/OfficerList/officer-list";
@@ -10,7 +10,7 @@ import {
     Button,
     Divider,
     FormControlLabel,
-    MenuItem, Paper,
+    MenuItem,
     Select, SelectChangeEvent,
     Switch, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow,
     TextField,
@@ -67,7 +67,7 @@ const StyledSelect = styled(Select)(() => ({
     }
 }));
 
-const StyledInput = styled(TextField)(({theme}) => ({
+const StyledInput = styled(TextField)(() => ({
     "& .MuiInputLabel-root": {
         color: "white",
 

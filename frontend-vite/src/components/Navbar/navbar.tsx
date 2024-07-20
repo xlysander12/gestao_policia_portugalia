@@ -1,10 +1,9 @@
-import {Component, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import style from "./navbar.module.css";
-import {Link, Navigate, useLocation} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {toast} from "react-toastify";
 import {BASE_URL} from "../../utils/constants";
-import {Divider} from "@mui/material";
 
 type SubPathProps = {
     path?: string,
@@ -30,9 +29,6 @@ const SubPath = ({path, name, only}: SubPathProps) => {
     );
 }
 
-type NavbarProps = {
-
-}
 
 function Navbar() {
     // Set the state of the component

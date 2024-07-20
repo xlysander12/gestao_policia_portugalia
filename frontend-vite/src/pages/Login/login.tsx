@@ -1,6 +1,5 @@
-import React, {Component} from "react";
 import style from "./login.module.css";
-import {Navigate, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 function Login() {
     // Set the useNavigate hook

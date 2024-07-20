@@ -11,7 +11,6 @@ import PrivateRoute from "./components/PrivateRoute/private-route.tsx";
 import OfficerInfo from "./pages/OfficerInfo/officerinfo.tsx";
 
 function App() {
-    const [count, setCount] = useState(0)
 
     return (
         <>
