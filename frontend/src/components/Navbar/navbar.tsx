@@ -119,7 +119,7 @@ function Navbar({isLoginPage}: NavbarProps) {
             {/*TODO: Add a force selector here, floating to the right side of the navbar*/}
 
             {/*Add the div that will hold the user info*/}
-            {/*TODO: This needs to be a dropdown menu to logout, change password, etc. Check https://www.w3schools.com/css/css_dropdowns.asp for info*/}
+            {/*TODO: Redo this dropdown using MUI Menu*/}
             <div style={{display: `${isLoginPage ? 'none': 'block'}`}} className={style.userInfoDiv}>
                 <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && fullName === "" ? sessionStorage.getItem("navbarFullName"): fullName}</p>
                 <div className={style.userInfoDropdown}>

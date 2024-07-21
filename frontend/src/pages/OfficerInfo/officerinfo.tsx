@@ -921,7 +921,6 @@ function OfficerInfo() {
                         </button>
                     </div>
 
-                    {/*TODO: This form isn't validanting the inputs*/}
                     {/*@ts-ignore*/}
                     <form id={"information-form"} onSubmit={updateOfficerInfo}>
                         {/*Loader Div*/}
