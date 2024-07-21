@@ -1,0 +1,60 @@
+* {
+  min-width: 0;
+}
+
+*::before, *::after {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  background-color: rgb(197, 198, 199);
+}
+
+/*::-webkit-scrollbar {*/
+/*  visibility: hidden;*/
+/*  width: 10px;*/
+/*  height: 10px;*/
+/*}*/
+
+/*::-webkit-scrollbar-track {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: #1b2631;*/
+/*}*/
+
+/*::-webkit-scrollbar-track:hover {*/
+/*  visibility: visible;*/
+/*  animation: ease-in 1s;*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb {*/
+/*  visibility: hidden;*/
+/*  border-radius: 10px;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb:hover {*/
+/*  visibility: visible;*/
+/*  background: rgb(0 0 0 / 80%);*/
+/*  animation: FadeInScrollBar ease 3s;*/
+/*}*/
+
+/*@keyframes FadeInScrollBar {*/
+/*  0% {*/
+/*    visibility: hidden;*/
+/*  }*/
+/*  100% {*/
+/*    visibility: visible;*/
+/*  }*/
+/*}*/

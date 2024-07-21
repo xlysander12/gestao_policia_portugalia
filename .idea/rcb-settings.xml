@@ -6,6 +6,11 @@
         <option name="packageJsonPath" value="$PROJECT_DIR$/Frontend/package.json" />
         <option name="scriptName" value="start" />
       </DevServerState>
+      <DevServerState>
+        <option name="packageJsonPath" value="$PROJECT_DIR$/frontend-vite/package.json" />
+        <option name="scriptName" value="dev" />
+        <option name="url" value="http://localhost:5174" />
+      </DevServerState>
     </option>
   </component>
 </project>
