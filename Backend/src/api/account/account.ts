@@ -1,16 +1,17 @@
-const express = require('express');
+import express from 'express';
 const app = express.Router();
 
 // Import utils
-const {checkTokenValidityIntents, generateToken} = require("../utils/token-handler");
-const {queryDB} = require("../utils/db-connector");
+import {checkTokenValidityIntents, generateToken} from "../../utils/token-handler";
+import {queryDB} from "../../utils/db-connector";
 
 // Import constants
-const {forces} = require("../utils/constants");
+import {FORCES} from "../../utils/constants";
+import {ValidateTokenPostResponse} from "../../types/api/account/schema";
 
 // Endpoint to valide a Token and check if the user has the correct permissions
 app.post("/validateToken", async (req, res) => {
-    let validation = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], req.body.intent);
+    let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"], req.body.intent);
 
     if (!validation[0]) {
         res.status(validation[1]).json({
@@ -19,11 +20,14 @@ app.post("/validateToken", async (req, res) => {
         return;
     }
 
-    // If everything is correct, return a 200 status code
-    res.status(200).json({
+
+    // If everything is correct, build the response and return a 200 status code
+    let response: ValidateTokenPostResponse = {
         message: "Operação bem sucedida",
-        data: validation[2]
-    });
+        data: Number(validation[2])
+    };
+
+    return res.status(200).json(response);
 });
 
 // Endpoint to login an user
@@ -43,7 +47,7 @@ app.post("/login", async (req, res) => {
     let found_results = [];
 
     // Getting the row corresponding the nif and adding it to the found_results array
-    for (const force of forces) {
+    for (const force of FORCES) {
         const passwordResult = await queryDB(force, 'SELECT password FROM users WHERE nif = ?', req.body.nif);
         found_results.push(...passwordResult);
     }
@@ -79,7 +83,7 @@ app.post("/login", async (req, res) => {
     const token = await generateToken();
 
     // After generating the token, store it in the databases of the forces the user belongs to
-    for (const force of forces) {
+    for (const force of FORCES) {
         try {
             await queryDB(force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, req.body.nif]);
         } catch (e) { // This error would only be if trying to store a token for an user that doesn't exist

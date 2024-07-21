@@ -1,16 +1,20 @@
-// noinspection JSUnresolvedReference
-
-const express = require('express');
+import express from 'express';
 const app = express.Router();
 
 // Import utils
-const {checkTokenValidityIntents} = require("../utils/token-handler");
-const {queryDB} = require("../utils/db-connector");
+import {checkTokenValidityIntents} from "../../utils/token-handler";
+import {queryDB} from "../../utils/db-connector";
+import {
+    MinifiedOfficerData,
+    OfficerListResponse,
+    OfficerInfoGetResponse,
+    OfficerUnit
+} from "../../types/api/officer-info/schema";
 
 
 app.get("/", async (req, res) => {
     // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -23,11 +27,31 @@ app.get("/", async (req, res) => {
         req.query.search = "";
     }
 
-    const officersList = await queryDB(req.headers["x-portalseguranca-force"], `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE "%${req.query.search}%"`);
-    res.status(200).json({
+    // Get the data from the database
+    const officersListResult = await queryDB(req.headers["x-portalseguranca-force"], `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
+
+    // Get the data from all the officer's and store in array
+    let officersList: MinifiedOfficerData[] = [];
+    for (const officer of officersListResult) {
+        // Build officer data
+        const officerData: MinifiedOfficerData = {
+            name: officer.name,
+            patent: officer.patent,
+            callsign: officer.callsign,
+            status: officer.status,
+            nif: officer.nif
+        }
+
+        officersList.push(officerData);
+    }
+
+
+    let response: OfficerListResponse = {
         message: "Operação bem sucedida",
         data: officersList
-    });
+    }
+
+    res.status(200).json(response);
 });
 
 app.get("/:nif", async (req, res) => {
@@ -53,20 +77,45 @@ app.get("/:nif", async (req, res) => {
 
     // Alter the dates to be a proper string (There's a lot of unknown shit going on here.
     // For more information on wtf is going on, check https://stackoverflow.com/a/29774197)
-    info.entry_date = new Date(info.entry_date.getTime() - (info.entry_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
-    info.promotion_date = info.promotion_date !== null ? new Date(info.promotion_date.getTime() - (info.promotion_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]: null;
+    info.entry_date = String(new Date(info.entry_date.getTime() - (info.entry_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]);
+    info.promotion_date = info.promotion_date !== null ? String(new Date(info.promotion_date.getTime() - (info.promotion_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]): null;
 
     info.special_units = [];
 
     let officer_special_units_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT unit, role FROM specialunits_officers WHERE nif = ? ORDER BY role DESC, unit DESC', req.params.nif);
     officer_special_units_result.forEach((row) => {
-        info.special_units.push({"id": row.unit, "role": row.role});
+        // Create object to store the unit
+        const unit: OfficerUnit = {
+            id: row.unit,
+            role: row.role
+        }
+
+        // Push the unit into the array
+        info.special_units.push(unit);
     });
 
-    res.status(200).json({
+    // After getting all the data, build the response
+    let response: OfficerInfoGetResponse = {
         message: "Operação bem sucedida",
-        data: info
-    });
+        data: {
+            name: info.name,
+            nif: info.nif,
+            phone: info.phone,
+            iban: info.iban,
+            kms: info.kms,
+            discord: info.discord,
+            steam: info.steam,
+            patent: info.patent,
+            callsign: info.callsign,
+            status: info.status,
+            entry_date: info.entry_date,
+            promotion_date: info.promotion_date,
+            special_units: info.special_units
+        }
+    }
+
+    // Return the 200 code
+    res.status(200).json(response);
 });
 
 app.patch("/:nif", async (req, res) => {
@@ -129,7 +178,7 @@ app.patch("/:nif", async (req, res) => {
     if (req.body.special_units !== undefined) {
         await queryDB(req.headers["x-portalseguranca-force"], 'DELETE FROM specialunits_officers WHERE nif = ?', req.params.nif);
         for (const unit of req.body.special_units) {
-            await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO specialunits_officers (nif, unit, role) VALUES (?, ?, ?)', req.params.nif, unit.id, unit.role);
+            await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO specialunits_officers (nif, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
         }
     }
 

@@ -1,7 +1,7 @@
-const express = require("express");
-// const {Octokit} = require("octokit")
-const {checkTokenValidityIntentsHeaders} = require("../utils/token-handler");
-const {queryDB} = require("../utils/db-connector");
+import express from "express";
+import {checkTokenValidityIntentsHeaders} from "../../utils/token-handler";
+import {queryDB} from "../../utils/db-connector";
+import {ForceType} from "../../utils/constants";
 
 // Creating the router
 const app = express.Router();
@@ -11,7 +11,7 @@ const app = express.Router();
     auth: process.env.GITHUB_TOKEN
 }); */
 
-async function getBodyAuthorDetails(nif, force) {
+async function getBodyAuthorDetails(nif: string, force: ForceType) {
     // Fetching the user's patent and name from NIF
     const userResult = await queryDB(force, 'SELECT name, patent, discord FROM officersV WHERE nif = ?', nif);
     const author = `${userResult[0].patent} ${userResult[0].name}`
@@ -25,7 +25,7 @@ async function getBodyAuthorDetails(nif, force) {
     return body;
 }
 
-async function submitIssue(title, body, labels) {
+async function submitIssue(title: string, body: string, labels: string[]) {
     console.log(`New Issue:\n${title}\n${body}`)
     return await fetch("https://api.github.com/repos/xlysander12/gestao_policia_portugalia/issues", {
         method: "POST",
@@ -64,7 +64,7 @@ app.post("/issue", async (req, res) => {
     const title = `${req.body.title} - Issue Automático`;
 
     // // Body manipulation
-    let body = await getBodyAuthorDetails(loggedNif, req.headers["x-portalseguranca-force"]);
+    let body = await getBodyAuthorDetails(loggedNif, <string>req.headers["x-portalseguranca-force"]);
     body += `# Detalhes do problema\n`;
     body += req.body.code !== undefined ? `Código de erro: ${req.body.code}\n` : "";
     body += req.body.body;
@@ -105,7 +105,7 @@ app.post("/sugestion", async (req, res) => {
     const title = `${req.body.title} - Issue Automático`;
 
     // // Body manipulation
-    let body = await getBodyAuthorDetails(loggedNif, req.headers["x-portalseguranca-force"])
+    let body = await getBodyAuthorDetails(loggedNif, <string>req.headers["x-portalseguranca-force"])
     body += `# Detalhes da sugestão\n`;
     body += req.body.body;
 

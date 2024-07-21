@@ -1,9 +1,7 @@
-// noinspection JSUnresolvedReference
+import {FORCES, ForceType} from "./constants";
+import {queryDB} from "./db-connector";
 
-const {forces} = require("./constants");
-const {queryDB} = require("./db-connector");
-
-exports.generateToken = async () => {
+export async function generateToken() {
     // Repeat the generation process until an unique token is generated
     let unique = false;
     let token = "";
@@ -16,7 +14,7 @@ exports.generateToken = async () => {
 
         // After generating the token, check if it already exists
         let exists = false;
-        for (const force of forces) {
+        for (const force of FORCES) {
             const result = await queryDB(force, 'SELECT * FROM tokens WHERE token = ?', token);
             if (result.length !== 0) {
                 exists = true;
@@ -31,7 +29,7 @@ exports.generateToken = async () => {
     return token;
 }
 
-async function checkTokenValidityIntents(token, force, intent) {
+export async function checkTokenValidityIntents(token: string | undefined, force: ForceType, intent?: string): Promise<[boolean, number, string]> {
     // Check if the token is present
     if (token === undefined || token === null) {
         return [false, 401, "Não foi fornecido um token de autenticação."];
@@ -53,7 +51,7 @@ async function checkTokenValidityIntents(token, force, intent) {
 
     // Once it has been confirmed the token exists, the lastUsed field should be updated in all databases
     // It's used the `then()` method to avoid waiting for the query to finish since the result is not needed
-    for (const forcesKey of forces) {
+    for (const forcesKey of FORCES) {
         queryDB(forcesKey, 'UPDATE tokens SET last_used = CURRENT_TIMESTAMP WHERE token = ?', token).then(_ => {});
     }
 
@@ -76,8 +74,7 @@ async function checkTokenValidityIntents(token, force, intent) {
 
     return [true, 200, nif];
 }
-module.exports.checkTokenValidityIntents = checkTokenValidityIntents;
 
-exports.checkTokenValidityIntentsHeaders = async (headers, intent) => {
+export async function checkTokenValidityIntentsHeaders(headers: any, intent?: string) {
     return await checkTokenValidityIntents(headers.authorization, headers["x-portalseguranca-force"], intent);
 }
