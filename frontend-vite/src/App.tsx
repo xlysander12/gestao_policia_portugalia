@@ -15,18 +15,14 @@ function App() {
     return (
         <>
             <BrowserRouter basename={BASE_URL}>
-              <Navbar />
+                <Routes>
+                    {/*Login route, doesn't need the PrivateRoute Component*/}
+                    <Route path={"/login"} element={<PrivateRoute element={<Login />} isLoginPage />} />
 
-              <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
-                  <Routes>
-                      {/*Login route, doesn't need the PrivateRoute Component*/}
-                      <Route path={"/login"} element={<Login />} />
-
-                      {/*Routes that require the user to be logged in*/}
-                      <Route path={"/"} element={<PrivateRoute  element={<Dashboard />}/>} />
-                      <Route path={"/efetivos"} element={<PrivateRoute  element={<OfficerInfo />}/>} />
-                  </Routes>
-              </div>
+                    {/*Routes that require the user to be logged in*/}
+                    <Route path={"/"} element={<PrivateRoute  element={<Dashboard />}/>} />
+                    <Route path={"/efetivos"} element={<PrivateRoute  element={<OfficerInfo />}/>} />
+                </Routes>
             </BrowserRouter>
 
             <ToastContainer

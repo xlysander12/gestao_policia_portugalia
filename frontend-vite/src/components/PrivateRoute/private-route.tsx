@@ -3,16 +3,20 @@ import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.tsx";
 import {INTENTS} from "../../utils/constants.ts";
+import Navbar from "../Navbar/navbar.tsx";
+import {ForcePatentsContext, ForcePatentsContextType} from "./force-patents-context.ts";
 
 type PrivateRouteProps = {
     element: ReactElement
+    isLoginPage?: boolean
 }
 
-function PrivateRoute({element}: PrivateRouteProps): ReactElement {
+function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactElement {
     // Initialize state
     const [authorized, setAuthorized] = useState<boolean>(false);
     const [msgVisible, setMsgVisible] = useState<boolean>(false);
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
+    const [forcePatents, setForcePatents] = useState<ForcePatentsContextType>(null);
 
     // Initialize navigate hook
     const navigate = useNavigate();
@@ -29,7 +33,9 @@ function PrivateRoute({element}: PrivateRouteProps): ReactElement {
         const checkAuthentication = async () => {
             // Check if there is a token or force in the local storage. If there isn't, return to login
             if (!localStorage.getItem("token") || !localStorage.getItem("force")) {
-                return navigate("/login");
+                return navigate({
+                    pathname: "login",
+                });
             }
 
             // Since there's a token and force in local storage, check if the token is valid for that force
@@ -37,7 +43,9 @@ function PrivateRoute({element}: PrivateRouteProps): ReactElement {
 
             // If the request returned status different of 200, the token isn't valid and the user should be redirected to login
             if (response.status !== 200) {
-                return navigate("/login");
+                return navigate({
+                    pathname: "login",
+                });
             }
 
             // Since the response was positive, use the nif gotten from the token to get the user's information and intents
@@ -48,7 +56,9 @@ function PrivateRoute({element}: PrivateRouteProps): ReactElement {
 
             // Making sure the response is positive
             if (userResponse.status !== 200) {
-                return navigate("/login");
+                return navigate({
+                    pathname: "login",
+                });
             }
 
             // Get the data from the response
@@ -86,6 +96,12 @@ function PrivateRoute({element}: PrivateRouteProps): ReactElement {
             // Set the logged user with the data fetched
             setLoggedUser(tempLoggedUser);
 
+            // Fetch the force's patents
+            const forcePatentsResponse = await make_request(`/util/patents`, "GET");
+
+            // Store the force's patents in the state
+            setForcePatents((await forcePatentsResponse.json()).data);
+
             // Since the token is valid for the force, redirect the user to the requested page
             setAuthorized(true);
         }
@@ -101,10 +117,15 @@ function PrivateRoute({element}: PrivateRouteProps): ReactElement {
     }
 
     return (
-        <LoggedUserContext.Provider value={loggedUser}>
-            {element}
-        </LoggedUserContext.Provider>
-    );
+        <ForcePatentsContext.Provider value={forcePatents}>
+            <LoggedUserContext.Provider value={loggedUser}>
+                    <Navbar isLoginPage={isLoginPage}/>
+                    <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
+                        {element}
+                    </div>
+            </LoggedUserContext.Provider>
+        </ForcePatentsContext.Provider>
+);
 }
 
 export default PrivateRoute;

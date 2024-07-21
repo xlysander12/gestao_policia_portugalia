@@ -1,9 +1,11 @@
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {toast} from "react-toastify";
-import {BASE_URL} from "../../utils/constants";
+import {BASE_URL, FORCES} from "../../utils/constants";
+import {LoggedUserContext} from "../PrivateRoute/logged-user-context.tsx";
+import {ForcePatentsContext, getPatentFromId} from "../PrivateRoute/force-patents-context.ts";
 
 type SubPathProps = {
     path?: string,
@@ -29,45 +31,26 @@ const SubPath = ({path, name, only}: SubPathProps) => {
     );
 }
 
+type NavbarProps = {
+    isLoginPage: boolean
+}
+function Navbar({isLoginPage}: NavbarProps) {
+    // Get the patents of the force where the user is logged in from context
+    const forcePatents = useContext(ForcePatentsContext);
 
-function Navbar() {
+    // Get the logged user's info from context
+    const loggedUser = useContext(LoggedUserContext);
+
     // Set the state of the component
     const [fullName, setFullName] = useState<string>("");
 
     // Set other useful hooks
     const location = useLocation();
 
-    // Check if we are in the login page
-    console.log(location.pathname);
-    const isLogin = location.pathname === `/login`;
-
-    const buildOfficerName = async (nif: string) => {
-        // From the given NIF, get the patent and officer's full name
-        let response = await make_request(`/officerInfo/${nif}`, "GET");
-
-        // Mandatory check if the status code was 200
-        // This shouldn't ever happen because PrivateRoute should redirect to the login page if the token is invalid, but you never know...
-        if (!response.ok) {
-            return;
-        }
-
-        // From the response, get the patent and officer's full name
-        let body = await response.json();
-
-        // Build the officer's full name
-        let fullName = `${body.data.patent} ${body.data.name}`;
-
-        // Set the full name of the officer
-        setFullName(fullName);
-
-        // Save the full name in the session storage
-        sessionStorage.setItem("navbarFullName", fullName);
-    }
-
     useEffect(() => {
         const fetchForces = async () => {
             // If we are in the login page, there's nothing to do
-            if (isLogin) {
+            if (isLoginPage) {
                 return;
             }
 
@@ -79,21 +62,19 @@ function Navbar() {
             let nif;
 
             // Making the request to check if the token is valid for all forces
-            for (const force of ["psp", "gnr"]) {
+            for (const force of FORCES) {
                 const response = await make_request("/account/validateToken", "POST", undefined, force);
 
                 // If the request returned status of 200, the token is valid for that force
                 if (response.status === 200) {
-                    nif = (await response.json()).data;
-
-                    // Set the force to true and also get the NIF of the user
                     forces[force] = true;
                 }
             }
 
             // If the user is from atleast one force, get the full name + patent of the user for the selected one
             // TODO: this needs to be changed to the selected force, when the user can select the force
-            await buildOfficerName(nif);
+            // @ts-ignore
+            setFullName(`${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`);
         }
 
         fetchForces();
@@ -128,7 +109,7 @@ function Navbar() {
             {/*    borderRadius: "10px"*/}
             {/*}}/>*/}
 
-            <div className={style.navButtonsDiv} style={isLogin ? {display: "none"}: {}}>
+            <div className={style.navButtonsDiv} style={isLoginPage ? {display: "none"}: {}}>
                 <Link to="/efetivos" className={style.navButton} reloadDocument={true}>Efetivos</Link>
                 <Link to="/" className={style.navButton} reloadDocument={true}>Atividade</Link>
                 <Link to="/" className={style.navButton} reloadDocument={true}>Avaliações</Link>
@@ -139,7 +120,7 @@ function Navbar() {
 
             {/*Add the div that will hold the user info*/}
             {/*TODO: This needs to be a dropdown menu to logout, change password, etc. Check https://www.w3schools.com/css/css_dropdowns.asp for info*/}
-            <div style={{display: `${isLogin ? 'none': 'block'}`}} className={style.userInfoDiv}>
+            <div style={{display: `${isLoginPage ? 'none': 'block'}`}} className={style.userInfoDiv}>
                 <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && fullName === "" ? sessionStorage.getItem("navbarFullName"): fullName}</p>
                 <div className={style.userInfoDropdown}>
                     <div>
