@@ -41,11 +41,12 @@ function Navbar({isLoginPage}: NavbarProps) {
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
 
-    // Set the state of the component
-    const [fullName, setFullName] = useState<string>("");
-
     // Set other useful hooks
     const location = useLocation();
+
+    // Set the full name of the officer
+    // @ts-ignore
+    const fullName = `${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`;
 
     useEffect(() => {
         const fetchForces = async () => {
@@ -70,13 +71,7 @@ function Navbar({isLoginPage}: NavbarProps) {
                     forces[force] = true;
                 }
             }
-
-            // If the user is from atleast one force, get the full name + patent of the user for the selected one
-            // TODO: this needs to be changed to the selected force, when the user can select the force
-            // @ts-ignore
-            setFullName(`${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`);
         }
-
         fetchForces();
     }, []);
 
@@ -121,7 +116,7 @@ function Navbar({isLoginPage}: NavbarProps) {
             {/*Add the div that will hold the user info*/}
             {/*TODO: Redo this dropdown using MUI Menu*/}
             <div style={{display: `${isLoginPage ? 'none': 'block'}`}} className={style.userInfoDiv}>
-                <p className={style.officerName}>{sessionStorage.getItem("navbarFullName") !== null && fullName === "" ? sessionStorage.getItem("navbarFullName"): fullName}</p>
+                <p className={style.officerName}>{fullName}</p>
                 <div className={style.userInfoDropdown}>
                     <div>
                         <p className={style.userInfoDropdownLink}>Atualizar data última cerimónia</p>
