@@ -7,7 +7,7 @@ import {queryDB} from "../../utils/db-connector";
 
 // Import constants
 import {FORCES} from "../../utils/constants";
-import {ValidateTokenPostResponse} from "../../types/api/account/schema";
+import {ValidateTokenPostResponse} from "@portalseguranca/api-types/src/types/api/account/schema";
 
 // Endpoint to valide a Token and check if the user has the correct permissions
 app.post("/validateToken", async (req, res) => {

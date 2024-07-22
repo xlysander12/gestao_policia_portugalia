@@ -5,6 +5,7 @@ import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts
 import {INTENTS} from "../../utils/constants.ts";
 import Navbar from "../Navbar/navbar.tsx";
 import {ForcePatentsContext, ForcePatentsContextType} from "./force-patents-context.ts";
+import {ValidateTokenPostResponse} from "@portalseguranca/api-types/src/types/api/account/schema";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -34,7 +35,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             // Check if there is a token or force in the local storage. If there isn't, return to login
             if (!localStorage.getItem("token") || !localStorage.getItem("force")) {
                 return navigate({
-                    pathname: "login",
+                    pathname: "/login",
                 });
             }
 
@@ -44,12 +45,12 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             // If the request returned status different of 200, the token isn't valid and the user should be redirected to login
             if (response.status !== 200) {
                 return navigate({
-                    pathname: "login",
+                    pathname: "/login",
                 });
             }
 
             // Since the response was positive, use the nif gotten from the token to get the user's information and intents
-            const nif = (await response.json()).data
+            const nif = ((await response.json()) as ValidateTokenPostResponse).data
 
             // Using the nif, get the user's information and intents
             const userResponse = await make_request(`/officerinfo/${nif}?raw`, "GET");
@@ -57,7 +58,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             // Making sure the response is positive
             if (userResponse.status !== 200) {
                 return navigate({
-                    pathname: "login",
+                    pathname: "/login",
                 });
             }
 

@@ -5,7 +5,8 @@
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
-      <excludeFolder url="file://$MODULE_DIR$/Frontend/build" />
+      <excludeFolder url="file://$MODULE_DIR$/Frontend/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/Backend/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
