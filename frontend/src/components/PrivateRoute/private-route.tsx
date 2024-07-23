@@ -7,6 +7,7 @@ import Navbar from "../Navbar/navbar";
 import {ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
 import {CircularProgress} from "@mui/material";
 import style from "./private-route.module.css"
+import Loader from "../Loader/loader.tsx";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -115,7 +116,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
     if (!authorized && !isLoginPage) {
         return (
             <div className={style.loadingDiv}>
-                <CircularProgress size={120} />
+                <Loader />
             </div>
         );
     }
