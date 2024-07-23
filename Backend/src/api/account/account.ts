@@ -7,7 +7,8 @@ import {queryDB} from "../../utils/db-connector";
 
 // Import constants
 import {FORCES} from "../../utils/constants";
-import {ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {RequestError} from "@portalseguranca/api-types/api/schema";
 
 // Endpoint to valide a Token and check if the user has the correct permissions
 app.post("/validateToken", async (req, res) => {
@@ -106,6 +107,75 @@ app.post("/login", async (req, res) => {
 // Patch Endpoint to change password
 app.patch("/login", async (req, res) => {
     // TODO: Implement this endpoint to change user's password
+});
+
+// Endpoint to get a user's account information
+app.get("/info/:nif", async (req, res) => {
+    // First, make sure the request is well made and a token + force header are present
+    let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
+    if (!validation[0]) { // Make sure the token exists
+        let response: RequestError = {
+            message: validation[2]
+        };
+        res.status(validation[1]).json(response);
+        return;
+    }
+
+    // Since the token existis and it's valid, get the requesting user's nif
+    let requestingUser = Number(validation[2]);
+
+    // Check if the requesting user is the user itself
+    if (requestingUser !== Number(req.params.nif)) {
+        // If it's not the user itself, check if the user has the "accounts" intent
+        let hasIntent = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"], "accounts");
+        if (!hasIntent[0]) {
+            let response: RequestError = {
+                message: hasIntent[2]
+            };
+            res.status(hasIntent[1]).json(response);
+            return;
+        }
+    }
+
+    // Since the user has permission, get the requested permissions from database.
+    let response: AccountInfoResponse = {
+        message: "Operação bem sucedida",
+        data: {
+            defaultPassword: false,
+            intents: {}
+        }
+    };
+
+    // Check if the password is the default one
+    const passwordQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password FROM users WHERE nif = ?', req.params.nif);
+
+    // If no user exists, return 404
+    if (passwordQuery.length === 0) {
+        const response: RequestError = {
+            message: "O utilizador requisitado não existe"
+        }
+        return res.status(404).json(response);
+    }
+    
+    response.data.defaultPassword = passwordQuery[0].password === null;
+
+    // Get all possible intents
+    const intentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT name FROM intents');
+    const intents: string[] = intentsQuery.map((intent) => intent.name);
+
+    // After getting all intents, default them to false in the response
+    intents.forEach((intent) => {
+        response.data.intents[intent] = false;
+    });
+
+    // Get the user's permissions
+    const userIntentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT intent, enabled FROM user_intents WHERE user = ?', req.params.nif);
+    userIntentsQuery.forEach((intent) => {
+        response.data.intents[intent.intent] = Boolean(intent.enabled);
+    });
+
+    // Return the response
+    res.status(200).json(response);
 });
 
 module.exports = app;

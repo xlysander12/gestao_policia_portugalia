@@ -61,14 +61,14 @@ export async function checkTokenValidityIntents(token: string | undefined, force
     }
 
     // Fetch from the database the intents json of the user
-    const intents_result = await queryDB(force, 'SELECT intents FROM users WHERE nif = ?', nif);
+    const intents_result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [nif, intent]);
 
-    // Converting the value to a JSON object
-    let userIntents = JSON.parse(intents_result[0].intents);
+    // Converting the result to a boolean
+    const hasIntent = intents_result.length !== 0 && intents_result[0].enabled === 1;
 
 
     // Check if the user has the intent
-    if (!userIntents[intent]) {
+    if (!hasIntent) {
         return [false, 403, "Não tens permissão para realizar esta ação"];
     }
 
