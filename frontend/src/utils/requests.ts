@@ -3,7 +3,7 @@
 // It will be a wrapper around the fetch API, making it easier to use
 import {BASE_API_URL} from "./constants";
 
-export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"), body: any = undefined, force: string | undefined = undefined, useAuth= true, useBaseAPIURL= true) {
+export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"), body: any = undefined, force: string = <string>localStorage.getItem("force"), useAuth= true, useBaseAPIURL= true) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
         url = '/' + url;
@@ -22,7 +22,7 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
         headers: {
             'Content-Type': 'application/json',
             'Authorization': useAuth ? localStorage.getItem('token') : null,
-            'X-Portalseguranca-Force': force ? force : localStorage.getItem('force')
+            'X-Portalseguranca-Force': force
         },
         body: body !== undefined ? JSON.stringify(body) : undefined
     });

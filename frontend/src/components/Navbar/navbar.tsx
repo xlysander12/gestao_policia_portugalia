@@ -4,8 +4,8 @@ import {Link, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {toast} from "react-toastify";
 import {BASE_URL, FORCES} from "../../utils/constants";
-import {LoggedUserContext} from "../PrivateRoute/logged-user-context.tsx";
-import {ForcePatentsContext, getPatentFromId} from "../PrivateRoute/force-patents-context.ts";
+import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
+import {ForceDataContext, ForceDataContextType, getPatentFromId} from "../../force-data-context";
 
 type SubPathProps = {
     path?: string,
@@ -25,7 +25,7 @@ const SubPath = ({path, name, only}: SubPathProps) => {
 
     return (
         <div className={style.subPathDiv}>
-            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={path} reloadDocument={true}>{name}</Link>
+            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={path} reloadDocument={false}>{name}</Link>
             <p className={style.navbarSubPathText}>{only ? "": "»"}</p>
         </div>
     );
@@ -105,10 +105,10 @@ function Navbar({isLoginPage}: NavbarProps) {
             {/*}}/>*/}
 
             <div className={style.navButtonsDiv} style={isLoginPage ? {display: "none"}: {}}>
-                <Link to="/efetivos" className={style.navButton} reloadDocument={true}>Efetivos</Link>
-                <Link to="/" className={style.navButton} reloadDocument={true}>Atividade</Link>
-                <Link to="/" className={style.navButton} reloadDocument={true}>Avaliações</Link>
-                <Link to="/" className={style.navButton} reloadDocument={true}>Patrulhas</Link>
+                <Link to="/efetivos" className={style.navButton} reloadDocument={false}>Efetivos</Link>
+                <Link to="/" className={style.navButton} reloadDocument={false}>Atividade</Link>
+                <Link to="/" className={style.navButton} reloadDocument={false}>Avaliações</Link>
+                <Link to="/" className={style.navButton} reloadDocument={false}>Patrulhas</Link>
             </div>
 
             {/*TODO: Add a force selector here, floating to the right side of the navbar*/}

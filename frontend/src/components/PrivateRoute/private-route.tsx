@@ -1,4 +1,4 @@
-import {ReactElement, useContext, useEffect, useState} from "react";
+import {ReactElement, useContext, useEffect, useMemo, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
@@ -18,20 +18,24 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
     const [authorized, setAuthorized] = useState<boolean>(false);
     const [msgVisible, setMsgVisible] = useState<boolean>(false);
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
-    const [forcePatents, setForcePatents] = useState<ForcePatentsContextType>(null);
 
     // Initialize navigate hook
     const navigate = useNavigate();
 
     // When the component mounts, set a timer for 3 seconds to show the messsage
     useEffect(() => {
+        setMsgVisible(false);
+
         setTimeout(() => {
             setMsgVisible(true);
         }, 3000);
-    }, []);
+    }, [isLoginPage, element]);
 
-    // When the component mounts, also check if the user is logged in and has permission to access the page
+    // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
+        // First, set the authorized state to false
+        setAuthorized(false);
+
         const checkAuthentication = async () => {
             // Check if there is a token or force in the local storage. If there isn't, return to login
             if (!localStorage.getItem("token") || !localStorage.getItem("force")) {
@@ -98,35 +102,31 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             // Set the logged user with the data fetched
             setLoggedUser(tempLoggedUser);
 
-            // Fetch the force's patents
-            const forcePatentsResponse = await make_request(`/util/patents`, "GET");
-
-            // Store the force's patents in the state
-            setForcePatents((await forcePatentsResponse.json()).data);
-
             // Since the token is valid for the force, redirect the user to the requested page
             setAuthorized(true);
         }
 
-        checkAuthentication();
+        // Call the function to check the authentication only if we're not in the login page
+        if (!isLoginPage)
+            checkAuthentication();
 
-    }, []);
+    }, [isLoginPage, element]);
 
-    if (!authorized) {
+    if (!authorized && !isLoginPage) {
         return (
-            <h1 style={msgVisible ? {}: {display: "none"}}>A Autenticar... Por favor, aguarde</h1>
+            <div className={style.loadingDiv}>
+                <CircularProgress size={120} />
+            </div>
         );
     }
 
     return (
-        <ForcePatentsContext.Provider value={forcePatents}>
-            <LoggedUserContext.Provider value={loggedUser}>
-                    <Navbar isLoginPage={isLoginPage}/>
-                    <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
-                        {element}
-                    </div>
-            </LoggedUserContext.Provider>
-        </ForcePatentsContext.Provider>
+        <LoggedUserContext.Provider value={loggedUser}>
+                <Navbar isLoginPage={isLoginPage}/>
+                <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
+                    {element}
+                </div>
+        </LoggedUserContext.Provider>
 );
 }
 
