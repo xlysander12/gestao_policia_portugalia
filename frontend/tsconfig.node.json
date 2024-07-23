@@ -11,6 +11,7 @@
   },
   "include": [
     "vite.config.ts",
-    "src/utils/constants.ts"
+    "src/utils/constants.ts",
+    "src/force-data-context.ts"
   ]
 }

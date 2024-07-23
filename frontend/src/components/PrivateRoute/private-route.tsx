@@ -1,11 +1,12 @@
 import {ReactElement, useContext, useEffect, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
-import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.tsx";
-import {INTENTS} from "../../utils/constants.ts";
-import Navbar from "../Navbar/navbar.tsx";
-import {ForcePatentsContext, ForcePatentsContextType} from "./force-patents-context.ts";
-import {ValidateTokenPostResponse} from "@portalseguranca/api-types/src/types/api/account/schema";
+import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
+import {INTENTS} from "../../utils/constants";
+import Navbar from "../Navbar/navbar";
+import {ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {CircularProgress} from "@mui/material";
+import style from "./private-route.module.css"
 
 type PrivateRouteProps = {
     element: ReactElement

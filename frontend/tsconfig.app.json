@@ -24,6 +24,7 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src"
+    "src",
+    "src/force-data-context.ts"
   ]
 }

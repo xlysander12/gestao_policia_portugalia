@@ -36,7 +36,7 @@ type NavbarProps = {
 }
 function Navbar({isLoginPage}: NavbarProps) {
     // Get the patents of the force where the user is logged in from context
-    const forcePatents = useContext(ForcePatentsContext);
+    const forcePatents = useContext<ForceDataContextType>(ForceDataContext).patents;
 
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
@@ -45,16 +45,14 @@ function Navbar({isLoginPage}: NavbarProps) {
     const location = useLocation();
 
     // Set the full name of the officer
-    // @ts-ignore
-    const fullName = `${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`;
+    let fullName = "";
+    if (!isLoginPage) {
+        // @ts-ignore
+        fullName = `${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`;
+        }
 
     useEffect(() => {
         const fetchForces = async () => {
-            // If we are in the login page, there's nothing to do
-            if (isLoginPage) {
-                return;
-            }
-
             let forces: any = {
                 psp: false,
                 gnr: false
@@ -72,7 +70,9 @@ function Navbar({isLoginPage}: NavbarProps) {
                 }
             }
         }
-        fetchForces();
+
+        if (!isLoginPage)
+            fetchForces();
     }, []);
 
     // Create the array of elements for the pathsdiv

@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import {styled} from  "@mui/material/styles"
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
-import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.tsx";
+import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {createSearchParams, useNavigate} from "react-router-dom";
 
 const OfficerInfoSelectSlotProps = {
