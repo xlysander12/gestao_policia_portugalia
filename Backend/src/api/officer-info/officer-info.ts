@@ -9,7 +9,7 @@ import {
     OfficerListResponse,
     OfficerInfoGetResponse,
     OfficerUnit
-} from "@portalseguranca/api-types/src/types/api/officer-info/schema";
+} from "@portalseguranca/api-types/api/officer-info/schema";
 
 
 app.get("/", async (req, res) => {

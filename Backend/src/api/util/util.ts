@@ -7,7 +7,7 @@ import {
     StatusData,
     UtilPatentsResponse, UtilSpecialUnitsResponse,
     UtilStatusesResponse
-} from "@portalseguranca/api-types/src/types/api/util/schema";
+} from "@portalseguranca/api-types/api/util/schema";
 
 
 app.get("/patents", async (req, res) => {
