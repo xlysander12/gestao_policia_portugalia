@@ -19,12 +19,7 @@ export type LoggedUserContextType = {
             promotion_date: string
         }
     },
-    intents: {
-        officer: boolean,
-        activity: boolean,
-        punishments: boolean,
-        evaluations: boolean,
-    }
+    intents: {[key: string]: boolean}
 }
 
 export const LoggedUserContext = createContext<LoggedUserContextType>({
@@ -47,7 +42,7 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
         }
     },
     intents: {
-        officer: false,
+        officers: false,
         activity: false,
         punishments: false,
         evaluations: false

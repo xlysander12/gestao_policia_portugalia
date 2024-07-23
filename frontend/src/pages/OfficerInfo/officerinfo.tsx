@@ -674,7 +674,7 @@ function OfficerInfo() {
     })
 
     // Variable that dictates whether the logged user can edit the current officer.
-    let canEdit: boolean = loggedUser.intents.officer && loggedUser.info.professional.patent > officerInfo.professional.patent;
+    let canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
 
     async function fetchOfficerInfo() {
         // Don't try to fetch the officer's info if the nif is empty
@@ -868,7 +868,7 @@ function OfficerInfo() {
 
                         <RecruitModal trigger={<button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
-                            hidden={editMode || !loggedUser.intents.officer}>Recrutar</button>}></RecruitModal>
+                            hidden={editMode || !loggedUser.intents.officers}>Recrutar</button>}></RecruitModal>
 
                         <button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
@@ -880,14 +880,14 @@ function OfficerInfo() {
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
                             hidden={editMode || !canEdit}>Despedir</button>} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} officerNif={officerNif}></FireModal>
 
-                        {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
+                        {/* TODO: This button should only appear when the logged user has the "accounts" intent. */}
                         <button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officer}>Gerir Conta
+                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers || loggedUser.info.professional.patent < officerInfo.professional.patent}>Gerir Conta
                         </button>
                         <button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officer}
+                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers}
                         >
                             Importar do HUB
                         </button>

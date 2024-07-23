@@ -2,9 +2,8 @@ import {ReactElement, useContext, useEffect, useMemo, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
-import {INTENTS} from "../../utils/constants";
 import Navbar from "../Navbar/navbar";
-import {ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
 import style from "./private-route.module.css"
 import Loader from "../Loader/loader.tsx";
 
@@ -89,15 +88,9 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             tempLoggedUser.info.professional.promotion_date = userData.promotion_date;
 
             // Fetch the user's intents
-            let intent: string;
-            for (intent of INTENTS) {
-                const intentResponse = await make_request(`/account/validateToken`, "POST", {intent: intent});
-
-                if (intentResponse.status === 200) { // Logged user has this intent
-                    // @ts-ignore
-                    tempLoggedUser.intents[intent] = true;
-                }
-            }
+            const accountInfoResponse = await make_request(`/account/info/${tempLoggedUser.info.personal.nif}`, "GET");
+            const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
+            tempLoggedUser.intents = accountInfoData.data.intents;
 
             // Set the logged user with the data fetched
             setLoggedUser(tempLoggedUser);
