@@ -19,6 +19,7 @@ import {styled} from  "@mui/material/styles"
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {createSearchParams, useNavigate} from "react-router-dom";
+import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
 
 const OfficerInfoSelectSlotProps = {
     root: {
@@ -647,11 +648,9 @@ function OfficerInfo() {
     // State that controls the edit mode of the page
     const [editMode, setEditMode] = useState<boolean>(false);
 
-    // State variables that hold the possible options for the patents, statuses, special units and units roles
-    const [patents, setPatents] = useState<[{id: number, name: string}] | any>([]);
-    const [statuses, setStatuses] = useState<[{id: number, name: string}] | any>([]);
-    const [specialUnits, setSpecialUnits] = useState<[{id: number, name: string}] | any>([]);
-    const [unitsRoles, setUnitsRoles] = useState<{id: number, name: string} | any>([]);
+    // Get all of the force's constant data
+    const forceData = useContext<ForceDataContextType>(ForceDataContext);
+
 
     // State variable that holds the officer's info
     const [officerNif, setOfficerNif] = useState("");
@@ -766,32 +765,9 @@ function OfficerInfo() {
         });
     }
 
-    // Effect to run when the page first loads
+    // When the page first loads, check for a nif in the query params, if not, use the logged user's nif
     useEffect(() => {
-        async function firstMount() {
-            // When the page loads, we need to fetch the available patents and statuses
-            const patentsResponse = await make_request("/util/patents", "GET");
-
-            // Mandatory check if the status code was 200
-            // TODO: Do something actually useful with the error
-            if (!patentsResponse.ok) {
-                return;
-            }
-
-            // Apply the data to the state
-            setPatents((await patentsResponse.json()).data);
-
-            const statusResponse = await make_request("/util/statuses", "GET");
-
-            // Mandatory check if the status code was 200
-            // TODO: Do something actually useful with the error
-            if (!statusResponse.ok) {
-                return;
-            }
-
-            // Apply the data to the class object
-            setStatuses((await statusResponse.json()).data);
-
+        async function fetchFirstOfficer() {
             // Checking if there's a nif in the query params to instantly load the officer's info
             const queryParams = new URLSearchParams(window.location.search);
             const queryNif = queryParams.get("nif");
@@ -799,7 +775,7 @@ function OfficerInfo() {
             setOfficerNif(queryNif || loggedUser.info.personal.nif);
         }
 
-        firstMount();
+        fetchFirstOfficer();
     }, []);
 
     // Whenever the nif in state changes, we need to fetch the officer's info
@@ -860,23 +836,19 @@ function OfficerInfo() {
     }
 
     // Before rendering the page, we need to build the patentes and status options
-    const patentesOptions = patents.map((patent: {id: number, name: string}) => {
+    const patentesOptions = forceData.patents.map((patent) => {
         return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
     });
 
-    const statusOptions = statuses.map((status: {id: number, name: string}) => {
+    const statusOptions = forceData.statuses.map((status: {id: number, name: string}) => {
        return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
     });
 
-    const specialUnitsOptions = specialUnits.map((unit: unitFormat) => {
+    const specialUnitsOptions = forceData.special_units.map((unit: SpecialUnit) => {
        if (!doesUserBelongToUnit(unit.id))
            return <option key={`unit${unit.id}`} value={unit.id}>{unit.name}</option>
     });
 
-    let officerFullName = "";
-    if (patents.length > 0) {
-        officerFullName = `${patents[officerInfo.professional.patent + 1].name} ${officerInfo.personal.name}`;
-    }
 
     return (
         <div>
@@ -906,7 +878,7 @@ function OfficerInfo() {
 
                         <FireModal trigger={<button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
-                            hidden={editMode || !canEdit}>Despedir</button>} officerFullName={officerFullName} officerNif={officerNif}></FireModal>
+                            hidden={editMode || !canEdit}>Despedir</button>} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} officerNif={officerNif}></FireModal>
 
                         {/* TODO: This button should only appear when the logged user has the "accounts" intent. Class and functionality needs to be done */}
                         <button
@@ -1019,6 +991,7 @@ function OfficerInfo() {
                                         onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "patent", event.target.value)}
                                         isSelect
                                     >
+                                        {/*@ts-ignore*/}
                                         {patentesOptions}
                                     </InformationPair>
                                     <Divider/>
@@ -1041,6 +1014,7 @@ function OfficerInfo() {
                                         editMode={editMode}
                                         onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "status", event.target.value)}
                                     >
+                                        {/*@ts-ignore*/}
                                         {statusOptions}
                                     </InformationPair>
                                     <Divider/>

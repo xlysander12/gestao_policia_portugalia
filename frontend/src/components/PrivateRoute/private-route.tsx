@@ -5,7 +5,6 @@ import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts
 import {INTENTS} from "../../utils/constants";
 import Navbar from "../Navbar/navbar";
 import {ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
-import {CircularProgress} from "@mui/material";
 import style from "./private-route.module.css"
 import Loader from "../Loader/loader.tsx";
 
