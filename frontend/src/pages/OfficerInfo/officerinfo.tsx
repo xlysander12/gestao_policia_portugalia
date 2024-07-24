@@ -334,7 +334,8 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
             return;
         }
 
-        // After firing the officer, we can reload the page to the officer's list
+        // After firing the officer, we can show a notification and reload the page to the officer's list
+        toast(`${officerFullName} despedido com sucesso!`, {type: "success"});
         navigate({
             pathname: "/efetivos"
         });
