@@ -11,6 +11,11 @@ export interface StatusData {
     name: string
 }
 
+export interface IntentData {
+    name: string,
+    description: string
+}
+
 export interface SpecialUnitData {
     id: number,
     name: string
@@ -29,6 +34,10 @@ export interface UtilPatentsResponse extends RequestSuccess {
 
 export interface UtilStatusesResponse extends RequestSuccess {
     data: StatusData[]
+}
+
+export interface UtilIntentsResponse extends RequestSuccess {
+    data: IntentData[]
 }
 
 export interface UtilSpecialUnitsResponse extends RequestSuccess {

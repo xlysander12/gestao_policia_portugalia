@@ -1,9 +1,10 @@
 import express from 'express';
 import {queryDB} from "../../utils/db-connector";
 import {
+    IntentData,
     PatentData,
     SpecialUnitData, SpecialUnitRoleData,
-    StatusData,
+    StatusData, UtilIntentsResponse,
     UtilPatentsResponse, UtilSpecialUnitsResponse,
     UtilStatusesResponse
 } from "@portalseguranca/api-types/api/util/schema";
@@ -124,6 +125,38 @@ utilRoutes.get("/specialunits", async (req, res) => {
     }
 
     // Return 200
+    res.status(200).json(response);
+});
+
+utilRoutes.get("/intents", async (req, res) => {
+    let force = req.header("x-portalseguranca-force");
+    // Check if the force is present
+    if (force === undefined) {
+        res.status(400).json({
+            message: "Não foi fornecida uma força para a obtenção das patentes."
+        });
+        return;
+    }
+
+    // Get the list from the database
+    const intents = await queryDB(force, `SELECT * FROM intents`);
+
+    // Build an array with the statuses
+    let intentsList: IntentData[] = [];
+    for (const intent of intents) {
+        intentsList.push({
+            name: intent.name,
+            description: intent.description
+        });
+    }
+
+    // Build the response
+    let response: UtilIntentsResponse = {
+        message: "Operação bem sucedida",
+        data: intentsList
+    };
+
+    // Send the list to the user
     res.status(200).json(response);
 });
 
