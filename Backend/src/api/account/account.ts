@@ -142,6 +142,7 @@ accountRoutes.get("/info/:nif", async (req, res) => {
         message: "Operação bem sucedida",
         data: {
             defaultPassword: false,
+            lastUsed: new Date(),
             intents: {}
         }
     };

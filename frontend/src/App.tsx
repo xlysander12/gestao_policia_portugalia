@@ -11,6 +11,7 @@ import OfficerInfo from "./pages/OfficerInfo/officerinfo.tsx";
 import {ForceDataContext, ForceDataContextType} from "./force-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilIntentsResponse,
     UtilPatentsResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
@@ -26,26 +27,25 @@ function App() {
             let forceTempData: ForceDataContextType = {
                 patents: [],
                 statuses: [],
+                intents: [],
                 special_units: [],
                 special_unit_roles: []
             }
 
             // Fetching the patents
             const patentsResponse = await make_request("/util/patents", "GET");
-
-            // Store the patents in the temp object
             forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
 
             // Fetching the statuses
             const statusesResponse = await make_request("/util/statuses", "GET");
-
-            // Store the statuses in the temp object
             forceTempData.statuses = ((await statusesResponse.json()) as UtilStatusesResponse).data;
+
+            // Fetching the intents
+            const intentsResponse = await make_request("/util/intents", "GET");
+            forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
 
             // Fetching the special units
             const specialUnitsResponse = await make_request("/util/specialunits", "GET");
-
-            // Getting the json from the request
             const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
 
             // Store the special units in the temp object
