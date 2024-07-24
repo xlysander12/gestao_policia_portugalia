@@ -1,4 +1,4 @@
-import {ReactElement, useContext, useEffect, useMemo, useState} from "react";
+import {ReactElement, useContext, useEffect, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
@@ -6,6 +6,7 @@ import Navbar from "../Navbar/navbar";
 import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
 import style from "./private-route.module.css"
 import Loader from "../Loader/loader.tsx";
+import {toast} from "react-toastify";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -15,20 +16,10 @@ type PrivateRouteProps = {
 function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactElement {
     // Initialize state
     const [authorized, setAuthorized] = useState<boolean>(false);
-    const [msgVisible, setMsgVisible] = useState<boolean>(false);
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
 
     // Initialize navigate hook
     const navigate = useNavigate();
-
-    // When the component mounts, set a timer for 3 seconds to show the messsage
-    useEffect(() => {
-        setMsgVisible(false);
-
-        setTimeout(() => {
-            setMsgVisible(true);
-        }, 3000);
-    }, [isLoginPage, element]);
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
@@ -44,10 +35,13 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             }
 
             // Since there's a token and force in local storage, check if the token is valid for that force
-            const response = await make_request("/account/validateToken", "POST");
+            const response = await make_request("/account/validateToken", "POST", {redirectToLoginOn401: false});
 
-            // If the request returned status different of 200, the token isn't valid and the user should be redirected to login
-            if (response.status !== 200) {
+            // If the request returned status 401, the token isn't valid and the user should be redirected to login
+            if (response.status === 401) {
+                toast("Sessão inválida. Por favor, faça login novamente.", {
+                    type: "error",
+                });
                 return navigate({
                     pathname: "/login",
                 });

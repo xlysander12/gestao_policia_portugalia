@@ -135,13 +135,15 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
         // Make the request to recruit the new member
         const recruitRequest = await make_request(`/officerInfo/${nif}${recruit ? "?recruit": ""}`, "PUT",
             {
-                name: name,
-                nif: nif,
-                phone: phone,
-                iban: iban,
-                kms: kms,
-                discord: discord,
-                steam: steam
+                body: {
+                    name: name,
+                    nif: nif,
+                    phone: phone,
+                    iban: iban,
+                    kms: kms,
+                    discord: discord,
+                    steam: steam
+                }
             });
 
         // Check if the response is ok
@@ -311,7 +313,7 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
 
         const fireRequest = await make_request(
             `/officerInfo/${officerNif}`,
-            "DELETE", {reason: fireReason}
+            "DELETE", {body: {reason: fireReason}}
         );
 
         // Check if the response is ok
@@ -731,23 +733,25 @@ function OfficerInfo() {
         // Make the request to update the officer's info
         const updateRequest = await make_request(`/officerInfo/${officerNif}`, "PATCH",
             {
-            // Personal Info
-            name: officerInfo.personal.name,
-            phone: officerInfo.personal.phone,
-            iban: officerInfo.personal.iban,
-            kms: officerInfo.personal.kms,
-            discord: officerInfo.personal.discord,
-            steam: officerInfo.personal.steam,
+                body: {
+                    // Personal Info
+                    name: officerInfo.personal.name,
+                    phone: officerInfo.personal.phone,
+                    iban: officerInfo.personal.iban,
+                    kms: officerInfo.personal.kms,
+                    discord: officerInfo.personal.discord,
+                    steam: officerInfo.personal.steam,
 
-            // Professional Info
-            patent: officerInfo.professional.patent,
-            callsign: officerInfo.professional.callsign,
-            status: officerInfo.professional.status,
-            entry_date: officerInfo.professional.entry_date,
-            promotion_date: officerInfo.professional.promotion_date,
+                    // Professional Info
+                    patent: officerInfo.professional.patent,
+                    callsign: officerInfo.professional.callsign,
+                    status: officerInfo.professional.status,
+                    entry_date: officerInfo.professional.entry_date,
+                    promotion_date: officerInfo.professional.promotion_date,
 
-            // Special Units
-            special_units: officerInfo.professional.special_units
+                    // Special Units
+                    special_units: officerInfo.professional.special_units
+                }
         });
 
         // Check if the response is ok

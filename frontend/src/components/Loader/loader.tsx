@@ -1,4 +1,3 @@
-import style from './loader.module.css';
 import {ReactElement} from "react";
 import {CircularProgress} from "@mui/material";
 

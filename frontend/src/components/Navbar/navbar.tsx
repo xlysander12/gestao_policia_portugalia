@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
@@ -57,12 +57,9 @@ function Navbar({isLoginPage}: NavbarProps) {
                 psp: false,
                 gnr: false
             }
-
-            let nif;
-
-            // Making the request to check if the token is valid for all forces
+// Making the request to check if the token is valid for all forces
             for (const force of FORCES) {
-                const response = await make_request("/account/validateToken", "POST", undefined, force);
+                const response = await make_request("/account/validateToken", "POST", {force: force, redirectToLoginOn401: false});
 
                 // If the request returned status of 200, the token is valid for that force
                 if (response.status === 200) {

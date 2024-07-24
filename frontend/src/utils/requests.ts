@@ -3,7 +3,21 @@
 // It will be a wrapper around the fetch API, making it easier to use
 import {BASE_API_URL} from "./constants";
 
-export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"), body: any = undefined, force: string = <string>localStorage.getItem("force"), useAuth= true, useBaseAPIURL= true) {
+type MakeRequestOptions = {
+    body?: object,
+    force?: string,
+    useAuth?: boolean,
+    useBaseAPIURL?: boolean,
+    redirectToLoginOn401?: boolean
+}
+export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
+                                   {
+                                       body= {},
+                                       force = <string>localStorage.getItem("force"),
+                                       useAuth = true,
+                                       useBaseAPIURL = true,
+                                       redirectToLoginOn401 = true
+                                   }: MakeRequestOptions = {}) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
         url = '/' + url;
@@ -15,7 +29,6 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
     }
 
     // Next, make the actual request
-
     let response = await fetch(url, {
         method: method,
         // @ts-ignore
@@ -24,8 +37,14 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
             'Authorization': useAuth ? localStorage.getItem('token') : null,
             'X-Portalseguranca-Force': force
         },
-        body: body !== undefined ? JSON.stringify(body) : undefined
+        body: method === "GET" ? undefined: JSON.stringify(body)
     });
+
+    // If the response status is 401, redirect to the login page
+    if (response.status === 401 && redirectToLoginOn401) {
+        window.location.reload(); // Since the whole app is in Private Route, by reloading the page, it'll force Private Route to get the validity of the token again
+        return new Response(); // Don't be mad TS
+    }
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reload the current page
     // TODO: Add a toast with the error code
