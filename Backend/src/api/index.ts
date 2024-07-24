@@ -1,19 +1,20 @@
 import express from 'express';
-const app = express.Router();
+import {utilRoutes} from "./util/util";
+import {metricsRoutes} from "./metrics/metrics";
+import {accountRoutes} from "./account/account";
+import {officerInfoRoutes} from "./officer-info/officer-info";
+export const apiRoutes = express.Router();
 
 // Import util routes
-app.use("/util", require("./util/util"));
+apiRoutes.use("/util", utilRoutes);
 
 // Import metrics routes
-app.use("/metrics", require("./metrics/metrics"));
+apiRoutes.use("/metrics", metricsRoutes);
 
 // Import account routes
-app.use("/account", require("./account/account"));
+apiRoutes.use("/account", accountRoutes);
 
 // Import Officer Info routes
-app.use("/officerInfo", require("./officer-info/officer-info"))
-
-// Export everything
-module.exports = app;
+apiRoutes.use("/officerInfo", officerInfoRoutes)
 
 console.log("[Portal Segurança] API routes loaded successfully.")

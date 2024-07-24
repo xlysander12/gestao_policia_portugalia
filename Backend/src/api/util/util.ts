@@ -1,5 +1,4 @@
 import express from 'express';
-const app = express.Router();
 import {queryDB} from "../../utils/db-connector";
 import {
     PatentData,
@@ -9,8 +8,10 @@ import {
     UtilStatusesResponse
 } from "@portalseguranca/api-types/api/util/schema";
 
+export const utilRoutes = express.Router();
 
-app.get("/patents", async (req, res) => {
+
+utilRoutes.get("/patents", async (req, res) => {
     // Get what force the user is trying to get the patents from
     let force = req.headers["x-portalseguranca-force"];
 
@@ -45,7 +46,7 @@ app.get("/patents", async (req, res) => {
     res.status(200).json(response);
 });
 
-app.get("/statuses", async (req, res) => {
+utilRoutes.get("/statuses", async (req, res) => {
     let force = req.headers["x-portalseguranca-force"];
 
     // Check if the force is present
@@ -78,7 +79,7 @@ app.get("/statuses", async (req, res) => {
     res.status(200).json(response);
 });
 
-app.get("/specialunits", async (req, res) => {
+utilRoutes.get("/specialunits", async (req, res) => {
     let force = req.headers["x-portalseguranca-force"];
 
     // Check if the force is present
@@ -125,7 +126,5 @@ app.get("/specialunits", async (req, res) => {
     // Return 200
     res.status(200).json(response);
 });
-
-module.exports = app;
 
 console.log("[Portal Segurança] Util routes loaded successfully.")

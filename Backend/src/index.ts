@@ -2,8 +2,9 @@
 import express, {Router} from "express";
 import {config} from "dotenv";
 import {join} from "path";
-
 config({path: join(__dirname, "..", ".env")});
+
+import {apiRoutes} from "./api";
 
 
 
@@ -15,7 +16,7 @@ const app = Router(); // This app is a router to compartimentalize routes
 app.use(express.static(join(__dirname, "..", "Frontend", "dist")));
 
 // Import the API routes
-app.use("/api", require("./api"));
+app.use("/api", apiRoutes);
 
 // React Build
 app.get("/*", (req, res) => {

@@ -1,6 +1,4 @@
 import express from 'express';
-const app = express.Router();
-
 // Import utils
 import {checkTokenValidityIntents, generateToken} from "../../utils/token-handler";
 import {queryDB} from "../../utils/db-connector";
@@ -10,8 +8,10 @@ import {FORCES} from "../../utils/constants";
 import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
 import {RequestError} from "@portalseguranca/api-types/api/schema";
 
+export const accountRoutes = express.Router();
+
 // Endpoint to valide a Token and check if the user has the correct permissions
-app.post("/validateToken", async (req, res) => {
+accountRoutes.post("/validateToken", async (req, res) => {
     let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"], req.body.intent);
 
     if (!validation[0]) {
@@ -35,7 +35,7 @@ app.post("/validateToken", async (req, res) => {
 // TODO: Re-do this endpoint. There is code repetition
 // TODO: The login endpoint needs to check which force the user belongs to or even all of them
 // TODO: This endpoint should implement the "remember me" functionality
-app.post("/login", async (req, res) => {
+accountRoutes.post("/login", async (req, res) => {
     // Check if the request has the correct body
     if (!req.body.nif || !req.body.password) {
         res.status(400).json({
@@ -105,12 +105,12 @@ app.post("/login", async (req, res) => {
 });
 
 // Patch Endpoint to change password
-app.patch("/login", async (req, res) => {
+accountRoutes.patch("/login", async (req, res) => {
     // TODO: Implement this endpoint to change user's password
 });
 
 // Endpoint to get a user's account information
-app.get("/info/:nif", async (req, res) => {
+accountRoutes.get("/info/:nif", async (req, res) => {
     // First, make sure the request is well made and a token + force header are present
     let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
     if (!validation[0]) { // Make sure the token exists
@@ -177,7 +177,5 @@ app.get("/info/:nif", async (req, res) => {
     // Return the response
     res.status(200).json(response);
 });
-
-module.exports = app;
 
 console.log("[Portal Segurança] Account routes loaded successfully!")

@@ -1,5 +1,4 @@
 import express from 'express';
-const app = express.Router();
 
 // Import utils
 import {checkTokenValidityIntents} from "../../utils/token-handler";
@@ -11,8 +10,10 @@ import {
     OfficerUnit
 } from "@portalseguranca/api-types/api/officer-info/schema";
 
+export const officerInfoRoutes = express.Router();
 
-app.get("/", async (req, res) => {
+
+officerInfoRoutes.get("/", async (req, res) => {
     // Check if user is authenticated
     let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
@@ -54,7 +55,7 @@ app.get("/", async (req, res) => {
     res.status(200).json(response);
 });
 
-app.get("/:nif", async (req, res) => {
+officerInfoRoutes.get("/:nif", async (req, res) => {
     // Check if user is authenticated
     let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
     if (!authenticatedPermission[0]) {
@@ -118,8 +119,8 @@ app.get("/:nif", async (req, res) => {
     res.status(200).json(response);
 });
 
-app.patch("/:nif", async (req, res) => {
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officer");
+officerInfoRoutes.patch("/:nif", async (req, res) => {
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -188,9 +189,9 @@ app.patch("/:nif", async (req, res) => {
     });
 });
 
-app.put("/:nif", async (req, res) => {
+officerInfoRoutes.put("/:nif", async (req, res) => {
     // Making sure requesting user has permission to add officers
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officer");
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
             message: authenticatedPermission[2]
@@ -236,9 +237,9 @@ app.put("/:nif", async (req, res) => {
 
 });
 
-app.delete("/:nif", async (req, res) => {
+officerInfoRoutes.delete("/:nif", async (req, res) => {
     // Making sure the requesting user has permission to delete officers
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officer");
+    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
 
     if (!authenticatedPermission[0]) {
         res.status(authenticatedPermission[1]).json({
@@ -282,8 +283,5 @@ app.delete("/:nif", async (req, res) => {
         message: "Operação bem sucedida"
     });
 });
-
-
-module.exports = app;
 
 console.log("[Portal Segurança] OfficerInfo routes loaded successfully.")

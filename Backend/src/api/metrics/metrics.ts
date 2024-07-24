@@ -4,12 +4,7 @@ import {queryDB} from "../../utils/db-connector";
 import {ForceType} from "../../utils/constants";
 
 // Creating the router
-const app = express.Router();
-
-// Creating the instance of the octokit for github authentication
-/* const octokitInstance = new Octokit({
-    auth: process.env.GITHUB_TOKEN
-}); */
+export const metricsRoutes = express.Router();
 
 async function getBodyAuthorDetails(nif: string, force: ForceType) {
     // Fetching the user's patent and name from NIF
@@ -30,7 +25,7 @@ async function submitIssue(title: string, body: string, labels: string[]) {
     return await fetch("https://api.github.com/repos/xlysander12/gestao_policia_portugalia/issues", {
         method: "POST",
         headers: {
-            "Authorization": `bearer ${process.env.GITHUB_TOKEN}`,
+            "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
             "Content-Type": "application/vnd.github+json"
         },
         body: JSON.stringify({
@@ -41,7 +36,7 @@ async function submitIssue(title: string, body: string, labels: string[]) {
     });
 }
 
-app.post("/issue", async (req, res) => {
+metricsRoutes.post("/issue", async (req, res) => {
     // Making sure the request is valid
     if (!req.body.title || !req.body.body) {
         res.status(400).json({error: "Invalid request"});
@@ -83,7 +78,7 @@ app.post("/issue", async (req, res) => {
 });
 
 
-app.post("/sugestion", async (req, res) => {
+metricsRoutes.post("/sugestion", async (req, res) => {
     // Making sure the request is valid
     if (!req.body.title || !req.body.body) {
         res.status(400).json({message: "Não foram preenchidos todos os campos"});
@@ -120,8 +115,5 @@ app.post("/sugestion", async (req, res) => {
     // Return a 200 status code
     res.status(200).json({message: "Suggestion created successfully"});
 });
-
-// Exporting the Router
-module.exports = app;
 
 console.log("[Portal Segurança] Metrics routes loaded successfully!")
