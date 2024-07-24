@@ -121,30 +121,35 @@ type RecruitModalProps = {
     trigger: ReactElement
 }
 function RecruitModal({trigger}: RecruitModalProps): ReactElement {
-    // Initialize the variables that contain the officer's info
-    let name: string = "";
-    let nif: string = "";
-    let phone: string = "";
-    let iban: string = "";
-    let kms: number = 0;
-    let discord: string = "";
-    let steam: string = "";
-    let recruit: boolean = false;
+    // Initialize the state that contain the new officer's info
+    const [officerInfo, setOfficerInfo] = useImmer({
+        name: "",
+        nif: "",
+        phone: "",
+        iban: "",
+        kms: 0,
+        discord: "",
+        steam: "",
+        recruit: false
+    });
+
+    // Navigate hook
+    const navigate = useNavigate();
 
     const recruitMember = async (event: SubmitEvent) => {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await make_request(`/officerInfo/${nif}${recruit ? "?recruit": ""}`, "PUT",
+        const recruitRequest = await make_request(`/officerInfo/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
             {
                 body: {
-                    name: name,
-                    nif: nif,
-                    phone: phone,
-                    iban: iban,
-                    kms: kms,
-                    discord: discord,
-                    steam: steam
+                    name: officerInfo.name,
+                    nif: officerInfo.nif,
+                    phone: officerInfo.phone,
+                    iban: officerInfo.iban,
+                    kms: officerInfo.kms,
+                    discord: officerInfo.discord,
+                    steam: officerInfo.steam
                 }
             });
 
@@ -155,8 +160,8 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
         }
 
         // After recruiting the new member, we can reload the page using the officer's nif as a query param
-        // @ts-ignore
-        window.location = `${BASE_URL}/efetivos?nif=${nif}`;
+        toast(`Agente ${officerInfo.name} contratado com sucesso!`, {type: "success"});
+        navigate(`/efetivos/${officerInfo.nif}`);
     }
 
     return (
@@ -171,12 +176,13 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"Nome"}
                             type={"text"}
-                            onChange={(event) => name = event.target.value}
-                            error={name !== "" && !(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(name))}
+                            onChange={(event) => setOfficerInfo(draft => {draft.name = event.target.value})}
+                            error={officerInfo.name !== "" && !(/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/.test(officerInfo.name))}
                             sx={{margin: "10px 0 0 0"}}
                             required
                             inputProps={{
-                                name: "officerName"
+                                name: "officerName",
+                                pattern: "^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$"
                             }}
                         />
 
@@ -185,12 +191,13 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"NIF"}
                             type={"text"}
-                            onChange={(event) => nif = event.target.value}
-                            error={nif !== "" && !(/^[0-9]{7,9}$/.test(nif))}
+                            onChange={(event) => setOfficerInfo(draft => {draft.nif = event.target.value})}
+                            error={officerInfo.nif !== "" && !(/^[0-9]{7,9}$/.test(officerInfo.nif))}
                             sx={{margin: "10px 0 0 0"}}
                             required
                             inputProps={{
-                                name: "officerNIF"
+                                name: "officerNIF",
+                                pattern: "^[0-9]{7,9}$"
                             }}
                         />
 
@@ -199,12 +206,13 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"Telemóvel"}
                             type={"text"}
-                            onChange={(event) => phone = event.target.value}
-                            error={phone !== "" && !(/^[0-9]{9}$/.test(phone))}
+                            onChange={(event) => setOfficerInfo(draft => {draft.phone = event.target.value})}
+                            error={officerInfo.phone !== "" && !(/^[0-9]{9}$/.test(officerInfo.phone))}
                             sx={{margin: "10px 0 0 0"}}
                             required
                             inputProps={{
-                                name: "officerPhone"
+                                name: "officerPhone",
+                                pattern: "^[0-9]{9}$"
                             }}
                         />
 
@@ -213,12 +221,13 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"IBAN"}
                             type={"text"}
-                            onChange={(event) => iban = event.target.value}
-                            error={iban !== "" && !(/^PT[0-9]{5,8}$/.test(iban))}
+                            onChange={(event) => setOfficerInfo(draft => {draft.iban = event.target.value})}
+                            error={officerInfo.iban !== "" && !(/^PT[0-9]{5,8}$/.test(officerInfo.iban))}
                             sx={{margin: "10px 0 0 0"}}
                             required
                             inputProps={{
-                                name: "officerIBAN"
+                                name: "officerIBAN",
+                                pattern: "^PT[0-9]{5,8}$"
                             }}
                         />
 
@@ -229,7 +238,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             defaultValue={0}
                             type={"number"}
                             inputProps={{step: 100, name: "officerKMs"}}
-                            onChange={(event) => kms = parseInt(event.target.value)}
+                            onChange={(event) => setOfficerInfo(draft => {draft.kms = Number(event.target.value)})}
                             sx={{margin: "10px 0 0 0"}}
                             required
                         />
@@ -239,7 +248,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"Discord ID"}
                             type={"text"}
-                            onChange={(event) => discord = event.target.value}
+                            onChange={(event) => setOfficerInfo(draft => {draft.discord = event.target.value})}
                             sx={{margin: "10px 0 0 0"}}
                             required
                             inputProps={{
@@ -252,18 +261,19 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             fullWidth
                             label={"Steam ID / URL"}
                             type={"text"}
-                            onChange={(event) => steam = event.target.value}
+                            onChange={(event) => setOfficerInfo(draft => {draft.steam = event.target.value})}
                             sx={{margin: "10px 0 0 0"}}
-                            error={steam !== "" && !(/^steam:[0-9]{9}$/.test(steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(steam))}
+                            error={officerInfo.steam !== "" && !(/^steam:[0-9]{9}$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
                             required
                             inputProps={{
-                                name: "officerSteam"
+                                name: "officerSteam",
+                                pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)"
                             }}
                         />
 
                         <FormControlLabel
                             control={<Switch
-                                onChange={(event) => recruit = event.target.checked}
+                                onChange={(event) => setOfficerInfo(draft => {draft.recruit = event.target.checked})}
                             />}
                             label={"Recrutar como Cadete"}
                             sx={{
