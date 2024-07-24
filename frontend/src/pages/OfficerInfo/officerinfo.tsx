@@ -18,8 +18,9 @@ import {
 import {styled} from  "@mui/material/styles"
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
-import {createSearchParams, useNavigate} from "react-router-dom";
+import {createSearchParams, useNavigate, useParams} from "react-router-dom";
 import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
+import {toast} from "react-toastify";
 
 const OfficerInfoSelectSlotProps = {
     root: {
@@ -642,7 +643,9 @@ function OfficerInfo() {
     // Variable that will hold the logged user information from context
     const loggedUser = useContext(LoggedUserContext);
 
+    // Handy hooks
     const navigate = useNavigate();
+    let {nif} = useParams();
 
     // State that controls the loading state of the page
     const [loading, setLoading] = useState<boolean>(true);
@@ -652,7 +655,6 @@ function OfficerInfo() {
 
     // Get all of the force's constant data
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
-
 
     // State variable that holds the officer's info
     const [officerNif, setOfficerNif] = useState("");
@@ -688,10 +690,10 @@ function OfficerInfo() {
 
         const response = await make_request(`/officerInfo/${officerNif}?raw`, "GET");
 
-        // Check if the response is ok. If not, don't do anything and keep the page loading.
-        // This should probably only happen onb first load.
-        if (!response.ok) {
-            return;
+        // Check if the response is 404. If it is, most likely the user has inputted an non existing nif in param
+        if (response.status === 404) {
+            toast("O NIF inserido não corresponde a nenhum efetivo.", {type: "error"});
+            return setOfficerNif(loggedUser.info.personal.nif);
         }
 
         // Convert the received data to JSON and fetch the actual data
@@ -772,11 +774,8 @@ function OfficerInfo() {
     // When the page first loads, check for a nif in the query params, if not, use the logged user's nif
     useEffect(() => {
         async function fetchFirstOfficer() {
-            // Checking if there's a nif in the query params to instantly load the officer's info
-            const queryParams = new URLSearchParams(window.location.search);
-            const queryNif = queryParams.get("nif");
-
-            setOfficerNif(queryNif || loggedUser.info.personal.nif);
+            // If the param nif isn't undefined, load that officer
+            setOfficerNif(nif || loggedUser.info.personal.nif);
         }
 
         fetchFirstOfficer();

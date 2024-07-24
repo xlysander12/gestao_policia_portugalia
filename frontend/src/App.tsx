@@ -78,7 +78,16 @@ function App() {
         },
         {
             path: "/efetivos",
-            element: <PrivateRoute element={<OfficerInfo />} />
+            children: [
+                {
+                    path: "",
+                    element: <PrivateRoute element={<OfficerInfo/>}/>
+                },
+                {
+                    path: ":nif",
+                    element: <PrivateRoute element={<OfficerInfo/>}/>
+                }
+            ]
         }
     ], {
             basename: BASE_URL
