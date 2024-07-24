@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from 'react'
 import './App.css'
 import "react-toastify/dist/ReactToastify.css";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
 import Dashboard from "./pages/Dashboard/dashboard.tsx";
 import {Bounce, ToastContainer} from "react-toastify";
@@ -66,6 +66,24 @@ function App() {
         }
     }, [localStorage.getItem("force")]);
 
+    const router = createBrowserRouter(
+        [
+        {
+            path: "/login",
+            element: <PrivateRoute element={<Login/>} isLoginPage/>
+        },
+        {
+            path: "/",
+            element: <PrivateRoute element={<Dashboard/>}/>
+        },
+        {
+            path: "/efetivos",
+            element: <PrivateRoute element={<OfficerInfo />} />
+        }
+    ], {
+            basename: BASE_URL
+        })
+
     if (!canLoad) {
         return null;
     }
@@ -73,16 +91,7 @@ function App() {
     return (
         <>
             <ForceDataContext.Provider value={forceData}>
-                <BrowserRouter basename={BASE_URL}>
-                    <Routes>
-                        {/*Login route, doesn't need the PrivateRoute Component*/}
-                        <Route path={"/login"} element={<PrivateRoute element={<Login />} isLoginPage />} />
-
-                        {/*Routes that require the user to be logged in*/}
-                        <Route path={"/"} element={<PrivateRoute  element={<Dashboard />}/>} />
-                        <Route path={"/efetivos"} element={<PrivateRoute  element={<OfficerInfo />}/>} />
-                    </Routes>
-                </BrowserRouter>
+                <RouterProvider router={router} />
             </ForceDataContext.Provider>
 
             <ToastContainer
