@@ -21,6 +21,7 @@ import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-conte
 import {createSearchParams, useNavigate, useParams} from "react-router-dom";
 import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
 import {toast} from "react-toastify";
+import {useImmer} from "use-immer";
 
 const OfficerInfoSelectSlotProps = {
     root: {
@@ -658,7 +659,7 @@ function OfficerInfo() {
 
     // State variable that holds the officer's info
     const [officerNif, setOfficerNif] = useState("");
-    const [officerInfo, setOfficerInfo] = useState<OfficerInfoState>({
+    const [officerInfo, setOfficerInfo] = useImmer<OfficerInfoState>({
         personal: {
             discord: "",
             iban: "",
@@ -700,7 +701,7 @@ function OfficerInfo() {
         const data = (await response.json()).data;
 
         // Apply the data to the officerInfo object
-        setOfficerInfo(prevOfficerInfo => ({
+        setOfficerInfo({
                personal: {
                    name: data.name,
                    phone: data.phone,
@@ -716,8 +717,8 @@ function OfficerInfo() {
                    promotion_date: data.promotion_date,
                    status: data.status,
                    special_units: data.special_units
-               },
-        }));
+               }
+        });
 
         // After fetching the data, we can set the loading state to false
         setLoading(false);
@@ -805,13 +806,10 @@ function OfficerInfo() {
     }
 
     function handleInformationChange(category: "personal" | "professional", info: string, value: any) {
-        setOfficerInfo(prevOfficerInfo => ({
-            ...prevOfficerInfo,
-            [category]: {
-                ...prevOfficerInfo[category],
-                [info]: value
-            }
-        }));
+        setOfficerInfo(draft => {
+            // @ts-ignore
+            draft[category][info] = value
+        });
     }
 
     function handleSpecialUnitsEdit(event: any, unitId: number) {
@@ -829,13 +827,9 @@ function OfficerInfo() {
         specialUnits[specialUnits.findIndex(unit)] = unit;
 
         // Update the officer's special units
-        setOfficerInfo({
-            ...officerInfo,
-            professional: {
-                ...officerInfo.professional,
-                special_units: specialUnits
-            }
-        });
+        setOfficerInfo(draft => {
+            draft.professional.special_units = specialUnits;
+        })
     }
 
     // Before rendering the page, we need to build the patentes and status options
