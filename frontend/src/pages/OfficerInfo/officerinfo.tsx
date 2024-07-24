@@ -774,12 +774,10 @@ function OfficerInfo() {
             return;
         }
 
-        // After updating the data, we can reload the page using the officer's nif as a query param
+        // After updating the data, we can show a notification and reload the page using the officer's nif as a param
+        toast("Informações atualizadas com sucesso!", {type: "success"});
         navigate({
-            pathname: "/efetivos",
-            search: createSearchParams({
-                nif: officerNif
-            }).toString()
+            pathname: `/efetivos/${officerNif}`,
         });
     }
 
