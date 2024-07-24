@@ -1,3 +1,11 @@
+:root {
+  --toastify-color-dark: rgb(51, 51, 51);
+}
+
+.Toastify__toast-theme--dark {
+  border: 1px solid black
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
