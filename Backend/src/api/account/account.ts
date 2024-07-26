@@ -1,6 +1,6 @@
 import express from 'express';
 // Import utils
-import {checkTokenValidityIntents, generateToken} from "../../utils/token-handler";
+import {generateToken, isTokenValid, userHasIntents} from "../../utils/token-handler";
 import {queryDB} from "../../utils/db-connector";
 
 // Import constants
@@ -10,25 +10,26 @@ import {RequestError} from "@portalseguranca/api-types/api/schema";
 
 export const accountRoutes = express.Router();
 
-// Endpoint to valide a Token and check if the user has the correct permissions
+// Endpoint to validate a Token and check if the user has the correct permissions
 accountRoutes.post("/validateToken", async (req, res) => {
-    let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"], req.body.intent);
-
-    if (!validation[0]) {
-        res.status(validation[1]).json({
-            message: validation[2]
-        });
-        return;
+    // Check if intents were provided
+    if (req.body.intents) { // If intents were provided, check if the user has them
+        let hasIntents = await userHasIntents(Number(req.header("x-portalseguranca-user")), req.header("x-portalseguranca-force"), req.body.intents);
+        if (!hasIntents) { // If the user doesn't have intents, return a 403
+            let response: RequestError = {
+                message: "Não tens esta permissão"
+            };
+            return res.status(403).json(response);
+        }
     }
 
-
-    // If everything is correct, build the response and return a 200 status code
+    // Since the user has the request intents, return the token as valid
     let response: ValidateTokenPostResponse = {
         message: "Operação bem sucedida",
-        data: Number(validation[2])
+        data: Number(req.header("x-portalseguranca-user"))
     };
-
     return res.status(200).json(response);
+
 });
 
 // Endpoint to login an user
@@ -111,28 +112,16 @@ accountRoutes.patch("/login", async (req, res) => {
 
 // Endpoint to get a user's account information
 accountRoutes.get("/info/:nif", async (req, res) => {
-    // First, make sure the request is well made and a token + force header are present
-    let validation = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
-    if (!validation[0]) { // Make sure the token exists
-        let response: RequestError = {
-            message: validation[2]
-        };
-        res.status(validation[1]).json(response);
-        return;
-    }
-
-    // Since the token existis and it's valid, get the requesting user's nif
-    let requestingUser = Number(validation[2]);
-
     // Check if the requesting user is the user itself
+    const requestingUser = Number(req.header("x-portalseguranca-user"));
     if (requestingUser !== Number(req.params.nif)) {
         // If it's not the user itself, check if the user has the "accounts" intent
-        let hasIntent = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"], "accounts");
-        if (!hasIntent[0]) {
+        let hasIntent = await userHasIntents(requestingUser, req.header("x-portalseguranca-force"), "accounts");
+        if (!hasIntent) {
             let response: RequestError = {
-                message: hasIntent[2]
+                message: "Não tens permissão para efetuar esta ação"
             };
-            res.status(hasIntent[1]).json(response);
+            res.status(403).json(response);
             return;
         }
     }

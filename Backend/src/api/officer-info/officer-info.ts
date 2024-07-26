@@ -1,7 +1,6 @@
 import express from 'express';
 
 // Import utils
-import {checkTokenValidityIntents} from "../../utils/token-handler";
 import {queryDB} from "../../utils/db-connector";
 import {
     MinifiedOfficerData,
@@ -14,22 +13,13 @@ export const officerInfoRoutes = express.Router();
 
 
 officerInfoRoutes.get("/", async (req, res) => {
-    // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, <string>req.headers["x-portalseguranca-force"]);
-    if (!authenticatedPermission[0]) {
-        res.status(authenticatedPermission[1]).json({
-            message: authenticatedPermission[2]
-        });
-        return;
-    }
-
     // If there's no search defined, replace with empty string
     if (req.query.search === undefined) {
         req.query.search = "";
     }
 
     // Get the data from the database
-    const officersListResult = await queryDB(req.headers["x-portalseguranca-force"], `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
+    const officersListResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
 
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
@@ -56,16 +46,7 @@ officerInfoRoutes.get("/", async (req, res) => {
 });
 
 officerInfoRoutes.get("/:nif", async (req, res) => {
-    // Check if user is authenticated
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"]);
-    if (!authenticatedPermission[0]) {
-        res.status(authenticatedPermission[1]).json({
-            message: authenticatedPermission[2]
-        });
-        return;
-    }
-
-    let officerResult = await queryDB(req.headers["x-portalseguranca-force"], `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ?`, req.params.nif);
+    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ?`, req.params.nif);
 
     if (officerResult.length === 0) {
         res.status(404).json({
@@ -120,14 +101,6 @@ officerInfoRoutes.get("/:nif", async (req, res) => {
 });
 
 officerInfoRoutes.patch("/:nif", async (req, res) => {
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
-    if (!authenticatedPermission[0]) {
-        res.status(authenticatedPermission[1]).json({
-            message: authenticatedPermission[2]
-        });
-        return;
-    }
-
     // Check if the requested officer exists
     let requested_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent, status FROM officers WHERE nif = ?', req.params.nif);
     if (requested_officer_data_result.length === 0) {
@@ -146,7 +119,7 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
         || (requested_officer_data.status === 2 && req.body.status === 3); // If status has changed from "Provisório" to "Ativo"
 
 
-    let requesting_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', authenticatedPermission[2]);
+    let requesting_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', req.header("x-portalseguranca-user"));
     const requestingOfficerPatente = requesting_officer_data_result[0].patent;
 
     if (requested_officer_data.patent >= requestingOfficerPatente) {
@@ -190,17 +163,13 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
 });
 
 officerInfoRoutes.put("/:nif", async (req, res) => {
-    // Making sure requesting user has permission to add officers
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
-    if (!authenticatedPermission[0]) {
-        res.status(authenticatedPermission[1]).json({
-            message: authenticatedPermission[2]
-        });
-        return;
-    }
-
     // Making sure the user has provided all necessary information
-    if (req.body.name === undefined || req.body.phone === undefined || req.body.iban === undefined || req.body.kms === undefined || req.body.discord === undefined || req.body.steam === undefined) {
+    if (req.body.name === undefined ||
+        req.body.phone === undefined ||
+        req.body.iban === undefined ||
+        req.body.kms === undefined ||
+        req.body.discord === undefined ||
+        req.body.steam === undefined) {
         res.status(400).json({
             message: "Não foram fornecidos todos os dados necessários. É necessário fornecer nome, telemovel, iban, kms, discord e steam."
         });
@@ -210,7 +179,7 @@ officerInfoRoutes.put("/:nif", async (req, res) => {
     // Making sure the provided nif doesn't already exist
     let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
     if (officer_exists_check_result.length !== 0) {
-        res.status(400).json({
+        res.status(409).json({
             message: "Já existe um outro efetivo com esse NIF."
         });
         return;
@@ -238,16 +207,6 @@ officerInfoRoutes.put("/:nif", async (req, res) => {
 });
 
 officerInfoRoutes.delete("/:nif", async (req, res) => {
-    // Making sure the requesting user has permission to delete officers
-    let authenticatedPermission = await checkTokenValidityIntents(req.headers.authorization, req.headers["x-portalseguranca-force"], "officers");
-
-    if (!authenticatedPermission[0]) {
-        res.status(authenticatedPermission[1]).json({
-            message: authenticatedPermission[2]
-        });
-        return;
-    }
-
     // Making sure the officer exists
     let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ?`, req.params.nif);
 
@@ -260,7 +219,7 @@ officerInfoRoutes.delete("/:nif", async (req, res) => {
 
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
-    let requestingOfficerpatent = (await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', authenticatedPermission[2]))[0].patent;
+    let requestingOfficerpatent = (await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', req.header("x-portalseguranca-user")))[0].patent;
 
     // Getting the requested officer's patent
     let requestedOfficerPatente = officer_exists_check_result[0].patent;

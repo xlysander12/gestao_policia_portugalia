@@ -29,52 +29,36 @@ export async function generateToken() {
     return token;
 }
 
-export async function checkTokenValidityIntents(token: string | undefined, force: ForceType, intent?: string): Promise<[boolean, number, string]> {
-    // Check if the token is present
-    if (token === undefined || token === null) {
-        return [false, 401, "Não foi fornecido um token de autenticação."];
-    }
+export async function isTokenValid(token: undefined | string, force: ForceType) {
+    // If either token or force are undefined, return false as the token is invalid
+    if (token === undefined) return [false, 401];
+    if (force === undefined) return [false, 400];
 
-    // Making sure force is specified
-    if (force === undefined) {
-        return [false, 400, "Não foi fornecida uma força para a validação do token."];
-    }
+    // Query the database to check if the token exists
+    const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
+    if (result.length === 0) return [false, 401];
 
-    // Querying the Database to check if the token exists
-    const nif_result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
-    if (nif_result.length === 0) {
-        return [false, 401, "O token fornecido não é válido."];
-    }
-
-    // Store the nif the token points to
-    let nif = nif_result[0].nif;
-
-    // Once it has been confirmed the token exists, the lastUsed field should be updated in all databases
-    // It's used the `then()` method to avoid waiting for the query to finish since the result is not needed
-    for (const forcesKey of FORCES) {
-        queryDB(forcesKey, 'UPDATE tokens SET last_used = CURRENT_TIMESTAMP WHERE token = ?', token).then(_ => {});
-    }
-
-    // If intent is null, then the user doesn't need special permissions
-    if (intent === null || intent === undefined) {
-        return [true, 0, nif]; // Since the return was true, no HTTT Status Code is needed
-    }
-
-    // Fetch from the database the intents json of the user
-    const intents_result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [nif, intent]);
-
-    // Converting the result to a boolean
-    const hasIntent = intents_result.length !== 0 && intents_result[0].enabled === 1;
-
-
-    // Check if the user has the intent
-    if (!hasIntent) {
-        return [false, 403, "Não tens permissão para realizar esta ação"];
-    }
-
-    return [true, 200, nif];
+    // Return true and the corresponding user if the token exists
+    return [true, 200, result[0].nif];
 }
 
-export async function checkTokenValidityIntentsHeaders(headers: any, intent?: string) {
-    return await checkTokenValidityIntents(headers.authorization, headers["x-portalseguranca-force"], intent);
+export async function userHasIntents(nif: number, force: ForceType, intent: string | string[]) {
+    // Check if it is just one intent or an array of them
+    if (Array.isArray(intent)) {
+        // If it is an array, check all of them
+        // Only return true if the user has all of them
+        let hasAllIntents = true;
+        for (const intentKey of intent) {
+            const result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [String(nif), intentKey]);
+            if (result.length === 0 || result[0].enabled === 0) {
+                hasAllIntents = false;
+                break;
+            }
+        }
+        return hasAllIntents;
+    }
+
+    // If it isn't an array, query the database to check if the user has the intent
+    const result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [String(nif), intent]);
+    return result.length !== 0 && result[0].enabled === 1;
 }
