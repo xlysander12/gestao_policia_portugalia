@@ -10,7 +10,7 @@ import {
     NO_FORCE_REQUIRED_ROUTES,
     NO_TOKEN_REQUIRED_ROUTES
 } from "../utils/constants";
-import {isTokenValid, userHasIntents} from "../utils/token-handler";
+import {isTokenValid, userHasIntents} from "../utils/user-handler";
 import {RequestError} from "@portalseguranca/api-types/api/schema";
 
 export const apiRoutes = express.Router();
@@ -61,6 +61,7 @@ function routeNeedsIntents(route: string, method: string, routes: IntentRequired
 }
 
 // Middleware to check if the request has basic necessary information
+// TODO: Update the DB field that stores the last time the token was used and the last time the user has interacted
 apiRoutes.use(async (req, res, next) => {
     // Check if this request needs a token, if not, skip the token check
     if (!isRouteExcluded(req.path, req.method, NO_TOKEN_REQUIRED_ROUTES)) {

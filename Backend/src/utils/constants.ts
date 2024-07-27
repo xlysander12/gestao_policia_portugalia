@@ -3,6 +3,8 @@ import {type} from "node:os";
 
 export const FORCES = ["psp", "gnr"];
 export type ForceType = any | "psp" | "gnr";
+export const PASSWORD_SALT_ROUNDS = 10;
+
 
 // Necessary information for the request
 export const NO_TOKEN_REQUIRED_ROUTES = [[/\/util\/.*/, "*"], [/\/account\/login/, "POST"]];

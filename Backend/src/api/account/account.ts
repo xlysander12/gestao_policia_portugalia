@@ -1,11 +1,13 @@
+// Import packages
 import express from 'express';
+import {compare, hash} from 'bcrypt';
+
 // Import utils
-import {generateToken, isTokenValid, userHasIntents} from "../../utils/token-handler";
+import {generateToken, getUserForces, userHasIntents} from "../../utils/user-handler";
 import {queryDB} from "../../utils/db-connector";
 
 // Import constants
-import {FORCES} from "../../utils/constants";
-import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {AccountInfoResponse, LoginResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
 import {RequestError} from "@portalseguranca/api-types/api/schema";
 
 export const accountRoutes = express.Router();
@@ -24,7 +26,7 @@ accountRoutes.post("/validateToken", async (req, res) => {
     }
 
     // Since the user has the request intents, return the token as valid
-    let response: ValidateTokenPostResponse = {
+    let response: ValidateTokenResponse = {
         message: "Operação bem sucedida",
         data: Number(req.header("x-portalseguranca-user"))
     };
@@ -33,51 +35,37 @@ accountRoutes.post("/validateToken", async (req, res) => {
 });
 
 // Endpoint to login an user
-// TODO: Re-do this endpoint. There is code repetition
-// TODO: The login endpoint needs to check which force the user belongs to or even all of them
 // TODO: This endpoint should implement the "remember me" functionality
 accountRoutes.post("/login", async (req, res) => {
-    // Check if the request has the correct body
-    if (!req.body.nif || !req.body.password) {
-        res.status(400).json({
-            message: "Não foi fornecido um username ou password",
-        });
-        return;
-    }
-
     // Check if the user exists (it's needed to check on all forces databases)
-    let found_results = [];
+    let user_forces = await getUserForces(req.body.nif, true);
 
-    // Getting the row corresponding the nif and adding it to the found_results array
-    for (const force of FORCES) {
-        const passwordResult = await queryDB(force, 'SELECT password FROM users WHERE nif = ?', req.body.nif);
-        found_results.push(...passwordResult);
-    }
-
-    // If the found_results array is empty, then the username doesn't exist
-    if (found_results.length === 0) {
-        res.status(401).json({
-            message: "O username fornecido não existe."
-        });
+    // If the user_forces array is empty, then the username doesn't exist
+    if (user_forces.length === 0) {
+        let response: RequestError = {
+            message: "NIF ou password errados."
+        }
+        res.status(401).json(response);
         return;
     }
 
-    let valid_login;
+    let correct_password: boolean; // This variable will either hold the hashed password gotten from the request body or, incase of a default password, the cleartext password gotten from body
 
-    // If the password is NULL, then the correct password would be "seguranca"
-    if (found_results[0].password === null) {
-        valid_login = req.body.password === "seguranca";
+    // If the password is NULL, then the given password shouldn't be hashed
+    if (user_forces[0].password === null) {
+        correct_password = String(req.body.password) === "seguranca";
     } else {
-        // If the password is not NULL, check if it is correct
-        valid_login = found_results[0].password === req.body.password; // TODO: Hash password
+        // If the password is not NULL, this needs to be hashed
+        correct_password = await compare(req.body.password, String(user_forces[0].password));
     }
 
-
-    // If the password is incorrect, return a 401 status code
-    if (!valid_login) {
-        res.status(401).json({
-            message: "Password incorreta"
-        });
+    // Now compare the passwords
+    // If the password isn't correct, return 401
+    if (!correct_password) {
+        let response: RequestError = {
+            message: "NIF ou password errados."
+        }
+        res.status(401).json(response);
         return;
     }
 
@@ -85,28 +73,32 @@ accountRoutes.post("/login", async (req, res) => {
     const token = await generateToken();
 
     // After generating the token, store it in the databases of the forces the user belongs to
-    for (const force of FORCES) {
+    for (const force of user_forces) {
         try {
-            await queryDB(force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, req.body.nif]);
+            await queryDB(force.force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, req.body.nif]);
         } catch (e) { // This error would only be if trying to store a token for an user that doesn't exist
-            res.status(500).json({
-                message: "Erro ao tentar guardar o token"
-            });
+            let response: RequestError = {
+                message: "Erro ao tentar guardar o token de acesso"
+            }
 
+            res.status(500).json(response);
             return;
         }
 
     }
 
     // Send the token to the user
-    res.status(200).json({
+    let response: LoginResponse = {
         message: "Operação bem sucedida",
-        data: token
-    });
+        data: {
+            token: token
+        }
+    }
+    res.status(200).json(response);
 });
 
-// Patch Endpoint to change password
-accountRoutes.patch("/login", async (req, res) => {
+// Endpoint to change the password
+accountRoutes.post("/changepassword", async (req, res) => {
     // TODO: Implement this endpoint to change user's password
 });
 

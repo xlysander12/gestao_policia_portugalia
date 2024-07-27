@@ -62,3 +62,24 @@ export async function userHasIntents(nif: number, force: ForceType, intent: stri
     const result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [String(nif), intent]);
     return result.length !== 0 && result[0].enabled === 1;
 }
+
+export async function getUserForces(nif: string, return_passwords = false) {
+    let user_forces: {force: string, password?: string}[] = [];
+
+    // Loop through all forces and see which of them have an account for this user
+    for (const force of FORCES) {
+        const queryResult = await queryDB(force, 'SELECT password FROM users WHERE nif = ?', nif);
+        if (queryResult.length !== 0 ) { // This user exists in this force
+            let to_push: {force: string, password?: string} = {force: force}
+
+            if (return_passwords) { // If the option to retrieve passwords is true, add the password to the object
+                to_push.password = queryResult[0].password;
+            }
+
+            // Push the object to the final array
+            user_forces.push(to_push);
+        }
+    }
+
+    return user_forces;
+}
