@@ -122,7 +122,7 @@ accountRoutes.get("/info/:nif", async (req, res) => {
     let response: AccountInfoResponse = {
         message: "Operação bem sucedida",
         data: {
-            defaultPassword: false,
+            passwordChanged: false,
             lastUsed: new Date(),
             intents: {}
         }
@@ -139,7 +139,7 @@ accountRoutes.get("/info/:nif", async (req, res) => {
         return res.status(404).json(response);
     }
     
-    response.data.defaultPassword = passwordQuery[0].password === null;
+    response.data.passwordChanged = passwordQuery[0].password !== null;
 
     // Get all possible intents
     const intentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT name FROM intents');
