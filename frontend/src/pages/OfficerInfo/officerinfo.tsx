@@ -758,7 +758,7 @@ function OfficerInfo() {
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
 
     // State variable that holds the officer's info
-    const [officerNif, setOfficerNif] = useState("");
+    const [officerNif, setOfficerNif] = useState(nif || loggedUser.info.personal.nif);
     const [officerInfo, setOfficerInfo] = useImmer<OfficerInfoState>({
         personal: {
             discord: "",
@@ -869,16 +869,6 @@ function OfficerInfo() {
             pathname: `/efetivos/${officerNif}`,
         });
     }
-
-    // When the page first loads, check for a nif in the query params, if not, use the logged user's nif
-    useEffect(() => {
-        async function fetchFirstOfficer() {
-            // If the param nif isn't undefined, load that officer
-            setOfficerNif(nif || loggedUser.info.personal.nif);
-        }
-
-        fetchFirstOfficer();
-    }, []);
 
     // Whenever the nif in state changes, we need to fetch the officer's info
     useEffect(() => {
