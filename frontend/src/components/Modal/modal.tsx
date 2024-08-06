@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Popup from "reactjs-popup";
-import {ReactElement} from "react";
+import React, {ReactElement} from "react";
 import style from "./modal.module.css";
 import {Divider} from "@mui/material";
 
@@ -42,7 +42,7 @@ type ModalProps = {
     trigger: ReactElement,
     width?: string,
     title: string,
-    children: ReactElement | [ReactElement],
+    children: ReactElement | ReactElement[],
 }
 
 export function Modal({trigger, width, title, children}: ModalProps): ReactElement {
@@ -73,7 +73,7 @@ export function Modal({trigger, width, title, children}: ModalProps): ReactEleme
 
 type ModalSectionProps = {
     title: string;
-    children: ReactElement | [ReactElement];
+    children: ReactElement | ReactElement[];
 }
 
 export function ModalSection({title, children}: ModalSectionProps): ReactElement {

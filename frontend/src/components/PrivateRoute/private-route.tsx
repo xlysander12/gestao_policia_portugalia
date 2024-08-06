@@ -3,7 +3,7 @@ import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import Navbar from "../Navbar/navbar";
-import {AccountInfoResponse, ValidateTokenPostResponse} from "@portalseguranca/api-types/api/account/schema";
+import {AccountInfoResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
 import style from "./private-route.module.css"
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
@@ -48,7 +48,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             }
 
             // Since the response was positive, use the nif gotten from the token to get the user's information and intents
-            const nif = ((await response.json()) as ValidateTokenPostResponse).data
+            const nif = ((await response.json()) as ValidateTokenResponse).data
 
             // Using the nif, get the user's information and intents
             const userResponse = await make_request(`/officerinfo/${nif}?raw`, "GET");

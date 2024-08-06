@@ -25,10 +25,11 @@ export type SpecialUnitRole = {
 export type ForceDataContextType = {
     patents: Patent[],
     statuses: Status[],
+    intents: IntentData[],
     special_units: SpecialUnit[],
     special_unit_roles: SpecialUnitRole[]
 };
-export const ForceDataContext = createContext<ForceDataContextType>({patents: [], statuses: [], special_units: [], special_unit_roles: []});
+export const ForceDataContext = createContext<ForceDataContextType>({patents: [], statuses: [], intents: [], special_units: [], special_unit_roles: []});
 
 export function getPatentFromId(patentId: number, forcePatents: Patent[]) {
     return forcePatents?.find(patent => patent.id === patentId);

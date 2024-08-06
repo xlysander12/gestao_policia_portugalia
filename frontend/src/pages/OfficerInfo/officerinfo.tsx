@@ -22,6 +22,7 @@ import {createSearchParams, useNavigate, useParams} from "react-router-dom";
 import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
+import {AccountInfoResponse} from "@portalseguranca/api-types/api/account/schema";
 
 const OfficerInfoSelectSlotProps = {
     root: {
@@ -378,6 +379,94 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
             </form>
         </Modal>
     );
+}
+
+type AccountInformationModalProps = {
+    trigger: ReactElement,
+    officerNif: string,
+    officerFullName: string
+}
+function AccountInformationModal({trigger, officerNif, officerFullName}: AccountInformationModalProps) {
+    // Getting the force's data from the context
+    const forceData = useContext<ForceDataContextType>(ForceDataContext);
+
+    const [accountExists, setAccountExists] = useState<boolean | null>(null);
+
+    // Initialize the state that contains the officer's account information
+    // // Create an object with all intents and set them to false
+    let intentsObject: {[key: string]: boolean} = {};
+    for (let intent of forceData.intents) {
+        intentsObject[intent.name] = false;
+    }
+
+    const [accountInfo, setAccountInfo] = useImmer({
+        defaultPassword: false,
+        lastUsed: new Date(),
+        intents: intentsObject
+    });
+
+    // Fetch the current information about the officer
+    useEffect(() => {
+        async function fetchAccountInfo() {
+            const accountInfoResponse = await make_request(`/account/info/${officerNif}`, "GET");
+
+            // Check if the response is ok
+            if (!accountInfoResponse.ok) {
+                alert((await accountInfoResponse.json()).message);
+                return;
+            }
+
+            // Convert the response to JSON and set the account info state
+            const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
+            setAccountInfo(draft => {
+                draft.defaultPassword = accountInfoJson.data.defaultPassword;
+                draft.lastUsed = accountInfoJson.data.lastUsed;
+                draft.intents = accountInfoJson.data.intents;
+            });
+        }
+
+        fetchAccountInfo();
+    }, []);
+
+    let modalContent: ReactElement = (<></>);
+
+    if (accountExists === null) {
+        modalContent = (
+            <Loader />
+        );
+    } else if (!accountExists) {
+        // TODO: Add the modal content for when the account doesn't exist, AKA, create account
+    } else {
+        modalContent = (
+            <>
+                <ModalSection title={"Informações Gerais"}>
+                    <label>Palavra-passe padrão: <span>{accountInfo.defaultPassword ? "Sim" : "Não"}</span></label>
+                    <br />
+                    {/* <label>Última utilização: <span>{accountInfo.lastUsed.toLocaleDateString()}</span></label> */}
+                </ModalSection>
+
+                <ModalSection title={"Permissões"}>
+                    {forceData.intents.map((intent) => {
+                        return (
+                            <FormControlLabel
+                                control={<Switch
+                                    checked={accountInfo.intents[intent.name]}
+                                    onChange={(event) => setAccountInfo(draft => {draft.intents[intent.name] = event.target.checked})}
+                                />}
+                                label={intent.description}
+                            />
+                        )
+                    })}
+                </ModalSection>
+            </>
+        )
+    }
+
+    return (
+        <Modal trigger={trigger} title={`Conta de ${officerFullName}`}>
+            {modalContent}
+        </Modal>
+    )
 }
 
 type InformationPairProps = {
@@ -887,15 +976,17 @@ function OfficerInfo() {
                             hidden={editMode || !canEdit}>Despedir</button>} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} officerNif={officerNif}></FireModal>
 
                         {/* TODO: This button should only appear when the logged user has the "accounts" intent. */}
-                        <button
+                        <AccountInformationModal trigger={<button
                             className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers || loggedUser.info.professional.patent < officerInfo.professional.patent}>Gerir Conta
-                        </button>
+                            style={{float: "left"}}
+                            hidden={editMode || !loggedUser.intents.accounts || loggedUser.info.professional.patent < officerInfo.professional.patent}>Gerir
+                            Conta
+                        </button>} officerNif={officerNif} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} />
                         <button
-                            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                            style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers}
+                        className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
+                        style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers}
                         >
-                            Importar do HUB
+                        Importar do HUB
                         </button>
                     </div>
 
