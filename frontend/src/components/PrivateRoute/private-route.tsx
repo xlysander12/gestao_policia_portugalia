@@ -101,9 +101,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
 
     if (!authorized && !isLoginPage) {
         return (
-            <div className={style.loadingDiv}>
-                <Loader />
-            </div>
+            <Loader fullPage/>
         );
     }
 

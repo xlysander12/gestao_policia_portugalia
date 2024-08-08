@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from 'react'
 import './App.css'
 import "react-toastify/dist/ReactToastify.css";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, RouterProvider, useNavigate} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
 import Dashboard from "./pages/Dashboard/dashboard.tsx";
 import {Bounce, ToastContainer} from "react-toastify";
@@ -16,6 +16,7 @@ import {
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
 } from "@portalseguranca/api-types/api/util/schema";
+import Loader from "./components/Loader/loader.tsx";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -63,6 +64,8 @@ function App() {
         if (localStorage.getItem("force")) {
             console.log("Fetching force data");
             fetchForceData();
+        } else {
+            setCanLoad(true);
         }
     }, [localStorage.getItem("force")]);
 
@@ -94,7 +97,9 @@ function App() {
         })
 
     if (!canLoad) {
-        return null;
+        return (
+            <Loader fullPage/>
+        )
     }
 
     return (
