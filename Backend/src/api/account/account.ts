@@ -10,10 +10,10 @@ import {queryDB} from "../../utils/db-connector";
 import {AccountInfoResponse, LoginResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
 import {RequestError} from "@portalseguranca/api-types/api/schema";
 
-export const accountRoutes = express.Router();
+const app = express.Router();
 
 // Endpoint to validate a Token and check if the user has the correct permissions
-accountRoutes.post("/validateToken", async (req, res) => {
+app.post("/validateToken", async (req, res) => {
     // Check if intents were provided
     if (req.body.intents) { // If intents were provided, check if the user has them
         let hasIntents = await userHasIntents(Number(req.header("x-portalseguranca-user")), req.header("x-portalseguranca-force"), req.body.intents);
@@ -36,7 +36,7 @@ accountRoutes.post("/validateToken", async (req, res) => {
 
 // Endpoint to login an user
 // TODO: This endpoint should implement the "remember me" functionality
-accountRoutes.post("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
     // Check if the user exists (it's needed to check on all forces databases)
     let user_forces = await getUserForces(req.body.nif, true);
 
@@ -98,12 +98,12 @@ accountRoutes.post("/login", async (req, res) => {
 });
 
 // Endpoint to change the password
-accountRoutes.post("/changepassword", async (req, res) => {
+app.post("/changepassword", async (req, res) => {
     // TODO: Implement this endpoint to change user's password
 });
 
 // Endpoint to get a user's account information
-accountRoutes.get("/info/:nif", async (req, res) => {
+app.get("/info/:nif", async (req, res) => {
     // Check if the requesting user is the user itself
     const requestingUser = Number(req.header("x-portalseguranca-user"));
     if (requestingUser !== Number(req.params.nif)) {
@@ -160,4 +160,6 @@ accountRoutes.get("/info/:nif", async (req, res) => {
     res.status(200).json(response);
 });
 
-console.log("[Portal Segurança] Account routes loaded successfully!")
+console.log("[Portal Segurança] Account routes loaded successfully!");
+
+export default app;

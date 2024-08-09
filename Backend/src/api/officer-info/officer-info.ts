@@ -9,10 +9,10 @@ import {
     OfficerUnit
 } from "@portalseguranca/api-types/api/officer-info/schema";
 
-export const officerInfoRoutes = express.Router();
+const app = express.Router();
 
 
-officerInfoRoutes.get("/", async (req, res) => {
+app.get("/", async (req, res) => {
     // If there's no search defined, replace with empty string
     if (req.query.search === undefined) {
         req.query.search = "";
@@ -45,7 +45,7 @@ officerInfoRoutes.get("/", async (req, res) => {
     res.status(200).json(response);
 });
 
-officerInfoRoutes.put("/:nif", async (req, res) => {
+app.put("/:nif", async (req, res) => {
     // Making sure the user has provided all necessary information
     if (req.body.name === undefined ||
         req.body.phone === undefined ||
@@ -90,8 +90,8 @@ officerInfoRoutes.put("/:nif", async (req, res) => {
 });
 
 // Middleware to check if the officer exists before passing to routes below
-officerInfoRoutes.use("/:nif", async (req, res, next) => {
-    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ?`, req.params.nif);
+app.use("/:nif", async (req, res, next) => {
+    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("pretty") ? "officersV" : "officers"} WHERE nif = ?`, req.params.nif);
     if (officerResult.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
@@ -103,7 +103,7 @@ officerInfoRoutes.use("/:nif", async (req, res, next) => {
     next();
 });
 
-officerInfoRoutes.get("/:nif", async (req, res) => {
+app.get("/:nif", async (req, res) => {
     const info = res.locals.requestedOfficerData;
 
     // Alter the dates to be a proper string (There's a lot of unknown shit going on here.
@@ -149,7 +149,7 @@ officerInfoRoutes.get("/:nif", async (req, res) => {
     res.status(200).json(response);
 });
 
-officerInfoRoutes.patch("/:nif", async (req, res) => {
+app.patch("/:nif", async (req, res) => {
     let requested_officer_data = res.locals.requestedOfficerData;
 
     // Figure out if this change is considered a promotion
@@ -212,7 +212,7 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
     });
 });
 
-officerInfoRoutes.delete("/:nif", async (req, res) => {
+app.delete("/:nif", async (req, res) => {
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
     let requestingOfficerpatent = (await queryDB(req.header("x-portalseguranca-force"), 'SELECT patent FROM officers WHERE nif = ?', req.header("x-portalseguranca-user")))[0].patent;
@@ -240,3 +240,5 @@ officerInfoRoutes.delete("/:nif", async (req, res) => {
 });
 
 console.log("[Portal Segurança] OfficerInfo routes loaded successfully.")
+
+export default app;

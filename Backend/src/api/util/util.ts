@@ -9,10 +9,10 @@ import {
     UtilStatusesResponse
 } from "@portalseguranca/api-types/api/util/schema";
 
-export const utilRoutes = express.Router();
+const app = express.Router();
 
 
-utilRoutes.get("/patents", async (req, res) => {
+app.get("/patents", async (req, res) => {
     // Get what force the user is trying to get the patents from
     let force = req.headers["x-portalseguranca-force"];
 
@@ -47,7 +47,7 @@ utilRoutes.get("/patents", async (req, res) => {
     res.status(200).json(response);
 });
 
-utilRoutes.get("/statuses", async (req, res) => {
+app.get("/statuses", async (req, res) => {
     let force = req.headers["x-portalseguranca-force"];
 
     // Check if the force is present
@@ -80,7 +80,7 @@ utilRoutes.get("/statuses", async (req, res) => {
     res.status(200).json(response);
 });
 
-utilRoutes.get("/specialunits", async (req, res) => {
+app.get("/specialunits", async (req, res) => {
     let force = req.headers["x-portalseguranca-force"];
 
     // Check if the force is present
@@ -128,7 +128,7 @@ utilRoutes.get("/specialunits", async (req, res) => {
     res.status(200).json(response);
 });
 
-utilRoutes.get("/intents", async (req, res) => {
+app.get("/intents", async (req, res) => {
     let force = req.header("x-portalseguranca-force");
     // Check if the force is present
     if (force === undefined) {
@@ -160,4 +160,6 @@ utilRoutes.get("/intents", async (req, res) => {
     res.status(200).json(response);
 });
 
-console.log("[Portal Segurança] Util routes loaded successfully.")
+console.log("[Portal Segurança] Util routes loaded successfully.");
+
+export default app;

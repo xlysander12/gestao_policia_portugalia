@@ -3,7 +3,7 @@ import {queryDB} from "../../utils/db-connector";
 import {ForceType} from "../../utils/constants";
 
 // Creating the router
-export const metricsRoutes = express.Router();
+const app = express.Router();
 
 async function getBodyAuthorDetails(nif: number, force: ForceType) {
     // Fetching the user's patent and name from NIF
@@ -35,7 +35,7 @@ async function submitIssue(title: string, body: string, labels: string[]) {
     });
 }
 
-metricsRoutes.post("/issue", async (req, res) => {
+app.post("/issue", async (req, res) => {
     // Making sure the request is valid
     if (!req.body.title || !req.body.body) {
         res.status(400).json({error: "O pedido deve conter um titulo e texto"});
@@ -68,7 +68,7 @@ metricsRoutes.post("/issue", async (req, res) => {
 });
 
 
-metricsRoutes.post("/sugestion", async (req, res) => {
+app.post("/sugestion", async (req, res) => {
     // Making sure the request is valid
     if (!req.body.title || !req.body.body) {
         res.status(400).json({message: "Não foram preenchidos todos os campos"});
@@ -98,4 +98,6 @@ metricsRoutes.post("/sugestion", async (req, res) => {
     res.status(200).json({message: "Sugestão criara com sucesso! Obrigado!"});
 });
 
-console.log("[Portal Segurança] Metrics routes loaded successfully!")
+console.log("[Portal Segurança] Metrics routes loaded successfully!");
+
+export default app;

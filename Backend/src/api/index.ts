@@ -1,8 +1,8 @@
 import express from 'express';
-import {utilRoutes} from "./util/util";
-import {metricsRoutes} from "./metrics/metrics";
-import {accountRoutes} from "./account/account";
-import {officerInfoRoutes} from "./officer-info/officer-info";
+import utilRoutes from "./util/util";
+import metricsRoutes from "./metrics/metrics";
+import accountRoutes from "./account/account";
+import officerInfoRoutes from "./officer-info/officer-info";
 import {
     FORCES,
     INTENT_REQUIRED_ROUTES,
