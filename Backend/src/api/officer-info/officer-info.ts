@@ -45,9 +45,53 @@ officerInfoRoutes.get("/", async (req, res) => {
     res.status(200).json(response);
 });
 
-officerInfoRoutes.get("/:nif", async (req, res) => {
-    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ?`, req.params.nif);
+officerInfoRoutes.put("/:nif", async (req, res) => {
+    // Making sure the user has provided all necessary information
+    if (req.body.name === undefined ||
+        req.body.phone === undefined ||
+        req.body.iban === undefined ||
+        req.body.kms === undefined ||
+        req.body.discord === undefined ||
+        req.body.steam === undefined) {
+        res.status(400).json({
+            message: "Não foram fornecidos todos os dados necessários. É necessário fornecer nome, telemovel, iban, kms, discord e steam."
+        });
+        return;
+    }
 
+    // Making sure the provided nif doesn't already exist
+    let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
+    if (officer_exists_check_result.length !== 0) {
+        res.status(409).json({
+            message: "Já existe um outro efetivo com esse NIF."
+        });
+        return;
+    }
+
+    // Checking if the patent will be a recruit or not
+    let patent = req.query.hasOwnProperty("recruit") ? -1: 0;
+
+    // Calculating what the new callsign will be, if it's not a recruit
+    let callsign = null
+    if (patent === 0) {
+        let callsigns_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC');
+        let callsign_number = (Number.parseInt(callsigns_result[0].callsign.split("-")[1]) + 1);
+        callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
+    }
+
+    // Adding the officer to the database
+    await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, patent, callsign, req.body.phone, req.params.nif, req.body.iban, req.body.kms, req.body.discord, req.body.steam]);
+
+    // If everything went according to plan, return a 200 status code
+    res.status(200).json({
+        message: "Operação bem sucedida"
+    });
+
+});
+
+// Middleware to check if the officer exists before passing to routes below
+officerInfoRoutes.use("/:nif", async (req, res, next) => {
+    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("raw") ? "officers" : "officersV"} WHERE nif = ?`, req.params.nif);
     if (officerResult.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
@@ -55,7 +99,12 @@ officerInfoRoutes.get("/:nif", async (req, res) => {
         return;
     }
 
-    const info = officerResult[0];
+    res.locals.requestedOfficerData = officerResult[0];
+    next();
+});
+
+officerInfoRoutes.get("/:nif", async (req, res) => {
+    const info = res.locals.requestedOfficerData;
 
     // Alter the dates to be a proper string (There's a lot of unknown shit going on here.
     // For more information on wtf is going on, check https://stackoverflow.com/a/29774197)
@@ -101,18 +150,9 @@ officerInfoRoutes.get("/:nif", async (req, res) => {
 });
 
 officerInfoRoutes.patch("/:nif", async (req, res) => {
-    // Check if the requested officer exists
-    let requested_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
-    if (requested_officer_data_result.length === 0) {
-        res.status(404).json({
-            message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
-        });
-        return;
-    }
+    let requested_officer_data = res.locals.requestedOfficerData;
 
-    let requested_officer_data = requested_officer_data_result[0];
-
-    // After making sure the officer exists, figure out if this change is considered a promotion
+    // Figure out if this change is considered a promotion
     // TODO: This needs to be properly address when additional forces are added. Statuses may vary between them.
     let isPromotion = requested_officer_data.patent !== req.body.patent // If patent has changed
         || (requested_officer_data.status === 1 && req.body.status === 3)  // If status has changed from "Formação" to "Ativo"
@@ -155,7 +195,7 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
 
     // If the change is considered a promotion, update the promotion date
     if (isPromotion) {
-        await queryDB(req.headers["x-portalseguranca-force"], `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, req.params.nif);
+        await queryDB(req.header("x-portalseguranca-force"), `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, req.params.nif);
     }
 
     // Now, update the special units the officer belongs to
@@ -172,67 +212,13 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
     });
 });
 
-officerInfoRoutes.put("/:nif", async (req, res) => {
-    // Making sure the user has provided all necessary information
-    if (req.body.name === undefined ||
-        req.body.phone === undefined ||
-        req.body.iban === undefined ||
-        req.body.kms === undefined ||
-        req.body.discord === undefined ||
-        req.body.steam === undefined) {
-        res.status(400).json({
-            message: "Não foram fornecidos todos os dados necessários. É necessário fornecer nome, telemovel, iban, kms, discord e steam."
-        });
-        return;
-    }
-
-    // Making sure the provided nif doesn't already exist
-    let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
-    if (officer_exists_check_result.length !== 0) {
-        res.status(409).json({
-            message: "Já existe um outro efetivo com esse NIF."
-        });
-        return;
-    }
-
-    // Checking if the patent will be a recruit or not
-    let patent = req.query.hasOwnProperty("recruit") ? -1: 0;
-
-    // Calculating what the new callsign will be, if it's not a recruit
-    let callsign = null
-    if (patent === 0) {
-        let callsigns_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC');
-        let callsign_number = (Number.parseInt(callsigns_result[0].callsign.split("-")[1]) + 1);
-        callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
-    }
-
-    // Adding the officer to the database
-    await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, patent, callsign, req.body.phone, req.params.nif, req.body.iban, req.body.kms, req.body.discord, req.body.steam]);
-
-    // If everything went according to plan, return a 200 status code
-    res.status(200).json({
-        message: "Operação bem sucedida"
-    });
-
-});
-
 officerInfoRoutes.delete("/:nif", async (req, res) => {
-    // Making sure the officer exists
-    let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], `SELECT patent FROM officers WHERE nif = ?`, req.params.nif);
-
-    if (officer_exists_check_result.length === 0) {
-        res.status(404).json({
-            message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
-        });
-        return;
-    }
-
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
-    let requestingOfficerpatent = (await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', req.header("x-portalseguranca-user")))[0].patent;
+    let requestingOfficerpatent = (await queryDB(req.header("x-portalseguranca-force"), 'SELECT patent FROM officers WHERE nif = ?', req.header("x-portalseguranca-user")))[0].patent;
 
     // Getting the requested officer's patent
-    let requestedOfficerPatente = officer_exists_check_result[0].patent;
+    let requestedOfficerPatente = res.locals.requestedOfficerData.patent;
 
     if (requestedOfficerPatente >= requestingOfficerpatent) {
         res.status(403).json({
