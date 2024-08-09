@@ -102,7 +102,7 @@ officerInfoRoutes.get("/:nif", async (req, res) => {
 
 officerInfoRoutes.patch("/:nif", async (req, res) => {
     // Check if the requested officer exists
-    let requested_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent, status FROM officers WHERE nif = ?', req.params.nif);
+    let requested_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
     if (requested_officer_data_result.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
@@ -130,7 +130,6 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
     }
 
     // If everything checks out, update the officer's basic info
-    // TODO: It shouldn't be needed to send all information just to alter one or other field. This should be fixed.
     let updateQuery = `UPDATE officers SET name = ?, patent = ?, 
                               callsign = ?, 
                               status = ?, 
@@ -141,7 +140,18 @@ officerInfoRoutes.patch("/:nif", async (req, res) => {
                               discord = ?, 
                               steam = ? 
                               WHERE nif = ?`;
-    await queryDB(req.headers["x-portalseguranca-force"], updateQuery, [req.body.name, req.body.patent, req.body.callsign, req.body.status, req.body.entry_date, req.body.phone, req.body.iban, req.body.kms, req.body.discord, req.body.steam, req.params.nif]);
+    await queryDB(req.headers["x-portalseguranca-force"], updateQuery,
+        [req.body.name || requested_officer_data.name,
+            req.body.patent || requested_officer_data.patent,
+            req.body.callsign || requested_officer_data.callsign,
+            req.body.status || requested_officer_data.status,
+            req.body.entry_date || requested_officer_data.entry_date,
+            req.body.phone || requested_officer_data.phone,
+            req.body.iban || requested_officer_data.iban,
+            req.body.kms || requested_officer_data.kms,
+            req.body.discord || requested_officer_data.discord,
+            req.body.steam || requested_officer_data.steam,
+            req.params.nif]);
 
     // If the change is considered a promotion, update the promotion date
     if (isPromotion) {
