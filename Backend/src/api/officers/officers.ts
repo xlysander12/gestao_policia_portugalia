@@ -239,6 +239,6 @@ app.delete("/:nif", async (req, res) => {
     });
 });
 
-console.log("[Portal Segurança] OfficerInfo routes loaded successfully.")
+console.log("[Portal Segurança] Officers routes loaded successfully.")
 
 export default app;

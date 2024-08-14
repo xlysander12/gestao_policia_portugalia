@@ -2,7 +2,7 @@ import express from 'express';
 import utilRoutes from "./util/util";
 import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./account/account";
-import officerInfoRoutes from "./officer-info/officer-info";
+import officerInfoRoutes from "./officers/officers";
 import {
     FORCES,
     INTENT_REQUIRED_ROUTES,
@@ -148,6 +148,6 @@ apiRoutes.use("/metrics", metricsRoutes);
 apiRoutes.use("/account", accountRoutes);
 
 // Import Officer Info routes
-apiRoutes.use("/officerInfo", officerInfoRoutes)
+apiRoutes.use("/officers", officerInfoRoutes)
 
 console.log("[Portal Segurança] API routes loaded successfully.")

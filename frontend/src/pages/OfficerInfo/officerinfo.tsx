@@ -141,7 +141,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await make_request(`/officerInfo/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
+        const recruitRequest = await make_request(`/officers/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
             {
                 body: {
                     name: officerInfo.name,
@@ -325,7 +325,7 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
         event.preventDefault();
 
         const fireRequest = await make_request(
-            `/officerInfo/${officerNif}`,
+            `/officers/${officerNif}`,
             "DELETE", {body: {reason: fireReason}}
         );
 
@@ -789,7 +789,7 @@ function OfficerInfo() {
         if (!loading)
             setLoading(true);
 
-        const response = await make_request(`/officerInfo/${officerNif}?raw`, "GET");
+        const response = await make_request(`/officers/${officerNif}?raw`, "GET");
 
         // Check if the response is 404. If it is, most likely the user has inputted an non existing nif in param
         if (response.status === 404) {
@@ -834,7 +834,7 @@ function OfficerInfo() {
         }
 
         // Make the request to update the officer's info
-        const updateRequest = await make_request(`/officerInfo/${officerNif}`, "PATCH",
+        const updateRequest = await make_request(`/officers/${officerNif}`, "PATCH",
             {
                 body: {
                     // Personal Info

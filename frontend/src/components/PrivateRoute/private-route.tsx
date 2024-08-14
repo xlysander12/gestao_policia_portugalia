@@ -51,7 +51,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             const nif = ((await response.json()) as ValidateTokenResponse).data
 
             // Using the nif, get the user's information and intents
-            const userResponse = await make_request(`/officerinfo/${nif}?raw`, "GET");
+            const userResponse = await make_request(`/officers/${nif}?raw`, "GET");
 
             // Making sure the response is positive
             if (userResponse.status !== 200) {

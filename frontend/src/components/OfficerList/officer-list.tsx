@@ -72,7 +72,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         setLoading(true);
 
         // Send the request to the API to get the results from the search
-        const response = await make_request(`/officerInfo${query ? `?search=${query}`: ""}`, "GET");
+        const response = await make_request(`/officers${query ? `?search=${query}`: ""}`, "GET");
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {
