@@ -17,6 +17,8 @@ import {
     UtilStatusesResponse
 } from "@portalseguranca/api-types/api/util/schema";
 import Loader from "./components/Loader/loader.tsx";
+import {createTheme, ThemeProvider} from "@mui/material";
+import defaultThemeData from "./theme.ts";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -96,6 +98,8 @@ function App() {
             basename: BASE_URL
         })
 
+
+    const defaultTheme = createTheme(defaultThemeData);
     if (!canLoad) {
         return (
             <Loader fullPage/>
@@ -103,7 +107,7 @@ function App() {
     }
 
     return (
-        <>
+        <ThemeProvider theme={defaultTheme}>
             <ForceDataContext.Provider value={forceData}>
                 <RouterProvider router={router} />
             </ForceDataContext.Provider>
@@ -119,7 +123,7 @@ function App() {
                 theme={"dark"}
                 transition={Bounce}
             />
-        </>
+        </ThemeProvider>
       )
 }
 
