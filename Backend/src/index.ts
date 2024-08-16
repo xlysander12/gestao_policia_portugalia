@@ -20,7 +20,7 @@ app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));
 app.use("/api", apiRoutes);
 
 // Database backup files
-app.use("/db", express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true}));
+app.use("/db", express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true, view: "details"}));
 
 // React Build
 app.get("/*", (req, res) => {
