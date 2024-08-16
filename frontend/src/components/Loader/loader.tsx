@@ -8,7 +8,7 @@ type LoaderProps = {
     fullPage?: boolean
 }
 
-const Loader = ({ size = '120px', color = '#049985', fullPage = false }: LoaderProps): ReactElement  => {
+const Loader = ({ size = '120px', color = 'var(--portalseguranca-color-accent)', fullPage = false }: LoaderProps): ReactElement  => {
     if (!fullPage)
         return (
             <CircularProgress

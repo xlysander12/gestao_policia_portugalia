@@ -1,5 +1,21 @@
 :root {
   --toastify-color-dark: rgb(51, 51, 51);
+
+  /*Own Theme*/
+  /*Background colors*/
+  --portalseguranca-color-background-light: #C5C6C7;
+  --portalseguranca-color-background-dark: #1F2833FF;
+  --portalseguranca-color-hover-dark: #11161CFF;
+
+  /*Text Colors*/
+  --portalseguranca-color-text-light: #d0c7d3;
+  --portalseguranca-color-text-dark: black;
+  --portalseguranca-color-text-hover: gray;
+
+  --portalseguranca-color-accent: #049985;
+  --portalseguranca-color-focus: #00fdfd;
+
+
 }
 
 .Toastify__toast-theme--dark {

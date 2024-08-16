@@ -31,7 +31,7 @@ const ModalStyle = styled(Popup)<{ width?: string }>`
         animation: anvil 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
         width: ${props => props.width || "37%"};
         min-width: fit-content;
-        background-color: #1f2833;
+        background-color: var(--portalseguranca-color-background-dark);
         border: 2px solid black;
         border-radius: 3px;
     }

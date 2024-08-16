@@ -1,5 +1,5 @@
 .mainNavbar {
-    background-color: rgb(31, 40, 51);
+    background-color: var(--portalseguranca-color-background-dark);
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -32,7 +32,7 @@
 }
 
 .userInfoDiv:hover {
-    background-color: rgb(17, 22, 28);
+    background-color: var(--portalseguranca-color-hover-dark);
     cursor: pointer;
 }
 
@@ -45,8 +45,8 @@
     position: absolute;
     right: 0;
     width: 100%;
-    background-color: rgb(31, 40, 51);
-    border: 1px solid rgb(17, 22, 28);
+    background-color: var(--portalseguranca-color-background-dark);
+    border: 1px solid var(--portalseguranca-color-hover-dark);
     border-radius: 5px;
     z-index: 1;
 }
@@ -100,6 +100,6 @@
 }
 
 .navButton:hover {
-    color: gray;
-    border-bottom: gray 2px solid;
+    color: var(--portalseguranca-color-text-hover);
+    border-bottom: var(--portalseguranca-color-text-hover) 2px solid;
 }
