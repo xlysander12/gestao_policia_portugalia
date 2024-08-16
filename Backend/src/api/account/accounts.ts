@@ -103,7 +103,7 @@ app.post("/changepassword", async (req, res) => {
 });
 
 // Endpoint to get a user's account information
-app.get("/info/:nif", async (req, res) => {
+app.get("/:nif/info", async (req, res) => {
     // Check if the requesting user is the user itself
     const requestingUser = Number(req.header("x-portalseguranca-user"));
     if (requestingUser !== Number(req.params.nif)) {

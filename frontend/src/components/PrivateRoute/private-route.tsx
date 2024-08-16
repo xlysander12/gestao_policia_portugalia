@@ -82,7 +82,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             tempLoggedUser.info.professional.promotion_date = userData.promotion_date;
 
             // Fetch the user's intents
-            const accountInfoResponse = await make_request(`/account/info/${tempLoggedUser.info.personal.nif}`, "GET");
+            const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/info`, "GET");
             const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
             tempLoggedUser.intents = accountInfoData.data.intents;
 
