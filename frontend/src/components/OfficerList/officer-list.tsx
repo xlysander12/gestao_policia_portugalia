@@ -2,6 +2,7 @@ import {ReactElement, useEffect, useState, ChangeEvent} from "react";
 import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
+import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents/default-components.tsx";
 
 type OfficerCardProps = {
     name: string,
@@ -136,20 +137,28 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
             {/*@ts-ignore*/}
             <form onSubmit={handleSearch}>
                 <div className={style.officerListSearchDiv}>
-                    <input
-                        className={style.officerListSearchInput}
+                    {/*TODO: Label looks awful when there's someting written on the field*/}
+                    <DefaultOutlinedTextField
                         value={searchString}
                         type={"text"}
-                        placeholder={"Pesquisar por efetivo"}
+                        label={"Pesquisar por efetivo"}
+                        backgroundColor={"var(--portalseguranca-color-background-light)"}
+                        textColor={"black"}
                         disabled={disabled}
                         onChange={(event) => setSearchString(event.target.value)}
+                        sx={{
+                            width: "70%"
+                        }}
                     />
-                    <input
+                    <DefaultButton
                         type={"submit"}
-                        className={style.officerListSearchButton}
-                        value={"Pesquisar"}
+                        buttonColor={"var(--portalseguranca-color-accent)"}
+                        darkTextOnHover
                         disabled={disabled}
-                    />
+                        sx={{
+                            padding: "5px"
+                        }}
+                    >Pesquisar</DefaultButton>
                 </div>
             </form>
 

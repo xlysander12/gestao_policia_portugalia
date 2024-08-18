@@ -7,6 +7,8 @@
 
 .officerListSearchDiv {
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
     background-color: #1f2833;
     height: 4rem;

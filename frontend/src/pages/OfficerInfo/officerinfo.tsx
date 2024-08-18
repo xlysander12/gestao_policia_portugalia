@@ -23,100 +23,11 @@ import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} fr
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {AccountInfoResponse} from "@portalseguranca/api-types/api/account/schema";
-
-const OfficerInfoSelectSlotProps = {
-    root: {
-        sx: {
-            "label+&": {
-                margin: 0
-            },
-
-            "&:before": {
-                borderBottom: "3px solid #049985"
-            },
-
-            "&:hover:not(.Mui-disabled, .Mui.error):before": {
-                borderBottom: "3px solid #049985"
-            },
-
-            "&.Mui-disabled:before": {
-                border: 0
-            },
-
-            "&:after": {
-                borderBottom: "3px solid #00fdfd"
-            },
-        }
-    }
-}
-
-const StyledSelect = styled(Select)(() => ({
-    "& .MuiSelect-icon": {
-        color: "#049985",
-
-        "&.Mui-disabled": {
-            display: "none",
-        },
-    },
-
-    "& .MuiInput-input": {
-        fontWeight: 500,
-        WebkitTextFillColor: "#d0c7d3",
-
-        "&.Mui-disabled": {
-            WebkitTextFillColor: "#d0c7d3",
-            WebkitUserSelect: "auto",
-            userSelect: "auto"
-        }
-    }
-}));
-
-const StyledInput = styled(TextField)(() => ({
-    "& .MuiInputLabel-root": {
-        color: "white",
-
-        "&.Mui-focused": {
-            color: "#00fdfd"
-        }
-    },
-
-    "& .MuiInput-input": {
-        WebkitTextFillColor: "#d0c7d3",
-        fontWeight: 500,
-
-        "&.Mui-disabled": {
-            WebkitTextFillColor: "#d0c7d3",
-        },
-
-        "&.Mui-error": {
-            borderBottomColor: "red"
-        }
-    },
-
-    "& .MuiInputBase-root": {
-        caretColor: "white",
-
-        "&:before": {
-            borderBottom: "3px solid #049985"
-        },
-
-        "&:hover:not(.Mui-disabled, .Mui-error):before": {
-            borderBottom: "3px solid #049985"
-        },
-
-        "& .Mui-error:before": {
-            borderBottomColor: "red"
-        },
-
-        "&.Mui-disabled:before": {
-            border: 0
-        },
-
-        "&:after": {
-            borderBottom: "3px solid #00fdfd"
-        },
-    }
-}));
+import {
+    DefaultButton,
+    DefaultOutlinedTextField, DefaultSelect,
+    DefaultTextField
+} from "../../components/DefaultComponents/default-components.tsx";
 
 type RecruitModalProps = {
     trigger: ReactElement
@@ -172,8 +83,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                 <ModalSection title={"Informações Pessoais"}>
                     <div className={modalsStyle.formDiv}>
                         {/* TODO: add proper titles to explain the custom patterns */}
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"Nome"}
                             type={"text"}
@@ -187,8 +97,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             }}
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"NIF"}
                             type={"text"}
@@ -202,8 +111,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             }}
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"Telemóvel"}
                             type={"text"}
@@ -217,8 +125,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             }}
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"IBAN"}
                             type={"text"}
@@ -232,8 +139,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             }}
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"KMs"}
                             defaultValue={0}
@@ -244,8 +150,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             required
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"Discord ID"}
                             type={"text"}
@@ -257,8 +162,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                             }}
                         />
 
-                        <StyledInput
-                            variant={"standard"}
+                        <DefaultTextField
                             fullWidth
                             label={"Steam ID / URL"}
                             type={"text"}
@@ -352,7 +256,7 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
                 <div className={modalsStyle.formDiv}>
                     {/*Text area to input the firing reason*/}
                     <ModalSection title={"Dados do Despedimento"}>
-                        <TextField
+                        <DefaultOutlinedTextField
                             label={"Motivo"}
                             fullWidth
                             multiline
@@ -487,9 +391,9 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
         return (
             <div className={style.informationPairDiv}>
                 <label>{label}</label>
-                <StyledInput
-                    variant={"standard"}
+                <DefaultTextField
                     fullWidth
+                    sameTextColorWhenDisabled
                     disabled={!editMode}
                     type={type}
                     error={(pattern !== undefined) && !(pattern.test(String(value)))}
@@ -508,9 +412,9 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
     return (
         <div className={style.informationPairDiv}>
             <label>{label}</label>
-            <StyledSelect
-                variant={"standard"}
+            <DefaultSelect
                 fullWidth
+                sameTextColorWhenDisabled
                 disabled={!editMode}
                 value={value}
                 onChange={onChangeCallback}
@@ -789,12 +693,12 @@ function OfficerInfo() {
         if (!loading)
             setLoading(true);
 
-        const response = await make_request(`/officers/${officerNif}?raw`, "GET");
+        const response = await make_request(`/officers/${officerNif}`, "GET");
 
         // Check if the response is 404. If it is, most likely the user has inputted an non existing nif in param
         if (response.status === 404) {
             toast("O NIF inserido não corresponde a nenhum efetivo.", {type: "error"});
-            return setOfficerNif(loggedUser.info.personal.nif);
+            return setOfficerNif(loggedUser.info.personal.nif); // Set the active nif as the logged user
         }
 
         // Convert the received data to JSON and fetch the actual data
