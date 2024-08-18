@@ -59,7 +59,7 @@ function Navbar({isLoginPage}: NavbarProps) {
             }
 // Making the request to check if the token is valid for all forces
             for (const force of FORCES) {
-                const response = await make_request("/account/validateToken", "POST", {force: force, redirectToLoginOn401: false});
+                const response = await make_request("/accounts/validateToken", "POST", {force: force, redirectToLoginOn401: false});
 
                 // If the request returned status of 200, the token is valid for that force
                 if (response.status === 200) {

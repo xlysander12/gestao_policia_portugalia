@@ -8,10 +8,9 @@ config({path: join(__dirname, "..", ".env")});
 import {apiRoutes} from "./api";
 
 
-
 const app = Router(); // This app is a router to compartimentalize routes
 
-// TODO: Make sure every environment variable is set
+// TODO: Make sure every environment variable is set. If not, don't let the code run
 
 // React Static
 app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));

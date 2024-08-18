@@ -35,7 +35,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             }
 
             // Since there's a token and force in local storage, check if the token is valid for that force
-            const response = await make_request("/account/validateToken", "POST", {redirectToLoginOn401: false});
+            const response = await make_request("/accounts/validateToken", "POST", {redirectToLoginOn401: false});
 
             // If the request returned status 401, the token isn't valid and the user should be redirected to login
             if (response.status === 401) {
