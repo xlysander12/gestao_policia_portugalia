@@ -5,20 +5,19 @@ import OfficerList from "../../components/OfficerList/officer-list";
 import Loader from "../../components/Loader/loader";
 import {Modal, ModalSection} from "../../components/Modal/modal";
 import {make_request} from "../../utils/requests";
-import {BASE_URL} from "../../utils/constants";
 import {
     Button,
     Divider,
     FormControlLabel,
     MenuItem,
-    Select, SelectChangeEvent,
+    Select, SelectChangeEvent, Stack,
     Switch, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow,
-    TextField,
+    Typography
 } from "@mui/material";
-import {styled} from  "@mui/material/styles"
+import {CheckCircleOutlined, CancelOutlined} from "@mui/icons-material";
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
-import {createSearchParams, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
@@ -261,19 +260,7 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
                             fullWidth
                             multiline
                             maxRows={5}
-                            className={modalsStyle.fireTextArea}
                             onChange={(event) => fireReason = event.target.value}
-                            sx={{
-                                "& label.Mui-focused": {
-                                  color: "white"
-                                },
-
-                                "& .MuiOutlinedInput-root": {
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#00fdfd"
-                                    }
-                                }
-                            }}
                         />
                     </ModalSection>
 
@@ -291,6 +278,15 @@ type AccountInformationModalProps = {
     officerFullName: string
 }
 function AccountInformationModal({trigger, officerNif, officerFullName}: AccountInformationModalProps) {
+    /*
+    ? This should work somewhere like this:
+    <CopyRightModal open={copyRightModalOpen} onClose={() => setCopyRightModalOpen(false)}>
+        <div style={{display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center"}}>
+            <p style={{color: "white", fontSize: "23px", fontFamily: "acme, sans", fontWeight: "bold"}}>O conteúdo desta página é protegido. Por esse motivo, o Right-Click está desativado.<br/>Caso queira alguma foto contacte-nos nas redes sociais.</p>
+        </div>
+    </CopyRightModal>
+    */
+
     // Getting the force's data from the context
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
 
@@ -312,55 +308,78 @@ function AccountInformationModal({trigger, officerNif, officerFullName}: Account
     // Fetch the current information about the officer
     useEffect(() => {
         async function fetchAccountInfo() {
-            const accountInfoResponse = await make_request(`/account/info/${officerNif}`, "GET");
+            const accountInfoResponse = await make_request(`/accounts/${officerNif}/info`, "GET");
 
             // Check if the response is ok
-            if (!accountInfoResponse.ok) {
-                alert((await accountInfoResponse.json()).message);
+            if (accountInfoResponse.status === 404) {
+                setAccountExists(false);
                 return;
             }
 
             // Convert the response to JSON and set the account info state
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
-                draft.defaultPassword = accountInfoJson.data.defaultPassword;
+                draft.defaultPassword = accountInfoJson.data.passwordChanged;
                 draft.lastUsed = accountInfoJson.data.lastUsed;
                 draft.intents = accountInfoJson.data.intents;
             });
+
+            setAccountExists(true);
         }
 
         fetchAccountInfo();
-    }, []);
+    }, [officerNif]);
 
-    let modalContent: ReactElement = (<></>);
+    let modalContent: ReactElement;
 
     if (accountExists === null) {
         modalContent = (
-            <Loader />
+            <Loader size={"100px"}/>
         );
     } else if (!accountExists) {
-        // TODO: Add the modal content for when the account doesn't exist, AKA, create account
+        modalContent = (
+            <div className={modalsStyle.noAccountDiv}>
+                <Typography color={"var(--portalseguranca-color-text-light)"}>Este efetivo não tem a conta ativada.<br/>Ativar a conta vai permitir o login com este nif e a palavra-passe padrão</Typography>
+                {/*TODO: Change onClick behaviour*/}
+                <DefaultButton
+                    buttonColor={"var(--portalseguranca-color-accent)"}
+                    darkTextOnHover
+                    onClick={async () => {console.log("Activate account")}}
+                    sx={{
+                        marginTop: "10px"
+                    }}
+                >
+                    Ativar Conta
+                </DefaultButton>
+            </div>
+        );
     } else {
         modalContent = (
             <>
                 <ModalSection title={"Informações Gerais"}>
-                    <label>Palavra-passe padrão: <span>{accountInfo.defaultPassword ? "Sim" : "Não"}</span></label>
-                    <br />
-                    {/* <label>Última utilização: <span>{accountInfo.lastUsed.toLocaleDateString()}</span></label> */}
+                    <div className={modalsStyle.informationInnerSectionDiv}>
+                        <Stack alignItems={"center"} direction={"row"} gap={0.5}>
+                            <Typography>Palavra-passe alterada:</Typography>
+                            {accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
+                        </Stack>
+                        {/* <label>Última utilização: <span>{accountInfo.lastUsed.toLocaleDateString()}</span></label> */}
+                    </div>
                 </ModalSection>
 
                 <ModalSection title={"Permissões"}>
-                    {forceData.intents.map((intent) => {
-                        return (
-                            <FormControlLabel
-                                control={<Switch
-                                    checked={accountInfo.intents[intent.name]}
-                                    onChange={(event) => setAccountInfo(draft => {draft.intents[intent.name] = event.target.checked})}
-                                />}
-                                label={intent.description}
-                            />
-                        )
-                    })}
+                    <div className={modalsStyle.informationInnerSectionDiv}>
+                        {forceData.intents.map((intent) => {
+                            return (
+                                <FormControlLabel
+                                    control={<Switch
+                                        checked={accountInfo.intents[intent.name]}
+                                        onChange={(event) => setAccountInfo(draft => {draft.intents[intent.name] = event.target.checked})}
+                                    />}
+                                    label={intent.description}
+                                />
+                            )
+                        })}
+                    </div>
                 </ModalSection>
             </>
         )
@@ -418,10 +437,9 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                 disabled={!editMode}
                 value={value}
                 onChange={onChangeCallback}
-                slotProps={OfficerInfoSelectSlotProps}
             >
                 {children}
-            </StyledSelect>
+            </DefaultSelect>
         </div>
     );
 
@@ -837,7 +855,6 @@ function OfficerInfo() {
        if (!doesUserBelongToUnit(unit.id))
            return <option key={`unit${unit.id}`} value={unit.id}>{unit.name}</option>
     });
-
 
     return (
         <div>
