@@ -139,6 +139,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
                 <div className={style.officerListSearchDiv}>
                     {/*TODO: Label looks awful when there's someting written on the field*/}
                     <DefaultOutlinedTextField
+                        size={"small"}
                         value={searchString}
                         type={"text"}
                         label={"Pesquisar por efetivo"}
