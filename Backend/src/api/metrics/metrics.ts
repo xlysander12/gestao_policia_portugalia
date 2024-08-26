@@ -43,7 +43,7 @@ app.post("/issue", async (req, res) => {
     }
 
     // Getting the nif of the logged user
-    const loggedNif = Number(req.header("x-portalseguranca-user"))
+    const loggedNif = Number(res.locals.user)
 
     // Manipulating the values to be used in the issue creation
     const title = `${req.body.title} - Issue Automático`;
@@ -76,7 +76,7 @@ app.post("/sugestion", async (req, res) => {
     }
 
     // Getting the nif of the logged user
-    const loggedNif = Number(req.header("x-portalseguranca-user"));
+    const loggedNif = Number(res.locals.user);
 
     // Manipulating the values to be used in the issue creation
     const title = `${req.body.title} - Issue Automático`;

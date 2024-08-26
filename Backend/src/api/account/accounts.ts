@@ -16,7 +16,7 @@ const app = express.Router();
 app.post("/validateToken", async (req, res) => {
     // Check if intents were provided
     if (req.body.intents) { // If intents were provided, check if the user has them
-        let hasIntents = await userHasIntents(Number(req.header("x-portalseguranca-user")), req.header("x-portalseguranca-force"), req.body.intents);
+        let hasIntents = await userHasIntents(Number(res.locals.user), req.header("x-portalseguranca-force"), req.body.intents);
         if (!hasIntents) { // If the user doesn't have intents, return a 403
             let response: RequestError = {
                 message: "Não tens esta permissão"
@@ -28,7 +28,7 @@ app.post("/validateToken", async (req, res) => {
     // Since the user has the request intents, return the token as valid
     let response: ValidateTokenResponse = {
         message: "Operação bem sucedida",
-        data: Number(req.header("x-portalseguranca-user"))
+        data: Number(res.locals.user)
     };
     return res.status(200).json(response);
 
@@ -105,7 +105,7 @@ app.post("/changepassword", async (req, res) => {
 // Endpoint to get a user's account information
 app.get("/:nif/info", async (req, res) => {
     // Check if the requesting user is the user itself
-    const requestingUser = Number(req.header("x-portalseguranca-user"));
+    const requestingUser = Number(res.locals.user);
     if (requestingUser !== Number(req.params.nif)) {
         // If it's not the user itself, check if the user has the "accounts" intent
         let hasIntent = await userHasIntents(requestingUser, req.header("x-portalseguranca-force"), "accounts");

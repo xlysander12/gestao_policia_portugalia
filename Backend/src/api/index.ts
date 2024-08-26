@@ -88,7 +88,7 @@ apiRoutes.use(async (req, res, next) => {
         }
 
         // Since the token is valid, add an header with the user that is making this request
-        req.headers["x-portalseguranca-user"] = validation[2];
+        res.locals.user = validation[2];
 
         // Since the request needs a token, there's a possibility it also needs an intent
         // Given this, check if the route is one that needs intents and, if so, check if the user has said intent
