@@ -150,6 +150,8 @@ app.get("/:nif", async (req, res) => {
 });
 
 app.patch("/:nif", async (req, res) => {
+    const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
+
     let requested_officer_data = res.locals.requestedOfficerData;
 
     // Figure out if this change is considered a promotion
@@ -169,29 +171,19 @@ app.patch("/:nif", async (req, res) => {
         return;
     }
 
-    // If everything checks out, update the officer's basic info
-    let updateQuery = `UPDATE officers SET name = ?, patent = ?, 
-                              callsign = ?, 
-                              status = ?, 
-                              entry_date = ?, 
-                              phone = ?, 
-                              iban = ?, 
-                              kms = ?, 
-                              discord = ?, 
-                              steam = ? 
-                              WHERE nif = ?`;
-    await queryDB(req.headers["x-portalseguranca-force"], updateQuery,
-        [req.body.name || requested_officer_data.name,
-            req.body.patent || requested_officer_data.patent,
-            req.body.callsign || requested_officer_data.callsign,
-            req.body.status || requested_officer_data.status,
-            req.body.entry_date || requested_officer_data.entry_date,
-            req.body.phone || requested_officer_data.phone,
-            req.body.iban || requested_officer_data.iban,
-            req.body.kms || requested_officer_data.kms,
-            req.body.discord || requested_officer_data.discord,
-            req.body.steam || requested_officer_data.steam,
-            req.params.nif]);
+    // Build the query string and params depending on the fields that were provided
+    let params: string[] = [];
+    let updateQuery = `UPDATE officers SET `;
+    validFields.forEach((field) => {
+        if (req.body[field] !== undefined) {
+            updateQuery += `${field} = ?, `;
+            params.push(req.body[field]);
+        }
+    });
+    updateQuery = updateQuery.slice(0, -2); // Remove the last comma
+    updateQuery += ` WHERE nif = ?`;
+
+    await queryDB(req.header("x-portalseguranca-force"), updateQuery, [...params, req.params.nif]);
 
     // If the change is considered a promotion, update the promotion date
     if (isPromotion) {
