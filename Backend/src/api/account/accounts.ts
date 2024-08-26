@@ -8,7 +8,7 @@ import {queryDB} from "../../utils/db-connector";
 
 // Import constants
 import {AccountInfoResponse, LoginResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
-import {RequestError} from "@portalseguranca/api-types/api/schema";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
 
 const app = express.Router();
 
@@ -159,6 +159,34 @@ app.get("/:nif/info", async (req, res) => {
     // Return the response
     res.status(200).json(response);
 });
+
+app.patch("/:nif/intents", async (req, res) => {
+    const intents  = Object.keys(req.body);
+
+    // Update intents in the database
+    for (let i = 0; i < intents.length; i++) {
+        // Make sure the requesting user has the intent it wants to update
+        if(!(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), intents[i]))) {
+            let response: RequestError = {
+                message: "Não tens permissão para efetuar esta ação"
+            };
+            return res.status(403).json(response);
+        }
+
+        // Check if the entry for this intent already exists
+        if ((await queryDB(req.header("x-portalseguranca-force"), 'SELECT * FROM user_intents WHERE user = ? AND intent = ?', [req.params.nif, intents[i]])).length === 0) { // Entry doesn't exist
+            await queryDB(req.header("x-portalseguranca-force"), 'INSERT INTO user_intents (user, intent, enabled) VALUES (?, ?, ?)', [req.params.nif, intents[i], req.body[intents[i]] ? "1" : "0"]);
+        } else { // Entry already exists
+            await queryDB(req.header("x-portalseguranca-force"), 'UPDATE user_intents SET enabled = ? WHERE user = ? AND intent = ?', [req.body[intents[i]] ? "1" : "0", req.params.nif, intents[i]]);
+        }
+    }
+
+    let response: RequestSuccess = {
+        message: "Intents updated successfully"
+    }
+    res.status(200).json(response);
+});
+
 
 console.log("[Portal Segurança] Account routes loaded successfully!");
 
