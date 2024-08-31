@@ -14,6 +14,9 @@ type SubPathProps = {
 }
 
 const SubPath = ({path, name, only}: SubPathProps) => {
+    // useLocation
+    const location = useLocation();
+
     // Not a redirect
     if (path === undefined || path === "") {
         return (
@@ -25,7 +28,7 @@ const SubPath = ({path, name, only}: SubPathProps) => {
 
     return (
         <div className={style.subPathDiv}>
-            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={path} reloadDocument={false}>{name}</Link>
+            <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={path} reloadDocument={location.pathname === "/login"}>{name}</Link>
             <p className={style.navbarSubPathText}>{only ? "": "»"}</p>
         </div>
     );
