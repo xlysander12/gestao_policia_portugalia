@@ -18,7 +18,7 @@ html, body {
 }
 
 body {
-  background-color: rgb(197, 198, 199);
+  background-color: var(--portalseguranca-color-background-light);
 }
 
 /*::-webkit-scrollbar {*/

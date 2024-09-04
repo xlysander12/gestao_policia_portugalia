@@ -175,7 +175,6 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
             <div
                 className={style.officerListListDiv}
                 style={loading ? {display: "none"}: {}}
-                hidden={loading}
             >
                 {officersCards}
             </div>

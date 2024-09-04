@@ -8,7 +8,7 @@ const DefaultButtonStyle = styled(Button)(({buttonColor, darkTextOnHover}) => ({
         color: buttonColor,
         borderColor: buttonColor,
         "&:hover": {
-            backgroundColor: buttonColor,
+            backgroundColor: buttonColor || "var(--portalseguranca-color-accent)",
             color: darkTextOnHover ? "black": "white"
         }
     }

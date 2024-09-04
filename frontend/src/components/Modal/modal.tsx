@@ -78,7 +78,6 @@ type ModalSectionProps = {
 }
 
 export function ModalSection({title, titleCentered = false, children}: ModalSectionProps): ReactElement {
-    // TODO: Add a margin to the bottom of the section
     return (
         <fieldset className={style.section}>
             {title ? <legend style={titleCentered ? {textAlign: "center"}: {textAlign: "start"}}>{title}</legend> : null}
