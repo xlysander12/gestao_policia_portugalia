@@ -82,20 +82,21 @@ export const DefaultTextField = (props: Partial<TextFieldProps> & {sameTextColor
 }
 
 // @ts-ignore
-const DefaultOutlinedTextFieldStyle = styled(TextField)(({backgroundColor, textColor}) => ({
+const DefaultOutlinedTextFieldStyle = styled(TextField)(({alternateColor}) => ({
     "& label.Mui-focused": {
-        color: "white"
+        color: "white",
+        textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"
     },
     "& .MuiOutlinedInput-root": {
-        backgroundColor: `${backgroundColor ? backgroundColor: "transparent"}`,
-        color: `${textColor ? textColor: "white"}`,
+        backgroundColor: `${alternateColor ? "var(--portalseguranca-color-background-light)": "transparent"}`,
+        color: `${alternateColor ? "black": "white"}`,
 
         "&.Mui-focused fieldset": {
             borderColor: "var(--portalseguranca-color-focus)",
         }
     }
 }));
-export const DefaultOutlinedTextField = (props: Partial<TextFieldProps> & {backgroundColor?: string, textColor?: string}) => {
+export const DefaultOutlinedTextField = (props: Partial<TextFieldProps> & {alternateColor?: boolean}) => {
     return (
         <DefaultOutlinedTextFieldStyle
             variant={"outlined"}

@@ -143,8 +143,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
                         value={searchString}
                         type={"text"}
                         label={"Pesquisar por efetivo"}
-                        backgroundColor={"var(--portalseguranca-color-background-light)"}
-                        textColor={"black"}
+                        alternateColor
                         disabled={disabled}
                         onChange={(event) => setSearchString(event.target.value)}
                         sx={{
