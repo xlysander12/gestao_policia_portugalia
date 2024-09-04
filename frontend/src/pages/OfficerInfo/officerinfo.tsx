@@ -6,7 +6,6 @@ import Loader from "../../components/Loader/loader";
 import {Modal, ModalSection} from "../../components/Modal/modal";
 import {make_request} from "../../utils/requests";
 import {
-    Button,
     Divider,
     FormControlLabel,
     MenuItem,
@@ -29,9 +28,10 @@ import {
 } from "../../components/DefaultComponents/default-components.tsx";
 
 type RecruitModalProps = {
-    trigger: ReactElement
+    open: boolean
+    onClose?: () => void
 }
-function RecruitModal({trigger}: RecruitModalProps): ReactElement {
+function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
     // Initialize the state that contain the new officer's info
     const [officerInfo, setOfficerInfo] = useImmer({
         name: "",
@@ -76,7 +76,7 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
     }
 
     return (
-        <Modal width={"37%"} trigger={trigger} title={"Recrutar novo efetivo"}>
+        <Modal width={"37%"} open={open} onClose={onClose} title={"Recrutar novo efetivo"}>
             {/*@ts-ignore*/}
             <form onSubmit={recruitMember}>
                 <ModalSection title={"Informações Pessoais"}>
@@ -189,34 +189,25 @@ function RecruitModal({trigger}: RecruitModalProps): ReactElement {
                     </div>
                 </ModalSection>
 
-                <Button
+                <DefaultButton
                     type={"submit"}
-                    variant={"outlined"}
+                    buttonColor={"green"}
                     fullWidth
-                    sx={{
-                        marginTop: "20px",
-                        color: "green",
-                        borderColor: "green",
-
-                        "&:hover": {
-                            borderColor: "darkgreen",
-                            backgroundColor: "rgba(0, 100, 0, 0.4)",
-                        }
-                    }}
                 >
-                    Recrutar
-                </Button>
+                    Contratar
+                </DefaultButton>
             </form>
         </Modal>
     );
 }
 
 type FireModalProps = {
-    trigger: ReactElement,
+    open: boolean,
+    onClose: () => void,
     officerFullName: string,
     officerNif: string,
 }
-function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
+function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps) {
     // Initialize useNavigate hook
     const navigate = useNavigate();
 
@@ -247,7 +238,8 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
 
     return (
         <Modal
-            trigger={trigger}
+            open={open}
+            onClose={onClose}
             title={`Despedir ${officerFullName}`}
         >
             {/*@ts-ignore*/}
@@ -265,7 +257,7 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
                     </ModalSection>
 
                     {/*Button to submit the form and, therefore, fire the officer*/}
-                    <button className={modalsStyle.fireButton} type={"submit"}>Despedir</button>
+                    <DefaultButton buttonColor={"red"} type={"submit"}>Despedir</DefaultButton>
                 </div>
             </form>
         </Modal>
@@ -273,20 +265,12 @@ function FireModal({trigger, officerFullName, officerNif}: FireModalProps) {
 }
 
 type AccountInformationModalProps = {
-    trigger: ReactElement,
+    open: boolean,
+    onClose: () => void,
     officerNif: string,
     officerFullName: string
 }
-function AccountInformationModal({trigger, officerNif, officerFullName}: AccountInformationModalProps) {
-    /*
-    ? This should work somewhere like this:
-    <CopyRightModal open={copyRightModalOpen} onClose={() => setCopyRightModalOpen(false)}>
-        <div style={{display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center"}}>
-            <p style={{color: "white", fontSize: "23px", fontFamily: "acme, sans", fontWeight: "bold"}}>O conteúdo desta página é protegido. Por esse motivo, o Right-Click está desativado.<br/>Caso queira alguma foto contacte-nos nas redes sociais.</p>
-        </div>
-    </CopyRightModal>
-    */
-
+function AccountInformationModal({open, onClose, officerNif, officerFullName}: AccountInformationModalProps) {
     // Getting the force's data from the context
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
 
@@ -386,7 +370,7 @@ function AccountInformationModal({trigger, officerNif, officerFullName}: Account
     }
 
     return (
-        <Modal trigger={trigger} title={`Conta de ${officerFullName}`}>
+        <Modal open={open} onClose={onClose} title={`Conta de ${officerFullName}`}>
             {modalContent}
         </Modal>
     )
@@ -700,6 +684,11 @@ function OfficerInfo() {
         }
     })
 
+    // State variables for the different modals
+    const [isAccountModalOpen, setAccountModalOpen] = useState<boolean>(false);
+    const [isRecruitModalOpen, setRecruitModalOpen] = useState<boolean>(false);
+    const [isFireModalOpen, setFireModalOpen] = useState<boolean>(false);
+
     // Variable that dictates whether the logged user can edit the current officer.
     let canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
 
@@ -857,7 +846,7 @@ function OfficerInfo() {
     });
 
     return (
-        <div>
+        <>
             {/*Div that splits the screen*/}
             <ScreenSplit
                 leftSidePercentage={30}
@@ -867,38 +856,61 @@ function OfficerInfo() {
                 <div className={style.officerInfoInnerDiv}>
                     {/*Div that holds the buttons to alter the officer's info*/}
                     <div className={style.officerInfoAlterbarDiv}>
-                        <button type={"submit"} form={"information-form"}
-                                className={[style.officerInfoAlterButton, style.officerInfoAlterButtonSave].join(" ")}
-                                hidden={!editMode}>Guardar
-                        </button>
+                        {/*Buttons that lie on the left side of the bar*/}
+                        <div className={style.officerInfoAlterbarLeft}>
+                            {/*//TODO: Hidden attribute doesn't work*/}
+                            <DefaultButton
+                                hidden={editMode || !loggedUser.intents.accounts || loggedUser.info.professional.patent < officerInfo.professional.patent}
+                                onClick={() => setAccountModalOpen(true)}
+                            >
+                                Gerir Conta
+                            </DefaultButton>
 
-                        <RecruitModal trigger={<button
-                            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonCreate].join(" ")}
-                            hidden={editMode || !loggedUser.intents.officers}>Recrutar</button>}></RecruitModal>
+                            <DefaultButton
+                                hidden={editMode || !loggedUser.intents.officers}
+                            >
+                                Importar do HUB
+                            </DefaultButton>
+                        </div>
 
-                        <button
-                            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonEdit].join(" ")}
-                            hidden={editMode || !canEdit}
-                            onClick={() => setEditMode(true)}>Editar
-                        </button>
+                        {/*Buttons that lie on the right side of the bar*/}
+                        <div className={style.officerInfoAlterbarRight}>
+                            {editMode && <DefaultButton
+                                type={"submit"}
+                                form={"information-form"}
+                                sx={{flex: 1}}
+                            >
+                                Guardar
+                            </DefaultButton>}
 
-                        <FireModal trigger={<button
-                            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonDelete].join(" ")}
-                            hidden={editMode || !canEdit}>Despedir</button>} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} officerNif={officerNif}></FireModal>
+                            {(!editMode && loggedUser.intents.officers) &&
+                                <DefaultButton
+                                    darkTextOnHover
+                                    buttonColor={"lightgreen"}
+                                    sx={{flex: 1}}
+                                    onClick={() => setRecruitModalOpen(true)}
+                                >
+                                    Contratar
+                                </DefaultButton>
+                            }
 
-                        {/* TODO: This button should only appear when the logged user has the "accounts" intent. */}
-                        <AccountInformationModal trigger={<button
-                            className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                            style={{float: "left"}}
-                            hidden={editMode || !loggedUser.intents.accounts || loggedUser.info.professional.patent < officerInfo.professional.patent}>Gerir
-                            Conta
-                        </button>} officerNif={officerNif} officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`} />
-                        <button
-                        className={[style.officerInfoAlterButton, style.officerInfoAlterButtonImport].join(" ")}
-                        style={{float: "left"}} hidden={editMode || !loggedUser.intents.officers}
-                        >
-                        Importar do HUB
-                        </button>
+                            {(!editMode && canEdit) && <DefaultButton
+                                buttonColor={"cyan"}
+                                darkTextOnHover
+                                sx={{flex: 1}}
+                                onClick={() => setEditMode(true)}>Editar
+                            </DefaultButton>}
+
+                            {(!editMode && canEdit) &&
+                                <DefaultButton
+                                        buttonColor={"red"}
+                                        sx={{flex: 1}}
+                                        onClick={() => setFireModalOpen(true)}
+                                    >
+                                        Despedir
+                                    </DefaultButton>
+                            }
+                        </div>
                     </div>
 
                     {/*@ts-ignore*/}
@@ -906,12 +918,13 @@ function OfficerInfo() {
                         {/*Loader Div*/}
                         <div className={style.officerInfoDetailsDiv} style={{
                             justifyContent: "center",
-                            alignItems: "center", display: `${loading ? "flex": "none"}`}}>
+                            alignItems: "center", display: `${loading ? "flex" : "none"}`
+                        }}>
                             <Loader/>
                         </div>
 
                         {/*Information div*/}
-                        <div className={style.officerInfoDetailsDiv} style={loading ? {display: "none"}: {}}>
+                        <div className={style.officerInfoDetailsDiv} style={loading ? {display: "none"} : {}}>
                             <fieldset>
                                 <legend>Informação Pessoal</legend>
 
@@ -1083,7 +1096,26 @@ function OfficerInfo() {
                     </form>
                 </div>
             </ScreenSplit>
-        </div>
+
+            <AccountInformationModal
+                open={isAccountModalOpen}
+                onClose={() => setAccountModalOpen(false)}
+                officerNif={officerNif}
+                officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
+            />
+
+            <RecruitModal
+            open={isRecruitModalOpen}
+            onClose={() => setRecruitModalOpen(false)}
+            />
+
+            <FireModal
+                open={isFireModalOpen}
+                onClose={() => setFireModalOpen(false)}
+                officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
+                officerNif={officerNif}
+            />
+        </>
     )
 }
 

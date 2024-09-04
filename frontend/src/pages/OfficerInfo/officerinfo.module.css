@@ -17,10 +17,30 @@
 }
 
 .officerInfoAlterbarDiv {
-    width: 100%;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% - 1.4rem);
     height: 4rem;
-    padding: 0.7rem 0;
-    background-color: rgb(31, 40, 51);
+    padding: 0.7rem;
+    background-color: var(--portalseguranca-color-background-dark);
+}
+
+.officerInfoAlterbarLeft {
+    width: fit-content;
+    display: inline-flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+.officerInfoAlterbarRight {
+    width: fit-content;
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 15px;
 }
 
 .officerInfoAlterButton {

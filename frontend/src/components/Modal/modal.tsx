@@ -39,16 +39,18 @@ const ModalStyle = styled(Popup)<{ width?: string }>`
 `;
 
 type ModalProps = {
-    trigger: ReactElement,
+    open: boolean,
+    onClose?: () => void,
     width?: string,
     title: string,
     children: ReactElement | ReactElement[],
 }
 
-export function Modal({trigger, width, title, children}: ModalProps): ReactElement {
+export function Modal({open, onClose, width, title, children}: ModalProps): ReactElement {
     return (
         <ModalStyle
-            trigger={trigger}
+            open={open}
+            onClose={onClose}
             width={width}
             modal
         >
