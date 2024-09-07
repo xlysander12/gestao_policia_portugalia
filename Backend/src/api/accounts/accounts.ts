@@ -102,7 +102,7 @@ app.post("/changepassword", async (req, res) => {
     // TODO: Implement this endpoint to change user's password
 });
 
-// Endpoint to get a user's account information
+// Endpoint to get a user's accounts information
 app.get("/:nif/info", async (req, res) => {
     // Check if the requesting user is the user itself
     const requestingUser = Number(res.locals.user);

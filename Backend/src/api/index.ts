@@ -1,7 +1,7 @@
 import express from 'express';
 import utilRoutes from "./util/util";
 import metricsRoutes from "./metrics/metrics";
-import accountRoutes from "./account/accounts";
+import accountRoutes from "./accounts/accounts";
 import officerInfoRoutes from "./officers/officers";
 import {
     FORCES,
@@ -144,7 +144,7 @@ apiRoutes.use("/util", utilRoutes);
 // Import metrics routes
 apiRoutes.use("/metrics", metricsRoutes);
 
-// Import account routes
+// Import accounts routes
 apiRoutes.use("/accounts", accountRoutes);
 
 // Import Officer Info routes
