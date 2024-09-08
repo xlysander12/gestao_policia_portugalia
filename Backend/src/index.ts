@@ -9,7 +9,8 @@ import {join} from "path";
 config({path: join(__dirname, "..", ".env")});
 
 import {apiRoutes} from "./api";
-
+import {isTokenValid} from "./utils/user-handler";
+import {queryDB} from "./utils/db-connector";
 
 const app = Router(); // This app is a router to compartimentalize routes
 
@@ -29,7 +30,35 @@ app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));
 app.use("/api", apiRoutes);
 
 // Database backup files
-app.use("/db", express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true, view: "details"}));
+app.use("/db", async (req, res, next) => {
+    // Check if the user is authenticated and has the right patent
+    const loggedUser = await isTokenValid(req.cookies["sessionToken"]);
+    if (!loggedUser[0]) { // Token is invalid
+        res.status(loggedUser[1]).send("Unauthorized");
+        return;
+    }
+
+    // * Check if the user has the right patent
+    const loggedNif = loggedUser[2];
+
+    // Fecth patent from database
+    const result = await queryDB(loggedUser[3], "SELECT patent FROM officers WHERE nif = ?", loggedNif);
+
+    // Check if the patent is valid
+    if (result.length === 0) {
+        res.status(401).send("Unauthorized");
+        return;
+    }
+
+    // Check if the user has the right patent
+    // TODO: This needs to use an intent, not a patent
+    if (result[0].patent < 9) {
+        res.status(403).send("Forbidden");
+        return;
+    }
+
+    next();
+}, express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true, view: "details"}));
 
 // React Build
 app.get("/*", (req, res) => {

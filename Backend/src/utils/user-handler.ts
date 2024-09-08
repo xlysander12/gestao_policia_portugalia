@@ -29,10 +29,19 @@ export async function generateToken() {
     return token;
 }
 
-export async function isTokenValid(token: undefined | string, force: ForceType) {
-    // If either token or force are undefined, return false as the token is invalid
+// TODO: Return type should be a proper object
+export async function isTokenValid(token: string, force?: ForceType) {
+    // If token is undefined, return false as the token is invalid
     if (token === undefined) return [false, 401];
-    if (force === undefined) return [false, 400];
+
+    // If the force is undefined, check all forces for the token
+    if (force === undefined) {
+        for (const force of FORCES) {
+            const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
+            if (result.length !== 0) return [true, 200, result[0].nif, force];
+        }
+        return [false, 401];
+    }
 
     // Query the database to check if the token exists
     const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
@@ -63,8 +72,9 @@ export async function userHasIntents(nif: number, force: ForceType, intent: stri
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-export async function getUserForces(nif: string, return_passwords = false) {
-    let user_forces: {force: string, password?: string}[] = [];
+type userForcesReturn = {force: string, password?: string}[];
+export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
+    let user_forces: userForcesReturn = [];
 
     // Loop through all forces and see which of them have an account for this user
     for (const force of FORCES) {

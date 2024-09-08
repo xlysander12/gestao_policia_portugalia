@@ -7,6 +7,9 @@ import {generateToken, getUserForces, userHasIntents} from "../../utils/user-han
 import {queryDB} from "../../utils/db-connector";
 
 // Import constants
+import {PASSWORD_SALT_ROUNDS} from "../../utils/constants";
+
+// Import types
 import {AccountInfoResponse, LoginResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
 
