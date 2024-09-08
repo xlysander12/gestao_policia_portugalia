@@ -14,6 +14,13 @@ export interface AccountInfoResponse extends RequestSuccess {
 
 export interface LoginResponse extends RequestSuccess {
     data: {
-        token: string
+        token: string,
+        forces: string[]
+    }
+}
+
+export interface UserForcesResponse extends RequestSuccess {
+    data: {
+        forces: string[]
     }
 }

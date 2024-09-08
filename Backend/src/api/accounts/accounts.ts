@@ -10,7 +10,12 @@ import {queryDB} from "../../utils/db-connector";
 import {PASSWORD_SALT_ROUNDS} from "../../utils/constants";
 
 // Import types
-import {AccountInfoResponse, LoginResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
+import {
+    AccountInfoResponse,
+    LoginResponse,
+    UserForcesResponse,
+    ValidateTokenResponse
+} from "@portalseguranca/api-types/api/account/schema";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
 
 const app = express.Router();
@@ -257,6 +262,31 @@ app.patch("/:nif/intents", async (req, res) => {
     res.status(200).json(response);
 });
 
+// Endpoint to fetch all forces an user has access to
+app.get("/:nif/forces", async (req, res) => {
+    // Check if the requesting user is the user itself
+    const requestingUser = Number(res.locals.user);
+    // TODO: This needs some kind of permission system. For now, keep it as is
+    if (requestingUser !== Number(req.params.nif)) {
+        let response: RequestError = {
+            message: "Não tens permissão para efetuar esta ação"
+        };
+        res.status(403).json(response);
+        return;
+    }
+
+    // Get the all forces the user has acces to.
+    const forces = await getUserForces(Number(req.params.nif), false);
+    let response: UserForcesResponse = {
+        message: "Operação bem sucedida",
+        data: {
+            forces: forces.map((force) => force.force)
+        }
+    };
+
+    // Return the response
+    res.status(200).json(response);
+});
 
 console.log("[Portal Segurança] Account routes loaded successfully!");
 
