@@ -4,7 +4,6 @@ import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import Navbar from "../Navbar/navbar";
 import {AccountInfoResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
-import style from "./private-route.module.css"
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
 
@@ -27,14 +26,12 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
         setAuthorized(false);
 
         const checkAuthentication = async () => {
-            // Check if there is a token or force in the local storage. If there isn't, return to login
-            if (!localStorage.getItem("token") || !localStorage.getItem("force")) {
-                return navigate({
-                    pathname: "/login",
-                });
+            // Check if there is a force in the local storage. If there isn't, return to login
+            if (!localStorage.getItem("force")) {
+                return navigate("/login");
             }
 
-            // Since there's a token and force in local storage, check if the token is valid for that force
+            // Since there's a force in local storage, check if the token stored in the cookies is valid for that force
             const response = await make_request("/accounts/validateToken", "POST", {redirectToLoginOn401: false});
 
             // If the request returned status 401, the token isn't valid and the user should be redirected to login
@@ -42,23 +39,14 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
                 toast("Sessão inválida. Por favor, faça login novamente.", {
                     type: "error",
                 });
-                return navigate({
-                    pathname: "/login",
-                });
+                return navigate("/login");
             }
 
             // Since the response was positive, use the nif gotten from the token to get the user's information and intents
             const nif = ((await response.json()) as ValidateTokenResponse).data
 
-            // Using the nif, get the user's information and intents
+            // * Using the nif, get the user's information and intents
             const userResponse = await make_request(`/officers/${nif}?raw`, "GET");
-
-            // Making sure the response is positive
-            if (userResponse.status !== 200) {
-                return navigate({
-                    pathname: "/login",
-                });
-            }
 
             // Get the data from the response
             const userData = (await userResponse.json()).data;
@@ -85,6 +73,8 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/info`, "GET");
             const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
             tempLoggedUser.intents = accountInfoData.data.intents;
+
+            // TODO: Fetch all forces the user belongs to
 
             // Set the logged user with the data fetched
             setLoggedUser(tempLoggedUser);

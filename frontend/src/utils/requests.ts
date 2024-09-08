@@ -10,11 +10,11 @@ type MakeRequestOptions = {
     useBaseAPIURL?: boolean,
     redirectToLoginOn401?: boolean
 }
+// ! 'useAuth' option is deprecated, and such, has been deleted
 export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
                                    {
-                                       body= {},
+                                       body = {},
                                        force = <string>localStorage.getItem("force"),
-                                       useAuth = true,
                                        useBaseAPIURL = true,
                                        redirectToLoginOn401 = true
                                    }: MakeRequestOptions = {}) {
@@ -31,10 +31,8 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
     // Next, make the actual request
     let response = await fetch(url, {
         method: method,
-        // @ts-ignore
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': useAuth ? localStorage.getItem('token') : null,
             'X-Portalseguranca-Force': force
         },
         body: method === "GET" ? undefined: JSON.stringify(body)
@@ -43,7 +41,7 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
     // If the response status is 401, redirect to the login page
     if (response.status === 401 && redirectToLoginOn401) {
         window.location.reload(); // Since the whole app is in Private Route, by reloading the page, it'll force Private Route to get the validity of the token again
-        return new Response(); // Don't be mad TS
+        return new Response(); // Don't be mad, TS
     }
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reload the current page
