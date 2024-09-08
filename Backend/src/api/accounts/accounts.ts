@@ -106,7 +106,8 @@ app.post("/login", async (req, res) => {
     let response: LoginResponse = {
         message: "Operação bem sucedida",
         data: {
-            token: token
+            token: token,
+            forces: user_forces.map((force) => force.force)
         }
     }
     res.status(200).json(response);
