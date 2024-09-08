@@ -36,9 +36,18 @@ app.post("/validateToken", async (req, res) => {
 
 // Endpoint to login an user
 // TODO: This endpoint should implement the "remember me" functionality
+// TODO: This endpoint should also return all forces the user has access to
 app.post("/login", async (req, res) => {
+    const {nif, password} = req.body;
+    if (!nif || !password) {
+        let response: RequestError = {
+            message: "NIF ou password não fornecidos"
+        }
+        res.status(400).json(response);
+    }
+
     // Check if the user exists (it's needed to check on all forces databases)
-    let user_forces = await getUserForces(req.body.nif, true);
+    let user_forces = await getUserForces(nif, true);
 
     // If the user_forces array is empty, then the username doesn't exist
     if (user_forces.length === 0) {
@@ -53,10 +62,10 @@ app.post("/login", async (req, res) => {
 
     // If the password is NULL, then the given password shouldn't be hashed
     if (user_forces[0].password === null) {
-        correct_password = String(req.body.password) === "seguranca";
+        correct_password = String(password) === "seguranca";
     } else {
         // If the password is not NULL, this needs to be hashed
-        correct_password = await compare(req.body.password, String(user_forces[0].password));
+        correct_password = await compare(password, String(user_forces[0].password));
     }
 
     // Now compare the passwords
@@ -75,7 +84,7 @@ app.post("/login", async (req, res) => {
     // After generating the token, store it in the databases of the forces the user belongs to
     for (const force of user_forces) {
         try {
-            await queryDB(force.force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, req.body.nif]);
+            await queryDB(force.force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, nif]);
         } catch (e) { // This error would only be if trying to store a token for an user that doesn't exist
             let response: RequestError = {
                 message: "Erro ao tentar guardar o token de acesso"
@@ -86,6 +95,9 @@ app.post("/login", async (req, res) => {
         }
 
     }
+
+    // Set the token to the response's cookies
+    res.cookie("sessionToken", token, {httpOnly: true, secure: process.env.IS_PRODUCTION === "true", maxAge: 1000 * 60 * 60 * 24 * 400}); // 400 days
 
     // Send the token to the user
     let response: LoginResponse = {

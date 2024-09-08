@@ -27,7 +27,7 @@ const poolDefaultPSP = createPool(dbConfigDefaultPSP);
 const poolDefaultGNR = createPool(dbConfigDefaultGNR);
 
 // Function used by the backend to query the database
-export async function queryDB(force: ForceType, query: string, params?: string | string[]): Promise<RowDataPacket[]> {
+export async function queryDB(force: ForceType, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
     // If the force parameter is not set, return
     if (!force || FORCES.indexOf(force) === -1)
         throw new Error("Force parameter not set or incorrect!");

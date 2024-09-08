@@ -66,7 +66,7 @@ apiRoutes.use(async (req, res, next) => {
     // Check if this request needs a token, if not, skip the token check
     if (!isRouteExcluded(req.path, req.method, NO_TOKEN_REQUIRED_ROUTES)) {
         // Since it needs a token, check if a valid token is given
-        const validation = await isTokenValid(req.header("authorization"), req.header("x-portalseguranca-force"));
+        const validation = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"));
 
         // The first entry of validation will always be a boolean
         if (!(validation[0] as boolean)) {
