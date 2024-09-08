@@ -25,6 +25,12 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
         // First, set the authorized state to false
         setAuthorized(false);
 
+        // Before doing anything, check if the flag "needsReload" is set to true. If it is, reload the page
+        if (localStorage.getItem("needsReload")) {
+            localStorage.removeItem("needsReload");
+            window.location.reload();
+        }
+
         const checkAuthentication = async () => {
             // Check if there is a force in the local storage. If there isn't, return to login
             if (!localStorage.getItem("force")) {

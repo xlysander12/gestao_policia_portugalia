@@ -1,66 +1,118 @@
 import style from "./login.module.css";
 import {useNavigate} from "react-router-dom";
+import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents/default-components.tsx";
+import React, {useEffect, useState} from "react";
+import {Checkbox, FormControlLabel, FormGroup} from "@mui/material";
+import {make_request} from "../../utils/requests.ts";
+import {toast} from "react-toastify";
 
 function Login() {
     // Set the useNavigate hook
     const navigate = useNavigate()
 
-    let nif = "";
-    let password = "";
+    // Set the state for the NIF and password
+    const [nif, setNif] = useState("");
+    const [password, setPassword] = useState("");
 
-    const onLogin = async (event: SubmitEvent) => {
+    const onLogin = async (event: any) => {
         // Prevent the page from reloading and reidireting by itself
         event.preventDefault();
 
-        console.log("Logged in with NIF: " + nif + " and password: " + password);
-
-        // Fecth the backend to check if the login was correct
-        let response = await fetch("/portugalia/gestao_policia/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
+        // Check if the credentials are correct
+        let loginResponse = await make_request("/accounts/login", "POST", {
+            body: {
                 nif: nif,
                 password: password
-            })
+            },
+            redirectToLoginOn401: false
         });
 
-        // If the request returned status 401, the username doesn't exist or password is wrong
-        if (response.status === 401) {
-            alert((await response.json()).message);
+        // Get the data from the response
+        let loginJson = await loginResponse.json();
+
+        // If the request didn't return a 200 code, the login was unsuccessful
+        if (!loginResponse.ok) {
+            toast(loginJson.message, {type: "error"});
             return;
         }
 
-        // If the request returned status 200, the login was successful
-        if (response.status === 200) {
-            // Get the response body
-            let body = await response.json();
+        // * If the request returned status 200, the login was successful
+        // Set the first force in the local storage
+        localStorage.setItem("force", loginJson.data.forces[0]);
 
-            // Save the token in the local storage
-            localStorage.setItem("token", body.data);
+        // Set the flag in localStorage to indicate that the page needs to reload
+        localStorage.setItem("needsReload", "true");
 
-            navigate("/");
-        }
+        // ! Since the token should now be stored in cookies, there's no need to store it in the local storage
+        navigate("/");
     }
-
 
     return (
         <div className={style.outerLoginDiv}>
-            <div className={style.innerLoginDiv}>
-                {/*Login form*/}
-                {/*@ts-ignore*/}
-                <form onSubmit={onLogin}>
+            <form onSubmit={onLogin}>
+                <div className={style.innerLoginDiv}>
+                    {/*Login form*/}
+                    {/*@ts-ignore*/}
 
-                    <input className={style.loginInput} type="text" pattern={"^[0-9]*$"} placeholder="NIF" onChange={(event) => nif = event.target.value} required/>
 
-                    <input className={style.loginInput} type="password" placeholder="Senha" onChange={(event) => nif = event.target.value} required/>
+                    <DefaultOutlinedTextField
+                        alternateColor
+                        fullWidth
+                        size={"small"}
+                        label={"NIF"}
+                        type={"text"}
+                        onChange={(event) => setNif(event.target.value)}
+                        required
+                        inputProps={{
+                            pattern: "^[0-9]*$"
+                        }}
+                        value={nif}
+                    />
 
-                    <input className={style.loginInput} type="submit" value="Entrar"/>
-                </form>
+                    <DefaultOutlinedTextField
+                        alternateColor
+                        fullWidth
+                        size={"small"}
+                        label={"Password"}
+                        type={"password"}
+                        onChange={(event) => setPassword(event.target.value)}
+                        value={password}
+                        required
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                sx={{
+                                    "&.MuiButtonBase-root.MuiCheckbox-root": {
+                                        color: "var(--portalseguranca-color-text-light)",
+
+                                        "&.Mui-checked": {
+                                            color: "var(--portalseguranca-color-accent)"
+                                        }
+                                    }
+                                }}
+                            />}
+                        label={"Lembrar neste computador"}
+                        slotProps={{
+                            typography: {
+                                color: "textPrimary"
+                            }
+                        }}
+                        sx={{
+                            margin: "-10px"
+                        }}
+                    />
+
+                    <DefaultButton
+                        fullWidth
+                        type={"submit"}
+                    >Entrar</DefaultButton>
             </div>
-        </div>
-    );
+        </form>
+</div>
+)
+    ;
 }
 
 export default Login;
