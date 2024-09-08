@@ -7,7 +7,11 @@
 }
 
 .innerLoginDiv {
-    background-color: rgb(31, 40, 51);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    background-color: var(--portalseguranca-color-background-dark);
     padding: 15px;
     width: 25rem;
     height: fit-content;
