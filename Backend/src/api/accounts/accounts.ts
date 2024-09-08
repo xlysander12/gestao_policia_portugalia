@@ -98,8 +98,62 @@ app.post("/login", async (req, res) => {
 });
 
 // Endpoint to change the password
+// TODO: This action, when successful, should also clear all tokens linked to the account.
 app.post("/changepassword", async (req, res) => {
-    // TODO: Implement this endpoint to change user's password
+    // Store the logged user
+    const loggedUser = Number(res.locals.user);
+    const {oldPassword, newPassword, confirmPassword} = req.body;
+
+    // * Check if the old password is correct
+    // Get the password from the DB
+    const passwordQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password FROM users WHERE nif = ?', loggedUser);
+
+    // If the password isn't the default one, hash the password and compare it
+    let isPasswordCorrect: boolean;
+    if (passwordQuery[0].password === null) { // Password is the default one
+        isPasswordCorrect = "seguranca" == String(oldPassword);
+    } else {
+        isPasswordCorrect = await compare(String(oldPassword), String(passwordQuery[0].password));
+    }
+
+    // If the password is incorrect, return 401
+    if (!isPasswordCorrect) {
+        let response: RequestError = {
+            message: "Password incorreta"
+        }
+        res.status(401).json(response);
+        return;
+    }
+
+    // Make sure the new passwords match
+    if (newPassword !== confirmPassword) {
+        let response: RequestError = {
+            message: "As novas passwords não coincidem"
+        }
+        res.status(400).json(response);
+        return;
+    }
+
+    // Hash the new password
+    const hashedPassword = await hash(newPassword, PASSWORD_SALT_ROUNDS);
+
+    // * Update the password in every force the user is in
+    // Get the forces the user is in
+    const user_forces = await getUserForces(loggedUser, true);
+    for (const forceData of user_forces) {
+        await queryDB(forceData.force, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, loggedUser]);
+    }
+
+    // Return success
+    let response: RequestSuccess = {
+        message: "Password alterada com sucesso"
+    }
+    res.status(200).json(response);
+});
+
+// Endpoint to reset the password
+app.post("/:nif/resetpassword", async (req, res) => {
+    // TODO: Implement this endpoint to reset user's password
 });
 
 // Endpoint to get a user's accounts information
