@@ -1,5 +1,5 @@
 import {styled} from "@mui/material/styles";
-import {Button, ButtonProps, Select, SelectProps, TextField, TextFieldProps} from "@mui/material";
+import {Button, ButtonProps, InputProps, Select, SelectProps, TextField, TextFieldProps} from "@mui/material";
 
 // @ts-ignore
 const DefaultButtonStyle = styled(Button)(({buttonColor, darkTextOnHover}) => ({
@@ -84,9 +84,15 @@ export const DefaultTextField = (props: Partial<TextFieldProps> & {sameTextColor
 // @ts-ignore
 const DefaultOutlinedTextFieldStyle = styled(TextField)(({alternateColor}) => ({
     "& label.Mui-focused": {
-        color: "white",
+        color: "white !important",
         textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"
     },
+
+    "& label.MuiInputLabel-shrink": {
+        color: alternateColor ? "var(--portalseguranca-color-text-light)": "black",
+        textShadow: alternateColor ? "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black": "none"
+    },
+
     "& .MuiOutlinedInput-root": {
         backgroundColor: `${alternateColor ? "var(--portalseguranca-color-background-light)": "transparent"}`,
         color: `${alternateColor ? "black": "white"}`,
@@ -96,7 +102,7 @@ const DefaultOutlinedTextFieldStyle = styled(TextField)(({alternateColor}) => ({
         }
     }
 }));
-export const DefaultOutlinedTextField = (props: Partial<TextFieldProps> & {alternateColor?: boolean}) => {
+export const DefaultOutlinedTextField = (props: Partial<TextFieldProps> & Partial<InputProps> & {alternateColor?: boolean}) => {
     return (
         <DefaultOutlinedTextFieldStyle
             variant={"outlined"}
