@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from 'react'
 import './App.css'
 import "react-toastify/dist/ReactToastify.css";
-import {createBrowserRouter, RouterProvider, useNavigate} from "react-router-dom";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
 import Dashboard from "./pages/Dashboard/dashboard.tsx";
 import {Bounce, ToastContainer} from "react-toastify";
@@ -64,7 +64,6 @@ function App() {
         }
 
         if (localStorage.getItem("force")) {
-            console.log("Fetching force data");
             fetchForceData();
         } else {
             setCanLoad(true);

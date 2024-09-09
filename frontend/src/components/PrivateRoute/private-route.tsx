@@ -3,7 +3,11 @@ import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import Navbar from "../Navbar/navbar";
-import {AccountInfoResponse, ValidateTokenResponse} from "@portalseguranca/api-types/api/account/schema";
+import {
+    AccountInfoResponse,
+    UserForcesResponse,
+    ValidateTokenResponse
+} from "@portalseguranca/api-types/api/account/schema";
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
 
@@ -80,7 +84,10 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
             tempLoggedUser.intents = accountInfoData.data.intents;
 
-            // TODO: Fetch all forces the user belongs to
+            // Fetch all forces the user belongs to
+            const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET");
+            const accountForcesData = (await accountForcesResponse.json()) as UserForcesResponse;
+            tempLoggedUser.forces = accountForcesData.data.forces;
 
             // Set the logged user with the data fetched
             setLoggedUser(tempLoggedUser);
