@@ -93,3 +93,15 @@ export async function getUserForces(nif: number, return_passwords = false): Prom
 
     return user_forces;
 }
+
+export async function updateLastTimeTokenUsed(token: string) {
+    for (const force of FORCES) {
+        await queryDB(force, 'UPDATE tokens SET last_used = ? WHERE token = ?', [new Date(), token]);
+    }
+}
+
+export async function updateLastTimeUserInteracted(nif: number) {
+    for (const force of FORCES) {
+        await queryDB(force, 'UPDATE users SET last_interaction = ? WHERE nif = ?', [new Date(), nif]);
+    }
+}
