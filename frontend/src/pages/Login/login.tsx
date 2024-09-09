@@ -13,6 +13,7 @@ function Login() {
     // Set the state for the NIF and password
     const [nif, setNif] = useState("");
     const [password, setPassword] = useState("");
+    const [remember, setRemember] = useState(false);
 
     const onLogin = async (event: any) => {
         // Prevent the page from reloading and reidireting by itself
@@ -22,7 +23,8 @@ function Login() {
         let loginResponse = await make_request("/accounts/login", "POST", {
             body: {
                 nif: nif,
-                password: password
+                password: password,
+                persistent: remember
             },
             redirectToLoginOn401: false
         });
@@ -83,6 +85,8 @@ function Login() {
                     <FormControlLabel
                         control={
                             <Checkbox
+                                checked={remember}
+                                onChange={(event) => setRemember(event.target.checked)}
                                 sx={{
                                     "&.MuiButtonBase-root.MuiCheckbox-root": {
                                         color: "var(--portalseguranca-color-text-light)",

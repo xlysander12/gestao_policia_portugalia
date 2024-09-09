@@ -1,5 +1,5 @@
 // Import packages
-import express from 'express';
+import express, {CookieOptions} from 'express';
 import {compare, hash} from 'bcrypt';
 
 // Import utils
@@ -43,10 +43,8 @@ app.post("/validateToken", async (req, res) => {
 });
 
 // Endpoint to login an user
-// TODO: This endpoint should implement the "remember me" functionality
-// TODO: This endpoint should also return all forces the user has access to
 app.post("/login", async (req, res) => {
-    const {nif, password} = req.body;
+    const {nif, password, persistent} = req.body;
     if (!nif || !password) {
         let response: RequestError = {
             message: "NIF ou password não fornecidos"
@@ -105,7 +103,15 @@ app.post("/login", async (req, res) => {
     }
 
     // Set the token to the response's cookies
-    res.cookie("sessionToken", token, {httpOnly: true, secure: process.env.IS_PRODUCTION === "true", maxAge: 1000 * 60 * 60 * 24 * 400}); // 400 days
+    let cookieOptions: CookieOptions = {
+        httpOnly: true,
+        secure: process.env.IS_PRODUCTION === "true"
+    }
+    // If the login is marked as "persistent", set the cookie to last 400 days (max allowed age by Chrome)
+    if (persistent) {
+        cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 400; // 400 days
+    }
+    res.cookie("sessionToken", token, cookieOptions);
 
     // Send the token to the user
     let response: LoginResponse = {
