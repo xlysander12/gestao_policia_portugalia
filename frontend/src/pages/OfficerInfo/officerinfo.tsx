@@ -25,7 +25,7 @@ import {
     DefaultButton,
     DefaultOutlinedTextField, DefaultSelect,
     DefaultTextField
-} from "../../components/DefaultComponents/default-components.tsx";
+} from "../../components/DefaultComponents";
 
 type RecruitModalProps = {
     open: boolean

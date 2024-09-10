@@ -2,7 +2,7 @@ import {ReactElement, useEffect, useState, ChangeEvent} from "react";
 import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
-import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents/default-components.tsx";
+import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 
 type OfficerCardProps = {
     name: string,

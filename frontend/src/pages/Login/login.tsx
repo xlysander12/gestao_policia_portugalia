@@ -1,6 +1,6 @@
 import style from "./login.module.css";
 import {useNavigate} from "react-router-dom";
-import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents/default-components.tsx";
+import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents";
 import React, {useState} from "react";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
