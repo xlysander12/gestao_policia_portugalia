@@ -13,7 +13,7 @@ import {AccountInfoResponse} from "@portalseguranca/api-types/api/account/schema
 type AccountInformationModalProps = {
     open: boolean,
     onClose: () => void,
-    officerNif: string,
+    officerNif: number,
     officerFullName: string
 }
 function AccountInformationModal({open, onClose, officerNif, officerFullName}: AccountInformationModalProps) {

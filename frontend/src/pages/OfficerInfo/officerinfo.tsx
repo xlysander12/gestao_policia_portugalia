@@ -5,13 +5,12 @@ import Loader from "../../components/Loader/loader";
 import {make_request} from "../../utils/requests";
 import {
     Divider,
-    MenuItem,
-    Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow
+    MenuItem
 } from "@mui/material";
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
-import {useNavigate, useParams} from "react-router-dom";
-import {ForceDataContext, ForceDataContextType, getPatentFromId, SpecialUnit} from "../../force-data-context.ts";
+import {useParams} from "react-router-dom";
+import {ForceDataContext, ForceDataContextType, getPatentFromId} from "../../force-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
@@ -19,7 +18,9 @@ import {
     DefaultSelect,
     DefaultTextField
 } from "../../components/DefaultComponents";
+import {OfficerUnit} from "@portalseguranca/api-types/api/officer-info/schema";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
+import SpecialUnitsTable from "./special-units-table.tsx";
 
 
 type InformationPairProps = {
@@ -75,202 +76,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
 
 }
 
-type roleFormat = {
-    id: number,
-    name: string
-}
-type unitFormat = {
-    id: number,
-    name: string,
-    role: number
-}
-type SpecialUnitsTableRowProps = {
-    selectSx: any,
-    unit: unitFormat,
-    unitName: string,
-    unitRoles: any,
-    editMode: boolean,
-    onChange: ((event: SelectChangeEvent, unitId: number) => void),
-    onRemove: (() => void)
-}
-const SpecialUnitsTableRow = ({selectSx, unit, unitName, unitRoles, editMode, onChange, onRemove}: SpecialUnitsTableRowProps) => {
-    return (
-        <TableRow
-            key={`unitstableunit#${unit.id}`}
-            sx={!editMode ? {'&:last-child td, &:last-child th': { border: 0 }}: {'&:last-child td, &:last-child th': { borderColor: "#049985", borderBottomStyle: "dashed" }}}
-        >
-            <TableCell sx={{color: "#d0c7d3"}}>{unitName}</TableCell>
-            <TableCell>
-                <Select
-                    value={String(unit.role)}
-                    disabled={!editMode}
-                    onChange={(event: SelectChangeEvent) => onChange(event, unit.id)}
-                    fullWidth
-                    sx={selectSx}
-                >
-                    {unitRoles.map((role: unitFormat) => {
-                        return (
-                            <MenuItem key={`role${role.id}`} value={role.id}>{role.name}</MenuItem>
-                        )
-                    })}
-                </Select>
-            </TableCell>
-            {!editMode ? "":
-                <TableCell>
-                    {/*TODO: Add the handler for the onRemove event*/}
-                    <button>Remover</button>
-                </TableCell>
-            }
-        </TableRow>
-    )
-}
 
-type SpecialUnitsTableProps = {
-    editMode: boolean,
-    officerSpecialUnits: any,
-    onChange: ((event: SelectChangeEvent, unitId: number) => void),
-    onRemove: (() => void),
-    onAdd: (() => void)
-}
-const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, onAdd}: SpecialUnitsTableProps) => {
-    const SelectSx= {
-        "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
-            paddingRight: "32px !important",
-
-            "&, &.Mui-disabled": {
-                WebkitTextFillColor: "#d0c7d3",
-            },
-
-            "&.Mui-disabled": {
-                paddingRight: "14px !important"
-            },
-
-            "&.MuiSelect-select": {
-                textAlign: "center"
-            },
-
-            padding: "1px 14px 1px 0",
-        },
-
-        "& .MuiOutlinedInput-notchedOutline": {
-            display: "none"
-        },
-
-        "& .MuiSvgIcon-root.MuiSelect-icon": {
-            color: "#d0c7d3",
-
-            "&.Mui-disabled": {
-                display: "none"
-            }
-        }
-    }
-
-    const [specialUnits, setSpecialUnits] = useState([]);
-    const [specialUnitsRoles, setSpecialUnitsRoles] = useState([]);
-
-    useEffect(() => {
-        async function getSpecialUnits() {
-            const specialUnitsResponse = await make_request("/util/specialunits", "GET");
-
-            // Mandatory check if the status code was 200
-            // TODO: Do something actually useful with the error
-            if (!specialUnitsResponse.ok)
-                return;
-
-            const specialUnitsResponseJson = await specialUnitsResponse.json();
-
-            // Apply the units and their roles to the objects of the class
-            setSpecialUnits(specialUnitsResponseJson.data["units"]);
-            setSpecialUnitsRoles(specialUnitsResponseJson.data["roles"]);
-        }
-
-        getSpecialUnits();
-    }, []);
-
-    // Defining util functions
-    function getUnitNameFromId(unitId: number): string {
-        let unit: unitFormat
-        for (unit of specialUnits) {
-            if (unit.id === unitId) {
-                return unit.name;
-            }
-        }
-
-        return "Unidade não encontrada";
-    }
-
-    return (
-        <TableContainer>
-            <Table size={"small"} padding={"normal"}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Unidade</TableCell>
-                        <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Cargo</TableCell>
-                        {!editMode ? "":
-                            <TableCell align={"center"} sx={{color: "#d0c7d3"}}>Ação</TableCell>
-                        }
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {/*Cycle through all units of the officer and display it's roles*/}
-                    {officerSpecialUnits.map((unit: unitFormat) => {
-                        return (
-                            <SpecialUnitsTableRow
-                                selectSx={SelectSx}
-                                unit={unit}
-                                unitName={getUnitNameFromId(unit.id)}
-                                unitRoles={specialUnitsRoles}
-                                editMode={editMode}
-                                onChange={onChange}
-                                onRemove={() => {}}
-                            />
-                        );
-                    })}
-                </TableBody>
-                {!editMode ? "":
-                    <TableFooter>
-                        <TableRow>
-                            {/*Select to change Unit*/}
-                            <TableCell>
-                                <Select
-                                    fullWidth
-                                    sx={SelectSx}
-                                >
-                                    {/*TODO: This must use a function that only return the units the officer doesn't belong to*/}
-                                    {specialUnits.map((unit: unitFormat) => {
-                                        return (
-                                            <MenuItem key={`newUnit${unit.id}`} value={unit.id}>{unit.name}</MenuItem>
-                                        )
-                                    })}
-                                </Select>
-                            </TableCell>
-
-                            {/*Select to change role*/}
-                            <TableCell>
-                                <Select
-                                    fullWidth
-                                    sx={SelectSx}
-                                >
-                                    {specialUnitsRoles.map((role: roleFormat) => {
-                                        return (
-                                            <MenuItem key={`newUniRole${role.id}`} value={role.id}>{role.name}</MenuItem>
-                                        )
-                                    })}
-                                </Select>
-
-                            </TableCell>
-
-                            {/*Select to commit addition*/}
-                            <TableCell>
-                                <button>Adicionar</button>
-                            </TableCell>
-                        </TableRow>
-                    </TableFooter>
-                }
-            </Table>
-        </TableContainer>
-    )
-}
 
 function OfficerInfo() {
     // Type declaration for the OfficerInfo state
@@ -289,15 +95,15 @@ function OfficerInfo() {
             status: number,
             entry_date: string,
             promotion_date: string,
-            special_units: []
+            special_units: OfficerUnit[]
         }
     }
 
     // Variable that will hold the logged user information from context
     const loggedUser = useContext(LoggedUserContext);
 
-    // Handy hooks
-    const navigate = useNavigate();
+    // Get the nif from the URL params
+    // ! This might not be present
     let {nif} = useParams();
 
     // State that controls the loading state of the page
@@ -310,7 +116,7 @@ function OfficerInfo() {
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
 
     // State variable that holds the officer's info
-    const [officerNif, setOfficerNif] = useState(nif || loggedUser.info.personal.nif);
+    const [officerNif, setOfficerNif] = useState<number>((nif ? Number(nif): false) || loggedUser.info.personal.nif);
     const [officerInfo, setOfficerInfo] = useImmer<OfficerInfoState>({
         personal: {
             discord: "",
@@ -339,12 +145,11 @@ function OfficerInfo() {
     let canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
 
     async function fetchOfficerInfo() {
-        // Don't try to fetch the officer's info if the nif is empty
-        if (officerNif === "") return;
+        // First, we need to set the loading state to true
+        setLoading(true);
 
-        // First, we need to set the loading state to true if not already
-        if (!loading)
-            setLoading(true);
+        // Then, disable edit mode
+        setEditMode(false);
 
         const response = await make_request(`/officers/${officerNif}`, "GET");
 
@@ -420,29 +225,15 @@ function OfficerInfo() {
             return;
         }
 
-        // After updating the data, we can show a notification and reload the page using the officer's nif as a param
+        // After updating the data, we can show a notification and reload the info of the edit officer
         toast("Informações atualizadas com sucesso!", {type: "success"});
-        navigate({
-            pathname: `/efetivos/${officerNif}`,
-        });
+        fetchOfficerInfo();
     }
 
     // Whenever the nif in state changes, we need to fetch the officer's info
-    useEffect(() => {
-        fetchOfficerInfo();
-    }, [officerNif]);
+    useEffect(() => {fetchOfficerInfo()}, [officerNif]);
 
-    function doesUserBelongToUnit(unit_id: number) {
-        let unit: unitFormat
-        for (unit of officerInfo.professional.special_units) {
-            if (unit.id === unit_id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function officerListCallback(nif: string) {
+    function officerListCallback(nif: number) {
         // Make sure we don't change officer's while editing
         setEditMode(false);
 
@@ -457,24 +248,43 @@ function OfficerInfo() {
         });
     }
 
-    function handleSpecialUnitsEdit(event: any, unitId: number) {
-        // Create a copy of the units the officer belongs to
-        const specialUnits = officerInfo.professional.special_units;
+    function handleSpecialUnitEdit(specialUnit: OfficerUnit) {
+        // Get to the special unit in the array
+        const specialUnitIndex = officerInfo.professional.special_units.findIndex((unit: OfficerUnit) => unit.id === specialUnit.id);
 
-        // Get the unit from the officer's special units
-        const unit: unitFormat | undefined = specialUnits.find((unit: unitFormat) => unit.id === unitId);
+        // If the special unit is not found, return
+        if (specialUnitIndex === -1) return;
 
-        // Update the unit's role
-        unit!.role = event.target.value;
-
-        // Push the unit back to the officer's special units, while replacing the old one
-        // @ts-ignore
-        specialUnits[specialUnits.findIndex(unit)] = unit;
-
-        // Update the officer's special units
+        // Update the special unit in the array
         setOfficerInfo(draft => {
-            draft.professional.special_units = specialUnits;
-        })
+            draft.professional.special_units[specialUnitIndex] = specialUnit;
+        });
+    }
+
+    function handleSpecialUnitRemove(specialUnit: OfficerUnit) {
+        // Get the special unit index
+        const specialUnitIndex = officerInfo.professional.special_units.findIndex((unit: OfficerUnit) => unit.id === specialUnit.id);
+
+        // If the special unit is not found, return
+        if (specialUnitIndex === -1) return;
+
+        // Remove the special unit from the array
+        setOfficerInfo(draft => {
+            draft.professional.special_units.splice(specialUnitIndex, 1);
+        });
+    }
+
+    function handleSpecialUnitAdd(newUnit: OfficerUnit) {
+        // Get the new unit's index
+        const newUnitIndex = officerInfo.professional.special_units.findIndex((unit: OfficerUnit) => unit.id === newUnit.id);
+
+        // If the new unit is already in the array, return
+        if (newUnitIndex !== -1) return;
+
+        // Add the new unit to the array
+        setOfficerInfo(draft => {
+            draft.professional.special_units.push(newUnit);
+        });
     }
 
     // Before rendering the page, we need to build the patentes and status options
@@ -484,11 +294,6 @@ function OfficerInfo() {
 
     const statusOptions = forceData.statuses.map((status: {id: number, name: string}) => {
        return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
-    });
-
-    const specialUnitsOptions = forceData.special_units.map((unit: SpecialUnit) => {
-       if (!doesUserBelongToUnit(unit.id))
-           return <option key={`unit${unit.id}`} value={unit.id}>{unit.name}</option>
     });
 
     return (
@@ -711,9 +516,9 @@ function OfficerInfo() {
                                         <SpecialUnitsTable
                                             editMode={editMode}
                                             officerSpecialUnits={officerInfo.professional.special_units}
-                                            onChange={handleSpecialUnitsEdit}
-                                            onRemove={() => {}}
-                                            onAdd={() => {}}
+                                            onChange={handleSpecialUnitEdit}
+                                            onRemove={handleSpecialUnitRemove}
+                                            onAdd={handleSpecialUnitAdd}
                                         />
                                     </div>
                                 </div>

@@ -10,7 +10,7 @@ type FireModalProps = {
     open: boolean,
     onClose: () => void,
     officerFullName: string,
-    officerNif: string,
+    officerNif: number,
 }
 function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps) {
     // Initialize useNavigate hook

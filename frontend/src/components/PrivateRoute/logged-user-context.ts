@@ -1,13 +1,18 @@
 import {createContext} from "react";
 
+export type OfficerSpecialUnitType = {
+    id: number,
+    role: number
+}
+
 export type LoggedUserContextType = {
     info: {
         personal: {
             name: string,
-            nif: string,
-            phone: string,
+            nif: number,
+            phone: number,
             iban: string,
-            kms: string,
+            kms: number,
             discord: string,
             steam: string
         },
@@ -16,7 +21,8 @@ export type LoggedUserContextType = {
             callsign: string,
             status: number,
             entry_date: string,
-            promotion_date: string
+            promotion_date: string,
+            special_units: OfficerSpecialUnitType[]
         }
     },
     intents: {[key: string]: boolean},
@@ -27,10 +33,10 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
     info: {
         personal: {
             name: "",
-            nif: "",
-            phone: "",
+            nif: 0,
+            phone: 0,
             iban: "",
-            kms: "",
+            kms: 0,
             discord: "",
             steam: ""
         },
@@ -39,7 +45,8 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
             callsign: "",
             status: 0,
             entry_date: "",
-            promotion_date: ""
+            promotion_date: "",
+            special_units: []
         }
     },
     intents: {

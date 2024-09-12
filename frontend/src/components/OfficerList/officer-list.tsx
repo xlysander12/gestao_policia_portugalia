@@ -6,9 +6,9 @@ import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 
 type OfficerCardProps = {
     name: string,
-    nif: string,
+    nif: number,
     status: string,
-    callback: (nif: string) => void,
+    callback: (nif: number) => void,
     disabled: boolean
 }
 
@@ -56,7 +56,7 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
 
 
 type OfficerListProps = {
-    callbackFunction: (nif: string) => void,
+    callbackFunction: (nif: number) => void,
     disabled?: boolean
 
 }
@@ -111,7 +111,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     }
 
     // When an officer is selected, call the callback function with the NIF
-    const handleClick = (nif: string) => {
+    const handleClick = (nif: number) => {
         callbackFunction(nif);
     }
 

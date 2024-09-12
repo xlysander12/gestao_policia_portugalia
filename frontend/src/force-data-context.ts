@@ -31,18 +31,42 @@ export type ForceDataContextType = {
 };
 export const ForceDataContext = createContext<ForceDataContextType>({patents: [], statuses: [], intents: [], special_units: [], special_unit_roles: []});
 
-export function getPatentFromId(patentId: number, forcePatents: Patent[]) {
-    return forcePatents?.find(patent => patent.id === patentId);
+export function getPatentFromId(patentId: number, forcePatents: Patent[]): Patent | null {
+    for (const patent of forcePatents) {
+        if (patent.id === patentId) {
+            return patent;
+        }
+    }
+
+    return null;
 }
 
-export function getStatusFromId(statusId: number, forceStatuses: Status[]) {
-    return forceStatuses?.find(status => status.id === statusId);
+export function getStatusFromId(statusId: number, forceStatuses: Status[]): Status | null {
+    for (const status of forceStatuses) {
+        if (status.id === statusId) {
+            return status;
+        }
+    }
+
+    return null;
 }
 
-export function getSpecialUnitFromId(specialUnitId: number, forceSpecialUnits: SpecialUnit[]) {
-    return forceSpecialUnits?.find(specialUnit => specialUnit.id === specialUnitId);
+export function getSpecialUnitFromId(specialUnitId: number, forceSpecialUnits: SpecialUnit[]): SpecialUnit | null {
+    for (const specialUnit of forceSpecialUnits) {
+        if (specialUnit.id === specialUnitId) {
+            return specialUnit;
+        }
+    }
+
+    return null;
 }
 
-export function getSpecialUnitRoleFromId(specialUnitRoleId: number, forceSpecialUnitRoles: SpecialUnitRole[]) {
-    return forceSpecialUnitRoles?.find(specialUnitRole => specialUnitRole.id === specialUnitRoleId);
+export function getSpecialUnitRoleFromId(specialUnitRoleId: number, forceSpecialUnitRoles: SpecialUnitRole[]): SpecialUnitRole | null {
+    for (const specialUnitRole of forceSpecialUnitRoles) {
+        if (specialUnitRole.id === specialUnitRoleId) {
+            return specialUnitRole;
+        }
+    }
+
+    return null;
 }

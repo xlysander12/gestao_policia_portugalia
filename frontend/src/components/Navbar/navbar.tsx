@@ -105,10 +105,10 @@ function Navbar({isLoginPage}: NavbarProps) {
             {/*}}/>*/}
 
             <div className={style.navButtonsDiv} style={isLoginPage ? {display: "none"}: {}}>
-                <Link to="/efetivos" className={style.navButton} reloadDocument={false}>Efetivos</Link>
-                <Link to="/" className={style.navButton} reloadDocument={false}>Atividade</Link>
-                <Link to="/" className={style.navButton} reloadDocument={false}>Avaliações</Link>
-                <Link to="/" className={style.navButton} reloadDocument={false}>Patrulhas</Link>
+                <Link to={"/efetivos"} className={style.navButton} reloadDocument={false}>Efetivos</Link>
+                <Link to={"/"} className={style.navButton} reloadDocument={false}>Atividade</Link>
+                <Link to={"/"} className={style.navButton} reloadDocument={false}>Avaliações</Link>
+                <Link to={"/"} className={style.navButton} reloadDocument={false}>Patrulhas</Link>
             </div>
 
             {/*TODO: Add a force selector here, floating to the right side of the navbar*/}

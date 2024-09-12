@@ -10,6 +10,7 @@ import {
 } from "@portalseguranca/api-types/api/account/schema";
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
+import {OfficerInfoGetResponse} from "@portalseguranca/api-types/api/officer-info/schema";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -59,7 +60,8 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             const userResponse = await make_request(`/officers/${nif}?raw`, "GET");
 
             // Get the data from the response
-            const userData = (await userResponse.json()).data;
+            const responseJson: OfficerInfoGetResponse = await userResponse.json();
+            const userData = responseJson.data;
 
             // Initialize a temp object that will hold the user's information and intents
             const tempLoggedUser: LoggedUserContextType = loggedUser;
@@ -73,11 +75,12 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             tempLoggedUser.info.personal.discord = userData.discord;
             tempLoggedUser.info.personal.steam = userData.steam;
 
-            tempLoggedUser.info.professional.patent = userData.patent;
+            tempLoggedUser.info.professional.patent = userData.patent as number;
             tempLoggedUser.info.professional.callsign = userData.callsign;
-            tempLoggedUser.info.professional.status = userData.status;
+            tempLoggedUser.info.professional.status = userData.status as number;
             tempLoggedUser.info.professional.entry_date = userData.entry_date;
             tempLoggedUser.info.professional.promotion_date = userData.promotion_date;
+            tempLoggedUser.info.professional.special_units = userData.special_units;
 
             // Fetch the user's intents
             const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/info`, "GET");
