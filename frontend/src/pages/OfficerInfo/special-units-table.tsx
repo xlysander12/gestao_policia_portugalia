@@ -165,6 +165,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                         fullWidth
                         sx={SelectSx}
                         variant={"outlined"}
+                        value={newUnit.id}
                         onChange={(event) => {
                             setNewUnit(draft => {
                                 draft.id = Number(event.target.value);
@@ -185,6 +186,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                         fullWidth
                         sx={TableSelectStyle}
                         variant={"outlined"}
+                        value={newUnit.role}
                         onChange={(event) => {
                             setNewUnit(draft => {
                                 draft.role = Number(event.target.value);
