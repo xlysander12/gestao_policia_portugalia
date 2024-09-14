@@ -34,6 +34,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         lastUsed: new Date(),
         intents: intentsObject
     });
+    const [needsRefresh, setNeedsRefresh] = useState(true);
 
     // Fetch the current information about the officer
     useEffect(() => {
@@ -57,8 +58,12 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             setAccountExists(true);
         }
 
-        fetchAccountInfo();
-    }, [officerNif]);
+        if (needsRefresh) {
+            fetchAccountInfo();
+            setNeedsRefresh(false);
+        }
+
+    }, [officerNif, needsRefresh]);
 
     let modalContent: ReactElement;
 
@@ -72,7 +77,6 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 <Typography color={"var(--portalseguranca-color-text-light)"}>Este efetivo não tem a conta ativada.<br/>Ativar a conta vai permitir o login com este nif e a palavra-passe padrão</Typography>
                 {/*TODO: Change onClick behaviour*/}
                 <DefaultButton
-                    buttonColor={"var(--portalseguranca-color-accent)"}
                     darkTextOnHover
                     onClick={async () => {console.log("Activate account")}}
                     sx={{
@@ -101,10 +105,15 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         {forceData.intents.map((intent) => {
                             return (
                                 <FormControlLabel
-                                    control={<Switch
-                                        checked={accountInfo.intents[intent.name]}
-                                        onChange={(event) => setAccountInfo(draft => {draft.intents[intent.name] = event.target.checked})}
-                                    />}
+                                    control={
+                                        <Switch
+                                            checked={accountInfo.intents[intent.name]}
+                                            onChange={async (event) => {
+                                                await make_request(`/accounts/${officerNif}/intents`, "PATCH", {body: {[intent.name]: event.target.checked}});
+                                                setNeedsRefresh(true);
+                                            }}
+                                        />
+                                    }
                                     label={intent.description}
                                 />
                             )
