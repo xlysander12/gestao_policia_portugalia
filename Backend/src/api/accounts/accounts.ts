@@ -209,18 +209,22 @@ app.get("/:nif/info", async (req, res) => {
         }
     };
 
-    // Check if the password is the default one
-    const passwordQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password FROM users WHERE nif = ?', req.params.nif);
+    // Fetch the password and the last time the user interacted with the system
+    const infoQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password, last_interaction FROM users WHERE nif = ?', req.params.nif);
 
     // If no user exists, return 404
-    if (passwordQuery.length === 0) {
+    if (infoQuery.length === 0) {
         const response: RequestError = {
             message: "O utilizador requisitado não existe"
         }
         return res.status(404).json(response);
     }
-    
-    response.data.passwordChanged = passwordQuery[0].password !== null;
+
+    // Check if the password has been changed by the user
+    response.data.passwordChanged = infoQuery[0].password !== null;
+
+    // Get the last time the user interacted with the system
+    response.data.lastUsed = infoQuery[0].last_interaction;
 
     // Get all possible intents
     const intentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT name FROM intents');
