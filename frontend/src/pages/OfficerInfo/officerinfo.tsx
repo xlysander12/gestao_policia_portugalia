@@ -21,6 +21,7 @@ import {
 import {OfficerUnit} from "@portalseguranca/api-types/api/officer-info/schema";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./special-units-table.tsx";
+import Gate from "../../components/Gate/gate.tsx";
 
 
 type InformationPairProps = {
@@ -326,15 +327,17 @@ function OfficerInfo() {
 
                         {/*Buttons that lie on the right side of the bar*/}
                         <div className={style.officerInfoAlterbarRight}>
-                            {editMode && <DefaultButton
-                                type={"submit"}
-                                form={"information-form"}
-                                sx={{flex: 1}}
-                            >
-                                Guardar
-                            </DefaultButton>}
+                            <Gate show={editMode}>
+                                <DefaultButton
+                                    type={"submit"}
+                                    form={"information-form"}
+                                    sx={{flex: 1}}
+                                >
+                                    Guardar
+                                </DefaultButton>
+                            </Gate>
 
-                            {(!editMode && loggedUser.intents.officers) &&
+                            <Gate show={!editMode && loggedUser.intents.officers}>
                                 <DefaultButton
                                     darkTextOnHover
                                     buttonColor={"lightgreen"}
@@ -343,41 +346,47 @@ function OfficerInfo() {
                                 >
                                     Contratar
                                 </DefaultButton>
-                            }
+                            </Gate>
 
-                            {(!editMode && canEdit) && <DefaultButton
-                                buttonColor={"cyan"}
-                                darkTextOnHover
-                                sx={{flex: 1}}
-                                onClick={() => setEditMode(true)}>Editar
-                            </DefaultButton>}
-
-                            {(!editMode && canEdit) &&
+                            <Gate show={!editMode && canEdit}>
                                 <DefaultButton
-                                        buttonColor={"red"}
-                                        sx={{flex: 1}}
-                                        onClick={() => setFireModalOpen(true)}
-                                    >
-                                        Despedir
-                                    </DefaultButton>
-                            }
+                                    buttonColor={"cyan"}
+                                    darkTextOnHover
+                                    sx={{flex: 1}}
+                                    onClick={() => setEditMode(true)}
+                                >
+                                    Editar
+                                </DefaultButton>
+                            </Gate>
+
+                            <Gate show={!editMode && canEdit}>
+                                <DefaultButton
+                                    buttonColor={"red"}
+                                    sx={{flex: 1}}
+                                    onClick={() => setFireModalOpen(true)}
+                                >
+                                    Despedir
+                                </DefaultButton>
+                            </Gate>
                         </div>
                     </div>
 
                     {/*@ts-ignore*/}
                     <form id={"information-form"} onSubmit={updateOfficerInfo}>
                         {/*Loader Div*/}
-                        <div className={style.officerInfoDetailsDiv} style={{
-                            justifyContent: "center",
-                            alignItems: "center", display: `${loading ? "flex" : "none"}`
-                        }}>
-                            <Loader/>
-                        </div>
+                        <Gate show={loading}>
+                            <div className={style.officerInfoDetailsDiv} style={{
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <Loader/>
+                            </div>
+                        </Gate>
 
                         {/*Information div*/}
                         <div className={style.officerInfoDetailsDiv} style={loading ? {display: "none"} : {}}>
                             <fieldset>
-                                <legend>Informação Pessoal</legend>
+                            <legend>Informação Pessoal</legend>
 
                                 <div className={style.officerInfoInnerFieldsetDiv}>
                                     {/*Name pair*/}

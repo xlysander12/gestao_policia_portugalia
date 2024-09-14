@@ -20,6 +20,7 @@ import {
 } from "../../force-data-context.ts";
 import {OfficerUnit} from "@portalseguranca/api-types/api/officer-info/schema.ts";
 import {useImmer} from "use-immer";
+import Gate from "../../components/Gate/gate.tsx";
 
 const TableSelectStyle = {
     "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
@@ -86,11 +87,11 @@ const SpecialUnitsTableRow = ({selectSx, unit, unitName, unitRoles, editMode, on
                     })}
                 </Select>
             </TableCell>
-            {!editMode ? "":
+            <Gate show={editMode}>
                 <TableCell>
                     <DefaultButton buttonColor={"red"} size={"small"} sx={{minWidth: "32px", padding: "3px"}} onClick={() => onRemove(unit)}><RemoveIcon fontSize={"small"} /></DefaultButton>
                 </TableCell>
-            }
+            </Gate>
         </TableRow>
     )
 }
@@ -230,9 +231,9 @@ const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, o
                     <TableRow>
                         <TableCell align={"center"} sx={{color: "var(--portalseguranca-color-text-light)"}}>Unidade</TableCell>
                         <TableCell align={"center"} sx={{color: "var(--portalseguranca-color-text-light)"}}>Cargo</TableCell>
-                        {!editMode ? "":
+                        <Gate show={editMode}>
                             <TableCell align={"center"} sx={{color: "var(--portalseguranca-color-text-light)"}}>Ação</TableCell>
-                        }
+                        </Gate>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -251,9 +252,9 @@ const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, o
                         );
                     })}
                 </TableBody>
-                {!editMode ? "":
+                <Gate show={editMode}>
                     <SpecialUnitsFooter officerSpecialUnits={officerSpecialUnits} onAdd={onAdd} />
-                }
+                </Gate>
             </Table>
         </TableContainer>
     )
