@@ -50,7 +50,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
                 draft.defaultPassword = accountInfoJson.data.passwordChanged;
-                draft.lastUsed = accountInfoJson.data.lastUsed;
+                draft.lastUsed = new Date(Date.parse(accountInfoJson.data.lastUsed));
                 draft.intents = accountInfoJson.data.intents;
             });
 
@@ -92,7 +92,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             <Typography>Palavra-passe alterada:</Typography>
                             {accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
                         </Stack>
-                        {/* <label>Última utilização: <span>{accountInfo.lastUsed.toLocaleDateString()}</span></label> */}
+                         <Typography>Última utilização: {`${accountInfo.lastUsed.getDate().toString().padStart(2, "0")}/${(accountInfo.lastUsed.getMonth() + 1).toString().padStart(2, "0")}/${accountInfo.lastUsed.getFullYear()} @ ${accountInfo.lastUsed.getHours().toString().padStart(2, "0")}:${accountInfo.lastUsed.getMinutes().toString().padStart(2, "0")}`}</Typography>
                     </div>
                 </ModalSection>
 

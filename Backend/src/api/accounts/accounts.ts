@@ -204,7 +204,7 @@ app.get("/:nif/info", async (req, res) => {
         message: "Operação bem sucedida",
         data: {
             passwordChanged: false,
-            lastUsed: new Date(),
+            lastUsed: "",
             intents: {}
         }
     };
@@ -250,8 +250,8 @@ app.patch("/:nif/intents", async (req, res) => {
 
     // Update intents in the database
     for (let i = 0; i < intents.length; i++) {
-        // Make sure the requesting user has the intent it wants to update
-        if(!(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), intents[i]))) {
+        // Make sure the requesting user has the intent it wants to update and the intent to alter accounts
+        if(!(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), intents[i])) || !(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), "accounts"))) {
             let response: RequestError = {
                 message: "Não tens permissão para efetuar esta ação"
             };
