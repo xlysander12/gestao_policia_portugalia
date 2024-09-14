@@ -21,7 +21,7 @@ const DefaultTextFieldStyle = styled(TextField)(({sameTextColorWhenDisabled}) =>
         },
 
         "&.Mui-error": {
-            borderBottomColor: "red"
+            borderBottomColor: "red !important"
         }
     },
 
@@ -37,7 +37,7 @@ const DefaultTextFieldStyle = styled(TextField)(({sameTextColorWhenDisabled}) =>
         },
 
         "& .Mui-error:before": {
-            borderBottomColor: "red"
+            borderBottomColor: "red !important"
         },
 
         "&.Mui-disabled:before": {
