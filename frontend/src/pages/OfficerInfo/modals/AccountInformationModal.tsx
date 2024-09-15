@@ -9,6 +9,7 @@ import {DefaultButton} from "../../../components/DefaultComponents";
 import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
 import {AccountInfoResponse} from "@portalseguranca/api-types/api/account/schema";
+import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -64,9 +65,18 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             setAccountExists(true);
         }
 
-        if (needsRefresh) {
+        // Fetch the account information if it didn't just refresh
+        if (!justRefreshed) {
             fetchAccountInfo();
+        }
+
+        // Make sure setJustRefreshed is set to false before advancing
+        setJustRefreshed(false);
+
+        // If the need to refresh is present, set it to false and set justRefreshed to true to avoid a loop
+        if (needsRefresh) {
             setNeedsRefresh(false);
+            setJustRefreshed(true);
         }
 
     }, [officerNif, needsRefresh]);
@@ -116,6 +126,9 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                             checked={accountInfo.intents[intent.name]}
                                             disabled={!loggedUserData.intents[intent.name]}
                                             onChange={async (event) => {
+                                                setAccountInfo(draft => {
+                                                    draft.intents[intent.name] = event.target.checked;
+                                                });
                                                 await make_request(`/accounts/${officerNif}/intents`, "PATCH", {body: {[intent.name]: event.target.checked}});
                                                 setNeedsRefresh(true);
                                             }}
