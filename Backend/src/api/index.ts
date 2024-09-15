@@ -1,7 +1,7 @@
 import express from 'express';
 import utilRoutes from "./util/util";
 import metricsRoutes from "./metrics/metrics";
-import accountRoutes from "./accounts/accounts";
+import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers/officers";
 import {
     FORCES,
