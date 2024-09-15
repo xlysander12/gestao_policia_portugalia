@@ -20,6 +20,9 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     // Getting the force's data from the context
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
 
+    // Getting the logged user data from the context
+    const loggedUserData = useContext<LoggedUserContextType>(LoggedUserContext);
+
     const [accountExists, setAccountExists] = useState<boolean | null>(null);
 
     // Initialize the state that contains the officer's account information
@@ -34,7 +37,10 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         lastUsed: new Date(),
         intents: intentsObject
     });
+
+    // State for managing the refresh of the account information
     const [needsRefresh, setNeedsRefresh] = useState(true);
+    const [justRefreshed, setJustRefreshed] = useState(false);
 
     // Fetch the current information about the officer
     useEffect(() => {
@@ -108,6 +114,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                     control={
                                         <Switch
                                             checked={accountInfo.intents[intent.name]}
+                                            disabled={!loggedUserData.intents[intent.name]}
                                             onChange={async (event) => {
                                                 await make_request(`/accounts/${officerNif}/intents`, "PATCH", {body: {[intent.name]: event.target.checked}});
                                                 setNeedsRefresh(true);
