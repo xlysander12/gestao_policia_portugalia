@@ -16,6 +16,7 @@ export type IntentRequiredRoute = {
     intents: string | string[]
 }
 export const INTENT_REQUIRED_ROUTES: IntentRequiredRoute[] = [
-    {route: /\/account\/info\/.*/, methods: ["PATCH", "PUT", "DELETE"], intents: "accounts"},
-    {route: /\/officer-info\/.*/, methods: ["PUT", "PATCH", "DELETE"], intents: "officers"}
+    {route: /\/accounts\/.*\/info/, methods: ["GET"], intents: "accounts"},
+    {route: /\/accounts\/.*\/create/, methods: ["POST"], intents: "accounts"},
+    {route: /\/officers\/.*/, methods: ["PUT", "PATCH", "DELETE"], intents: "officers"}
 ]
