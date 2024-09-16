@@ -310,14 +310,13 @@ function OfficerInfo() {
                     <div className={style.officerInfoAlterbarDiv}>
                         {/*Buttons that lie on the left side of the bar*/}
                         <div className={style.officerInfoAlterbarLeft}>
-                            {/*//TODO: Hidden attribute doesn't work*/}
-                            <DefaultButton
-                                hidden={editMode || !loggedUser.intents.accounts || loggedUser.info.professional.patent < officerInfo.professional.patent}
-                                onClick={() => setAccountModalOpen(true)}
-                            >
-                                Gerir Conta
-                            </DefaultButton>
-
+                            <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent > officerInfo.professional.patent}>
+                                <DefaultButton
+                                    onClick={() => setAccountModalOpen(true)}
+                                >
+                                    Gerir Conta
+                                </DefaultButton>
+                            </Gate>
                             <DefaultButton
                                 hidden={editMode || !loggedUser.intents.officers}
                             >
@@ -517,19 +516,22 @@ function OfficerInfo() {
                                         type={"date"}
                                         editMode={false}
                                     />
-                                    <Divider/>
 
                                     {/*Unidades Especiais*/}
-                                    <div className={style.informationPairDiv}>
-                                        <label>Unidades Especiais:</label>
-                                        <SpecialUnitsTable
-                                            editMode={editMode}
-                                            officerSpecialUnits={officerInfo.professional.special_units}
-                                            onChange={handleSpecialUnitEdit}
-                                            onRemove={handleSpecialUnitRemove}
-                                            onAdd={handleSpecialUnitAdd}
-                                        />
-                                    </div>
+                                    <Gate show={editMode || officerInfo.professional.special_units.length !== 0}>
+                                        <Divider/>
+
+                                        <div className={style.informationPairDiv}>
+                                            <label>Unidades Especiais:</label>
+                                            <SpecialUnitsTable
+                                                editMode={editMode}
+                                                officerSpecialUnits={officerInfo.professional.special_units}
+                                                onChange={handleSpecialUnitEdit}
+                                                onRemove={handleSpecialUnitRemove}
+                                                onAdd={handleSpecialUnitAdd}
+                                            />
+                                        </div>
+                                    </Gate>
                                 </div>
                             </fieldset>
 
@@ -545,7 +547,7 @@ function OfficerInfo() {
                                 </p>
                             </fieldset>
                             <fieldset>
-                                <legend>Punições</legend>
+                            <legend>Punições</legend>
 
                                 <p>Punição Ativa: <span></span>
                                 </p>

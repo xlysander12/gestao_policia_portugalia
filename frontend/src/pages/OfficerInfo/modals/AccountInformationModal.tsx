@@ -81,6 +81,18 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     }, [officerNif, needsRefresh]);
 
+    // Function to create an account if it doesn't exist
+    function createAccount() {
+
+    }
+
+    let lastUsedString;
+    if (isNaN(accountInfo.lastUsed.getDate())) {
+        lastUsedString = "Nunca utilizada";
+    } else {
+        lastUsedString = `${accountInfo.lastUsed.getDate().toString().padStart(2, "0")}/${(accountInfo.lastUsed.getMonth() + 1).toString().padStart(2, "0")}/${accountInfo.lastUsed.getFullYear()} @ ${accountInfo.lastUsed.getHours().toString().padStart(2, "0")}:${accountInfo.lastUsed.getMinutes().toString().padStart(2, "0")}`;
+    }
+
     let modalContent: ReactElement;
 
     if (accountExists === null) {
@@ -112,7 +124,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             <Typography>Palavra-passe alterada:</Typography>
                             {accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
                         </Stack>
-                         <Typography>Última utilização: {`${accountInfo.lastUsed.getDate().toString().padStart(2, "0")}/${(accountInfo.lastUsed.getMonth() + 1).toString().padStart(2, "0")}/${accountInfo.lastUsed.getFullYear()} @ ${accountInfo.lastUsed.getHours().toString().padStart(2, "0")}:${accountInfo.lastUsed.getMinutes().toString().padStart(2, "0")}`}</Typography>
+                         <Typography>Última utilização: {lastUsedString}</Typography>
                     </div>
                 </ModalSection>
 
@@ -138,6 +150,14 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                 />
                             )
                         })}
+                    </div>
+                </ModalSection>
+
+                <ModalSection title={"Ações"}>
+                    <div className={modalsStyle.actionsInnerSectionDiv}>
+                        <DefaultButton style={{flex: 1}}>Reset Palavra-Passe</DefaultButton>
+                        <DefaultButton buttonColor={"orange"} darkTextOnHover={false} style={{flex: 1}}>Suspender Conta</DefaultButton>
+                        <DefaultButton buttonColor={"red"} style={{flex: 1}}>Apagar Conta</DefaultButton>
                     </div>
                 </ModalSection>
             </>

@@ -56,3 +56,11 @@
     flex-direction: column;
     align-items: start;
 }
+
+.actionsInnerSectionDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 35px;
+    justify-content: space-around;
+}
