@@ -5,6 +5,8 @@ import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultOutlinedTextField} from "../../../components/DefaultComponents";
 import React from "react";
+import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup} from "@mui/material";
+import Gate from "../../../components/Gate/gate.tsx";
 
 type FireModalProps = {
     open: boolean,
@@ -15,6 +17,9 @@ type FireModalProps = {
 function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps) {
     // Initialize useNavigate hook
     const navigate = useNavigate();
+
+    //  State that holds the firing type
+    const [firingType, setFiringType] = React.useState("resigned");
 
     // Initialize the variable that contains the officer's fire reason
     let fireReason: string = "";
@@ -52,13 +57,24 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
                 <div className={modalsStyle.formDiv}>
                     {/*Text area to input the firing reason*/}
                     <ModalSection title={"Dados do Despedimento"}>
-                        <DefaultOutlinedTextField
-                            label={"Motivo"}
-                            fullWidth
-                            multiline
-                            maxRows={5}
-                            onChange={(event) => fireReason = event.target.value}
-                        />
+                        <RadioGroup
+                            name={"firingType"}
+                            defaultValue={"resigned"}
+                            onChange={(event) => setFiringType(event.target.value)}
+                        >
+                            <FormControlLabel value={"resigned"} control={<Radio />} label={"Demição"} />
+                            <FormControlLabel value={"fired"} control={<Radio />} label={"Despedimento"} />
+                        </RadioGroup>
+                        <Gate show={firingType === "fired"}>
+                            <DefaultOutlinedTextField
+                                label={"Motivo"}
+                                fullWidth
+                                multiline
+                                maxRows={5}
+                                onChange={(event) => fireReason = event.target.value}
+                                sx={{marginTop: "15px"}}
+                            />
+                        </Gate>
                     </ModalSection>
 
                     {/*Button to submit the form and, therefore, fire the officer*/}
