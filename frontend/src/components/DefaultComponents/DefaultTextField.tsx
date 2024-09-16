@@ -17,26 +17,24 @@ const DefaultTextFieldStyle = styled(TextField)(({sameTextColorWhenDisabled}) =>
         fontWeight: 500,
 
         "&.Mui-disabled": {
-            WebkitTextFillColor: `${sameTextColorWhenDisabled ? "var(--portalseguranca-color-text-light)": "#d0c7d380"} !important`,
+            WebkitTextFillColor: `${sameTextColorWhenDisabled ? "var(--portalseguranca-color-text-light)": "var(--portalseguranca-color-text-light)"} !important`,
         },
 
-        "&.Mui-error": {
-            borderBottomColor: "red !important"
-        }
+
     },
 
     "& .MuiInputBase-root": {
         caretColor: "white",
 
         "&:before": {
-            borderBottom: "3px solid #049985"
+            borderBottom: "3px solid var(--portalseguranca-color-accent)"
         },
 
         "&:hover:not(.Mui-disabled, .Mui-error):before": {
-            borderBottom: "3px solid #049985"
+            borderBottom: "3px solid var(--portalseguranca-color-accent)"
         },
 
-        "& .Mui-error:before": {
+        "&.Mui-error:before": {
             borderBottomColor: "red !important"
         },
 
@@ -45,7 +43,7 @@ const DefaultTextFieldStyle = styled(TextField)(({sameTextColorWhenDisabled}) =>
         },
 
         "&:after": {
-            borderBottom: "3px solid #00fdfd"
+            borderBottom: "3px solid var(--portalseguranca-color-focus)"
         },
     }
 }));
