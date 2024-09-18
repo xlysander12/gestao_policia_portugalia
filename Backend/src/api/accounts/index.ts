@@ -4,8 +4,8 @@ import infoRoutes from "./info";
 import manageRoutes from "./manage";
 import actionRoutes from "./action";
 import {userHasIntents} from "../../utils/user-handler";
-import { RequestError } from "@portalseguranca/api-types/api/schema";
-import { ValidateTokenResponse } from "@portalseguranca/api-types/api/account/schema";
+import { RequestError } from "@portalseguranca/api-types";
+import { ValidateTokenResponse } from "@portalseguranca/api-types/account/output";
 
 const app = express.Router();
 
@@ -31,14 +31,14 @@ app.post("/validateToken", async (req, res) => {
 
 });
 
+// Import action routes
+app.use(actionRoutes);
+
 // Import info routes
 app.use(infoRoutes);
 
 // Import manage routes
 app.use(manageRoutes);
-
-// Import action routes
-app.use(actionRoutes);
 
 console.log("[Portal Segurança] Account routes loaded successfully!");
 

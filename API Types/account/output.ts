@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../schema";
+import {RequestSuccess} from "../index";
 
 export interface ValidateTokenResponse extends RequestSuccess {
     data: number;

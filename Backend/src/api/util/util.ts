@@ -7,7 +7,7 @@ import {
     StatusData, UtilIntentsResponse,
     UtilPatentsResponse, UtilSpecialUnitsResponse,
     UtilStatusesResponse
-} from "@portalseguranca/api-types/api/util/schema";
+} from "@portalseguranca/api-types/util/schema";
 
 const app = express.Router();
 

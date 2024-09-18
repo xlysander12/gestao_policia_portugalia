@@ -11,6 +11,7 @@ config({path: join(__dirname, "..", ".env")});
 import {apiRoutes} from "./api";
 import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
+import {FORCES} from "./utils/constants";
 
 const app = Router(); // This app is a router to compartimentalize routes
 
@@ -32,9 +33,17 @@ app.use("/api", apiRoutes);
 // Database backup files
 app.use("/db", async (req, res, next) => {
     // Check if the user is authenticated and has the right patent
-    const loggedUser = await isTokenValid(req.cookies["sessionToken"]);
+    let loggedUser = [false, "", ""];
+    for (const force of FORCES) {
+        const isValid = await isTokenValid(req.cookies["sessionToken"], force);
+        if (isValid[0]) {
+            loggedUser = isValid;
+            break;
+        }
+    }
+
     if (!loggedUser[0]) { // Token is invalid
-        res.status(loggedUser[1]).send("Unauthorized");
+        res.status(401).send("Unauthorized");
         return;
     }
 

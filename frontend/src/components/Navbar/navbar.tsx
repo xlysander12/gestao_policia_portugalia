@@ -60,7 +60,7 @@ function Navbar({isLoginPage}: NavbarProps) {
                 psp: false,
                 gnr: false
             }
-// Making the request to check if the token is valid for all forces
+            // Making the request to check if the token is valid for all forces
             for (const force of FORCES) {
                 const response = await make_request("/accounts/validateToken", "POST", {force: force, redirectToLoginOn401: false});
 

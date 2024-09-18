@@ -3,14 +3,15 @@ import {compare, hash} from "bcrypt";
 import {queryDB} from "../../utils/db-connector";
 import {PASSWORD_SALT_ROUNDS} from "../../utils/constants";
 import {generateToken, getUserForces} from "../../utils/user-handler";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
-import {LoginResponse} from "@portalseguranca/api-types/api/account/schema";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
+import {LoginResponse} from "@portalseguranca/api-types/account/output";
+import {ChangePasswordRequestBodyType, LoginRequestBodyType} from "@portalseguranca/api-types/account/input";
 
 const app = express.Router();
 
 // Endpoint to login an user
 app.post("/login", async (req, res) => {
-    const {nif, password, persistent} = req.body;
+    const {nif, password, persistent} = req.body as LoginRequestBodyType;
     if (!nif || !password) {
         let response: RequestError = {
             message: "NIF ou password não fornecidos"
@@ -95,7 +96,7 @@ app.post("/login", async (req, res) => {
 app.post("/changepassword", async (req, res) => {
     // Store the logged user
     const loggedUser = Number(res.locals.user);
-    const {oldPassword, newPassword, confirmPassword} = req.body;
+    const {oldPassword, newPassword, confirmPassword} = req.body as ChangePasswordRequestBodyType;
 
     // * Check if the old password is correct
     // Get the password from the DB

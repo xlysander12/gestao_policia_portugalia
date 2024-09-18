@@ -8,7 +8,7 @@ import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
 import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
-import {AccountInfoResponse} from "@portalseguranca/api-types/api/account/schema";
+import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 
 type AccountInformationModalProps = {

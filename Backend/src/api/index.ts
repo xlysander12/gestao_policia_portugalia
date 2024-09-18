@@ -16,7 +16,8 @@ import {
     updateLastTimeUserInteracted,
     userHasIntents
 } from "../utils/user-handler";
-import {RequestError} from "@portalseguranca/api-types/api/schema";
+import routes from "./routes";
+import {RequestError} from "@portalseguranca/api-types";
 
 export const apiRoutes = express.Router();
 
@@ -145,6 +146,41 @@ apiRoutes.use(async (req, res, next) => {
     await updateLastTimeUserInteracted(res.locals.user);
 
     // Continue to next middleware
+    next();
+});
+
+// Middleware to check if the request has all the fields valid
+apiRoutes.use((req, res, next) => {
+    // Check if the requested route is present in the routes object
+    // The keys of this object, are RegEx that match the routes
+    const routeIndex = Object.keys(routes).findIndex((route) => new RegExp(route).test(req.path));
+
+    // If the route is not present, assume no validation is needed
+    if (routeIndex === -1) {
+        return next();
+    }
+
+    const route = routes[Object.keys(routes)[routeIndex]];
+
+    // If the route is present, but the used method isn't, assume no validation is needed
+    if (route.methods[req.method] === undefined) {
+        return next();
+    }
+
+    // If the body is present, check if the contents are valid
+    const bodyType = route.methods[req.method].body.type;
+    const validation = bodyType.validate(req.body);
+
+    if (!validation.success) {
+        let response: RequestError = {
+            message: "Corpo do pedido inválido"
+        }
+
+        res.status(400).json(response);
+        return;
+    }
+
+    // If the body is valid, continue to the next middleware
     next();
 });
 

@@ -30,17 +30,13 @@ export async function generateToken() {
 }
 
 // TODO: Return type should be a proper object
-export async function isTokenValid(token: string, force?: ForceType) {
+export async function isTokenValid(token: string, force: ForceType) {
     // If token is undefined, return false as the token is invalid
     if (token === undefined) return [false, 401];
 
     // If the force is undefined, check all forces for the token
     if (force === undefined) {
-        for (const force of FORCES) {
-            const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
-            if (result.length !== 0) return [true, 200, result[0].nif, force];
-        }
-        return [false, 401];
+        return [false, 400];
     }
 
     // Query the database to check if the token exists

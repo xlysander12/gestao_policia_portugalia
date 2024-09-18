@@ -1,7 +1,7 @@
 import express from "express";
 import {getUserForces, userHasIntents} from "../../utils/user-handler";
 import {queryDB} from "../../utils/db-connector";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 
 const app = express.Router();
 

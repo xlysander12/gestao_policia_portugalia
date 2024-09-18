@@ -8,10 +8,9 @@ import {queryDB} from "../../utils/db-connector";
 // Import types
 import {
     AccountInfoResponse,
-    UserForcesResponse,
-    ValidateTokenResponse
-} from "@portalseguranca/api-types/api/account/schema";
-import {RequestError} from "@portalseguranca/api-types/api/schema";
+    UserForcesResponse
+} from "@portalseguranca/api-types/account/output";
+import {RequestError} from "@portalseguranca/api-types";
 
 const app = express.Router();
 

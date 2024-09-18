@@ -7,7 +7,7 @@ import {
     OfficerListResponse,
     OfficerInfoGetResponse,
     OfficerUnit
-} from "@portalseguranca/api-types/api/officer-info/schema";
+} from "@portalseguranca/api-types/officer-info/schema";
 
 const app = express.Router();
 

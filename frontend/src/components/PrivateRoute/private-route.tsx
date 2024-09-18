@@ -7,10 +7,10 @@ import {
     AccountInfoResponse,
     UserForcesResponse,
     ValidateTokenResponse
-} from "@portalseguranca/api-types/api/account/schema";
+} from "@portalseguranca/api-types/account/output";
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
-import {OfficerInfoGetResponse} from "@portalseguranca/api-types/api/officer-info/schema";
+import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officer-info/schema";
 
 type PrivateRouteProps = {
     element: ReactElement

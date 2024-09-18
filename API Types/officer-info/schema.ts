@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../schema";
+import {RequestSuccess} from "../index";
 export interface MinifiedOfficerData {
     name: string,
     patent: string,
