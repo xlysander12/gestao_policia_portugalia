@@ -46,7 +46,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     // Fetch the current information about the officer
     useEffect(() => {
         async function fetchAccountInfo() {
-            const accountInfoResponse = await make_request(`/accounts/${officerNif}/info`, "GET");
+            const accountInfoResponse = await make_request(`/accounts/${officerNif}`, "GET");
 
             // Check if the response is ok
             if (accountInfoResponse.status === 404) {

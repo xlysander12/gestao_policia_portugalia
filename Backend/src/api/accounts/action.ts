@@ -8,14 +8,6 @@ import {LoginResponse} from "@portalseguranca/api-types/api/account/schema";
 
 const app = express.Router();
 
-// Endpoint to create the account
-app.post("/create", async (req, res) => {
-    const {nif} = req.body;
-
-    // First, make sure this user doesn't already have an account
-    const user_forces = await getUserForces(nif);
-});
-
 // Endpoint to login an user
 app.post("/login", async (req, res) => {
     const {nif, password, persistent} = req.body;

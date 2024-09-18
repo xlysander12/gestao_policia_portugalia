@@ -1,5 +1,5 @@
 // Import packages
-import express, {CookieOptions} from 'express';
+import express from 'express';
 
 // Import utils
 import {getUserForces, userHasIntents} from "../../utils/user-handler";
@@ -16,7 +16,7 @@ import {RequestError} from "@portalseguranca/api-types/api/schema";
 const app = express.Router();
 
 // Endpoint to get a user's accounts information
-app.get("/:nif/info", async (req, res) => {
+app.get("/:nif", async (req, res) => {
     // Check if the requesting user is the user itself
     const requestingUser = Number(res.locals.user);
     if (requestingUser !== Number(req.params.nif)) {

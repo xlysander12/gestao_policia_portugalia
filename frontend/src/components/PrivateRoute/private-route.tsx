@@ -83,7 +83,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
             tempLoggedUser.info.professional.special_units = userData.special_units;
 
             // Fetch the user's intents
-            const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/info`, "GET");
+            const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");
             const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
             tempLoggedUser.intents = accountInfoData.data.intents;
 
@@ -118,7 +118,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
                     {element}
                 </div>
         </LoggedUserContext.Provider>
-);
+    );
 }
 
 export default PrivateRoute;
