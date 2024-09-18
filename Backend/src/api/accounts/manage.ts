@@ -1,9 +1,42 @@
 import express from "express";
-import {userHasIntents} from "../../utils/user-handler";
+import {getUserForces, userHasIntents} from "../../utils/user-handler";
 import {queryDB} from "../../utils/db-connector";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/api/schema";
 
 const app = express.Router();
+
+// Endpoint to create an account
+app.post("/:nif", async (req, res) => {
+    // TODO: Implement this endpoint to create a new account
+    const {nif} = req.params;
+
+    // First, make sure this user doesn't already have an account
+    const user_forces = await getUserForces(Number(nif));
+    if (user_forces.length > 0 ) {
+        let response: RequestError = {
+            message: "O utilizador já tem uma conta"
+        };
+        return res.status(400).json(response);
+    }
+
+    // Then, make sure the officer exists in the force (there can't be accounts for non-existing officers)
+    const officer = await queryDB(req.header("x-portalseguranca-force"), 'SELECT * FROM officers WHERE nif = ?', [nif]);
+    if (officer.length === 0) {
+        let response: RequestError = {
+            message: "Não é possível criar uma conta para um efetivo que não existe"
+        };
+        return res.status(400).json(response);
+    }
+
+    // Add the account in the force's DB
+    await queryDB(req.header("x-portalseguranca-force"), 'INSERT INTO users (nif) VALUES (?)', [nif]);
+
+    // Return success
+    let response: RequestSuccess = {
+        message: "Conta criada com sucesso"
+    };
+    res.status(200).json(response);
+});
 
 // Endpoint to reset the password
 app.post("/:nif/resetpassword", async (req, res) => {
