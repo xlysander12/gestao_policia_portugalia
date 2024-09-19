@@ -4,11 +4,7 @@ import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers/officers";
 import {
-    FORCES,
-    INTENT_REQUIRED_ROUTES,
-    IntentRequiredRoute,
-    NO_FORCE_REQUIRED_ROUTES,
-    NO_TOKEN_REQUIRED_ROUTES
+    FORCES
 } from "../utils/constants";
 import {
     isTokenValid,
@@ -16,140 +12,12 @@ import {
     updateLastTimeUserInteracted,
     userHasIntents
 } from "../utils/user-handler";
-import routes from "./routes";
+import routes, {methodType} from "./routes";
 import {RequestError} from "@portalseguranca/api-types";
 
 export const apiRoutes = express.Router();
 
-function isRouteExcluded(route: string, method: string, exclude: (string | RegExp)[][]): boolean {
-    // Go through all the regex entries and check if the route is excluded
-    for (const entry of exclude) {
-        // Check if the route matches the regex
-        if ((entry[0] as RegExp).test(route)) {
-            // If it matches, check if the method is also excluded
-            // Since 'entry[1]' can be another array of methods, check if the method is in the array
-            if (Array.isArray(entry[1])) {
-                // If it is an array, check if the method is in the array
-                return (entry[1] as string[]).includes(method);
-            }
-            // If it's not an array, check if it is a wildcard ('*') or the method itself
-            return entry[1] === "*" || entry[1] === method;
-        }
-    }
-
-    // If the path is not in the exclude list, return false
-    return false;
-}
-
-function routeNeedsIntents(route: string, method: string, routes: IntentRequiredRoute[]): (boolean | IntentRequiredRoute)[] | boolean {
-    // Go through all the regex entries and check if the route needs intents
-    for (const entry of routes) {
-        // Check if the route matches the regex
-        if (entry.route.test(route)) {
-            // If it matches, check if the method requires intents
-            // Since 'entry[1]' can be an array of methods, check if the method is in the array
-            if (Array.isArray(entry.methods)) { // If it is an array, check if the method is in the array
-                if ((entry.methods as string[]).includes(method)) {
-                    // If the method is in the array, return true and the entry
-                    return [true, entry];
-                }
-            }
-            // If it's not an array, check if it is a wildcard ('*') or the method itself
-            if (entry.methods === "*" || entry.methods === method) {
-                // If the method needs intents, return true and the entry
-                return [true, entry];
-            }
-        }
-    }
-
-    // If the path is not in the exclude list, return false
-    return false;
-}
-
-// Middleware to check if the request has basic necessary information
-apiRoutes.use(async (req, res, next) => {
-    // Check if this request needs a token, if not, skip the token check
-    if (!isRouteExcluded(req.path, req.method, NO_TOKEN_REQUIRED_ROUTES)) {
-        // Since it needs a token, check if a valid token is given
-        const validation = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"));
-
-        // The first entry of validation will always be a boolean
-        if (!(validation[0] as boolean)) {
-            let response: RequestError = {message: "Autenticação inválida"} // Default response
-
-            // If the token is not valid, check if it is because of the token itself or the force
-            if (validation[1] === 401) { // If the code is 401, the token itself is invalid for that force or hasn't been given
-                response = {
-                    message: "O token fornecido é inválido"
-                }
-            } else if (validation[1] === 400) { // If the code is 400, there is no force present in the request
-                response = {
-                    message: "Não foi fornecida uma força"
-                }
-            }
-
-            res.status(validation[1] as number).json(response);
-            return;
-        }
-
-        // Since the token is valid, add an header with the user that is making this request
-        res.locals.user = validation[2];
-
-        // Since the request needs a token, there's a possibility it also needs an intent
-        // Given this, check if the route is one that needs intents and, if so, check if the user has said intent
-        let needsIntent = routeNeedsIntents(req.path, req.method, INTENT_REQUIRED_ROUTES);
-        const isIntentRequired = Array.isArray(needsIntent) ? needsIntent[0] : needsIntent;
-
-        if (isIntentRequired) { // Check if an intent is needed
-            needsIntent = needsIntent as (boolean | IntentRequiredRoute)[];
-            const intent = needsIntent[1] as IntentRequiredRoute;
-            const hasIntent = await userHasIntents(validation[2], req.header("x-portalseguranca-force"), intent.intents);
-
-            if (!hasIntent) {
-                let response: RequestError = {message: "Não tens permissão para efetuar esta ação"}
-                res.status(403).json(response);
-                return;
-            }
-        }
-
-    } else { // Every request that needs a token, also needs a force, so if the token is necessary, the force is also necessary
-        // Check if this request needs a force, if not, skip the force check
-        if (!isRouteExcluded(req.path, req.method, NO_FORCE_REQUIRED_ROUTES)) {
-            // Since it needs a force check, check it
-            const force = req.header("x-portalseguranca-force");
-            let response: RequestError = {message: "Força inválida"} // Default response
-
-            if (force === undefined) {
-                response = {
-                    message: "É necessária uma força para a realização deste pedido"
-                }
-
-                res.status(400).json(response);
-                return;
-            }
-
-            // Check if the force is valid
-            if (!FORCES.includes(force)) {
-                response = {
-                    message: "A força fornecida é inválida"
-                }
-                res.status(400).json(response);
-                return;
-            }
-        }
-    }
-
-    // * If all conditionals pass, continue to the next middleware since the authentication of the request is valid
-    // Update the last time the token was used
-    await updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]);
-    // Update the last time the user has interacted
-    await updateLastTimeUserInteracted(res.locals.user);
-
-    // Continue to next middleware
-    next();
-});
-
-// Middleware to check if the request has all the fields valid
+// Middleware to gather the route's information from the routes object
 apiRoutes.use((req, res, next) => {
     // Check if the requested route is present in the routes object
     // The keys of this object, are RegEx that match the routes
@@ -157,19 +25,138 @@ apiRoutes.use((req, res, next) => {
 
     // If the route is not present, assume no validation is needed
     if (routeIndex === -1) {
+        res.locals.routeDetails = null;
         return next();
     }
 
+    // Get the route object
     const route = routes[Object.keys(routes)[routeIndex]];
 
-    // If the route is present, but the used method isn't, assume no validation is needed
-    if (route.methods[req.method] === undefined) {
+    // * Check if the used method is present in the route object
+    // Cast the method to the required type
+    const method = req.method as methodType;
+
+    // If the method is not present, assume no validation is needed
+    if (route.methods[method] === undefined) {
+        res.locals.routeDetails = null;
         return next();
     }
 
-    // If the body is present, check if the contents are valid
-    const bodyType = route.methods[req.method].body.type;
-    const validation = bodyType.validate(req.body);
+    // Since the method is present, store the values in locals and proceed to the next middleware
+    res.locals.routeDetails = route.methods[method];
+    next();
+});
+
+/**
+ * Middleware to check if the request has basic necessary information
+ * This includes:
+ * - If the route requires a force, check if the force is present and valid
+ * - If the route requires a token, check if the token is present and valid
+ * - If the route requires intents, check if the user has the required intents
+ */
+apiRoutes.use(async (req, res, next) => {
+    // First, check if the route object is present
+    if (res.locals.routeDetails === null || res.locals.routeDetails === undefined) { // Since it's not present, assume no validation is needed
+        return next();
+    }
+
+    // * Checking the required basic information for the request
+    // Check if this route requires a force header
+    if (res.locals.routeDetails.requiresForce) {
+        // Since it requires a force, check if the force is present
+        if (req.header("x-portalseguranca-force") === undefined) { // If it requires a force, but it's not present, return 400
+            let response: RequestError = {
+                message: "É necessária uma força para a realização deste pedido"
+            }
+
+            res.status(400).json(response);
+            return;
+        }
+
+        // Check if the force is valid
+        if (!FORCES.includes(req.header("x-portalseguranca-force")!)) { // If the force is not valid, return 400
+            let response: RequestError = {
+                message: "Força inválida"
+            }
+
+            res.status(400).json(response);
+            return;
+        }
+
+    }
+
+    // Check if this route requires a token
+    if (res.locals.routeDetails.requiresToken) {
+        // Since it requires a token, check if the token is present
+        if (req.header("authorization") === undefined && req.cookies["sessionToken"] === undefined) { // If it requires a token, but it's not present, return 400
+            let response: RequestError = {
+                message: "Autenticação inválida"
+            }
+
+            res.status(401).json(response);
+            return;
+        }
+
+        // Check if the token is valid
+        if (!await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"))) { // If the token is not valid, return 400
+            let response: RequestError = {
+                message: "Autenticação inválida"
+            }
+
+            res.status(401).json(response);
+            return;
+        }
+
+        // * Since the token is valid, update the last time the token was used and the last time the user interacted
+        // Update the last time the token was used
+        updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]).then(); // No need to wait for this to finish
+        // Update the last time the user has interacted
+        updateLastTimeUserInteracted(res.locals.user).then(); // No need to wait for this to finish
+
+        // * Check if the route requires intents
+        if (res.locals.routeDetails.intents && res.locals.routeDetails.intents.length > 0) {
+            // Check if the user has the required intents
+            let hasIntents = true;
+
+            // Check all the intents present in the route
+            for (const intent of res.locals.routeDetails.intents) {
+                // If the user doesn't have all the required intents, assume they can't access the route
+                if (!(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), intent))) {
+                    hasIntents = false;
+                    break;
+                }
+            }
+
+            if (!hasIntents) { // If the user doesn't have the required intents, return 403
+                let response: RequestError = {
+                    message: "Não tem permissões suficientes para realizar este pedido"
+                }
+
+                res.status(403).json(response);
+                return;
+            }
+        }
+    }
+
+    // If all conditionals pass, continue to the next middleware since the authentication of the request is valid
+    next();
+});
+
+// Middleware to check if the request has all the fields valid
+// TODO: This needs to be refactored to use the routeDetails local
+apiRoutes.use((req, res, next) => {
+    //  Check if the route details are present. If not, assume no validation is needed
+    if (res.locals.routeDetails === null) {
+        return next();
+    }
+
+    // Check if the route has a body pattern
+    if (!res.locals.routeDetails.body) { // If it doesn't have a body pattern, assume no validation is needed
+        return next();
+    }
+
+    // Since the route has a body pattern, check if the contents of the request's body are valid
+    const validation = res.locals.routeDetails.body.type.validate(req.body);
 
     if (!validation.success) {
         let response: RequestError = {

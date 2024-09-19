@@ -3,11 +3,14 @@ import {
     LoginRequestBody,
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
+import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
+
+export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type routesType = {
     [key: string]: {
         methods: {
-            [key in "GET" | "POST" | "PUT" | "PATCH" | "DELETE"]?: {
+            [key in methodType]?: {
                 requiresToken: boolean,
                 requiresForce: boolean,
                 intents?: string[],
