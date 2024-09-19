@@ -18,7 +18,7 @@ import {
     SpecialUnit,
     SpecialUnitRole
 } from "../../force-data-context.ts";
-import {OfficerUnit} from "@portalseguranca/api-types/api/officer-info/schema.ts";
+import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {useImmer} from "use-immer";
 import Gate from "../../components/Gate/gate.tsx";
 

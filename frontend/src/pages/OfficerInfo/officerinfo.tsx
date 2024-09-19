@@ -18,7 +18,7 @@ import {
     DefaultSelect,
     DefaultTextField
 } from "../../components/DefaultComponents";
-import {OfficerUnit} from "@portalseguranca/api-types/api/officer-info/schema";
+import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./special-units-table.tsx";
 import Gate from "../../components/Gate/gate.tsx";

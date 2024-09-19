@@ -4,6 +4,8 @@ import {
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
 import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
+import {CreateOfficerRequestBody, DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -15,7 +17,7 @@ type routesType = {
                 requiresForce: boolean,
                 intents?: string[],
                 body?: {
-                    type: any
+                    type: Record<any, any>
                 }
             }
         }
@@ -166,13 +168,68 @@ const utilRoutes: routesType = {
     },
 }
 
+const officersRoutes: routesType = {
+    // Route to get all officers of a force
+    "/officers": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+
+    // * Routes about existing officers or to create new officers
+    "/officers/.*/": {
+        methods: {
+            // Route to get an officer's information
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+
+            // Route to create an officer
+            PUT: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["officers"],
+                body: {
+                    type: CreateOfficerRequestBody
+                }
+            },
+
+            // Route to update an officer's information
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["officers"],
+                body: {
+                    type: CreateOfficerRequestBody
+                }
+            },
+
+            // Route to delete an officer
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["officers"],
+                body: {
+                    type: DeleteOfficerRequestBody
+                }
+            }
+
+        }
+    },
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
 const routes: routesType = {
     ...accountRoutes,
     ...metricsRoutes,
-    ...utilRoutes
+    ...utilRoutes,
+    ...officersRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.

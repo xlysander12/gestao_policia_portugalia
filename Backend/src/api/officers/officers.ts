@@ -7,7 +7,8 @@ import {
     OfficerListResponse,
     OfficerInfoGetResponse,
     OfficerUnit
-} from "@portalseguranca/api-types/officer-info/schema";
+} from "@portalseguranca/api-types/officers/output";
+import { DeleteOfficerRequestBody } from '@portalseguranca/api-types/officers/input';
 
 const app = express.Router();
 
@@ -46,19 +47,6 @@ app.get("/", async (req, res) => {
 });
 
 app.put("/:nif", async (req, res) => {
-    // Making sure the user has provided all necessary information
-    if (req.body.name === undefined ||
-        req.body.phone === undefined ||
-        req.body.iban === undefined ||
-        req.body.kms === undefined ||
-        req.body.discord === undefined ||
-        req.body.steam === undefined) {
-        res.status(400).json({
-            message: "Não foram fornecidos todos os dados necessários. É necessário fornecer nome, telemovel, iban, kms, discord e steam."
-        });
-        return;
-    }
-
     // Making sure the provided nif doesn't already exist
     let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
     if (officer_exists_check_result.length !== 0) {
@@ -205,6 +193,8 @@ app.patch("/:nif", async (req, res) => {
 });
 
 app.delete("/:nif", async (req, res) => {
+    const {reason} = req.body as DeleteOfficerRequestBody;
+
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
     let requestingOfficerpatent = (await queryDB(req.header("x-portalseguranca-force"), 'SELECT patent FROM officers WHERE nif = ?', res.locals.user))[0].patent;
@@ -220,7 +210,7 @@ app.delete("/:nif", async (req, res) => {
     }
 
     // After making sure the officer can be fired, run the SQL procedure to transfer the data to the archive db
-    await queryDB(req.headers["x-portalseguranca-force"], 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, req.body.reason]);
+    await queryDB(req.headers["x-portalseguranca-force"], 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, reason]);
 
     // After transferring the officer to the archive, delete the officer from the main database
     await queryDB(req.headers["x-portalseguranca-force"], 'DELETE FROM officers WHERE nif = ?', req.params.nif);
