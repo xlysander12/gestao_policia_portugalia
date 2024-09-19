@@ -22,11 +22,7 @@ type routesType = {
     }
 }
 
-/**
- * @description: This file contains all the routes of the API with their respective methods, paths, required intents and body types
- */
-const routes: routesType = {
-    // * Account routes
+const accountRoutes: routesType = {
     // Route to validate a token
     "/accounts/validateToken": {
         methods: {
@@ -98,8 +94,9 @@ const routes: routesType = {
             }
         }
     },
+}
 
-    // * Metrics routes
+const metricsRoutes: routesType = {
     // Route to submit an issue
     "/metrics/issue": {
         methods: {
@@ -125,6 +122,57 @@ const routes: routesType = {
             }
         }
     },
+}
+
+const utilRoutes: routesType = {
+    // Route to get all patents of a force
+    "/util/patents": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all statuses of a force
+    "/util/statuses": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all special units of a force
+    "/util/specialunits": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all intents of a force
+    "/util/intents": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+}
+
+/**
+ * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
+ */
+const routes: routesType = {
+    ...accountRoutes,
+    ...metricsRoutes,
+    ...utilRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.
