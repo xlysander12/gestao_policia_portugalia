@@ -1,6 +1,7 @@
 import express from "express";
 import {queryDB} from "../../utils/db-connector";
 import {ForceType} from "../../utils/constants";
+import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 
 // Creating the router
 const app = express.Router();
@@ -36,26 +37,22 @@ async function submitIssue(title: string, body: string, labels: string[]) {
 }
 
 app.post("/issue", async (req, res) => {
-    // Making sure the request is valid
-    if (!req.body.title || !req.body.body) {
-        res.status(400).json({error: "O pedido deve conter um titulo e texto"});
-        return;
-    }
+    const {title, body, code} = req.body as SubmitIssueRequestBodyType;
 
     // Getting the nif of the logged user
     const loggedNif = Number(res.locals.user)
 
     // Manipulating the values to be used in the issue creation
-    const title = `${req.body.title} - Issue Automático`;
+    let issueTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let body = await getBodyAuthorDetails(loggedNif, req.header("x-portalseguranca-force"));
-    body += `# Detalhes do problema\n`;
-    body += req.body.code !== undefined ? `Código de erro: ${req.body.code}\n` : "";
-    body += req.body.body;
+    let issueBody = await getBodyAuthorDetails(loggedNif, req.header("x-portalseguranca-force"));
+    issueBody += `# Detalhes do problema\n`;
+    issueBody += code !== undefined ? `Código de erro: ${code}\n` : "";
+    issueBody += body;
 
     // Submitting the issue to github
-    const githubResponse = await submitIssue(title, body, ["auto added", "bug"]);
+    const githubResponse = await submitIssue(issueTitle, issueBody, ["auto added", "bug"]);
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
@@ -68,25 +65,21 @@ app.post("/issue", async (req, res) => {
 });
 
 
-app.post("/sugestion", async (req, res) => {
-    // Making sure the request is valid
-    if (!req.body.title || !req.body.body) {
-        res.status(400).json({message: "Não foram preenchidos todos os campos"});
-        return;
-    }
+app.post("/suggestion", async (req, res) => {
+    const {title, body} = req.body as SubmitSuggestionRequestBodyType;
 
     // Getting the nif of the logged user
     const loggedNif = Number(res.locals.user);
 
     // Manipulating the values to be used in the issue creation
-    const title = `${req.body.title} - Issue Automático`;
+    const suggestionTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let body = await getBodyAuthorDetails(loggedNif, req.header("x-portalseguranca-force"));
-    body += `# Detalhes da sugestão\n`;
-    body += req.body.body;
+    let suggestionBody = await getBodyAuthorDetails(loggedNif, req.header("x-portalseguranca-force"));
+    suggestionBody += `# Detalhes da sugestão\n`;
+    suggestionBody += body;
 
-    const githubResponse = await submitIssue(title, body, ["auto added", "enhancement"]);
+    const githubResponse = await submitIssue(suggestionTitle, suggestionBody, ["auto added", "enhancement"]);
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
@@ -95,7 +88,7 @@ app.post("/sugestion", async (req, res) => {
     }
 
     // Return a 200 status code
-    res.status(200).json({message: "Sugestão criara com sucesso! Obrigado!"});
+    res.status(200).json({message: "Sugestão criada com sucesso! Obrigado!"});
 });
 
 console.log("[Portal Segurança] Metrics routes loaded successfully!");

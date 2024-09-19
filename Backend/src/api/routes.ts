@@ -97,6 +97,43 @@ const routes: routesType = {
                 intents: ["accounts"]
             }
         }
+    },
+
+    // * Metrics routes
+    // Route to submit an issue
+    "/metrics/issue": {
+        methods: {
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: SubmitIssueRequestBody
+                }
+            }
+        }
+    },
+
+    // Route to submit a suggestion
+    "/metrics/suggestion": {
+        methods: {
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: SubmitIssueRequestBody
+                }
+            }
+        }
+    },
+}
+
+// ! Make sure there are no routes that require a token but don't require a force.
+// ! If there are, throw an error and stop the server from starting
+for (const route of Object.keys(routes)) {
+    for (let method of Object.keys(routes[route].methods)) {
+        if (routes[route].methods[method as methodType]!.requiresToken && !routes[route].methods[method as methodType]!.requiresForce) {
+            throw new Error(`Route '${route}' requires a token but doesn't require a force`);
+        }
     }
 }
 
