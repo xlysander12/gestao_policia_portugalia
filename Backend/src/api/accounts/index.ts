@@ -6,14 +6,17 @@ import actionRoutes from "./action";
 import {userHasIntents} from "../../utils/user-handler";
 import { RequestError } from "@portalseguranca/api-types";
 import { ValidateTokenResponse } from "@portalseguranca/api-types/account/output";
+import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
 
 const app = express.Router();
 
 // Endpoint to validate a Token and check if the user has the correct permissions
 app.post("/validateToken", async (req, res) => {
+
+    let {intents} = req.body as ValidateTokenRequestBodyType;
     // Check if intents were provided
-    if (req.body.intents) { // If intents were provided, check if the user has them
-        let hasIntents = await userHasIntents(Number(res.locals.user), req.header("x-portalseguranca-force"), req.body.intents);
+    if (intents) { // If intents were provided, check if the user has them
+        let hasIntents = await userHasIntents(Number(res.locals.user), req.header("x-portalseguranca-force"), intents);
         if (!hasIntents) { // If the user doesn't have intents, return a 403
             let response: RequestError = {
                 message: "Não tens esta permissão"

@@ -7,7 +7,6 @@ const app = express.Router();
 
 // Endpoint to create an account
 app.post("/:nif", async (req, res) => {
-    // TODO: Implement this endpoint to create a new account
     const {nif} = req.params;
 
     // First, make sure this user doesn't already have an account
