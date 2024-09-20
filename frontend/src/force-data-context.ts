@@ -1,5 +1,5 @@
 import {createContext} from "react";
-import {IntentData} from "@portalseguranca/api-types/api/util/schema";
+import {IntentData} from "@portalseguranca/api-types/util/schema";
 
 export type Patent = {
     id: number,
