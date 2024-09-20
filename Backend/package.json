@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.prod.json",
+    "build": "tsc -p tsconfig.prod.json && npm run copy-api-types",
+    "copy-api-types": "cp -r ./node_modules/@portalseguranca/api-types ./dist/node_modules/@portalseguranca",
     "dev": "nodemon temp_server.ts",
     "start": "node dist/index.js"
   },
@@ -19,7 +20,7 @@
   },
   "homepage": "https://github.com/xlysander12/gestao_policia_portugalia#readme",
   "dependencies": {
-    "@portalseguranca/api-types": "file:../API Types",
+    "@portalseguranca/api-types": "file:../API Types/dist",
     "@types/serve-index": "^1.9.4",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
@@ -37,6 +38,7 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.11",
+    "@portalseguranca/api-types": "file:../API Types",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3"
   }
