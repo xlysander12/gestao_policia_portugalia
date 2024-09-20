@@ -8,9 +8,9 @@ import {FORCES, ForceType} from "./constants";
 
 // Database connection details
 const dbConfigDefaultPSP: PoolOptions = {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
+    host: process.env.PS_MYSQL_HOST,
+    user: process.env.PS_MYSQL_USER,
+    password: process.env.PS_MYSQL_PASSWORD,
     database: "portugalia_gestao_psp",
     connectionLimit: 10
 }
