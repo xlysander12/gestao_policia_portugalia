@@ -72,7 +72,7 @@ app.post("/login", async (req, res) => {
     // Set the token to the response's cookies
     let cookieOptions: CookieOptions = {
         httpOnly: true,
-        secure: process.env.IS_PRODUCTION === "true"
+        secure: process.env.PS_IS_PRODUCTION === "true"
     }
     // If the login is marked as "persistent", set the cookie to last 400 days (max allowed age by Chrome)
     if (persistent) {
