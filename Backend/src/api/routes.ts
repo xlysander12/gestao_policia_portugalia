@@ -4,7 +4,11 @@ import {
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
 import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
-import {CreateOfficerRequestBody, DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {
+    CreateOfficerRequestBody,
+    DeleteOfficerRequestBody,
+    UpdateOfficerRequestBody
+} from "@portalseguranca/api-types/officers/input";
 import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -86,9 +90,16 @@ const accountRoutes: routesType = {
         }
     },
 
-    // Route to create an account for an existing officer
+    // * Routes related to creation and data fetching of exsiting accounts
     "/accounts/.*": {
         methods: {
+            // Route to get information about an account
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+
+            // Route to create an account for an existing officer
             POST: {
                 requiresToken: true,
                 requiresForce: true,
@@ -170,7 +181,7 @@ const utilRoutes: routesType = {
 
 const officersRoutes: routesType = {
     // Route to get all officers of a force
-    "/officers": {
+    "^/officers$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -180,7 +191,7 @@ const officersRoutes: routesType = {
     },
 
     // * Routes about existing officers or to create new officers
-    "/officers/.*/": {
+    "/officers/.*": {
         methods: {
             // Route to get an officer's information
             GET: {
@@ -204,7 +215,7 @@ const officersRoutes: routesType = {
                 requiresForce: true,
                 intents: ["officers"],
                 body: {
-                    type: CreateOfficerRequestBody
+                    type: UpdateOfficerRequestBody
                 }
             },
 

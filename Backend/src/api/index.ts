@@ -98,16 +98,18 @@ apiRoutes.use(async (req, res, next) => {
         }
 
         // Check if the token is valid
-        if (!await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"))) { // If the token is not valid, return 400
+        const tokenValidity = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"));
+        if (!tokenValidity[0]) { // If the token is not valid, return 400
             let response: RequestError = {
                 message: "Autenticação inválida"
             }
 
-            res.status(401).json(response);
+            res.status(tokenValidity[1]).json(response);
             return;
         }
 
         // * Since the token is valid, update the last time the token was used and the last time the user interacted
+        res.locals.user = Number(tokenValidity[2]); // Store the user's NIF in locals
         // Update the last time the token was used
         updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]).then(); // No need to wait for this to finish
         // Update the last time the user has interacted
