@@ -11,7 +11,7 @@ function Login() {
     const navigate = useNavigate()
 
     // Set the state for the NIF and password
-    const [nif, setNif] = useState("");
+    const [nif, setNif] = useState<number>(0);
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
 
@@ -63,12 +63,12 @@ function Login() {
                         size={"small"}
                         label={"NIF"}
                         type={"text"}
-                        onChange={(event) => setNif(event.target.value)}
+                        onChange={(event) => setNif(Number(event.target.value))}
                         required
                         inputProps={{
                             pattern: "^[0-9]*$"
                         }}
-                        value={nif}
+                        value={nif === 0 ? "" : nif}
                     />
 
                     <DefaultOutlinedTextField
