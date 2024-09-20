@@ -8,7 +8,7 @@ import {config} from "dotenv";
 import {join} from "path";
 config({path: join(__dirname, "..", ".env")});
 
-import {apiRoutes} from "./api";
+import apiRoutes from "./api";
 import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
 import {FORCES} from "./utils/constants";

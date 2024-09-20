@@ -15,7 +15,7 @@ import {
 import routes, {methodType} from "./routes";
 import {RequestError} from "@portalseguranca/api-types";
 
-export const apiRoutes = express.Router();
+const apiRoutes = express.Router();
 
 // Middleware to gather the route's information from the routes object
 apiRoutes.use((req, res, next) => {
@@ -185,4 +185,6 @@ apiRoutes.use("/accounts", accountRoutes);
 // Import Officer Info routes
 apiRoutes.use("/officers", officerInfoRoutes)
 
-console.log("[Portal Segurança] API routes loaded successfully.")
+console.log("[Portal Segurança] API routes loaded successfully.");
+
+export default apiRoutes;

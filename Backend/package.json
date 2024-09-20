@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.prod.json && npm run copy-api-types",
-    "copy-api-types": "cp -r ./node_modules/@portalseguranca/api-types ./dist/node_modules/@portalseguranca",
+    "build": "tsc -p tsconfig.prod.json",
     "dev": "nodemon temp_server.ts",
     "start": "node dist/index.js"
   },
