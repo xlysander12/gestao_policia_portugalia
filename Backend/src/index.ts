@@ -3,10 +3,10 @@ import express, {Router} from "express";
 import bodyParser from "body-parser"
 import cookieParser from "cookie-parser";
 import serveIndex from "serve-index";
-// Load .env file
+// Load .env.portalseguranca file
 import {config} from "dotenv";
 import {join} from "path";
-config({path: join(__dirname, "..", ".env")});
+config({path: join(__dirname, "..", ".env.portalseguranca")});
 
 import apiRoutes from "./api";
 import {isTokenValid} from "./utils/user-handler";
