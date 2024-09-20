@@ -16,7 +16,7 @@ npm run build
 cd ..
 
 echo "API Types built successfully"
-pause
+read -p "Press enter to continue"
 
 # Start working in the Backend
 cd Backend || exit
@@ -34,7 +34,7 @@ npm run build
 cd ..
 
 echo "Backend built successfully"
-pause
+read -p "Press enter to continue"
 
 # Start working in the Frontend
 cd Frontend || exit
@@ -52,7 +52,7 @@ npm run build
 cd ..
 
 echo "Frontend built successfully"
-pause
+read -p "Press enter to continue"
 
 # Create the node_modules folder in the Backend dist folder
 mkdir Backend/dist/node_modules
