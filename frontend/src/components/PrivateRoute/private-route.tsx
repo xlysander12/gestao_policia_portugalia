@@ -10,7 +10,7 @@ import {
 } from "@portalseguranca/api-types/account/output";
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
-import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officer-info/schema";
+import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 
 type PrivateRouteProps = {
     element: ReactElement

@@ -15,7 +15,7 @@ import {
     UtilPatentsResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
-} from "@portalseguranca/api-types/api/util/schema";
+} from "@portalseguranca/api-types/util/schema";
 import Loader from "./components/Loader/loader.tsx";
 import {createTheme, ThemeProvider} from "@mui/material";
 import defaultThemeData from "./theme.ts";
