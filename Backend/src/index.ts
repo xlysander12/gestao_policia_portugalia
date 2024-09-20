@@ -33,11 +33,12 @@ app.use("/api", apiRoutes);
 // Database backup files
 app.use("/db", async (req, res, next) => {
     // Check if the user is authenticated and has the right patent
-    let loggedUser = [false, "", ""];
+    let loggedUser = [false, "", "", ""];
     for (const force of FORCES) {
         const isValid = await isTokenValid(req.cookies["sessionToken"], force);
         if (isValid[0]) {
             loggedUser = isValid;
+            loggedUser[3] = force;
             break;
         }
     }
