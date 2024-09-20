@@ -1,5 +1,4 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+# This workflow will do a clean installation of the API Types, Backend and frontend, cache/restore them and build the source code across different versions of node
 
 name: Fullstack Build
 
@@ -60,7 +59,18 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
-            - name: Build
+            # Setup the API Types
+            - name: Setup API types
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ matrix.node-version }}
+                cache: 'npm'
+                cache-dependency-path: 'API Types/package-lock.json'
+            - run: npm ci
+              working-directory: 'API Types'
+
+            # Build the frontend source
+            - name: Build Frontend
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
