@@ -32,9 +32,9 @@ jobs:
               with:
                 node-version: ${{ matrix.node-version }}
                 cache: 'npm'
-                cache-dependency-path: API\ Types/package-lock.json
+                cache-dependency-path: 'API Types/package-lock.json'
             - run: npm ci
-              working-directory: API\ Types
+              working-directory: 'API Types'
 
             # Build the backend source
             - name: Build Backend
