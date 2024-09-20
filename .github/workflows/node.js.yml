@@ -34,6 +34,7 @@ jobs:
                 cache: 'npm'
                 cache-dependency-path: API\ Types/package-lock.json
             - run: npm ci
+              working-directory: API\ Types
 
             # Build the backend source
             - name: Build Backend
