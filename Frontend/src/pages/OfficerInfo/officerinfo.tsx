@@ -44,11 +44,12 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                 <label>{label}</label>
                 <DefaultTextField
                     fullWidth
+                    required
                     sameTextColorWhenDisabled
                     disabled={!editMode}
                     type={type}
                     error={(pattern !== undefined) && !(pattern.test(String(value)))}
-                    value={value}
+                    value={value === null ? "": value}
                     onChange={onChangeCallback}
                     inputProps={{
                         step: step,
@@ -84,7 +85,7 @@ function OfficerInfo() {
     type OfficerInfoState = {
         personal: {
             name: string,
-            phone: string,
+            phone: number,
             iban: string,
             kms: number,
             discord: string,
@@ -124,7 +125,7 @@ function OfficerInfo() {
             iban: "",
             kms: 0,
             name: "",
-            phone: "",
+            phone: 0,
             steam: ""
         },
         professional: {
@@ -205,7 +206,7 @@ function OfficerInfo() {
                     phone: officerInfo.personal.phone,
                     iban: officerInfo.personal.iban,
                     kms: officerInfo.personal.kms,
-                    discord: officerInfo.personal.discord,
+                    discord: Number(officerInfo.personal.discord),
                     steam: officerInfo.personal.steam,
 
                     // Professional Info
