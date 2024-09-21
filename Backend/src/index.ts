@@ -37,7 +37,7 @@ app.use("/db", async (req, res, next) => {
     for (const force of FORCES) {
         const isValid = await isTokenValid(req.cookies["sessionToken"], force);
         if (isValid[0]) {
-            loggedUser = isValid;
+            loggedUser = [...isValid, ""];
             loggedUser[3] = force;
             break;
         }
