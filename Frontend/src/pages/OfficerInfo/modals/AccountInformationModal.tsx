@@ -10,6 +10,8 @@ import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
 import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
+import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import {toast} from "react-toastify";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -82,8 +84,13 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     }, [officerNif, needsRefresh]);
 
     // Function to create an account if it doesn't exist
-    function createAccount() {
-
+    async function createAccount() {
+        let response = await make_request(`/accounts/${officerNif}`, "POST");
+        if (!response.ok) {
+            return toast(`Erro ao ativar a conta:\n${((await response.json()) as RequestSuccess).message}`, {type: "error"});
+        }
+        toast("Conta ativada com sucesso", {type: "success"});
+        setNeedsRefresh(true);
     }
 
     let lastUsedString;
@@ -106,7 +113,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 {/*TODO: Change onClick behaviour*/}
                 <DefaultButton
                     darkTextOnHover
-                    onClick={async () => {console.log("Activate account")}}
+                    onClick={createAccount}
                     sx={{
                         marginTop: "10px"
                     }}

@@ -1,4 +1,4 @@
-# This workflow will do a clean installation of the API Types, Backend and frontend, cache/restore them and build the source code across different versions of node
+# This workflow will do a clean installation of the API Types, Backend and frontend, cache/restore them and build the source code across the using version of node
 
 name: Fullstack Build
 
