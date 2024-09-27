@@ -1,4 +1,5 @@
 import {
+    ChangeAccountInfoRequestBody,
     ChangePasswordRequestBody,
     LoginRequestBody,
     ValidateTokenRequestBody
@@ -99,7 +100,10 @@ const accountRoutes: routesType = {
             PATCH: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["accounts"]
+                intents: ["accounts"],
+                body: {
+                    type: ChangeAccountInfoRequestBody
+                }
             },
         }
     },

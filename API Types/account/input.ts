@@ -1,4 +1,4 @@
-import {Record, Number, String, Boolean, Static, Optional, Array} from "runtypes";
+import {Record, Number, String, Boolean, Static, Optional, Array, Dictionary} from "runtypes";
 
 export const LoginRequestBody = Record({
     nif: Number,
@@ -14,6 +14,12 @@ export const ChangePasswordRequestBody = Record({
     confirmPassword: String
 });
 export type ChangePasswordRequestBodyType = Static<typeof ChangePasswordRequestBody>
+
+export const ChangeAccountInfoRequestBody = Record({
+   suspended: Optional(Boolean),
+   intents: Optional(Dictionary(Boolean, String))
+});
+export type ChangeAccountInfoRequestBodyType = Static<typeof ChangeAccountInfoRequestBody>
 
 
 export const ValidateTokenRequestBody = Record({
