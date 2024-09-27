@@ -79,17 +79,6 @@ const accountRoutes: routesType = {
         }
     },
 
-    // Route to update the intents of a user
-    "/accounts/.*/intents": {
-        methods: {
-            PATCH: {
-                requiresToken: true,
-                requiresForce: true,
-                intents: ["accounts"]
-            }
-        }
-    },
-
     // * Routes related to creation and data fetching of exsiting accounts
     "/accounts/.*": {
         methods: {
@@ -104,7 +93,14 @@ const accountRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 intents: ["accounts"]
-            }
+            },
+
+            // Route to update an account's permissions and suspended state
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["accounts"]
+            },
         }
     },
 }

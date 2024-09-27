@@ -37,12 +37,9 @@ app.post("/:nif", async (req, res) => {
     res.status(200).json(response);
 });
 
-// Endpoint to reset the password
-app.post("/:nif/resetpassword", async (req, res) => {
-    // TODO: Implement this endpoint to reset user's password
-});
-
-app.patch("/:nif/intents", async (req, res) => {
+// Endpoint to edit an account's permissions / suspended statuses
+// Todo: This needs to be finished
+app.patch("/:nif", async (req, res) => {
     const intents  = Object.keys(req.body);
 
     // Update intents in the database
@@ -67,6 +64,11 @@ app.patch("/:nif/intents", async (req, res) => {
         message: "Intents updated successfully"
     }
     res.status(200).json(response);
+});
+
+// Endpoint to reset the password
+app.post("/:nif/resetpassword", async (req, res) => {
+    // TODO: Implement this endpoint to reset user's password
 });
 
 export default app;
