@@ -1,5 +1,5 @@
 ### GET request see what forces are available for the account
 GET http://localhost:8080/portugalia/portalseguranca/api/accounts/668855471/forces
-Authorization: {{jwtToken}}
+Authorization: {{token}}
 X-PortalSeguranca-Force: psp
 ###

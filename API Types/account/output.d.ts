@@ -7,6 +7,7 @@ export interface ValidateTokenResponse extends RequestSuccess {
 export interface AccountInfoResponse extends RequestSuccess {
     data: {
         passwordChanged: boolean,
+        suspended: boolean,
         lastUsed: string,
         intents: {[key: string]: boolean}
     }

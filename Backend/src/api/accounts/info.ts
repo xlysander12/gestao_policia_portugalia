@@ -35,13 +35,14 @@ app.get("/:nif", async (req, res) => {
         message: "Operação bem sucedida",
         data: {
             passwordChanged: false,
+            suspended: false,
             lastUsed: "",
             intents: {}
         }
     };
 
     // Fetch the password and the last time the user interacted with the system
-    const infoQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password, last_interaction FROM users WHERE nif = ?', req.params.nif);
+    const infoQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password, suspended, last_interaction FROM users WHERE nif = ?', req.params.nif);
 
     // If no user exists, return 404
     if (infoQuery.length === 0) {
@@ -53,6 +54,9 @@ app.get("/:nif", async (req, res) => {
 
     // Check if the password has been changed by the user
     response.data.passwordChanged = infoQuery[0].password !== null;
+
+    // Get the user's suspension status
+    response.data.suspended = Boolean(infoQuery[0].suspended);
 
     // Get the last time the user interacted with the system
     response.data.lastUsed = infoQuery[0].last_interaction;

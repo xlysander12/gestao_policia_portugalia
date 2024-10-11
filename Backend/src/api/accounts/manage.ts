@@ -39,7 +39,6 @@ app.post("/:nif", async (req, res) => {
 });
 
 // Endpoint to edit an account's permissions / suspended statuses
-// Todo: This needs to be finished
 app.patch("/:nif", async (req, res) => {
     const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
 
