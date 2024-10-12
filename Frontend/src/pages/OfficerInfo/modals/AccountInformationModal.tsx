@@ -12,6 +12,7 @@ import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
+import Gate from "../../../components/Gate/gate.tsx";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -37,6 +38,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     const [accountInfo, setAccountInfo] = useImmer({
         defaultPassword: false,
+        suspended: false,
         lastUsed: new Date(),
         intents: intentsObject
     });
@@ -60,6 +62,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
                 draft.defaultPassword = accountInfoJson.data.passwordChanged;
+                draft.suspended = accountInfoJson.data.suspended;
                 draft.lastUsed = new Date(Date.parse(accountInfoJson.data.lastUsed));
                 draft.intents = accountInfoJson.data.intents;
             });
@@ -110,7 +113,6 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         modalContent = (
             <div className={modalsStyle.noAccountDiv}>
                 <Typography color={"var(--portalseguranca-color-text-light)"}>Este efetivo não tem a conta ativada.<br/>Ativar a conta vai permitir o login com este nif e a palavra-passe padrão</Typography>
-                {/*TODO: Change onClick behaviour*/}
                 <DefaultButton
                     darkTextOnHover
                     onClick={createAccount}
@@ -131,7 +133,13 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             <Typography>Palavra-passe alterada:</Typography>
                             {accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
                         </Stack>
-                         <Typography>Última utilização: {lastUsedString}</Typography>
+
+                        <Stack alignItems={"center"} direction={"row"} gap={0.5}>
+                            <Typography>Conta ativa:</Typography>
+                            {!accountInfo.suspended ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
+                        </Stack>
+
+                        <Typography>Última utilização: {lastUsedString}</Typography>
                     </div>
                 </ModalSection>
 
@@ -163,7 +171,15 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 <ModalSection title={"Ações"}>
                     <div className={modalsStyle.actionsInnerSectionDiv}>
                         <DefaultButton style={{flex: 1}}>Reset Palavra-Passe</DefaultButton>
-                        <DefaultButton buttonColor={"orange"} darkTextOnHover={false} style={{flex: 1}}>Suspender Conta</DefaultButton>
+                        {/*If the account isn't suspended, show the button that suspends it*/}
+                        <Gate show={!accountInfo.suspended}>
+                            <DefaultButton buttonColor={"orange"} darkTextOnHover={false} style={{flex: 1}}>Suspender Conta</DefaultButton>
+                        </Gate>
+                        {/*If the account is suspended, show the button that reactivates it*/}
+                        <Gate show={accountInfo.suspended}>
+                            <DefaultButton buttonColor={"lightgreen"} darkTextOnHover={true} style={{flex: 1}}>Reativar Conta</DefaultButton>
+                        </Gate>
+
                         <DefaultButton buttonColor={"red"} style={{flex: 1}}>Apagar Conta</DefaultButton>
                     </div>
                 </ModalSection>
