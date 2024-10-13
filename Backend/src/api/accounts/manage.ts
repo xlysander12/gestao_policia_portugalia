@@ -79,6 +79,31 @@ app.patch("/:nif", async (req, res) => {
     res.status(200).json(response);
 });
 
+// Endpoint to delete an account
+// ! This endpoint will rarely be used since there's no big reason to need to delete an account
+// ! If an account needs to be deleted, in theory, the officer linked to it should be fired
+app.delete("/:nif", async (req, res) => {
+    // * First, make sure the user exists in the selected force
+    const requestedUserQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT * FROM users WHERE nif = ?', [req.params.nif]);
+
+    // If the user doesn't exist, return an error
+    if (requestedUserQuery.length === 0) {
+        let response: RequestError = {
+            message: "O utilizador não existe"
+        };
+        return res.status(400).json(response);
+    }
+
+    // Since the user exists, delete it
+    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM users WHERE nif = ?', [req.params.nif]);
+
+    // Return success
+    let response: RequestSuccess = {
+        message: "Conta eliminada com sucesso"
+    };
+    res.status(200).json(response);
+});
+
 // Endpoint to reset the password
 app.post("/:nif/resetpassword", async (req, res) => {
     // TODO: Implement this endpoint to reset user's password
