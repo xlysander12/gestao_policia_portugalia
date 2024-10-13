@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {ReactElement} from "react";
 import style from "./modal.module.css";
-import {Divider} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider} from "@mui/material";
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
@@ -86,4 +86,34 @@ export function ModalSection({title, titleCentered = false, children}: ModalSect
             {children}
         </fieldset>
     );
+}
+
+type ConfirmationDialogProps = {
+    open: boolean,
+    title: string,
+    text: string,
+    onConfirm: (event: any) => void,
+    onDeny?: (event: any) => void,
+}
+export function ConfirmationDialog({open, title, text, onConfirm, onDeny}: ConfirmationDialogProps): ReactElement {
+    return (
+        <Dialog
+            open={open}
+        >
+            <DialogTitle>
+                {title}
+            </DialogTitle>
+
+            <DialogContent>
+                <DialogContentText>
+                    {text}
+                </DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+                <Button onClick={onDeny}>Cancelar</Button>
+                <Button onClick={onConfirm}>Sim</Button>
+            </DialogActions>
+        </Dialog>
+    )
 }
