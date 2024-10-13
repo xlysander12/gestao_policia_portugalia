@@ -6,13 +6,14 @@ import Loader from "../../../components/Loader/loader.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
-import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
 import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
+import {useLocation, useNavigate} from "react-router-dom";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -28,6 +29,9 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     // Getting the logged user data from the context
     const loggedUserData = useContext<LoggedUserContextType>(LoggedUserContext);
+
+    // Initialize the useNavigate hook
+    const navigate = useNavigate();
 
     const [accountExists, setAccountExists] = useState<boolean | null>(null);
 
@@ -48,6 +52,9 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     // State for managing the refresh of the account information
     const [needsRefresh, setNeedsRefresh] = useState(true);
     const [justRefreshed, setJustRefreshed] = useState(false);
+
+    // State for the confirmation dialog for account deletion
+    const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
 
     // Fetch the current information about the officer
     useEffect(() => {
@@ -218,9 +225,32 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             </DefaultButton>
                         </Gate>
 
-                        <DefaultButton buttonColor={"red"} style={{flex: 1}}>Apagar Conta</DefaultButton>
+                        <DefaultButton
+                            buttonColor={"red"}
+                            style={{flex: 1}}
+                            onClick={() => setDeleteConfirmationOpen(true)}
+                        >
+                            Apagar Conta
+                        </DefaultButton>
                     </div>
                 </ModalSection>
+
+
+                <ConfirmationDialog open={deleteConfirmationOpen} onDeny={() => setDeleteConfirmationOpen(false)} title={"Apagar conta"} text={`Tens a certeza que desejas apagar a conta de ${officerFullName}?`} onConfirm={async () => {
+                    let response = await make_request(`/accounts/${officerNif}`, "DELETE");
+                    if (!response.ok) {
+                        return toast(`Erro ao apagar a conta:\n${((await response.json()) as RequestError).message}`, {type: "error"});
+                    }
+
+                    setDeleteConfirmationOpen(false);
+                    toast("Conta apagada com sucesso", {type: "success"});
+
+                    // Make the information refresh to reflext the changes and change the manage buttons
+                    setNeedsRefresh(true);
+
+                    // Close the account information modal
+                    onClose();
+                }} />
             </>
         )
     }
