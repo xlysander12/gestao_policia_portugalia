@@ -10,7 +10,7 @@ import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
 import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
-import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 
@@ -20,6 +20,8 @@ type AccountInformationModalProps = {
     officerNif: number,
     officerFullName: string
 }
+
+// TODO: Add a loader for when changing values or clicking buttons
 function AccountInformationModal({open, onClose, officerNif, officerFullName}: AccountInformationModalProps) {
     // Getting the force's data from the context
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
@@ -93,6 +95,27 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             return toast(`Erro ao ativar a conta:\n${((await response.json()) as RequestSuccess).message}`, {type: "error"});
         }
         toast("Conta ativada com sucesso", {type: "success"});
+        setNeedsRefresh(true);
+    }
+
+    // Function to change the suspended state of an account
+    async function changeSuspendedState(suspend: boolean) {
+        // Make the request to change the suspended state
+        let response = await make_request(`/accounts/${officerNif}`, "PATCH", {
+            body: {
+                suspended: suspend
+            }
+        });
+
+        // If the response wasn't OK, somthing went wrong (prob won't happen very often)
+        if (!response.ok) {
+            return toast(`Erro ao ${suspend ? 'suspender': 'reativar'} a conta:\n${((await response.json()) as RequestError).message}`, {type: "error"});
+        }
+
+        // Inform the successfull change
+        toast(`Conta ${suspend ? 'suspensa': 'reativada'} com sucesso`, {type: suspend ? "warning": "success"});
+
+        // Make the information refresh to reflext the changes and change the manage buttons
         setNeedsRefresh(true);
     }
 
@@ -171,13 +194,28 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 <ModalSection title={"Ações"}>
                     <div className={modalsStyle.actionsInnerSectionDiv}>
                         <DefaultButton style={{flex: 1}}>Reset Palavra-Passe</DefaultButton>
+
                         {/*If the account isn't suspended, show the button that suspends it*/}
                         <Gate show={!accountInfo.suspended}>
-                            <DefaultButton buttonColor={"orange"} darkTextOnHover={false} style={{flex: 1}}>Suspender Conta</DefaultButton>
+                            <DefaultButton
+                                buttonColor={"orange"}
+                                darkTextOnHover={false}
+                                style={{flex: 1}}
+                                onClick={() => changeSuspendedState(true)}
+                            >
+                                Suspender Conta
+                            </DefaultButton>
                         </Gate>
                         {/*If the account is suspended, show the button that reactivates it*/}
                         <Gate show={accountInfo.suspended}>
-                            <DefaultButton buttonColor={"lightgreen"} darkTextOnHover={true} style={{flex: 1}}>Reativar Conta</DefaultButton>
+                            <DefaultButton
+                                buttonColor={"lightgreen"}
+                                darkTextOnHover={true}
+                                style={{flex: 1}}
+                                onClick={() => changeSuspendedState(false)}
+                            >
+                                Reativar Conta
+                            </DefaultButton>
                         </Gate>
 
                         <DefaultButton buttonColor={"red"} style={{flex: 1}}>Apagar Conta</DefaultButton>
