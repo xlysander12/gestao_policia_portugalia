@@ -9,6 +9,7 @@ import {
     OfficerUnit
 } from "@portalseguranca/api-types/officers/output";
 import { DeleteOfficerRequestBody } from '@portalseguranca/api-types/officers/input';
+import {FORCE_HEADER} from "../../utils/constants";
 
 const app = express.Router();
 
@@ -20,7 +21,7 @@ app.get("/", async (req, res) => {
     }
 
     // Get the data from the database
-    const officersListResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
+    const officersListResult = await queryDB(req.header(FORCE_HEADER), `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
 
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
@@ -48,7 +49,7 @@ app.get("/", async (req, res) => {
 
 app.put("/:nif", async (req, res) => {
     // Making sure the provided nif doesn't already exist
-    let officer_exists_check_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
+    let officer_exists_check_result = await queryDB(req.headers[FORCE_HEADER], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
     if (officer_exists_check_result.length !== 0) {
         res.status(409).json({
             message: "Já existe um outro efetivo com esse NIF."
@@ -62,13 +63,13 @@ app.put("/:nif", async (req, res) => {
     // Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
     if (patent === 0) {
-        let callsigns_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC');
+        let callsigns_result = await queryDB(req.headers[FORCE_HEADER], 'SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC');
         let callsign_number = (Number.parseInt(callsigns_result[0].callsign.split("-")[1]) + 1);
         callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
     }
 
     // Adding the officer to the database
-    await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, patent, callsign, req.body.phone, req.params.nif, req.body.iban, req.body.kms, req.body.discord, req.body.steam]);
+    await queryDB(req.header(FORCE_HEADER), 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, patent, callsign, req.body.phone, req.params.nif, req.body.iban, req.body.kms, req.body.discord, req.body.steam]);
 
     // If everything went according to plan, return a 200 status code
     res.status(200).json({
@@ -79,7 +80,7 @@ app.put("/:nif", async (req, res) => {
 
 // Middleware to check if the officer exists before passing to routes below
 app.use("/:nif", async (req, res, next) => {
-    let officerResult = await queryDB(req.header("x-portalseguranca-force"), `SELECT * FROM ${req.query.hasOwnProperty("pretty") ? "officersV" : "officers"} WHERE nif = ?`, req.params.nif);
+    let officerResult = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM ${req.query.hasOwnProperty("pretty") ? "officersV" : "officers"} WHERE nif = ?`, req.params.nif);
     if (officerResult.length === 0) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
@@ -101,7 +102,7 @@ app.get("/:nif", async (req, res) => {
 
     info.special_units = [];
 
-    let officer_special_units_result = await queryDB(req.header("x-portalseguranca-force"), 'SELECT unit, role FROM specialunits_officers WHERE nif = ? ORDER BY role DESC, unit DESC', req.params.nif);
+    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE nif = ? ORDER BY role DESC, unit DESC', req.params.nif);
     officer_special_units_result.forEach((row) => {
         // Create object to store the unit
         const unit: OfficerUnit = {
@@ -149,7 +150,7 @@ app.patch("/:nif", async (req, res) => {
         || (requested_officer_data.status === 2 && req.body.status === 3); // If status has changed from "Provisório" to "Ativo"
 
 
-    let requesting_officer_data_result = await queryDB(req.headers["x-portalseguranca-force"], 'SELECT patent FROM officers WHERE nif = ?', res.locals.user);
+    let requesting_officer_data_result = await queryDB(req.header(FORCE_HEADER), 'SELECT patent FROM officers WHERE nif = ?', res.locals.user);
     const requestingOfficerPatente = requesting_officer_data_result[0].patent;
 
     if (requested_officer_data.patent >= requestingOfficerPatente) {
@@ -171,18 +172,18 @@ app.patch("/:nif", async (req, res) => {
     updateQuery = updateQuery.slice(0, -2); // Remove the last comma
     updateQuery += ` WHERE nif = ?`;
 
-    await queryDB(req.header("x-portalseguranca-force"), updateQuery, [...params, req.params.nif]);
+    await queryDB(req.header(FORCE_HEADER), updateQuery, [...params, req.params.nif]);
 
     // If the change is considered a promotion, update the promotion date
     if (isPromotion) {
-        await queryDB(req.header("x-portalseguranca-force"), `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, req.params.nif);
+        await queryDB(req.header(FORCE_HEADER), `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, req.params.nif);
     }
 
     // Now, update the special units the officer belongs to
     if (req.body.special_units !== undefined) {
-        await queryDB(req.headers["x-portalseguranca-force"], 'DELETE FROM specialunits_officers WHERE nif = ?', req.params.nif);
+        await queryDB(req.header(FORCE_HEADER), 'DELETE FROM specialunits_officers WHERE nif = ?', req.params.nif);
         for (const unit of req.body.special_units) {
-            await queryDB(req.headers["x-portalseguranca-force"], 'INSERT INTO specialunits_officers (nif, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
+            await queryDB(req.header(FORCE_HEADER), 'INSERT INTO specialunits_officers (nif, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
         }
     }
 
@@ -197,7 +198,7 @@ app.delete("/:nif", async (req, res) => {
 
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
-    let requestingOfficerpatent = (await queryDB(req.header("x-portalseguranca-force"), 'SELECT patent FROM officers WHERE nif = ?', res.locals.user))[0].patent;
+    let requestingOfficerpatent = (await queryDB(req.header(FORCE_HEADER), 'SELECT patent FROM officers WHERE nif = ?', res.locals.user))[0].patent;
 
     // Getting the requested officer's patent
     let requestedOfficerPatente = res.locals.requestedOfficerData.patent;
@@ -210,10 +211,10 @@ app.delete("/:nif", async (req, res) => {
     }
 
     // After making sure the officer can be fired, run the SQL procedure to transfer the data to the archive db
-    await queryDB(req.headers["x-portalseguranca-force"], 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, reason]);
+    await queryDB(req.header(FORCE_HEADER), 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, reason]);
 
     // After transferring the officer to the archive, delete the officer from the main database
-    await queryDB(req.headers["x-portalseguranca-force"], 'DELETE FROM officers WHERE nif = ?', req.params.nif);
+    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM officers WHERE nif = ?', req.params.nif);
 
     // If everything went according to plan, return a 200 status code
     res.status(200).json({

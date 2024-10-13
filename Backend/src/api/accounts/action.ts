@@ -1,7 +1,7 @@
 import express, {CookieOptions} from "express";
 import {compare, hash} from "bcrypt";
 import {queryDB} from "../../utils/db-connector";
-import {PASSWORD_SALT_ROUNDS} from "../../utils/constants";
+import {FORCE_HEADER, PASSWORD_SALT_ROUNDS} from "../../utils/constants";
 import {generateToken, getUserForces} from "../../utils/user-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {LoginResponse} from "@portalseguranca/api-types/account/output";
@@ -100,7 +100,7 @@ app.post("/changepassword", async (req, res) => {
 
     // * Check if the old password is correct
     // Get the password from the DB
-    const passwordQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password FROM users WHERE nif = ?', loggedUser);
+    const passwordQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT password FROM users WHERE nif = ?', loggedUser);
 
     // If the password isn't the default one, hash the password and compare it
     let isPasswordCorrect: boolean;

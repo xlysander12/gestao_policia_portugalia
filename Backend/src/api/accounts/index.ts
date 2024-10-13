@@ -7,6 +7,7 @@ import {userHasIntents} from "../../utils/user-handler";
 import { RequestError } from "@portalseguranca/api-types";
 import { ValidateTokenResponse } from "@portalseguranca/api-types/account/output";
 import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
+import {FORCE_HEADER} from "../../utils/constants";
 
 const app = express.Router();
 
@@ -16,7 +17,7 @@ app.post("/validateToken", async (req, res) => {
     let {intents} = req.body as ValidateTokenRequestBodyType;
     // Check if intents were provided
     if (intents) { // If intents were provided, check if the user has them
-        let hasIntents = await userHasIntents(Number(res.locals.user), req.header("x-portalseguranca-force"), intents);
+        let hasIntents = await userHasIntents(Number(res.locals.user), req.header(FORCE_HEADER), intents);
         if (!hasIntents) { // If the user doesn't have intents, return a 403
             let response: RequestError = {
                 message: "Não tens esta permissão"

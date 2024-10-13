@@ -4,6 +4,7 @@ import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers/officers";
 import {
+    FORCE_HEADER,
     FORCES
 } from "../utils/constants";
 import {
@@ -64,7 +65,7 @@ apiRoutes.use(async (req, res, next) => {
     // Check if this route requires a force header
     if (res.locals.routeDetails.requiresForce) {
         // Since it requires a force, check if the force is present
-        if (req.header("x-portalseguranca-force") === undefined) { // If it requires a force, but it's not present, return 400
+        if (req.header(FORCE_HEADER) === undefined) { // If it requires a force, but it's not present, return 400
             let response: RequestError = {
                 message: "É necessária uma força para a realização deste pedido"
             }
@@ -74,7 +75,7 @@ apiRoutes.use(async (req, res, next) => {
         }
 
         // Check if the force is valid
-        if (!FORCES.includes(req.header("x-portalseguranca-force")!)) { // If the force is not valid, return 400
+        if (!FORCES.includes(req.header(FORCE_HEADER)!)) { // If the force is not valid, return 400
             let response: RequestError = {
                 message: "Força inválida"
             }
@@ -98,7 +99,7 @@ apiRoutes.use(async (req, res, next) => {
         }
 
         // Check if the token is valid
-        const tokenValidity = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header("x-portalseguranca-force"));
+        const tokenValidity = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header(FORCE_HEADER));
         if (!tokenValidity[0]) { // If the token is not valid, return 400
             let response: RequestError = {
                 message: "Autenticação inválida"
@@ -123,7 +124,7 @@ apiRoutes.use(async (req, res, next) => {
             // Check all the intents present in the route
             for (const intent of res.locals.routeDetails.intents) {
                 // If the user doesn't have all the required intents, assume they can't access the route
-                if (!(await userHasIntents(res.locals.user, req.header("x-portalseguranca-force"), intent))) {
+                if (!(await userHasIntents(res.locals.user, req.header(FORCE_HEADER), intent))) {
                     hasIntents = false;
                     break;
                 }

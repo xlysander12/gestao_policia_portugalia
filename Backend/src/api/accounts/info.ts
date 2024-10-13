@@ -11,6 +11,7 @@ import {
     UserForcesResponse
 } from "@portalseguranca/api-types/account/output";
 import {RequestError} from "@portalseguranca/api-types";
+import {FORCE_HEADER} from "../../utils/constants";
 
 const app = express.Router();
 
@@ -20,7 +21,7 @@ app.get("/:nif", async (req, res) => {
     const requestingUser = Number(res.locals.user);
     if (requestingUser !== Number(req.params.nif)) {
         // If it's not the user itself, check if the user has the "accounts" intent
-        let hasIntent = await userHasIntents(requestingUser, req.header("x-portalseguranca-force"), "accounts");
+        let hasIntent = await userHasIntents(requestingUser, req.header(FORCE_HEADER), "accounts");
         if (!hasIntent) {
             let response: RequestError = {
                 message: "Não tens permissão para efetuar esta ação"
@@ -42,7 +43,7 @@ app.get("/:nif", async (req, res) => {
     };
 
     // Fetch the password and the last time the user interacted with the system
-    const infoQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT password, suspended, last_interaction FROM users WHERE nif = ?', req.params.nif);
+    const infoQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT password, suspended, last_interaction FROM users WHERE nif = ?', req.params.nif);
 
     // If no user exists, return 404
     if (infoQuery.length === 0) {
@@ -62,7 +63,7 @@ app.get("/:nif", async (req, res) => {
     response.data.lastUsed = infoQuery[0].last_interaction;
 
     // Get all possible intents
-    const intentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT name FROM intents');
+    const intentsQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT name FROM intents');
     const intents: string[] = intentsQuery.map((intent) => intent.name);
 
     // After getting all intents, default them to false in the response
@@ -71,7 +72,7 @@ app.get("/:nif", async (req, res) => {
     });
 
     // Get the user's permissions
-    const userIntentsQuery = await queryDB(req.header("x-portalseguranca-force"), 'SELECT intent, enabled FROM user_intents WHERE user = ?', req.params.nif);
+    const userIntentsQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT intent, enabled FROM user_intents WHERE user = ?', req.params.nif);
     userIntentsQuery.forEach((intent) => {
         response.data.intents[intent.intent] = Boolean(intent.enabled);
     });
