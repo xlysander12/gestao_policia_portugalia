@@ -36,3 +36,12 @@
     font-weight: bold;
     /*margin: auto;*/
 }
+
+.confimationButtonsDiv {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}

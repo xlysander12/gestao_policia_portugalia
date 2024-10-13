@@ -53,6 +53,7 @@ export function Modal({open, onClose, width, title, children}: ModalProps): Reac
             onClose={onClose}
             width={width}
             modal
+            nested
         >
             {/*Header of the modal*/}
             <div className={style.header}>{title}</div>
@@ -93,27 +94,41 @@ type ConfirmationDialogProps = {
     title: string,
     text: string,
     onConfirm: (event: any) => void,
-    onDeny?: (event: any) => void,
+    onDeny: (event: any) => void,
 }
 export function ConfirmationDialog({open, title, text, onConfirm, onDeny}: ConfirmationDialogProps): ReactElement {
     return (
-        <Dialog
+        <ModalStyle
             open={open}
+            onClose={onDeny}
+            width={"30%"}
+            modal
+            nested
         >
-            <DialogTitle>
-                {title}
-            </DialogTitle>
+            <div className={style.header}>{title}</div>
 
-            <DialogContent>
-                <DialogContentText>
-                    {text}
-                </DialogContentText>
-            </DialogContent>
+            <Divider
+                sx={{
+                    borderWidth: "1px",
+                    borderColor: "rgba(0, 0, 0, 0.3)"
+                }}
+            />
 
-            <DialogActions>
-                <Button onClick={onDeny}>Cancelar</Button>
-                <Button onClick={onConfirm}>Sim</Button>
-            </DialogActions>
-        </Dialog>
+            {/*Text of the dialog*/}
+            <div className={style.content} style={{color: "white"}}>
+                {text}
+            </div>
+
+            {/*Cancel and Accept buttons*/}
+            <div className={style.confimationButtonsDiv}>
+                <Button onClick={onDeny}>
+                    Cancelar
+                </Button>
+
+                <Button onClick={onConfirm}>
+                    Aceitar
+                </Button>
+            </div>
+        </ModalStyle>
     )
 }
