@@ -92,7 +92,6 @@ app.post("/login", async (req, res) => {
 });
 
 // Endpoint to change the password
-// TODO: This action, when successful, should also clear all tokens linked to the account.
 app.post("/changepassword", async (req, res) => {
     // Store the logged user
     const loggedUser = Number(res.locals.user);
@@ -137,6 +136,9 @@ app.post("/changepassword", async (req, res) => {
     for (const forceData of user_forces) {
         await queryDB(forceData.force, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, loggedUser]);
     }
+
+    // Remove all tokens from the user, except the one used to change the password
+    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM tokens WHERE nif = ? AND token != ?', [loggedUser, req.header("authorization") || req.cookies.sessionToken]);
 
     // Return success
     let response: RequestSuccess = {
