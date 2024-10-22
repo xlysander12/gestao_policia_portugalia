@@ -20,8 +20,13 @@ export interface LoginResponse extends RequestSuccess {
     }
 }
 
+interface UserForce {
+    name: string,
+    suspended: boolean
+}
+
 export interface UserForcesResponse extends RequestSuccess {
     data: {
-        forces: string[]
+        forces: UserForce[]
     }
 }

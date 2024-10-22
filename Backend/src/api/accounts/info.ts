@@ -96,10 +96,16 @@ app.get("/:nif/forces", async (req, res) => {
 
     // Get the all forces the user has acces to.
     const forces = await getUserForces(Number(req.params.nif), false);
+
     let response: UserForcesResponse = {
         message: "Operação bem sucedida",
         data: {
-            forces: forces.map((force) => force.force)
+            forces: forces.map((force) => {
+                return {
+                    name: force.force,
+                    suspended: force.suspended
+                }
+            })
         }
     };
 
