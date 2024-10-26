@@ -68,7 +68,7 @@ export async function userHasIntents(nif: number, force: ForceType, intent: stri
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-type userForcesReturn = {force: string, password?: string, suspended: boolean}[];
+type userForcesReturn = {name: string, password?: string, suspended: boolean}[];
 export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
     let user_forces: userForcesReturn = [];
 
@@ -76,7 +76,7 @@ export async function getUserForces(nif: number, return_passwords = false): Prom
     for (const force of FORCES) {
         const queryResult = await queryDB(force, 'SELECT password, suspended FROM users WHERE nif = ?', nif);
         if (queryResult.length !== 0 ) { // This user exists in this force
-            let to_push: {force: string, password?: string, suspended: boolean} = {force: force, suspended: queryResult[0].suspended === 1}
+            let to_push: {name: string, password?: string, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
 
             if (return_passwords) { // If the option to retrieve passwords is true, add the password to the object
                 to_push.password = queryResult[0].password;

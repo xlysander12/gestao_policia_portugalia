@@ -57,7 +57,7 @@ app.post("/login", async (req, res) => {
     // After generating the token, store it in the databases of the forces the user belongs to
     for (const force of user_forces) {
         try {
-            await queryDB(force.force, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, nif]);
+            await queryDB(force.name, 'INSERT INTO tokens (token, nif) VALUES (?, ?)', [token, nif]);
         } catch (e) { // This error would only be if trying to store a token for an user that doesn't exist
             let response: RequestError = {
                 message: "Erro ao tentar guardar o token de acesso"
@@ -85,7 +85,7 @@ app.post("/login", async (req, res) => {
         message: "Operação bem sucedida",
         data: {
             token: token,
-            forces: user_forces.map((force) => force.force)
+            forces: user_forces.map((force) => force.name)
         }
     }
     res.status(200).json(response);
@@ -134,7 +134,7 @@ app.post("/changepassword", async (req, res) => {
     // Get the forces the user is in
     const user_forces = await getUserForces(loggedUser);
     for (const forceData of user_forces) {
-        await queryDB(forceData.force, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, loggedUser]);
+        await queryDB(forceData.name, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, loggedUser]);
     }
 
     // Remove all tokens from the user, except the one used to change the password

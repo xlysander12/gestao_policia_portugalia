@@ -102,7 +102,7 @@ app.get("/:nif/forces", async (req, res) => {
         data: {
             forces: forces.map((force) => {
                 return {
-                    name: force.force,
+                    name: force.name,
                     suspended: force.suspended
                 }
             })
