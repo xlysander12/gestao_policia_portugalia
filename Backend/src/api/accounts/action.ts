@@ -92,11 +92,12 @@ app.post("/login", async (req, res) => {
     res.cookie("sessionToken", token, cookieOptions);
 
     // Send the token to the user
+    // * The "forces" field must only include the forces the user is not suspended in
     let response: LoginResponse = {
         message: "Operação bem sucedida",
         data: {
             token: token,
-            forces: user_forces.map((force) => force.name)
+            forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)
         }
     }
     res.status(200).json(response);
