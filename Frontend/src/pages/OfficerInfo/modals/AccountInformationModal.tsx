@@ -186,7 +186,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                                 setAccountInfo(draft => {
                                                     draft.intents[intent.name] = event.target.checked;
                                                 });
-                                                await make_request(`/accounts/${officerNif}/intents`, "PATCH", {body: {[intent.name]: event.target.checked}});
+                                                await make_request(`/accounts/${officerNif}`, "PATCH", {body: { intents: {[intent.name]: event.target.checked}}});
                                                 setNeedsRefresh(true);
                                             }}
                                         />
