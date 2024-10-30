@@ -12,12 +12,6 @@ const app = express.Router();
 // Endpoint to login an user
 app.post("/login", async (req, res) => {
     const {nif, password, persistent} = req.body as LoginRequestBodyType;
-    if (!nif || !password) {
-        let response: RequestError = {
-            message: "NIF ou password não fornecidos"
-        }
-        res.status(400).json(response);
-    }
 
     // Check if the user exists (it's needed to check on all forces databases)
     let user_forces = await getUserForces(nif, true);
@@ -48,6 +42,23 @@ app.post("/login", async (req, res) => {
             message: "NIF ou password errados."
         }
         res.status(401).json(response);
+        return;
+    }
+
+    // Check if the user is suspended in all forces they belong to
+    let valid = false;
+    for (const force of user_forces) {
+        if (!force.suspended) { // If the user is not suspended in, at least, 1 force, the login is valid
+            valid = true;
+            break;
+        }
+    }
+
+    if (!valid) { // If the user is suspended in all forces, return 403
+        let response: RequestError = {
+            message: "Esta conta encontra-se suspensa."
+        }
+        res.status(403).json(response);
         return;
     }
 
