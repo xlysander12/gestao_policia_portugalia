@@ -47,6 +47,11 @@ app.patch("/:nif", async (req, res) => {
     if (suspended !== undefined) {
         // Update the user's suspended status
         await queryDB(req.header(FORCE_HEADER), 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? "1" : "0", req.params.nif]);
+
+        // If the account was set to be suspended, delete all tokens
+        if (suspended) {
+            await queryDB(req.header(FORCE_HEADER), 'DELETE FROM tokens WHERE nif = ?', [req.params.nif]);
+        }
     }
 
     // * Second, check if 'intents' is present

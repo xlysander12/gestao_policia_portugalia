@@ -146,7 +146,6 @@ apiRoutes.use(async (req, res, next) => {
 });
 
 // Middleware to check if the request has all the fields valid
-// TODO: This needs to be refactored to use the routeDetails local
 apiRoutes.use((req, res, next) => {
     //  Check if the route details are present. If not, assume no validation is needed
     if (res.locals.routeDetails === null) {
