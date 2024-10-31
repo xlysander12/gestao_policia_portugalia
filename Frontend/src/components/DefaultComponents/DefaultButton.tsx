@@ -5,11 +5,18 @@ import styled from "styled-components";
 const DefaultButtonStyle = styled(Button)(({buttonColor, darkTextOnHover}) => ({
     "&.MuiButton-root": {
         backgroundColor: "transparent",
-        color: buttonColor,
-        borderColor: buttonColor,
+        color: buttonColor || "var(--portalseguranca-color-accent)",
+        borderColor: buttonColor || "var(--portalseguranca-color-accent)",
+
         "&:hover": {
             backgroundColor: buttonColor || "var(--portalseguranca-color-accent)",
             color: darkTextOnHover ? "black": "white"
+        },
+
+        "&.Mui-disabled": {
+            color: buttonColor || "var(--portalseguranca-color-accent)",
+            border: `1px solid ${buttonColor || "var(--portalseguranca-color-accent)"}`,
+            opacity: 0.35
         }
     }
 }));
