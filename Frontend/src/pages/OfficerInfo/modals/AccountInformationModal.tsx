@@ -13,7 +13,6 @@ import {LoggedUserContext, LoggedUserContextType} from "../../../components/Priv
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
-import {useLocation, useNavigate} from "react-router-dom";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -29,9 +28,6 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     // Getting the logged user data from the context
     const loggedUserData = useContext<LoggedUserContextType>(LoggedUserContext);
-
-    // Initialize the useNavigate hook
-    const navigate = useNavigate();
 
     const [accountExists, setAccountExists] = useState<boolean | null>(null);
 
@@ -53,30 +49,51 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     const [needsRefresh, setNeedsRefresh] = useState(true);
     const [justRefreshed, setJustRefreshed] = useState(false);
 
-    // State for the confirmation dialog for account deletion
+    // State for the confirmation dialog for account deletion and password reset
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+    const [resetPasswordConfirmationOpen, setResetPasswordConfirmationOpen] = useState(false);
+
+    // State for managing the loading
+    const [loading, setLoading] = useState(false);
+
+    // * If loading is true and the modal is open, change the cursor to "waiting"
+    if (loading && open) {
+        document.body.style.cursor = "wait";
+    } else {
+        document.body.style.cursor = "default";
+    }
 
     // Fetch the current information about the officer
     useEffect(() => {
         async function fetchAccountInfo() {
+            // Make the request to get the account information
             const accountInfoResponse = await make_request(`/accounts/${officerNif}`, "GET");
 
             // Check if the response is ok
             if (accountInfoResponse.status === 404) {
                 setAccountExists(false);
+
+                // Disable loading if enabled
+                if (loading)
+                    setLoading(false);
+
                 return;
             }
 
             // Convert the response to JSON and set the account info state
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
-                draft.defaultPassword = accountInfoJson.data.passwordChanged;
+                draft.defaultPassword = !accountInfoJson.data.passwordChanged;
                 draft.suspended = accountInfoJson.data.suspended;
                 draft.lastUsed = new Date(Date.parse(accountInfoJson.data.lastUsed));
                 draft.intents = accountInfoJson.data.intents;
             });
 
             setAccountExists(true);
+
+            // Disable loading if enabled
+            if (loading)
+                setLoading(false);
         }
 
         // Fetch the account information if it didn't just refresh
@@ -97,16 +114,25 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     // Function to create an account if it doesn't exist
     async function createAccount() {
+        // Set the loading state to true
+        setLoading(true);
+
         let response = await make_request(`/accounts/${officerNif}`, "POST");
         if (!response.ok) {
             return toast(`Erro ao ativar a conta:\n${((await response.json()) as RequestSuccess).message}`, {type: "error"});
         }
         toast("Conta ativada com sucesso", {type: "success"});
         setNeedsRefresh(true);
+
+        // Disable loading
+        setLoading(false);
     }
 
     // Function to change the suspended state of an account
     async function changeSuspendedState(suspend: boolean) {
+        // Set the loading state to true
+        setLoading(true);
+
         // Make the request to change the suspended state
         let response = await make_request(`/accounts/${officerNif}`, "PATCH", {
             body: {
@@ -124,6 +150,8 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
         // Make the information refresh to reflext the changes and change the manage buttons
         setNeedsRefresh(true);
+
+        // ! Loading will bne disabled by the refresh
     }
 
     let lastUsedString;
@@ -146,6 +174,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 <DefaultButton
                     darkTextOnHover
                     onClick={createAccount}
+                    disabled={loading}
                     sx={{
                         marginTop: "10px"
                     }}
@@ -161,7 +190,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                     <div className={modalsStyle.informationInnerSectionDiv}>
                         <Stack alignItems={"center"} direction={"row"} gap={0.5}>
                             <Typography>Palavra-passe alterada:</Typography>
-                            {accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
+                            {!accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
                         </Stack>
 
                         <Stack alignItems={"center"} direction={"row"} gap={0.5}>
@@ -178,16 +207,22 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         {forceData.intents.map((intent) => {
                             return (
                                 <FormControlLabel
+                                    disabled={loading}
                                     control={
                                         <Switch
                                             checked={accountInfo.intents[intent.name]}
                                             disabled={!loggedUserData.intents[intent.name]}
                                             onChange={async (event) => {
+                                                // Set the loading state to true
+                                                setLoading(true);
+
                                                 setAccountInfo(draft => {
                                                     draft.intents[intent.name] = event.target.checked;
                                                 });
                                                 await make_request(`/accounts/${officerNif}`, "PATCH", {body: { intents: {[intent.name]: event.target.checked}}});
                                                 setNeedsRefresh(true);
+
+                                                // ! Loading will be disabled by the refresh
                                             }}
                                         />
                                     }
@@ -200,11 +235,18 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
                 <ModalSection title={"Ações"}>
                     <div className={modalsStyle.actionsInnerSectionDiv}>
-                        <DefaultButton style={{flex: 1}}>Reset Palavra-Passe</DefaultButton>
+                        <DefaultButton
+                            style={{flex: 1}}
+                            disabled={loading || accountInfo.defaultPassword}
+                            onClick={() => setResetPasswordConfirmationOpen(true)}
+                        >
+                            Redefinir Palavra-Passe
+                        </DefaultButton>
 
                         {/*If the account isn't suspended, show the button that suspends it*/}
                         <Gate show={!accountInfo.suspended}>
                             <DefaultButton
+                                disabled={loading}
                                 buttonColor={"orange"}
                                 darkTextOnHover={false}
                                 style={{flex: 1}}
@@ -216,6 +258,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         {/*If the account is suspended, show the button that reactivates it*/}
                         <Gate show={accountInfo.suspended}>
                             <DefaultButton
+                                disabled={loading}
                                 buttonColor={"lightgreen"}
                                 darkTextOnHover={true}
                                 style={{flex: 1}}
@@ -226,6 +269,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         </Gate>
 
                         <DefaultButton
+                            disabled={loading}
                             buttonColor={"red"}
                             style={{flex: 1}}
                             onClick={() => setDeleteConfirmationOpen(true)}
@@ -236,21 +280,52 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 </ModalSection>
 
 
-                <ConfirmationDialog open={deleteConfirmationOpen} onDeny={() => setDeleteConfirmationOpen(false)} title={"Apagar conta"} text={`Tens a certeza que desejas apagar a conta de ${officerFullName}?`} onConfirm={async () => {
-                    let response = await make_request(`/accounts/${officerNif}`, "DELETE");
-                    if (!response.ok) {
-                        return toast(`Erro ao apagar a conta:\n${((await response.json()) as RequestError).message}`, {type: "error"});
-                    }
+                {/*Delete Account Confirmation*/}
+                <ConfirmationDialog
+                    open={deleteConfirmationOpen}
+                    onDeny={() => setDeleteConfirmationOpen(false)}
+                    title={"Apagar conta"} text={`Tens a certeza que desejas apagar a conta de ${officerFullName}?`}
+                    onConfirm={async () => {
+                        let response = await make_request(`/accounts/${officerNif}`, "DELETE");
+                        if (!response.ok) {
+                            return toast(`Erro ao apagar a conta:\n${((await response.json()) as RequestError).message}`, {type: "error"});
+                        }
 
-                    setDeleteConfirmationOpen(false);
-                    toast("Conta apagada com sucesso", {type: "success"});
+                        setDeleteConfirmationOpen(false);
+                        toast("Conta apagada com sucesso", {type: "success"});
 
-                    // Make the information refresh to reflext the changes and change the manage buttons
-                    setNeedsRefresh(true);
+                        // Make the information refresh to reflect the changes and change the manage buttons
+                        setNeedsRefresh(true);
 
-                    // Close the account information modal
-                    onClose();
-                }} />
+                        // Close the account information modal
+                        onClose();
+                    }}
+                />
+
+                {/*Reset Password Confirmation*/}
+                <ConfirmationDialog
+                    open={resetPasswordConfirmationOpen}
+                    onDeny={() => setResetPasswordConfirmationOpen(false)}
+                    title={"Redefinir Palavra-Passe"} text={`Tens a certeza que desejas redefinir a palavra-passe de ${officerFullName} para a padrão?`}
+                    onConfirm={async () => {
+                        // Close the confirmation dialog
+                        setResetPasswordConfirmationOpen(false);
+
+                        // Set the loading state to true
+                        setLoading(true);
+
+                        // Make the request to reset the password
+                        let response = await make_request(`/accounts/${officerNif}/resetpassword`, "POST");
+                        if (!response.ok) {
+                            return toast(`Erro ao redefinir a palavra-passe:\n${((await response.json()) as RequestError).message}`, {type: "error"});
+                        }
+
+                        toast("Palavra-passe redefinida com sucesso", {type: "success"});
+
+                        // Make the information refresh to reflect the changes and change the manage buttons
+                        setNeedsRefresh(true);
+                    }}
+                />
             </>
         )
     }
