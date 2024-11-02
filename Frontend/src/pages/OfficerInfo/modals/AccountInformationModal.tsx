@@ -21,7 +21,6 @@ type AccountInformationModalProps = {
     officerFullName: string
 }
 
-// TODO: Add a loader for when changing values or clicking buttons
 function AccountInformationModal({open, onClose, officerNif, officerFullName}: AccountInformationModalProps) {
     // Getting the force's data from the context
     const forceData = useContext<ForceDataContextType>(ForceDataContext);
@@ -207,6 +206,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         {forceData.intents.map((intent) => {
                             return (
                                 <FormControlLabel
+                                    key={`intent-${intent.name}`}
                                     disabled={loading}
                                     control={
                                         <Switch

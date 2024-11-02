@@ -1,8 +1,11 @@
 import {Button, ButtonProps} from "@mui/material";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 
-// @ts-ignore
-const DefaultButtonStyle = styled(Button)(({buttonColor, darkTextOnHover}) => ({
+type DefaultButtonProps = Partial<ButtonProps> & {buttonColor?: string, darkTextOnHover?: boolean};
+
+const DefaultButtonStyle = styled(Button, {
+    shouldForwardProp: (prop) => prop !== "buttonColor" && prop !== "darkTextOnHover"
+})<DefaultButtonProps>(({buttonColor, darkTextOnHover}) => ({
     "&.MuiButton-root": {
         backgroundColor: "transparent",
         color: buttonColor || "var(--portalseguranca-color-accent)",
@@ -21,7 +24,7 @@ const DefaultButtonStyle = styled(Button)(({buttonColor, darkTextOnHover}) => ({
     }
 }));
 
-const DefaultButton = (props: Partial<ButtonProps> & {buttonColor?: string, darkTextOnHover?: boolean}) => {
+const DefaultButton = (props: DefaultButtonProps) => {
     return (
         <DefaultButtonStyle
             variant={"outlined"}

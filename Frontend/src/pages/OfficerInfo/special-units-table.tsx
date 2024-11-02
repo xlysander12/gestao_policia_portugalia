@@ -196,7 +196,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                     >
                         {specialUnitsRoles.map((role: SpecialUnitRole) => {
                             return (
-                                <MenuItem key={`newUniRole${role.id}`} value={role.id}>{role.name}</MenuItem>
+                                <MenuItem key={`newUnitRole${role.id}`} value={role.id}>{role.name}</MenuItem>
                             )
                         })}
                     </Select>
@@ -241,6 +241,7 @@ const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, o
                     {officerSpecialUnits.map((unit: OfficerUnit) => {
                         return (
                             <SpecialUnitsTableRow
+                                key={`officerunit#${unit.id}`}
                                 selectSx={TableSelectStyle}
                                 unit={unit}
                                 unitName={getSpecialUnitFromId(unit.id, specialUnits)!.name}

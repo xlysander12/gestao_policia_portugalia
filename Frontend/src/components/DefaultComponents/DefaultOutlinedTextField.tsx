@@ -1,8 +1,11 @@
 import {styled} from "@mui/material/styles";
 import {OutlinedTextFieldProps, TextField} from "@mui/material";
 
-// @ts-ignore
-const DefaultOutlinedTextFieldStyle = styled(TextField)(({alternateColor}) => ({
+type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean};
+
+const DefaultOutlinedTextFieldStyle = styled(TextField, {
+    shouldForwardProp: (prop) => prop !== "alternateColor"
+})<DefaultOutlinedTextFieldProps>(({alternateColor}) => ({
     "& label.Mui-focused": {
         color: "white !important",
         textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"
@@ -22,7 +25,7 @@ const DefaultOutlinedTextFieldStyle = styled(TextField)(({alternateColor}) => ({
         }
     }
 }));
-const DefaultOutlinedTextField = (props: Partial<OutlinedTextFieldProps> & {alternateColor?: boolean}) => {
+const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
     return (
         <DefaultOutlinedTextFieldStyle
             variant={"outlined"}

@@ -1,8 +1,11 @@
 import {styled} from "@mui/material/styles";
 import {Select, SelectProps} from "@mui/material";
 
-// @ts-ignore
-const DefaultSelectStyle = styled(Select)(({sameTextColorWhenDisabled}) => ({
+type DefaultSelectProps = Partial<SelectProps> & {sameTextColorWhenDisabled?: boolean}
+
+const DefaultSelectStyle = styled(Select, {
+    shouldForwardProp: (prop) => prop !== "sameTextColorWhenDisabled"
+})<DefaultSelectProps>(({sameTextColorWhenDisabled}) => ({
     "& .MuiSelect-icon": {
         color: "var(--portalseguranca-color-accent)",
 
@@ -47,7 +50,7 @@ const DefaultSelectSlotProps = {
         }
     }
 }
-const DefaultSelect = (props: Partial<SelectProps> & {sameTextColorWhenDisabled?: boolean}) => {
+const DefaultSelect = (props: DefaultSelectProps) => {
     return (
         <DefaultSelectStyle
             variant={"standard"}
