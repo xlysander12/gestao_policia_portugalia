@@ -1,4 +1,5 @@
 import {createContext} from "react";
+import {UserForce} from "@portalseguranca/api-types/account/output";
 
 export type OfficerSpecialUnitType = {
     id: number,
@@ -26,7 +27,7 @@ export type LoggedUserContextType = {
         }
     },
     intents: {[key: string]: boolean},
-    forces: string[]
+    forces: UserForce[]
 }
 
 export const LoggedUserContext = createContext<LoggedUserContextType>({
