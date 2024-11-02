@@ -4,7 +4,7 @@ import {Link, useLocation} from "react-router-dom";
 import {make_request} from "../../utils/requests";
 import {BASE_URL, FORCES} from "../../utils/constants";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
-import {ForceDataContext, ForceDataContextType, getPatentFromId} from "../../force-data-context";
+import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem} from "@mui/material";
@@ -61,30 +61,8 @@ function Navbar({isLoginPage}: NavbarProps) {
     // Set the full name of the officer
     let fullName = "";
     if (!isLoginPage) {
-        // @ts-ignore
-        fullName = `${getPatentFromId(loggedUser.info.professional.patent, forcePatents).name} ${loggedUser.info.personal.name}`;
-        }
-
-    useEffect(() => {
-        const fetchForces = async () => {
-            let forces: any = {
-                psp: false,
-                gnr: false
-            }
-            // Making the request to check if the token is valid for all forces
-            for (const force of FORCES) {
-                const response = await make_request("/accounts/validateToken", "POST", {force: force, redirectToLoginOn401: false});
-
-                // If the request returned status of 200, the token is valid for that force
-                if (response.status === 200) {
-                    forces[force] = true;
-                }
-            }
-        }
-
-        if (!isLoginPage)
-            fetchForces();
-    }, []);
+        fullName = `${getObjectFromId(loggedUser.info.professional.patent, forcePatents)!.name} ${loggedUser.info.personal.name}`;
+    }
 
     // Create the array of elements for the pathsdiv
     let paths = [];

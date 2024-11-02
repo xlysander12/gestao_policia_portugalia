@@ -10,7 +10,7 @@ import {
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {useParams} from "react-router-dom";
-import {ForceDataContext, ForceDataContextType, getPatentFromId} from "../../force-data-context.ts";
+import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
@@ -564,7 +564,7 @@ function OfficerInfo() {
                 open={isAccountModalOpen}
                 onClose={() => setAccountModalOpen(false)}
                 officerNif={officerNif}
-                officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
+                officerFullName={`${getObjectFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
             />
 
             <RecruitModal
@@ -575,7 +575,7 @@ function OfficerInfo() {
             <FireModal
                 open={isFireModalOpen}
                 onClose={() => setFireModalOpen(false)}
-                officerFullName={`${getPatentFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
+                officerFullName={`${getObjectFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
                 officerNif={officerNif}
             />
         </>

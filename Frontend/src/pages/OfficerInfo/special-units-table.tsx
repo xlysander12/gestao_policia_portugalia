@@ -13,8 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import {
     ForceDataContext,
-    ForceDataContextType,
-    getSpecialUnitFromId,
+    ForceDataContextType, getObjectFromId,
     SpecialUnit,
     SpecialUnitRole
 } from "../../force-data-context.ts";
@@ -244,7 +243,7 @@ const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, o
                                 key={`officerunit#${unit.id}`}
                                 selectSx={TableSelectStyle}
                                 unit={unit}
-                                unitName={getSpecialUnitFromId(unit.id, specialUnits)!.name}
+                                unitName={getObjectFromId(unit.id, specialUnits)!.name}
                                 unitRoles={specialUnitsRoles}
                                 editMode={editMode}
                                 onChange={onChange}
