@@ -1,5 +1,5 @@
-import {FORCES, ForceType} from "./constants";
 import {queryDB} from "./db-connector";
+import {getForcesList} from "./config-handler";
 
 export async function generateToken() {
     // Repeat the generation process until an unique token is generated
@@ -14,7 +14,7 @@ export async function generateToken() {
 
         // After generating the token, check if it already exists
         let exists = false;
-        for (const force of FORCES) {
+        for (const force of getForcesList()) {
             const result = await queryDB(force, 'SELECT * FROM tokens WHERE token = ?', token);
             if (result.length !== 0) {
                 exists = true;
@@ -30,7 +30,7 @@ export async function generateToken() {
 }
 
 // TODO: Return type should be a proper object
-export async function isTokenValid(token: string, force: ForceType) {
+export async function isTokenValid(token: string, force: any) {
     // If token is undefined, return false as the token is invalid
     if (token === undefined) return [false, 401];
 
@@ -47,7 +47,7 @@ export async function isTokenValid(token: string, force: ForceType) {
     return [true, 200, result[0].nif];
 }
 
-export async function userHasIntents(nif: number, force: ForceType, intent: string | string[]) {
+export async function userHasIntents(nif: number, force: any, intent: string | string[]) {
     // Check if it is just one intent or an array of them
     if (Array.isArray(intent)) {
         // If it is an array, check all of them
@@ -73,7 +73,7 @@ export async function getUserForces(nif: number, return_passwords = false): Prom
     let user_forces: userForcesReturn = [];
 
     // Loop through all forces and see which of them have an account for this user
-    for (const force of FORCES) {
+    for (const force of getForcesList()) {
         const queryResult = await queryDB(force, 'SELECT password, suspended FROM users WHERE nif = ?', nif);
         if (queryResult.length !== 0 ) { // This user exists in this force
             let to_push: {name: string, password?: string, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
@@ -91,13 +91,13 @@ export async function getUserForces(nif: number, return_passwords = false): Prom
 }
 
 export async function updateLastTimeTokenUsed(token: string) {
-    for (const force of FORCES) {
+    for (const force of getForcesList()) {
         await queryDB(force, 'UPDATE tokens SET last_used = ? WHERE token = ?', [new Date(), token]);
     }
 }
 
 export async function updateLastTimeUserInteracted(nif: number) {
-    for (const force of FORCES) {
+    for (const force of getForcesList()) {
         await queryDB(force, 'UPDATE users SET last_interaction = ? WHERE nif = ?', [new Date(), nif]);
     }
 }

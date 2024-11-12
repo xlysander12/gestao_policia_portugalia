@@ -1,12 +1,12 @@
 import express from "express";
 import {queryDB} from "../../utils/db-connector";
-import {FORCE_HEADER, ForceType} from "../../utils/constants";
+import {FORCE_HEADER} from "../../utils/constants";
 import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 
 // Creating the router
 const app = express.Router();
 
-async function getBodyAuthorDetails(nif: number, force: ForceType) {
+async function getBodyAuthorDetails(nif: number, force: any) {
     // Fetching the user's patent and name from NIF
     const userResult = await queryDB(force, 'SELECT name, patent, discord FROM officersV WHERE nif = ?', String(nif));
     const author = `${userResult[0].patent} ${userResult[0].name}`

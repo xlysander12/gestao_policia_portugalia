@@ -9,13 +9,12 @@ import {join} from "path";
 config({path: join(__dirname, "..", ".env")});
 
 // Load the config file
-import {loadConfig} from "./utils/config-handler";
+import {getForcesList, loadConfig} from "./utils/config-handler";
 loadConfig();
 
 import apiRoutes from "./api";
 import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
-import {FORCES} from "./utils/constants";
 
 const app = Router(); // This app is a router to compartimentalize routes
 
@@ -37,7 +36,7 @@ app.use("/api", apiRoutes);
 app.use("/db", async (req, res, next) => {
     // Check if the user is authenticated and has the right patent
     let loggedUser = [false, "", "", ""];
-    for (const force of FORCES) {
+    for (const force of getForcesList()) {
         const isValid = await isTokenValid(req.cookies["sessionToken"], force);
         if (isValid[0]) {
             loggedUser = [...isValid, ""];

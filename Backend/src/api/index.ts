@@ -4,8 +4,7 @@ import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers/officers";
 import {
-    FORCE_HEADER,
-    FORCES
+    FORCE_HEADER
 } from "../utils/constants";
 import {
     isTokenValid,
@@ -15,6 +14,7 @@ import {
 } from "../utils/user-handler";
 import routes, {methodType} from "./routes";
 import {RequestError} from "@portalseguranca/api-types";
+import {getForcesList} from "../utils/config-handler";
 
 const apiRoutes = express.Router();
 
@@ -75,7 +75,7 @@ apiRoutes.use(async (req, res, next) => {
         }
 
         // Check if the force is valid
-        if (!FORCES.includes(req.header(FORCE_HEADER)!)) { // If the force is not valid, return 400
+        if (!getForcesList().includes(req.header(FORCE_HEADER)!)) { // If the force is not valid, return 400
             let response: RequestError = {
                 message: "Força inválida"
             }
