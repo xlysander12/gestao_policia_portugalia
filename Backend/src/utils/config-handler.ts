@@ -19,6 +19,10 @@ export function loadConfig() {
     }
 }
 
-export function getForcesList() {
+export function getForceDatabase(force: string) {
+    return config.forces[force].database;
+}
+
+export function getForcesList(): string[] {
     return Object.keys(config.forces);
 }

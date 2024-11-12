@@ -6,21 +6,18 @@ import serveIndex from "serve-index";
 // Load .env file
 import {config} from "dotenv";
 import {join} from "path";
-import * as fs from "fs";
 config({path: join(__dirname, "..", ".env")});
+
+// Load the config file
+import {loadConfig} from "./utils/config-handler";
+loadConfig();
 
 import apiRoutes from "./api";
 import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
 import {FORCES} from "./utils/constants";
-import {loadConfig} from "./utils/config-handler";
 
 const app = Router(); // This app is a router to compartimentalize routes
-
-// TODO: Make sure the config file is present and is valid.
-//  If not present, create a new one based on the sample, if invalid, throw an error
-// Load the config file
-loadConfig();
 
 
 // * Most basic Middleware

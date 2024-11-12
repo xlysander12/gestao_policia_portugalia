@@ -3,34 +3,39 @@ import assert from "node:assert";
 // TODO: Check if the database connection is working properly before starting the server
 console.log("Loading: db-connector.ts");
 
-import {createPool, PoolOptions, RowDataPacket} from "mysql2/promise";
-import {FORCES, ForceType} from "./constants";
-
-// Database connection details
-const dbConfigDefaultPSP: PoolOptions = {
-    host: process.env.PS_MYSQL_HOST,
-    user: process.env.PS_MYSQL_USER,
-    password: process.env.PS_MYSQL_PASSWORD,
-    database: "portugalia_gestao_psp",
-    connectionLimit: 10
+import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
+import {getForceDatabase, getForcesList} from "./config-handler";
+type poolsType = {
+    [key: string]: Pool
 }
+let pools: poolsType = {};
 
-const dbConfigDefaultGNR: PoolOptions = {
-    host: process.env.PS_MYSQL_HOST,
-    user: process.env.PS_MYSQL_USER,
-    password: process.env.PS_MYSQL_PASSWORD,
-    database: "portugalia_gestao_gnr",
-    connectionLimit: 10
+// Database configuration
+// For every force present in the config file, create a pool using the credentials in that same file
+for (let force of getForcesList()) {
+    let forceDB = getForceDatabase(force);
+
+    let options: PoolOptions = {
+        host: forceDB.host,
+        port: forceDB.port,
+        user: forceDB.user,
+        password: forceDB.password,
+        database: forceDB.database,
+        connectionLimit: 10
+    }
+
+    pools[force] = createPool(options);
+
+    // Test the connection in newly created pool
+    pools[force].query("SELECT 1").catch((err) => {
+        throw Error(`Error connecting to ${force} database: ${err}`);
+    });
 }
-
-// Creating the connection pools
-const poolDefaultPSP = createPool(dbConfigDefaultPSP);
-const poolDefaultGNR = createPool(dbConfigDefaultGNR);
 
 // Function used by the backend to query the database
-export async function queryDB(force: ForceType, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
+export async function queryDB(force: any, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
     // If the force parameter is not set, return
-    if (!force || FORCES.indexOf(force) === -1)
+    if (!force || getForcesList().indexOf(force) === -1)
         throw new Error("Force parameter not set or incorrect!");
 
     // Make sure the params are an array
@@ -42,17 +47,7 @@ export async function queryDB(force: ForceType, query: string, params?: any | an
         else params = [];
     }
 
-    let queryResult;
-
-    // Switch the connection pool based on the force parameter
-    switch (force) {
-        case "psp":
-            queryResult = await poolDefaultPSP.query<RowDataPacket[]>(query, params);
-            break;
-        case "gnr":
-            queryResult = await poolDefaultGNR.query<RowDataPacket[]>(query, params);
-            break;
-    }
+    let queryResult = await pools[force].query<RowDataPacket[]>(query, params);
 
     // Make sure the query result is not empty
     assert(queryResult !== undefined, "Query result is empty!");
