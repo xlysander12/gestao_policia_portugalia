@@ -7,14 +7,13 @@ import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
-import {Divider, Menu, MenuItem} from "@mui/material";
+import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
 
 type SubPathProps = {
     path?: string,
     name: string,
     only?: boolean
 }
-
 const SubPath = ({path, name, only}: SubPathProps) => {
     // useLocation
     const location = useLocation();
@@ -40,6 +39,29 @@ const SubPath = ({path, name, only}: SubPathProps) => {
         </>
     );
 }
+
+const ForceSelectStyle = styled(Select)(() => ({
+    // Remove the border
+    "& .MuiOutlinedInput-notchedOutline": {
+        border: 0
+    },
+
+    // Apply the same color as the text at the icon
+    "& .MuiSelect-icon": {
+        color: "white"
+    },
+
+    // Apply same color and font size as the other text in the navbar
+    "& .MuiOutlinedInput-input": {
+        WebkitTextFillColor: "white"
+    },
+    fontSize: "20px",
+
+    // Darken background when hovering
+    "&:hover": {
+        backgroundColor: "var(--portalseguranca-color-hover-dark)"
+    }
+}))
 
 type NavbarProps = {
     isLoginPage: boolean
@@ -98,12 +120,8 @@ function Navbar({isLoginPage}: NavbarProps) {
                             </div>
                         </Gate>
                     </div>
-                )} leftSidePercentage={70}>
-
-                    {/*TODO: Add a force selector here, floating to the right side of the navbar*/}
-
-                    {/*Add the div that will hold the user info*/}
-
+                )} leftSidePercentage={65}>
+                    {/*Div that holds the user info and force selector*/}
                     <Gate show={!isLoginPage}>
                         <div className={style.rightSide}>
                             <div className={style.userInfoDiv} onClick={(event) => {
@@ -112,6 +130,16 @@ function Navbar({isLoginPage}: NavbarProps) {
                             }}>
                                 <p className={style.officerName}>{fullName}</p>
                             </div>
+
+                            <ForceSelectStyle
+                                value={localStorage.getItem("force")}
+                            >
+                                {loggedUser.forces.map((force, i) => {
+                                    return (
+                                        <MenuItem key={`userforcenavbar${force.name}`} value={force.name} disabled={force.suspended}>{force.name.toUpperCase()}</MenuItem>
+                                    )
+                                })}
+                            </ForceSelectStyle>
                         </div>
                     </Gate>
                 </ScreenSplit>

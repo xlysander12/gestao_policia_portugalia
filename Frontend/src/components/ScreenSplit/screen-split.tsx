@@ -2,9 +2,9 @@ import styles from './screen-split.module.css';
 import {ReactElement} from "react";
 
 type ScreenSplitProps = {
-    leftSideComponent: ReactElement;
+    leftSideComponent: ReactElement | ReactElement[];
     leftSidePercentage: number;
-    children: ReactElement;
+    children: ReactElement | ReactElement[];
 }
 
 const ScreenSplit = ({leftSideComponent, leftSidePercentage, children}: ScreenSplitProps): ReactElement => {

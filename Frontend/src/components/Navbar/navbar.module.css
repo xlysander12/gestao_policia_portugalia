@@ -47,6 +47,8 @@
 .userInfoDiv {
     height: 100%;
     padding: 0 5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .userInfoDiv:hover {
@@ -56,9 +58,9 @@
 
 .officerName {
     font-size: 20px;
+    line-height: 3.1rem;
     margin: 0;
     color: white;
-    max-height: 100%;
 }
 
 .navbarRedirect:hover {
