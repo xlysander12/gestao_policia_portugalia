@@ -1,8 +1,7 @@
-import {useContext, useEffect, useState} from "react";
+import {useContext, useState} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation} from "react-router-dom";
-import {make_request} from "../../utils/requests";
-import {BASE_URL, FORCES} from "../../utils/constants";
+import {BASE_URL} from "../../utils/constants";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
@@ -133,6 +132,11 @@ function Navbar({isLoginPage}: NavbarProps) {
 
                             <ForceSelectStyle
                                 value={localStorage.getItem("force")}
+                                onChange={(event) => {
+                                    // Change the force in the local storage and reload the page
+                                    localStorage.setItem("force", event.target.value as string);
+                                    window.location.reload();
+                                }}
                             >
                                 {loggedUser.forces.map((force, i) => {
                                     return (
