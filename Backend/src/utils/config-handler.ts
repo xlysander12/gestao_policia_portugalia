@@ -19,6 +19,10 @@ export function loadConfig() {
     }
 }
 
+export function getDatabaseConnetionDetails() {
+    return config.database;
+}
+
 export function getForceDatabase(force: string) {
     return config.forces[force].database;
 }

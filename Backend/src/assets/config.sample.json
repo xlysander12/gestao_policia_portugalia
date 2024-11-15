@@ -1,29 +1,23 @@
 {
+    "database": {
+        "host": "host",
+        "port": 3306,
+        "user": "username",
+        "password": "password"
+    },
     "forces": {
         "psp": {
             "name": "Polícia de Segurança Pública",
             "acronym": "PSP",
             "patrols": ["psp", "gnr"],
-            "database": {
-                "host": "host",
-                "port": 3306,
-                "user": "username",
-                "password": "password",
-                "database": "database"
-            }
+            "database": "database"
         },
 
         "gnr": {
             "name": "Guarda Nacional Republicana",
             "acronym": "GNR",
             "patrols": ["psp", "gnr"],
-            "database": {
-                "host": "host",
-                "port": 3306,
-                "user": "username",
-                "password": "password",
-                "database": "database"
-            }
+            "database": "database"
         }
     }
 }

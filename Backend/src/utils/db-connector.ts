@@ -4,23 +4,22 @@ import assert from "node:assert";
 console.log("Loading: db-connector.ts");
 
 import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
-import {getForceDatabase, getForcesList} from "./config-handler";
+import {getDatabaseConnetionDetails, getForceDatabase, getForcesList} from "./config-handler";
 type poolsType = {
     [key: string]: Pool
 }
 let pools: poolsType = {};
 
 // Database configuration
+const databaseConfig = getDatabaseConnetionDetails();
+
 // For every force present in the config file, create a pool using the credentials in that same file
 for (let force of getForcesList()) {
     let forceDB = getForceDatabase(force);
 
     let options: PoolOptions = {
-        host: forceDB.host,
-        port: forceDB.port,
-        user: forceDB.user,
-        password: forceDB.password,
-        database: forceDB.database,
+        ...databaseConfig,
+        database: forceDB,
         connectionLimit: 10
     }
 
