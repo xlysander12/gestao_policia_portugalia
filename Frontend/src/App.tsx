@@ -22,7 +22,13 @@ import defaultThemeData from "./theme.ts";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
+    const [force, setForce] = useState<string>(localStorage.getItem("force") || "");
     const [forceData, setForceData] = useState<ForceDataContextType>(useContext(ForceDataContext));
+
+    const handleForceChange = (newForce: string) => {
+        localStorage.setItem("force", newForce);
+        setForce(newForce);
+    }
 
     useEffect(() => {
         async function fetchForceData() {
@@ -68,28 +74,28 @@ function App() {
         } else {
             setCanLoad(true);
         }
-    }, [localStorage.getItem("force")]);
+    }, [force]);
 
     const router = createBrowserRouter(
         [
         {
             path: "/login",
-            element: <PrivateRoute element={<Login/>} isLoginPage/>
+            element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
         },
         {
             path: "/",
-            element: <PrivateRoute element={<Dashboard/>}/>
+            element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
         },
         {
             path: "/efetivos",
             children: [
                 {
                     path: "",
-                    element: <PrivateRoute element={<OfficerInfo/>}/>
+                    element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
                 },
                 {
                     path: ":nif",
-                    element: <PrivateRoute element={<OfficerInfo/>}/>
+                    element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
                 }
             ]
         }

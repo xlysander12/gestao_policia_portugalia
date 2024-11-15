@@ -14,10 +14,11 @@ import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output
 
 type PrivateRouteProps = {
     element: ReactElement
+    handleForceChange: (newForce: string) => void
     isLoginPage?: boolean
 }
 
-function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactElement {
+function PrivateRoute({element, handleForceChange, isLoginPage = false}: PrivateRouteProps): ReactElement {
     // Initialize state
     const [authorized, setAuthorized] = useState<boolean>(false);
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
@@ -113,7 +114,7 @@ function PrivateRoute({element, isLoginPage = false}: PrivateRouteProps): ReactE
 
     return (
         <LoggedUserContext.Provider value={loggedUser}>
-                <Navbar isLoginPage={isLoginPage}/>
+                <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
                 <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
                     {element}
                 </div>

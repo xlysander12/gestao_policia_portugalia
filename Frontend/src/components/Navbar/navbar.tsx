@@ -64,8 +64,9 @@ const ForceSelectStyle = styled(Select)(() => ({
 
 type NavbarProps = {
     isLoginPage: boolean
+    handleForceChange: (newForce: string) => void
 }
-function Navbar({isLoginPage}: NavbarProps) {
+function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Get the patents of the force where the user is logged in from context
     const forcePatents = useContext<ForceDataContextType>(ForceDataContext).patents;
 
@@ -133,9 +134,7 @@ function Navbar({isLoginPage}: NavbarProps) {
                             <ForceSelectStyle
                                 value={localStorage.getItem("force")}
                                 onChange={(event) => {
-                                    // Change the force in the local storage and reload the page
-                                    localStorage.setItem("force", event.target.value as string);
-                                    window.location.reload();
+                                    handleForceChange(event.target.value as string);
                                 }}
                             >
                                 {loggedUser.forces.map((force, i) => {
