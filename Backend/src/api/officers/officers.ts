@@ -63,7 +63,7 @@ app.put("/:nif", async (req, res) => {
     // Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
     if (patent === 0) {
-        let callsigns_result = await queryDB(req.headers[FORCE_HEADER], 'SELECT callsign FROM officers WHERE callsign REGEXP "^A-[0-9]{1,2}$" ORDER BY callsign DESC');
+        let callsigns_result = await queryDB(req.headers[FORCE_HEADER], 'SELECT callsign FROM officers WHERE patent <= 3 ORDER BY callsign DESC');
         let callsign_number = (Number.parseInt(callsigns_result[0].callsign.split("-")[1]) + 1);
         callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
     }
@@ -162,13 +162,14 @@ app.patch("/:nif", async (req, res) => {
 
     // Build the query string and params depending on the fields that were provided
     let params: string[] = [];
-    let updateQuery = `UPDATE officers SET `;
-    validFields.forEach((field) => {
+    let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
         if (req.body[field] !== undefined) {
-            updateQuery += `${field} = ?, `;
+            acc += `${field} = ?, `;
             params.push(req.body[field]);
         }
-    });
+        
+        return acc;
+    }, "")}`;
     updateQuery = updateQuery.slice(0, -2); // Remove the last comma
     updateQuery += ` WHERE nif = ?`;
 
