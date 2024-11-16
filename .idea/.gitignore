@@ -8,3 +8,7 @@
 /deployment.xml
 /sshConfigs.xml
 /webServers.xml
+# Data Sources
+/dataSources/
+dataSources.local.xml
+dataSources.xml
