@@ -2,7 +2,7 @@ import express from 'express';
 import utilRoutes from "./util/util";
 import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./accounts";
-import officerInfoRoutes from "./officers/officers";
+import officerInfoRoutes from "./officers";
 import {
     FORCE_HEADER
 } from "../utils/constants";

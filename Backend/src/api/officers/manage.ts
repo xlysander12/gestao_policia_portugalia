@@ -1,51 +1,10 @@
-import express from 'express';
-
-// Import utils
 import {queryDB} from "../../utils/db-connector";
-import {
-    MinifiedOfficerData,
-    OfficerListResponse,
-    OfficerInfoGetResponse,
-    OfficerUnit
-} from "@portalseguranca/api-types/officers/output";
-import { DeleteOfficerRequestBody } from '@portalseguranca/api-types/officers/input';
 import {FORCE_HEADER} from "../../utils/constants";
+import express from 'express';
+import {officerExistsMiddle} from "./officer-exists-middle";
+import { DeleteOfficerRequestBody } from "@portalseguranca/api-types/officers/input";
 
 const app = express.Router();
-
-
-app.get("/", async (req, res) => {
-    // If there's no search defined, replace with empty string
-    if (req.query.search === undefined) {
-        req.query.search = "";
-    }
-
-    // Get the data from the database
-    const officersListResult = await queryDB(req.header(FORCE_HEADER), `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
-
-    // Get the data from all the officer's and store in array
-    let officersList: MinifiedOfficerData[] = [];
-    for (const officer of officersListResult) {
-        // Build officer data
-        const officerData: MinifiedOfficerData = {
-            name: officer.name,
-            patent: officer.patent,
-            callsign: officer.callsign,
-            status: officer.status,
-            nif: officer.nif
-        }
-
-        officersList.push(officerData);
-    }
-
-
-    let response: OfficerListResponse = {
-        message: "Operação bem sucedida",
-        data: officersList
-    }
-
-    res.status(200).json(response);
-});
 
 app.put("/:nif", async (req, res) => {
     // Making sure the provided nif doesn't already exist
@@ -78,67 +37,7 @@ app.put("/:nif", async (req, res) => {
 
 });
 
-// Middleware to check if the officer exists before passing to routes below
-app.use("/:nif", async (req, res, next) => {
-    let officerResult = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM ${req.query.hasOwnProperty("pretty") ? "officersV" : "officers"} WHERE nif = ?`, req.params.nif);
-    if (officerResult.length === 0) {
-        res.status(404).json({
-            message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
-        });
-        return;
-    }
-
-    res.locals.requestedOfficerData = officerResult[0];
-    next();
-});
-
-app.get("/:nif", async (req, res) => {
-    const info = res.locals.requestedOfficerData;
-
-    // Alter the dates to be a proper string (There's a lot of unknown shit going on here.
-    // For more information on wtf is going on, check https://stackoverflow.com/a/29774197)
-    info.entry_date = String(new Date(info.entry_date.getTime() - (info.entry_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]);
-    info.promotion_date = info.promotion_date !== null ? String(new Date(info.promotion_date.getTime() - (info.promotion_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]): null;
-
-    info.special_units = [];
-
-    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE nif = ? ORDER BY role DESC, unit DESC', req.params.nif);
-    officer_special_units_result.forEach((row) => {
-        // Create object to store the unit
-        const unit: OfficerUnit = {
-            id: row.unit,
-            role: row.role
-        }
-
-        // Push the unit into the array
-        info.special_units.push(unit);
-    });
-
-    // After getting all the data, build the response
-    let response: OfficerInfoGetResponse = {
-        message: "Operação bem sucedida",
-        data: {
-            name: info.name,
-            nif: info.nif,
-            phone: info.phone,
-            iban: info.iban,
-            kms: info.kms,
-            discord: info.discord,
-            steam: info.steam,
-            patent: info.patent,
-            callsign: info.callsign,
-            status: info.status,
-            entry_date: info.entry_date,
-            promotion_date: info.promotion_date,
-            special_units: info.special_units
-        }
-    }
-
-    // Return the 200 code
-    res.status(200).json(response);
-});
-
-app.patch("/:nif", async (req, res) => {
+app.patch("/:nif", officerExistsMiddle, async (req, res) => {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
 
     let requested_officer_data = res.locals.requestedOfficerData;
@@ -167,11 +66,9 @@ app.patch("/:nif", async (req, res) => {
             acc += `${field} = ?, `;
             params.push(req.body[field]);
         }
-        
+
         return acc;
-    }, "")}`;
-    updateQuery = updateQuery.slice(0, -2); // Remove the last comma
-    updateQuery += ` WHERE nif = ?`;
+    }, "").slice(0, -2)} WHERE nif = ?`;
 
     await queryDB(req.header(FORCE_HEADER), updateQuery, [...params, req.params.nif]);
 
@@ -194,7 +91,7 @@ app.patch("/:nif", async (req, res) => {
     });
 });
 
-app.delete("/:nif", async (req, res) => {
+app.delete("/:nif", officerExistsMiddle, async (req, res) => {
     const {reason} = req.body as DeleteOfficerRequestBody;
 
     // Making sure the requesting user is higher patent the requested officer
@@ -223,6 +120,5 @@ app.delete("/:nif", async (req, res) => {
     });
 });
 
-console.log("[Portal Segurança] Officers routes loaded successfully.")
 
 export default app;
