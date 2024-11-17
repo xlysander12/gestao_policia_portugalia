@@ -79,9 +79,9 @@ app.patch("/:nif", officerExistsMiddle, async (req, res) => {
 
     // Now, update the special units the officer belongs to
     if (req.body.special_units !== undefined) {
-        await queryDB(req.header(FORCE_HEADER), 'DELETE FROM specialunits_officers WHERE nif = ?', req.params.nif);
+        await queryDB(req.header(FORCE_HEADER), 'DELETE FROM specialunits_officers WHERE officer = ?', req.params.nif);
         for (const unit of req.body.special_units) {
-            await queryDB(req.header(FORCE_HEADER), 'INSERT INTO specialunits_officers (nif, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
+            await queryDB(req.header(FORCE_HEADER), 'INSERT INTO specialunits_officers (officer, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
         }
     }
 

@@ -58,7 +58,7 @@ app.get("/:nif", officerExistsMiddle, async (req, res) => {
 
     info.special_units = [];
 
-    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE nif = ? ORDER BY role DESC, unit DESC', req.params.nif);
+    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE officer = ? ORDER BY role DESC, unit DESC', req.params.nif);
     officer_special_units_result.forEach((row) => {
         // Create object to store the unit
         const unit: OfficerUnit = {
