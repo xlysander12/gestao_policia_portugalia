@@ -10,6 +10,7 @@ import {
     DeleteOfficerRequestBody,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
+import { UpdateOfficerLastShiftBody } from "@portalseguranca/api-types/officers/activity/input";
 import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -233,6 +234,24 @@ const officersRoutes: routesType = {
     },
 }
 
+const activityRoutes: routesType = {
+    "/officers/.*/activity/last-shift": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["activity"],
+                body: {
+                    type: UpdateOfficerLastShiftBody
+                }
+            }
+        }
+    }
+}
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -240,6 +259,7 @@ const routes: routesType = {
     ...accountRoutes,
     ...metricsRoutes,
     ...utilRoutes,
+    ...activityRoutes,
     ...officersRoutes
 }
 
