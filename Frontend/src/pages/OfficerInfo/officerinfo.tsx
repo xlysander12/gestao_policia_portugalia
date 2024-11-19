@@ -22,6 +22,7 @@ import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./special-units-table.tsx";
 import Gate from "../../components/Gate/gate.tsx";
+import {ActivityPanel} from "./activity-panel.tsx";
 
 
 type InformationPairProps = {
@@ -386,7 +387,7 @@ function OfficerInfo() {
                         {/*Information div*/}
                         <div className={style.officerInfoDetailsDiv} style={loading ? {display: "none"} : {}}>
                             <fieldset>
-                            <legend>Informação Pessoal</legend>
+                                <legend>Informação Pessoal</legend>
 
                                 <div className={style.officerInfoInnerFieldsetDiv}>
                                     {/*Name pair*/}
@@ -536,17 +537,8 @@ function OfficerInfo() {
                                 </div>
                             </fieldset>
 
-                            <fieldset>
-                                <legend>Atividade</legend>
+                            <ActivityPanel nif={officerNif}/>
 
-                                <p>Justificação ativa: <span></span>
-                                </p>
-                                <p>Última picagem: <span></span>
-                                </p>
-                                <p>Última
-                                    semana: <span>{"N/A"}</span>
-                                </p>
-                            </fieldset>
                             <fieldset>
                             <legend>Punições</legend>
 
