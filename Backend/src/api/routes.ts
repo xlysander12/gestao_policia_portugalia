@@ -15,19 +15,31 @@ import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-type routesType = {
+type filterType = {
     [key: string]: {
-        methods: {
-            [key in methodType]?: {
-                requiresToken: boolean,
-                requiresForce: boolean,
-                intents?: string[],
-                body?: {
-                    type: Record<any, any>
-                }
-            }
-        }
+        queryFunction: () => string,
+        valueFunction?: (value: any) => any
     }
+}
+
+export type routeMethodType = {
+    requiresToken: boolean,
+    requiresForce: boolean,
+    intents?: string[],
+    filters?: filterType,
+    body?: {
+        type: Record<any, any>
+    }
+}
+
+export type routeType = {
+    methods: {
+        [key in methodType]?: routeMethodType
+    }
+}
+
+export type routesType = {
+    [key: string]: routeType
 }
 
 const accountRoutes: routesType = {
@@ -186,7 +198,13 @@ const officersRoutes: routesType = {
         methods: {
             GET: {
                 requiresToken: true,
-                requiresForce: true
+                requiresForce: true,
+                filters: {
+                    search: {
+                        queryFunction: () => `CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`,
+                        valueFunction: (value: string) => `%${value}%`
+                    }
+                }
             }
         }
     },

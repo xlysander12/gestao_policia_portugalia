@@ -9,19 +9,24 @@ import {
     OfficerUnit
 } from "@portalseguranca/api-types/officers/output";
 import {officerExistsMiddle} from "./officer-exists-middle";
+import buildFiltersQuery from "../../utils/filters";
 
 
 const app = express.Router();
 
 
 app.get("/", async (req, res) => {
-    // If there's no search defined, replace with empty string
-    if (req.query.search === undefined) {
-        req.query.search = "";
+    // * Get the filters
+    // Build an array with all present filters in the query params of the request
+    let filters: {name: string, value: any}[] = [];
+    for (const key in req.query) {
+        filters.push({name: key, value: req.query[key]});
     }
 
-    // Get the data from the database
-    const officersListResult = await queryDB(req.header(FORCE_HEADER), `SELECT name, patent, callsign, status, nif FROM officersV WHERE CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`, `%${<string>req.query.search}%`);
+    const filtersResult = buildFiltersQuery(res.locals.routeDetails, filters);
+
+    // * Get the data from the database
+    const officersListResult = await queryDB(req.header(FORCE_HEADER), `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
 
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
