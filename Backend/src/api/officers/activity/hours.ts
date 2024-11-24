@@ -14,16 +14,10 @@ app.get("/", async (req, res: OfficerInfoAPIResponse) => {
         filters.push({name: query, value: req.query[query]});
     }
 
-    const filtersResult = buildFiltersQuery(res.locals.routeDetails!, filters);
+    const filtersResult = buildFiltersQuery(res.locals.routeDetails!, filters, {subquery: "officer = ?", value: res.locals.requestedOfficerData.nif});
 
     // Get the hours of the Officer
-    let hours;
-    if (filtersResult.query === "") { // No filters where specified
-        hours = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM officer_hours WHERE officer = ?`, res.locals.requestedOfficerData.nif);
-    } else {
-        // TODO: Get this error out of here, somehow
-        hours = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM officer_hours ${filtersResult.query} AND officer = ?`, [...filtersResult.values, res.locals.requestedOfficerData.nif]);
-    }
+    const hours = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM officer_hours ${filtersResult.query}`, filtersResult.values);
 
     let response: OfficerHoursResponse = {
         message: "Operação bem sucedida",

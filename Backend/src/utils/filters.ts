@@ -1,11 +1,6 @@
 import {routeMethodType} from "../api/routes";
 
-function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string, value: any}[]): {query: string, values: any[]} {
-    // If the route doesn't have any filters, return an empty string
-    if (!routeMethod.filters) {
-        return {query: "", values: []};
-    }
-
+function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): {query: string, values: any[]} {
     // Start the query string
     let subqueries: string[] = [];
     let values: any[] = [];
@@ -13,12 +8,12 @@ function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string,
     // Otherwise, iterate over the filters and build the query
     for (const filter of filters) {
         // If the filter doesn't exist in the route, skip it
-        if (!routeMethod.filters.hasOwnProperty(filter.name)) {
+        if (!routeMethod.filters!.hasOwnProperty(filter.name)) {
             continue;
         }
 
         // Next, get the filter function
-        const filterFunctions = routeMethod.filters[filter.name];
+        const filterFunctions = routeMethod.filters![filter.name];
 
         // Append the result of the filter function to the query
         subqueries.push(filterFunctions.queryFunction());
@@ -37,12 +32,19 @@ function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string,
         }
     }
 
-    let query = subqueries.join(" AND ");
+    // Adding the suffix to the query
+    if (suffix) {
+        subqueries.push(suffix.subquery);
+        values.push(suffix.value);
+    }
 
     // If there are no subqueries, return an empty string
-    if (query === "") {
+    if (subqueries.length === 0) {
         return {query: "", values: []};
     }
+
+    // Build the query string
+    let query = subqueries.join(" AND ");
 
     return {query: `WHERE ${query}`, values: values};
 }

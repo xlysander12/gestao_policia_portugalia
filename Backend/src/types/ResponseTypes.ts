@@ -1,6 +1,6 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
-import {OfficerData, OfficerDataRaw, OfficerUnit} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerDataRaw} from "@portalseguranca/api-types/officers/output";
 
 export type APIResponse = express.Response & {
     locals: {
