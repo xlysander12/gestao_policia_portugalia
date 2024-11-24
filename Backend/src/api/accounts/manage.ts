@@ -4,6 +4,7 @@ import {queryDB} from "../../utils/db-connector";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {ChangeAccountInfoRequestBodyType} from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../utils/constants";
+import {APIResponse} from "../../types";
 
 const app = express.Router();
 
@@ -40,7 +41,7 @@ app.post("/:nif", async (req, res) => {
 });
 
 // Endpoint to edit an account's permissions / suspended statuses
-app.patch("/:nif", async (req, res) => {
+app.patch("/:nif", async (req, res: APIResponse) => {
     const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
 
     // * First, check if 'suspended' is present
@@ -62,7 +63,7 @@ app.patch("/:nif", async (req, res) => {
         // Update intents in the database
         for (let i = 0; i < intentsNames.length; i++) {
             // Make sure the requesting user has the intent it wants to update and the intent to alter accounts
-            if (!(await userHasIntents(res.locals.user, req.header(FORCE_HEADER), intentsNames[i])) || !(await userHasIntents(res.locals.user, req.header(FORCE_HEADER), "accounts"))) {
+            if (!(await userHasIntents(res.locals.user!, req.header(FORCE_HEADER), intentsNames[i])) || !(await userHasIntents(res.locals.user!, req.header(FORCE_HEADER), "accounts"))) {
                 let response: RequestError = {
                     message: "Não tens permissão para adicionar o intent " + intentsNames[i] + " a este utilizador"
                 };

@@ -8,11 +8,12 @@ import { RequestError } from "@portalseguranca/api-types";
 import { ValidateTokenResponse } from "@portalseguranca/api-types/account/output";
 import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../utils/constants";
+import {APIResponse} from "../../types";
 
 const app = express.Router();
 
 // Endpoint to validate a Token and check if the user has the correct permissions
-app.post("/validateToken", async (req, res) => {
+app.post("/validateToken", async (req, res: APIResponse) => {
 
     let {intents} = req.body as ValidateTokenRequestBodyType;
     // Check if intents were provided

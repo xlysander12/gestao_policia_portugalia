@@ -6,6 +6,7 @@ import {generateToken, getUserForces} from "../../utils/user-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {LoginResponse} from "@portalseguranca/api-types/account/output";
 import {ChangePasswordRequestBodyType, LoginRequestBodyType} from "@portalseguranca/api-types/account/input";
+import {APIResponse} from "../../types";
 
 const app = express.Router();
 
@@ -104,14 +105,12 @@ app.post("/login", async (req, res) => {
 });
 
 // Endpoint to change the password
-app.post("/changepassword", async (req, res) => {
-    // Store the logged user
-    const loggedUser = Number(res.locals.user);
+app.post("/changepassword", async (req, res: APIResponse) => {
     const {oldPassword, newPassword, confirmPassword} = req.body as ChangePasswordRequestBodyType;
 
     // * Check if the old password is correct
     // Get the password from the DB
-    const passwordQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT password FROM users WHERE nif = ?', loggedUser);
+    const passwordQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT password FROM users WHERE nif = ?', res.locals.user);
 
     // If the password isn't the default one, hash the password and compare it
     let isPasswordCorrect: boolean;
@@ -144,13 +143,13 @@ app.post("/changepassword", async (req, res) => {
 
     // * Update the password in every force the user is in
     // Get the forces the user is in
-    const user_forces = await getUserForces(loggedUser);
+    const user_forces = await getUserForces(res.locals.user!);
     for (const forceData of user_forces) {
-        await queryDB(forceData.name, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, loggedUser]);
+        await queryDB(forceData.name, 'UPDATE users SET password = ? WHERE nif = ?', [hashedPassword, res.locals.user]);
     }
 
     // Remove all tokens from the user, except the one used to change the password
-    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM tokens WHERE nif = ? AND token != ?', [loggedUser, req.header("authorization") || req.cookies.sessionToken]);
+    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM tokens WHERE nif = ? AND token != ?', [res.locals.user, req.header("authorization") || req.cookies.sessionToken]);
 
     // Return success
     let response: RequestSuccess = {

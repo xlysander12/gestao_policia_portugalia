@@ -4,6 +4,7 @@ import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
 import { RequestSuccess } from "@portalseguranca/api-types";
+import {OfficerInfoAPIResponse} from "../../../types";
 
 const app = express.Router();
 
@@ -11,7 +12,7 @@ export async function updateOfficerLastShift(nif: number, last_shift: Date, forc
     return await queryDB(force, `INSERT INTO officer_last_shift (officer, last_shift) VALUES (?, ?) ON DUPLICATE KEY UPDATE last_shift = ?`, [nif, last_shift, last_shift]);
 }
 
-app.get("/", async (req, res) => {
+app.get("/", async (req, res: OfficerInfoAPIResponse) => {
     // Query the DB for the last shift of the officer
     let result = await queryDB(req.header(FORCE_HEADER), `SELECT last_shift FROM officer_last_shift WHERE officer = ?`, res.locals.requestedOfficerData.nif);
 
@@ -32,7 +33,7 @@ app.get("/", async (req, res) => {
     res.status(200).json(response);
 });
 
-app.put("/", async (req, res) => {
+app.put("/", async (req, res: OfficerInfoAPIResponse) => {
     let {last_shift} = req.body as UpdateOfficerLastShiftBodyType;
 
     // Update the last shift of the officer

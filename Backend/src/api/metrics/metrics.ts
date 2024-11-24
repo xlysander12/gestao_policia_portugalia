@@ -2,6 +2,7 @@ import express from "express";
 import {queryDB} from "../../utils/db-connector";
 import {FORCE_HEADER} from "../../utils/constants";
 import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
+import {APIResponse} from "../../types";
 
 // Creating the router
 const app = express.Router();
@@ -36,17 +37,14 @@ async function submitIssue(title: string, body: string, labels: string[]) {
     });
 }
 
-app.post("/issue", async (req, res) => {
+app.post("/issue", async (req, res: APIResponse) => {
     const {title, body, code} = req.body as SubmitIssueRequestBodyType;
-
-    // Getting the nif of the logged user
-    const loggedNif = Number(res.locals.user)
 
     // Manipulating the values to be used in the issue creation
     let issueTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let issueBody = await getBodyAuthorDetails(loggedNif, req.header(FORCE_HEADER));
+    let issueBody = await getBodyAuthorDetails(res.locals.user!, req.header(FORCE_HEADER));
     issueBody += `# Detalhes do problema\n`;
     issueBody += code !== undefined ? `Código de erro: ${code}\n` : "";
     issueBody += body;
@@ -65,17 +63,14 @@ app.post("/issue", async (req, res) => {
 });
 
 
-app.post("/suggestion", async (req, res) => {
+app.post("/suggestion", async (req, res: APIResponse) => {
     const {title, body} = req.body as SubmitSuggestionRequestBodyType;
-
-    // Getting the nif of the logged user
-    const loggedNif = Number(res.locals.user);
 
     // Manipulating the values to be used in the issue creation
     const suggestionTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let suggestionBody = await getBodyAuthorDetails(loggedNif, req.header(FORCE_HEADER));
+    let suggestionBody = await getBodyAuthorDetails(res.locals.user!, req.header(FORCE_HEADER));
     suggestionBody += `# Detalhes da sugestão\n`;
     suggestionBody += body;
 

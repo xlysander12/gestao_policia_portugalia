@@ -10,6 +10,7 @@ import {
 } from "@portalseguranca/api-types/officers/output";
 import {officerExistsMiddle} from "./officer-exists-middle";
 import buildFiltersQuery from "../../utils/filters";
+import {OfficerInfoAPIResponse} from "../../types";
 
 
 const app = express.Router();
@@ -53,14 +54,11 @@ app.get("/", async (req, res) => {
 });
 
 
-app.get("/:nif", officerExistsMiddle, async (req, res) => {
+app.get("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const info = res.locals.requestedOfficerData;
 
-    // Alter the dates to be a proper string (There's a lot of unknown shit going on here.
-    // For more information on wtf is going on, check https://stackoverflow.com/a/29774197)
-    info.entry_date = String(new Date(info.entry_date.getTime() - (info.entry_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]);
-    info.promotion_date = info.promotion_date !== null ? String(new Date(info.promotion_date.getTime() - (info.promotion_date.getTimezoneOffset() * 60000)).toISOString().split("T")[0]): null;
 
+    // Get the special units of the Officer
     info.special_units = [];
 
     let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE officer = ? ORDER BY role DESC, unit DESC', req.params.nif);
@@ -72,27 +70,13 @@ app.get("/:nif", officerExistsMiddle, async (req, res) => {
         }
 
         // Push the unit into the array
-        info.special_units.push(unit);
+        info.special_units!.push(unit);
     });
 
     // After getting all the data, build the response
     let response: OfficerInfoGetResponse = {
         message: "Operação bem sucedida",
-        data: {
-            name: info.name,
-            nif: info.nif,
-            phone: info.phone,
-            iban: info.iban,
-            kms: info.kms,
-            discord: info.discord,
-            steam: info.steam,
-            patent: info.patent,
-            callsign: info.callsign,
-            status: info.status,
-            entry_date: info.entry_date,
-            promotion_date: info.promotion_date,
-            special_units: info.special_units
-        }
+        data: info
     }
 
     // Return the 200 code

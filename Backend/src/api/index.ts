@@ -12,14 +12,17 @@ import {
     updateLastTimeUserInteracted,
     userHasIntents
 } from "../utils/user-handler";
-import routes, {methodType} from "./routes";
+import routes, {methodType, routeMethodType} from "./routes";
 import {RequestError} from "@portalseguranca/api-types";
 import {getForcesList} from "../utils/config-handler";
+import {APIResponse} from "../types";
 
 const apiRoutes = express.Router();
 
+
+
 // Middleware to gather the route's information from the routes object
-apiRoutes.use((req, res, next) => {
+apiRoutes.use((req, res: APIResponse, next) => {
     // Check if the requested route is present in the routes object
     // The keys of this object, are RegEx that match the routes
     const routeIndex = Object.keys(routes).findIndex((route) => new RegExp(route).test(req.path));
@@ -55,7 +58,7 @@ apiRoutes.use((req, res, next) => {
  * - If the route requires a token, check if the token is present and valid
  * - If the route requires intents, check if the user has the required intents
  */
-apiRoutes.use(async (req, res, next) => {
+apiRoutes.use(async (req, res: APIResponse, next) => {
     // First, check if the route object is present
     if (res.locals.routeDetails === null || res.locals.routeDetails === undefined) { // Since it's not present, assume no validation is needed
         return next();
@@ -146,7 +149,7 @@ apiRoutes.use(async (req, res, next) => {
 });
 
 // Middleware to check if the request has all the fields valid
-apiRoutes.use((req, res, next) => {
+apiRoutes.use((req, res: APIResponse, next) => {
     //  Check if the route details are present. If not, assume no validation is needed
     if (res.locals.routeDetails === null) {
         return next();

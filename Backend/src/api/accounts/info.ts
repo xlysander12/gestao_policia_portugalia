@@ -12,11 +12,12 @@ import {
 } from "@portalseguranca/api-types/account/output";
 import {RequestError} from "@portalseguranca/api-types";
 import {FORCE_HEADER} from "../../utils/constants";
+import {APIResponse} from "../../types";
 
 const app = express.Router();
 
 // Endpoint to get a user's accounts information
-app.get("/:nif", async (req, res) => {
+app.get("/:nif", async (req, res: APIResponse) => {
     // Check if the requesting user is the user itself
     const requestingUser = Number(res.locals.user);
     if (requestingUser !== Number(req.params.nif)) {
@@ -82,11 +83,10 @@ app.get("/:nif", async (req, res) => {
 });
 
 // Endpoint to fetch all forces an user has access to
-app.get("/:nif/forces", async (req, res) => {
+app.get("/:nif/forces", async (req, res: APIResponse) => {
     // Check if the requesting user is the user itself
-    const requestingUser = Number(res.locals.user);
     // TODO: This needs some kind of permission system. For now, keep it as is
-    if (requestingUser !== Number(req.params.nif)) {
+    if (Number(res.locals.user) !== Number(req.params.nif)) {
         let response: RequestError = {
             message: "Não tens permissão para efetuar esta ação"
         };

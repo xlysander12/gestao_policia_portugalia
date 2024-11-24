@@ -3,10 +3,11 @@ import {FORCE_HEADER} from "../../utils/constants";
 import express from 'express';
 import {officerExistsMiddle} from "./officer-exists-middle";
 import { DeleteOfficerRequestBody } from "@portalseguranca/api-types/officers/input";
+import {APIResponse, OfficerInfoAPIResponse} from "../../types";
 
 const app = express.Router();
 
-app.put("/:nif", async (req, res) => {
+app.put("/:nif", async (req, res: APIResponse) => {
     // Making sure the provided nif doesn't already exist
     let officer_exists_check_result = await queryDB(req.headers[FORCE_HEADER], 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
     if (officer_exists_check_result.length !== 0) {
@@ -37,7 +38,7 @@ app.put("/:nif", async (req, res) => {
 
 });
 
-app.patch("/:nif", officerExistsMiddle, async (req, res) => {
+app.patch("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
 
     let requested_officer_data = res.locals.requestedOfficerData;
@@ -91,7 +92,7 @@ app.patch("/:nif", officerExistsMiddle, async (req, res) => {
     });
 });
 
-app.delete("/:nif", officerExistsMiddle, async (req, res) => {
+app.delete("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const {reason} = req.body as DeleteOfficerRequestBody;
 
     // Making sure the requesting user is higher patent the requested officer
