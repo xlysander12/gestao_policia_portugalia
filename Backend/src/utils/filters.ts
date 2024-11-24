@@ -23,10 +23,15 @@ function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string,
         // Append the result of the filter function to the query
         subqueries.push(filterFunctions.queryFunction());
 
-        // Add the value to the values array
-        // If the route doens't have a value function, just add the value
+        // If the filter has a function, run it and append the result to the values array
         if (filterFunctions.valueFunction) {
-            values.push(filterFunctions.valueFunction(filter.value));
+            let functionResult = filterFunctions.valueFunction(filter.value);
+            // If the result is an array, append it to the values array
+            if (Array.isArray(functionResult)) {
+                values.push(...functionResult);
+            } else {
+                values.push(functionResult);
+            }
         } else {
             values.push(filter.value);
         }

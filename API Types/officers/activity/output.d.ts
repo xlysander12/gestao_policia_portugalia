@@ -5,3 +5,15 @@ export interface OfficerLastShiftResponse extends RequestSuccess {
         last_shift: string
     }
 }
+
+export interface OfficerSpecificHoursType {
+    id: number,
+    week_start: string,
+    week_end: string,
+    minutes: number,
+    submitted_by: number
+}
+
+export interface OfficerHoursResponse extends RequestSuccess {
+    data: OfficerSpecificHoursType[]
+}

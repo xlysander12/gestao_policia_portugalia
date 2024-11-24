@@ -268,6 +268,24 @@ const activityRoutes: routesType = {
                 }
             }
         }
+    },
+    "/officers/.*/activity/hours": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                filters: {
+                    after: {
+                        queryFunction: () => `week_start >= ? OR week_end >= ?`,
+                        valueFunction: (value: string) => [value, value]
+                    },
+                    before: {
+                        queryFunction: () => `week_end <= ? OR week_start <= ?`,
+                        valueFunction: (value: string) => [value, value]
+                    }
+                }
+            }
+        }
     }
 }
 /**
