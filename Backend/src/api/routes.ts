@@ -10,7 +10,7 @@ import {
     DeleteOfficerRequestBody,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
-import { UpdateOfficerLastShiftBody } from "@portalseguranca/api-types/officers/activity/input";
+import {AddOfficerHoursBody, UpdateOfficerLastShiftBody} from "@portalseguranca/api-types/officers/activity/input";
 import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -83,7 +83,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to reset the password of a user
-    "/accounts/.*/resetpassword": {
+    "/accounts/.+/resetpassword": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -94,7 +94,7 @@ const accountRoutes: routesType = {
     },
 
     // * Routes related to creation and data fetching of exsiting accounts
-    "/accounts/.*": {
+    "/accounts/.+": {
         methods: {
             // Route to get information about an account
             GET: {
@@ -210,7 +210,7 @@ const officersRoutes: routesType = {
     },
 
     // * Routes about existing officers or to create new officers
-    "/officers/.*": {
+    "/officers/.+": {
         methods: {
             // Route to get an officer's information
             GET: {
@@ -253,7 +253,7 @@ const officersRoutes: routesType = {
 }
 
 const activityRoutes: routesType = {
-    "/officers/.*/activity/last-shift": {
+    "/officers/.+/activity/last-shift": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -269,7 +269,7 @@ const activityRoutes: routesType = {
             }
         }
     },
-    "/officers/.*/activity/hours": {
+    "/officers/.+/activity/hours": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -284,6 +284,27 @@ const activityRoutes: routesType = {
                         valueFunction: (value: string) => [value, value]
                     }
                 }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["activity"],
+                body: {
+                    type: AddOfficerHoursBody
+                }
+            }
+        }
+    },
+    "/officers/.+/activity/hours/.+": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["activity"]
             }
         }
     }
