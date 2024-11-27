@@ -4,7 +4,7 @@ import {OfficerData, OfficerDataRaw} from "@portalseguranca/api-types/officers/o
 
 export type APIResponse = express.Response & {
     locals: {
-        routeDetails: routeMethodType | null
+        routeDetails: routeMethodType
         user: number | null
     }
 }

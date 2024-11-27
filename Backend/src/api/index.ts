@@ -19,18 +19,15 @@ import {
 
 const apiRoutes = express.Router();
 
-
-
 // Middleware to gather the route's information from the routes object
 apiRoutes.use((req, res: APIResponse, next) => {
     // Check if the requested route is present in the routes object
     // The keys of this object, are RegEx that match the routes
     const routeIndex = Object.keys(routes).findIndex((route) => new RegExp(route).test(req.path));
 
-    // If the route is not present, assume no validation is needed
+    // If the route is not present, assume this route doesn't exist and return 404
     if (routeIndex === -1) {
-        res.locals.routeDetails = null;
-        return next();
+        return res.status(404).json(<RequestError>{message: "Rota não encontrada"});
     }
 
     // Get the route object
@@ -40,10 +37,9 @@ apiRoutes.use((req, res: APIResponse, next) => {
     // Cast the method to the required type
     const method = req.method as methodType;
 
-    // If the method is not present, assume no validation is needed
+    // If the method is not present, assume this method isn't valid for this route
     if (route.methods[method] === undefined) {
-        res.locals.routeDetails = null;
-        return next();
+        return res.status(405).json(<RequestError>{message: "Método não permitido"});
     }
 
     // Since the method is present, store the values in locals and proceed to the next middleware
@@ -59,11 +55,6 @@ apiRoutes.use((req, res: APIResponse, next) => {
  * - If the route requires intents, check if the user has the required intents
  */
 apiRoutes.use(async (req, res: APIResponse, next) => {
-    // First, check if the route object is present
-    if (res.locals.routeDetails === null || res.locals.routeDetails === undefined) { // Since it's not present, assume no validation is needed
-        return next();
-    }
-
     // * Checking the required basic information for the request
     // Check if this route requires a force header
     if (res.locals.routeDetails.requiresForce) {
@@ -150,11 +141,6 @@ apiRoutes.use(async (req, res: APIResponse, next) => {
 
 // Middleware to check if the request has all the fields valid
 apiRoutes.use((req, res: APIResponse, next) => {
-    //  Check if the route details are present. If not, assume no validation is needed
-    if (res.locals.routeDetails === null) {
-        return next();
-    }
-
     // Check if the route has a body pattern
     if (!res.locals.routeDetails.body) { // If it doesn't have a body pattern, assume no validation is needed
         return next();
