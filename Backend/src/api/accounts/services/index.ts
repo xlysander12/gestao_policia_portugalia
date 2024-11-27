@@ -1,8 +1,6 @@
-import {addAccountToken, getAccountDetails, getUserForces, userHasIntents} from "../repository";
+import {addAccountToken, generateAccountToken, getAccountDetails, getUserForces, userHasIntents} from "../repository";
 import {DefaultReturn} from "../../../types";
 import {compare} from "bcrypt";
-import {generateToken} from "../../../utils/user-handler";
-import {CookieOptions} from "express";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -104,7 +102,7 @@ export async function loginUser(nif: number, password: string, persistent: boole
     }
 
     // If everything is correct, generate a token
-    const token = await generateToken();
+    const token = await generateAccountToken();
 
     // After generating the token, store it in the databases of all the forces the user belongs to
     for (const force of user_forces) {
