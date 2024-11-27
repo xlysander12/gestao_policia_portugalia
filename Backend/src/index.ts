@@ -13,8 +13,8 @@ import {getForcesList, loadConfig} from "./utils/config-handler";
 loadConfig();
 
 import apiRoutes from "./api";
-import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
+import {isTokenValid} from "./api/accounts/repository";
 
 const app = Router(); // This app is a router to compartimentalize routes
 

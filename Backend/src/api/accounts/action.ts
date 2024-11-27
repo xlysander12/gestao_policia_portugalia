@@ -2,11 +2,12 @@ import express, {CookieOptions} from "express";
 import {compare, hash} from "bcrypt";
 import {queryDB} from "../../utils/db-connector";
 import {FORCE_HEADER, PASSWORD_SALT_ROUNDS} from "../../utils/constants";
-import {generateToken, getUserForces} from "../../utils/user-handler";
+import {generateToken} from "../../utils/user-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {LoginResponse} from "@portalseguranca/api-types/account/output";
 import {ChangePasswordRequestBodyType, LoginRequestBodyType} from "@portalseguranca/api-types/account/input";
 import {APIResponse} from "../../types";
+import {getUserForces} from "./repository";
 
 const app = express.Router();
 

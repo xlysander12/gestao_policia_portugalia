@@ -1,5 +1,4 @@
-import {userHasIntents} from "../../../utils/user-handler";
-import {getAccountDetails} from "../repository";
+import {getAccountDetails, getUserForces, userHasIntents} from "../repository";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<{result: boolean, status: number, message: string}> {
     // Check if intents were provided
@@ -47,4 +46,17 @@ export async function getUserDetails(requestingNif: number, requestedNif: number
             intents: accountData.data!.intents
         }
     }
+}
+
+export async function getAccountForces(requestingNif: number, nif: number): Promise<{result: boolean, status: number, message?: string, data?: {name: string, suspended: boolean}[]}> {
+    // Check if the requesting user is the user itself
+    // Only the user itself can see their own forces
+    if (requestingNif !== nif) {
+        return {result: false, status: 403, message: "Não tens permissão para efetuar esta ação"};
+    }
+
+    // Get the forces the account belongs to
+    let response = await getUserForces(nif);
+
+    return {result: true, status: 200, data: response};
 }

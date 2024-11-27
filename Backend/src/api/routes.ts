@@ -93,6 +93,16 @@ const accountRoutes: routesType = {
         }
     },
 
+    // Route to get the forces of an account
+    "/accounts/.+/forces": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+
     // * Routes related to creation and data fetching of exsiting accounts
     "/accounts/.+": {
         methods: {

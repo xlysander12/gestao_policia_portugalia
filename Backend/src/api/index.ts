@@ -6,16 +6,16 @@ import officerInfoRoutes from "./officers";
 import {
     FORCE_HEADER
 } from "../utils/constants";
+import routes, {methodType} from "./routes";
+import {RequestError} from "@portalseguranca/api-types";
+import {getForcesList} from "../utils/config-handler";
+import {APIResponse} from "../types";
 import {
     isTokenValid,
     updateLastTimeTokenUsed,
     updateLastTimeUserInteracted,
     userHasIntents
-} from "../utils/user-handler";
-import routes, {methodType, routeMethodType} from "./routes";
-import {RequestError} from "@portalseguranca/api-types";
-import {getForcesList} from "../utils/config-handler";
-import {APIResponse} from "../types";
+} from "./accounts/repository";
 
 const apiRoutes = express.Router();
 

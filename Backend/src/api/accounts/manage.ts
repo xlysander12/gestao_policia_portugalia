@@ -1,10 +1,10 @@
 import express from "express";
-import {getUserForces, userHasIntents} from "../../utils/user-handler";
 import {queryDB} from "../../utils/db-connector";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {ChangeAccountInfoRequestBodyType} from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../utils/constants";
 import {APIResponse} from "../../types";
+import {getUserForces, userHasIntents} from "./repository";
 
 const app = express.Router();
 

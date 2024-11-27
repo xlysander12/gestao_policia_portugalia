@@ -2,9 +2,8 @@
 import express from "express";
 
 // Controllers
-import {getUserAccountDetailsController, validateTokenController} from "./controllers";
+import {getAccountForcesController, getUserAccountDetailsController, validateTokenController} from "./controllers";
 
-import infoRoutes from "./info";
 import manageRoutes from "./manage";
 import actionRoutes from "./action";
 
@@ -16,11 +15,11 @@ app.post("/validate-token", validateTokenController);
 // Endpoint to get a user's accounts information
 app.get("/:nif", getUserAccountDetailsController);
 
+// Endpoint to fetch all forces an user has access to
+app.get("/:nif/forces", getAccountForcesController);
+
 // Import action routes
 app.use(actionRoutes);
-
-// Import info routes
-app.use(infoRoutes);
 
 // Import manage routes
 app.use(manageRoutes);
