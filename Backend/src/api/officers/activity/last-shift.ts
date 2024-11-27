@@ -14,7 +14,7 @@ export async function updateOfficerLastShift(nif: number, last_shift: Date, forc
 
 app.get("/", async (req, res: OfficerInfoAPIResponse) => {
     // Query the DB for the last shift of the officer
-    let result = await queryDB(req.header(FORCE_HEADER), `SELECT last_shift FROM officer_last_shift WHERE officer = ?`, res.locals.requestedOfficerData.nif);
+    let result = await queryDB(req.header(FORCE_HEADER)!, `SELECT last_shift FROM officer_last_shift WHERE officer = ?`, res.locals.requestedOfficerData.nif);
 
     if (result.length === 0) {
         res.status(404).json({

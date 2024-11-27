@@ -1,6 +1,14 @@
-import {addAccountToken, generateAccountToken, getAccountDetails, getUserForces, userHasIntents} from "../repository";
+import {
+    addAccountToken,
+    generateAccountToken,
+    getAccountDetails,
+    getUserForces,
+    updateAccountPassword,
+    userHasIntents
+} from "../repository";
 import {DefaultReturn} from "../../../types";
-import {compare} from "bcrypt";
+import {compare, hash} from "bcrypt";
+import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -112,4 +120,39 @@ export async function loginUser(nif: number, password: string, persistent: boole
     // Return the data to the Controller
     // * The "forces" field must only include the forces the user is not suspended in
     return {result: true, status: 200, data: {token, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
+}
+
+export async function changeUserPassword(nif: number, force: string, oldPassword: string, newPassword: string, confirmPassword: string, sessionToken: string): Promise<DefaultReturn<void>> {
+    // * Check if the old password is correct
+    // Get the password from the DB
+    // ! This query will never return a "false" status since the user has to be logged in to change the password
+    const accountInfo = await getAccountDetails(force, nif);
+
+    // If the password isn't the default one, hash the password and compare it
+    let isPasswordCorrect: boolean;
+    if (accountInfo.data!.password === null) { // Password is the default onew
+        isPasswordCorrect = "seguranca" == String(oldPassword);
+    } else {
+        isPasswordCorrect = await compare(String(oldPassword), String(accountInfo.data!.password));
+    }
+
+    // If the password is incorrect, return 401
+    if (!isPasswordCorrect) {
+        return {result: false, status: 401, message: "Password antiga incorreta"};
+    }
+
+    // Make sure the new passwords match
+    if (newPassword !== confirmPassword) {
+        return {result: false, status: 400, message: "As novas passwords não coincidem"};
+    }
+
+    // Hash the new password
+    const hashedPassword = await hash(newPassword, PASSWORD_SALT_ROUNDS);
+
+    // * Update the password in every force the user is in
+    await updateAccountPassword(nif, hashedPassword, sessionToken);
+
+
+    // Return success
+    return {result: true, status: 200};
 }

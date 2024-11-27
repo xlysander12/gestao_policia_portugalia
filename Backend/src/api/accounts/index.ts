@@ -1,8 +1,9 @@
 // Libs
-import express, {CookieOptions} from "express";
+import express from "express";
 
 // Controllers
 import {
+    changeUserPasswordController,
     getAccountForcesController,
     getUserAccountDetailsController,
     loginUserController,
@@ -10,7 +11,6 @@ import {
 } from "./controllers";
 
 import manageRoutes from "./manage";
-import actionRoutes from "./action";
 
 const app = express.Router();
 
@@ -20,14 +20,14 @@ app.post("/validate-token", validateTokenController);
 // Endpoint to login an user
 app.post("/login", loginUserController);
 
+// Endpoint to allow an user to change their password
+app.post("/change-password", changeUserPasswordController);
+
 // Endpoint to get a user's accounts information
 app.get("/:nif", getUserAccountDetailsController);
 
 // Endpoint to fetch all forces an user has access to
 app.get("/:nif/forces", getAccountForcesController);
-
-// Import action routes
-app.use(actionRoutes);
 
 // Import manage routes
 app.use(manageRoutes);

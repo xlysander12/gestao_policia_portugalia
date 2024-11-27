@@ -155,3 +155,18 @@ export async function generateAccountToken() {
 export async function addAccountToken(force: string, nif: number, token: string, persistent: boolean) {
     await queryDB(force, 'INSERT INTO tokens (token, nif, persistent) VALUES (?, ?, ?)', [token, nif, persistent ? 1: 0]);
 }
+
+export async function updateAccountPassword(nif: number, hash: string, currentToken: string) {
+    // Get the list of forces the user belongs to
+    let userForces = await getUserForces(nif);
+
+    // Update the password in all forces
+    for (const force of userForces) {
+        await queryDB(force.name, 'UPDATE users SET password = ? WHERE nif = ?', [hash, nif]);
+    }
+
+    // Delete all tokens from the user except the current one
+    for (const force of userForces) {
+        await queryDB(force.name, 'DELETE FROM tokens WHERE nif = ? AND token != ?', [nif, currentToken]);
+    }
+}

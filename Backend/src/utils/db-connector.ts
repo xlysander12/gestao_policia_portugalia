@@ -32,7 +32,7 @@ for (let force of getForcesList()) {
 }
 
 // Function used by the backend to query the database
-export async function queryDB(force: any, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
+export async function queryDB(force: string, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
     // If the force parameter is not set, return
     if (!force || getForcesList().indexOf(force) === -1)
         throw new Error("Force parameter not set or incorrect!");

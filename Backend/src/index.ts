@@ -54,7 +54,7 @@ app.use("/db", async (req, res, next) => {
     const loggedNif = loggedUser[2];
 
     // Fecth patent from database
-    const result = await queryDB(loggedUser[3], "SELECT patent FROM officers WHERE nif = ?", loggedNif);
+    const result = await queryDB(<string>loggedUser[3], "SELECT patent FROM officers WHERE nif = ?", loggedNif);
 
     // Check if the patent is valid
     if (result.length === 0) {

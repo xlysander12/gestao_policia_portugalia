@@ -15,7 +15,7 @@ const app = express.Router();
 
 app.get("/patents", async (req, res) => {
     // Get what force the user is trying to get the patents from
-    let force = req.header(FORCE_HEADER);
+    let force = req.header(FORCE_HEADER)!;
 
     // Get the list from the database
     const patents = await queryDB(force, `SELECT * FROM patents`);
@@ -41,7 +41,7 @@ app.get("/patents", async (req, res) => {
 });
 
 app.get("/statuses", async (req, res) => {
-    let force = req.header(FORCE_HEADER);
+    let force = req.header(FORCE_HEADER)!;
 
 
     // Get the list from the database
@@ -67,7 +67,7 @@ app.get("/statuses", async (req, res) => {
 });
 
 app.get("/specialunits", async (req, res) => {
-    let force = req.header(FORCE_HEADER);
+    let force = req.header(FORCE_HEADER)!;
 
     // Get all the special units from the database and build an array with its data
     const specialUnitsQuery = await queryDB(force, `SELECT * FROM special_units`);
@@ -107,7 +107,7 @@ app.get("/specialunits", async (req, res) => {
 });
 
 app.get("/intents", async (req, res) => {
-    let force = req.header(FORCE_HEADER);
+    let force = req.header(FORCE_HEADER)!;
 
     // Get the list from the database
     const intents = await queryDB(force, `SELECT * FROM intents`);

@@ -27,7 +27,7 @@ app.get("/", async (req, res) => {
     const filtersResult = buildFiltersQuery(res.locals.routeDetails, filters);
 
     // * Get the data from the database
-    const officersListResult = await queryDB(req.header(FORCE_HEADER), `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
+    const officersListResult = await queryDB(req.header(FORCE_HEADER)!, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
 
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
@@ -61,7 +61,7 @@ app.get("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) =
     // Get the special units of the Officer
     info.special_units = [];
 
-    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER), 'SELECT unit, role FROM specialunits_officers WHERE officer = ? ORDER BY role DESC, unit DESC', req.params.nif);
+    let officer_special_units_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT unit, role FROM specialunits_officers WHERE officer = ? ORDER BY role DESC, unit DESC', req.params.nif);
     officer_special_units_result.forEach((row) => {
         // Create object to store the unit
         const unit: OfficerUnit = {

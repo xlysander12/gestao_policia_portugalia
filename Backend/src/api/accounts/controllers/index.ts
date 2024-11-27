@@ -1,14 +1,18 @@
 import {APIResponse} from "../../../types";
-import {LoginRequestBodyType, ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
+import {
+    ChangePasswordRequestBodyType,
+    LoginRequestBodyType,
+    ValidateTokenRequestBodyType
+} from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {RequestError} from "@portalseguranca/api-types";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {
     AccountInfoResponse, LoginResponse,
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
 import express, {CookieOptions} from "express";
-import {getUserDetails, loginUser, validateToken} from "../services";
+import {changeUserPassword, getUserDetails, loginUser, validateToken} from "../services";
 import {getAccountForces} from "../services";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
@@ -85,4 +89,16 @@ export async function loginUserController(req: express.Request, res: APIResponse
             forces: loginData.data!.forces
         }
     });
+}
+
+export async function changeUserPasswordController(req: express.Request, res: APIResponse) {
+    const {oldPassword, newPassword, confirmPassword} = req.body as ChangePasswordRequestBodyType;
+
+    const serviceResult = await changeUserPassword(res.locals.user!, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies["sessionToken"] || req.header("Authorization"));
+
+    if (serviceResult.result) {
+        res.status(serviceResult.status).json(<RequestSuccess>{message: "Password alterada com sucesso"});
+    } else {
+        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
+    }
 }

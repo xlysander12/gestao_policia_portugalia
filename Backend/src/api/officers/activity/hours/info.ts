@@ -20,7 +20,7 @@ app.get("/", async (req, res: OfficerInfoAPIResponse) => {
     const filtersResult = buildFiltersQuery(res.locals.routeDetails!, filters, {subquery: "officer = ?", value: res.locals.requestedOfficerData.nif});
 
     // Get the hours of the Officer
-    const hours = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM officer_hours ${filtersResult.query}`, filtersResult.values);
+    const hours = await queryDB(req.header(FORCE_HEADER)!, `SELECT * FROM officer_hours ${filtersResult.query}`, filtersResult.values);
 
     let response: OfficerHoursResponse = {
         message: "Operação bem sucedida",
@@ -42,7 +42,7 @@ app.get("/:id", async (req, res: OfficerInfoAPIResponse) => {
     const {id} = req.params;
 
     // Get the information about this specific hours entry
-    const hours = await queryDB(req.header(FORCE_HEADER), `SELECT * FROM officer_hours WHERE id = ? AND officer = ?`, [id, res.locals.requestedOfficerData.nif]);
+    const hours = await queryDB(req.header(FORCE_HEADER)!, `SELECT * FROM officer_hours WHERE id = ? AND officer = ?`, [id, res.locals.requestedOfficerData.nif]);
 
     // If not results are found, either the entry doesn't exist, or it's not from the requested officer
     if (hours.length === 0) {

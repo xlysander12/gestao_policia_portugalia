@@ -22,7 +22,7 @@ app.post("/:nif", async (req, res) => {
     }
 
     // Then, make sure the officer exists in the force (there can't be accounts for non-existing officers)
-    const officer = await queryDB(req.header(FORCE_HEADER), 'SELECT * FROM officers WHERE nif = ?', [nif]);
+    const officer = await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM officers WHERE nif = ?', [nif]);
     if (officer.length === 0) {
         let response: RequestError = {
             message: "Não é possível criar uma conta para um efetivo que não existe"
@@ -31,7 +31,7 @@ app.post("/:nif", async (req, res) => {
     }
 
     // Add the account in the force's DB
-    await queryDB(req.header(FORCE_HEADER), 'INSERT INTO users (nif) VALUES (?)', [nif]);
+    await queryDB(req.header(FORCE_HEADER)!, 'INSERT INTO users (nif) VALUES (?)', [nif]);
 
     // Return success
     let response: RequestSuccess = {
@@ -47,11 +47,11 @@ app.patch("/:nif", async (req, res: APIResponse) => {
     // * First, check if 'suspended' is present
     if (suspended !== undefined) {
         // Update the user's suspended status
-        await queryDB(req.header(FORCE_HEADER), 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? "1" : "0", req.params.nif]);
+        await queryDB(req.header(FORCE_HEADER)!, 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? "1" : "0", req.params.nif]);
 
         // If the account was set to be suspended, delete all tokens
         if (suspended) {
-            await queryDB(req.header(FORCE_HEADER), 'DELETE FROM tokens WHERE nif = ?', [req.params.nif]);
+            await queryDB(req.header(FORCE_HEADER)!, 'DELETE FROM tokens WHERE nif = ?', [req.params.nif]);
         }
     }
 
@@ -71,10 +71,10 @@ app.patch("/:nif", async (req, res: APIResponse) => {
             }
 
             // Check if the entry for this intent already exists
-            if ((await queryDB(req.header(FORCE_HEADER), 'SELECT * FROM user_intents WHERE user = ? AND intent = ?', [req.params.nif, intentsNames[i]])).length === 0) { // Entry doesn't exist
-                await queryDB(req.header(FORCE_HEADER), 'INSERT INTO user_intents (user, intent, enabled) VALUES (?, ?, ?)', [req.params.nif, intentsNames[i], intents[intentsNames[i]] ? "1" : "0"]);
+            if ((await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM user_intents WHERE user = ? AND intent = ?', [req.params.nif, intentsNames[i]])).length === 0) { // Entry doesn't exist
+                await queryDB(req.header(FORCE_HEADER)!, 'INSERT INTO user_intents (user, intent, enabled) VALUES (?, ?, ?)', [req.params.nif, intentsNames[i], intents[intentsNames[i]] ? "1" : "0"]);
             } else { // Entry already exists
-                await queryDB(req.header(FORCE_HEADER), 'UPDATE user_intents SET enabled = ? WHERE user = ? AND intent = ?', [intents[intentsNames[i]] ? "1" : "0", req.params.nif, intentsNames[i]]);
+                await queryDB(req.header(FORCE_HEADER)!, 'UPDATE user_intents SET enabled = ? WHERE user = ? AND intent = ?', [intents[intentsNames[i]] ? "1" : "0", req.params.nif, intentsNames[i]]);
             }
         }
     }
@@ -90,7 +90,7 @@ app.patch("/:nif", async (req, res: APIResponse) => {
 // ! If an account needs to be deleted, in theory, the officer linked to it should be fired
 app.delete("/:nif", async (req, res) => {
     // * First, make sure the user exists in the selected force
-    const requestedUserQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT * FROM users WHERE nif = ?', [req.params.nif]);
+    const requestedUserQuery = await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM users WHERE nif = ?', [req.params.nif]);
 
     // If the user doesn't exist, return an error
     if (requestedUserQuery.length === 0) {
@@ -101,7 +101,7 @@ app.delete("/:nif", async (req, res) => {
     }
 
     // Since the user exists, delete it
-    await queryDB(req.header(FORCE_HEADER), 'DELETE FROM users WHERE nif = ?', [req.params.nif]);
+    await queryDB(req.header(FORCE_HEADER)!, 'DELETE FROM users WHERE nif = ?', [req.params.nif]);
 
     // Return success
     let response: RequestSuccess = {
@@ -113,7 +113,7 @@ app.delete("/:nif", async (req, res) => {
 // Endpoint to reset the password
 app.post("/:nif/resetpassword", async (req, res) => {
     // * First, make sure the user exists in the selected force
-    const requestedUserQuery = await queryDB(req.header(FORCE_HEADER), 'SELECT * FROM users WHERE nif = ?', [req.params.nif]);
+    const requestedUserQuery = await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM users WHERE nif = ?', [req.params.nif]);
 
     // If the user doesn't exist, return an error
     if (requestedUserQuery.length === 0) {
