@@ -1,14 +1,14 @@
 import {APIResponse} from "../../../types";
-import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
+import {LoginRequestBodyType, ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {RequestError} from "@portalseguranca/api-types";
 import {
-    AccountInfoResponse,
+    AccountInfoResponse, LoginResponse,
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
-import express from "express";
-import {getUserDetails, validateToken} from "../services";
+import express, {CookieOptions} from "express";
+import {getUserDetails, loginUser, validateToken} from "../services";
 import {getAccountForces} from "../services";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
@@ -49,4 +49,40 @@ export async function getAccountForcesController(req: express.Request, res: APIR
     } else {
         res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
     }
+}
+
+export async function loginUserController(req: express.Request, res: APIResponse) {
+    const {nif, password, persistent} = req.body as LoginRequestBodyType;
+
+    // Login the user and get the token
+    let loginData = await loginUser(nif, password, persistent);
+
+    // If the result of the service was negative, return an error
+    if (!loginData.result) {
+        res.status(loginData.status).json(<RequestError>{message: loginData.message});
+        return;
+    }
+
+    // Build the Cookie Options
+    let cookieOptions: CookieOptions = {
+        httpOnly: true,
+        secure: process.env.PS_IS_PRODUCTION === "true"
+    }
+
+    // If the login is marked as "persistent", set the cookie to last 400 days (max allowed age by Chrome)
+    if (persistent) {
+        cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 400; // 400 days
+    }
+
+    // Append the cookie to the response
+    res.cookie("sessionToken", loginData.data?.token, cookieOptions);
+
+    // Send the token to the user
+    res.status(200).json(<LoginResponse>{
+        message: "Operação bem sucedida",
+        data: {
+            token: loginData.data!.token,
+            forces: loginData.data!.forces
+        }
+    });
 }

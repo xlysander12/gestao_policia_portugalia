@@ -26,7 +26,7 @@ export async function userHasIntents(nif: number, force: any, intent: string | s
         // Only return true if the user has all of them
         let hasAllIntents = true;
         for (const intentKey of intent) {
-            const result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [String(nif), intentKey]);
+            const result = await queryDB(force, 'SELECT enabled FROM user_intents WHERE user = ? AND intent = ?', [nif, intentKey]);
             if (result.length === 0 || result[0].enabled === 0) {
                 hasAllIntents = false;
                 break;
@@ -122,4 +122,8 @@ export async function getAccountDetails(force: string, nif: number): Promise<{st
 
     // Return the details of the Account
     return {status: true, data: details};
+}
+
+export async function addAccountToken(force: string, nif: number, token: string, persistent: boolean) {
+    await queryDB(force, 'INSERT INTO tokens (token, nif, persistent) VALUES (?, ?, ?)', [token, nif, persistent ? 1: 0]);
 }

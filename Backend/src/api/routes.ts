@@ -70,7 +70,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to change the password of a logged user
-    "/accounts/changepassword": {
+    "/accounts/change-password": {
         methods: {
             POST: {
                 requiresToken: true,
