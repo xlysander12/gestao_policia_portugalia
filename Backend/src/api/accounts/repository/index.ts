@@ -170,3 +170,7 @@ export async function updateAccountPassword(nif: number, hash: string, currentTo
         await queryDB(force.name, 'DELETE FROM tokens WHERE nif = ? AND token != ?', [nif, currentToken]);
     }
 }
+
+export async function addAccount(nif: number, force: string) {
+    await queryDB(force, 'INSERT INTO users (nif) VALUES (?)', nif);
+}

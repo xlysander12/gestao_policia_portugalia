@@ -1,4 +1,5 @@
 import {
+    addAccount,
     addAccountToken,
     generateAccountToken,
     getAccountDetails,
@@ -152,6 +153,23 @@ export async function changeUserPassword(nif: number, force: string, oldPassword
     // * Update the password in every force the user is in
     await updateAccountPassword(nif, hashedPassword, sessionToken);
 
+
+    // Return success
+    return {result: true, status: 200};
+}
+
+export async function createAccount(nif: number, force: string): Promise<DefaultReturn<void>> {
+    // First, make sure this user doesn't already have an account
+    const user_forces = await getUserForces(nif);
+    if (user_forces.length > 0 ) {
+        return {result: false, status: 400, message: "Este utilizador já tem uma conta"};
+    }
+
+    // After, make sure the officer exists in the force since there can't be accounts for non-existing officers
+    // TODO this needs to be done after the repository in the officers endpoint is completed
+
+    // Add the account in the force's DB
+    await addAccount(nif, force);
 
     // Return success
     return {result: true, status: 200};

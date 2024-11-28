@@ -8,38 +8,6 @@ import {getUserForces, userHasIntents} from "./repository";
 
 const app = express.Router();
 
-// Endpoint to create an account
-app.post("/:nif", async (req, res) => {
-    const {nif} = req.params;
-
-    // First, make sure this user doesn't already have an account
-    const user_forces = await getUserForces(Number(nif));
-    if (user_forces.length > 0 ) {
-        let response: RequestError = {
-            message: "O utilizador já tem uma conta"
-        };
-        return res.status(400).json(response);
-    }
-
-    // Then, make sure the officer exists in the force (there can't be accounts for non-existing officers)
-    const officer = await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM officers WHERE nif = ?', [nif]);
-    if (officer.length === 0) {
-        let response: RequestError = {
-            message: "Não é possível criar uma conta para um efetivo que não existe"
-        };
-        return res.status(400).json(response);
-    }
-
-    // Add the account in the force's DB
-    await queryDB(req.header(FORCE_HEADER)!, 'INSERT INTO users (nif) VALUES (?)', [nif]);
-
-    // Return success
-    let response: RequestSuccess = {
-        message: "Conta criada com sucesso"
-    };
-    res.status(200).json(response);
-});
-
 // Endpoint to edit an account's permissions / suspended statuses
 app.patch("/:nif", async (req, res: APIResponse) => {
     const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;

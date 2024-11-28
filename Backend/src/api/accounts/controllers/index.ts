@@ -12,7 +12,7 @@ import {
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
 import express, {CookieOptions} from "express";
-import {changeUserPassword, getUserDetails, loginUser, validateToken} from "../services";
+import {changeUserPassword, createAccount, getUserDetails, loginUser, validateToken} from "../services";
 import {getAccountForces} from "../services";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
@@ -98,6 +98,20 @@ export async function changeUserPasswordController(req: express.Request, res: AP
 
     if (serviceResult.result) {
         res.status(serviceResult.status).json(<RequestSuccess>{message: "Password alterada com sucesso"});
+    } else {
+        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
+    }
+}
+
+export async function createAccountController(req: express.Request, res: APIResponse) {
+    const {nif} = req.params;
+
+    // Call the service
+    let serviceResult = await createAccount(Number(nif), req.header(FORCE_HEADER)!);
+
+    // Check the result of the service
+    if (serviceResult.result) {
+        res.status(serviceResult.status).json(<RequestSuccess>{message: "Conta criada com sucesso"});
     } else {
         res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
     }
