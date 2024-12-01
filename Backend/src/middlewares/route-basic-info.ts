@@ -9,6 +9,7 @@ import {
 } from "../api/accounts/repository";
 import express, {NextFunction} from "express";
 import {APIResponse} from "../types";
+import {getOfficerData} from "../api/officers/repository";
 
 /**
  * Middleware to check if the request has basic necessary information
@@ -67,11 +68,11 @@ async function assureRouteBasicInfo(req: express.Request, res: APIResponse, next
         }
 
         // * Since the token is valid, update the last time the token was used and the last time the user interacted
-        res.locals.user = tokenValidity.nif!; // Store the user's NIF in locals TODO: This should be the Officer's Details
+        res.locals.loggedUser = (await getOfficerData(req.header(FORCE_HEADER)!, tokenValidity.nif!))!; // Store the user's NIF in locals
         // Update the last time the token was used
         updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]).then(); // No need to wait for this to finish
         // Update the last time the user has interacted
-        updateLastTimeUserInteracted(res.locals.user).then(); // No need to wait for this to finish
+        updateLastTimeUserInteracted(res.locals.loggedUser.nif).then(); // No need to wait for this to finish
 
         // * Check if the route requires intents
         if (res.locals.routeDetails.intents && res.locals.routeDetails.intents.length > 0) {
@@ -81,7 +82,7 @@ async function assureRouteBasicInfo(req: express.Request, res: APIResponse, next
             // Check all the intents present in the route
             for (const intent of res.locals.routeDetails.intents) {
                 // If the user doesn't have all the required intents, assume they can't access the route
-                if (!(await userHasIntents(res.locals.user, req.header(FORCE_HEADER), intent))) {
+                if (!(await userHasIntents(res.locals.loggedUser.nif, req.header(FORCE_HEADER), intent))) {
                     hasIntents = false;
                     break;
                 }

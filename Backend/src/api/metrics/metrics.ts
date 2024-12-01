@@ -44,7 +44,7 @@ app.post("/issue", async (req, res: APIResponse) => {
     let issueTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let issueBody = await getBodyAuthorDetails(res.locals.user!, req.header(FORCE_HEADER));
+    let issueBody = await getBodyAuthorDetails(res.locals.loggedUser.nif, req.header(FORCE_HEADER));
     issueBody += `# Detalhes do problema\n`;
     issueBody += code !== undefined ? `Código de erro: ${code}\n` : "";
     issueBody += body;
@@ -70,7 +70,7 @@ app.post("/suggestion", async (req, res: APIResponse) => {
     const suggestionTitle = `${title} - Issue Automático`;
 
     // // Body manipulation
-    let suggestionBody = await getBodyAuthorDetails(res.locals.user!, req.header(FORCE_HEADER));
+    let suggestionBody = await getBodyAuthorDetails(res.locals.loggedUser.nif, req.header(FORCE_HEADER));
     suggestionBody += `# Detalhes da sugestão\n`;
     suggestionBody += body;
 

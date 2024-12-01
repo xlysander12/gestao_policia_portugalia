@@ -5,7 +5,7 @@ import {InnerOfficerData} from "./inner-types";
 export type APIResponse = express.Response & {
     locals: {
         routeDetails: routeMethodType
-        user: number | null
+        loggedUser: InnerOfficerData
     }
 }
 

@@ -50,7 +50,7 @@ app.patch("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse)
         || (requested_officer_data.status === 2 && req.body.status === 3); // If status has changed from "Provisório" to "Ativo"
 
 
-    let requesting_officer_data_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.user);
+    let requesting_officer_data_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.loggedUser);
     const requestingOfficerPatente = requesting_officer_data_result[0].patent;
 
     if (requested_officer_data.patent >= requestingOfficerPatente) {
@@ -97,7 +97,7 @@ app.delete("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse
 
     // Making sure the requesting user is higher patent the requested officer
     // Fetching the requesting user's patent
-    let requestingOfficerpatent = (await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.user))[0].patent;
+    let requestingOfficerpatent = (await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.loggedUser))[0].patent;
 
     // Getting the requested officer's patent
     let requestedOfficerPatente = res.locals.targetOfficer.patent;
