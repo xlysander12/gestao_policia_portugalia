@@ -19,7 +19,7 @@ import {
     createAccount,
     deleteUser,
     getUserDetails,
-    loginUser,
+    loginUser, resetUserPassword,
     validateToken
 } from "../services";
 import {getAccountForces} from "../services";
@@ -162,6 +162,18 @@ export async function deleteAccountController(req: express.Request, res: Account
     // Check the result of the service
     if (serviceResult.result) {
         res.status(200).json(<RequestSuccess>{message: "Conta eliminada com sucesso"});
+    } else {
+        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
+    }
+}
+
+export async function resetPasswordController(_req: express.Request, res: AccountInfoAPIResponse) {
+    // Call the service
+    let serviceResult = await resetUserPassword(res.locals.targetAccount);
+
+    // Check the result of the service
+    if (serviceResult.result) {
+        res.status(200).json(<RequestSuccess>{message: "Password redefinida com sucesso"});
     } else {
         res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
     }

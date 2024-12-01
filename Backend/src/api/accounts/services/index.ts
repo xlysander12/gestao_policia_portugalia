@@ -3,7 +3,7 @@ import {
     addAccountToken, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount,
     generateAccountToken,
     getAccountDetails,
-    getUserForces,
+    getUserForces, resetAccountPassword,
     updateAccountPassword,
     userHasIntents
 } from "../repository";
@@ -203,5 +203,20 @@ export async function deleteUser(nif: number, force: string): Promise<DefaultRet
     // Call the repository to delete the user
     await deleteAccount(nif, force);
 
+    return {result: true, status: 200};
+}
+
+export async function resetUserPassword(targetUser: InnerAccountData): Promise<DefaultReturn<void>> {
+    // Since the user exists, confirm that it doesn't already use the default password
+    if (targetUser.password === null) {
+        return {result: false, status: 400, message: "Este utilizador já tem a password padrão"};
+    }
+
+    // Since the user exists and it has a custom password, reset it for every force it's in and clear all tokens
+    for (const force of await getUserForces(targetUser.nif)) {
+        await resetAccountPassword(targetUser.nif, force.name);
+    }
+
+    // Return success
     return {result: true, status: 200};
 }

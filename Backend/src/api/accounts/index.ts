@@ -7,11 +7,10 @@ import {
     changeUserPasswordController, createAccountController, deleteAccountController,
     getAccountForcesController,
     getUserAccountDetailsController,
-    loginUserController,
+    loginUserController, resetPasswordController,
     validateTokenController
 } from "./controllers";
 
-import manageRoutes from "./manage";
 import {accountExistsMiddle} from "../../middlewares";
 
 const app = express.Router();
@@ -28,6 +27,9 @@ app.post("/change-password", changeUserPasswordController);
 // Endpoint to fetch all forces an user has access to
 app.get("/:nif(\\d+)/forces", accountExistsMiddle, getAccountForcesController);
 
+// Endpoint to reset the password of another account
+app.post("/:nif(\\d+)/reset-password", accountExistsMiddle, resetPasswordController);
+
 // Endpoint to get a user's accounts information
 app.get("/:nif(\\d+)", accountExistsMiddle, getUserAccountDetailsController);
 
@@ -42,9 +44,6 @@ app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
 // ! If an account needs to be deleted, in theory, the officer linked to it should be fired
 app.delete("/:nif(\\d+)", accountExistsMiddle, deleteAccountController);
 
-
-// Import manage routes
-app.use(manageRoutes);
 
 console.log("[Portal Segurança] Account routes loaded successfully!");
 

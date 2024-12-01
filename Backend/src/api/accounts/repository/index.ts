@@ -197,3 +197,11 @@ export async function deleteAccount(nif: number, force: string) {
     // Delete the account from the database
     await queryDB(force, 'DELETE FROM users WHERE nif = ?', nif);
 }
+
+export async function resetAccountPassword(nif: number, force: string) {
+    // Reset the password of the account
+    await queryDB(force, 'UPDATE users SET password = ? WHERE nif = ?', [null, nif]);
+
+    // Clear all tokens of the account for the force
+    await clearAccountTokens(nif, force);
+}
