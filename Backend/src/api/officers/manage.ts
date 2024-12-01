@@ -41,7 +41,7 @@ app.put("/:nif", async (req, res: APIResponse) => {
 app.patch("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
 
-    let requested_officer_data = res.locals.requestedOfficerData;
+    let requested_officer_data = res.locals.targetOfficer;
 
     // Figure out if this change is considered a promotion
     // TODO: This needs to be properly address when additional forces are added. Statuses may vary between them.
@@ -100,7 +100,7 @@ app.delete("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse
     let requestingOfficerpatent = (await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.user))[0].patent;
 
     // Getting the requested officer's patent
-    let requestedOfficerPatente = res.locals.requestedOfficerData.patent;
+    let requestedOfficerPatente = res.locals.targetOfficer.patent;
 
     if (requestedOfficerPatente >= requestingOfficerpatent) {
         res.status(403).json({

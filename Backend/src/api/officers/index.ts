@@ -1,17 +1,16 @@
 import express from 'express';
-import infoRoutes from './info';
 import manageRoutes from './manage';
 import activityRoutes from './activity';
 import officerExistsMiddle from "../../middlewares/officer-exists";
-import {getOfficersListController} from "./controllers";
+import {getOfficerDetailsController, getOfficersListController} from "./controllers";
 
 const app = express.Router();
 
 // Route to get a list of all existing officers, following optional filters
 app.get("/", getOfficersListController);
 
-// Load the info routes
-app.use(infoRoutes);
+// Route to get the details of a specific officer
+app.get("/:nif(\\d+)", officerExistsMiddle, getOfficerDetailsController);
 
 // Load the management routes
 app.use(manageRoutes);

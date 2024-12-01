@@ -14,7 +14,7 @@ export async function updateOfficerLastShift(nif: number, last_shift: Date, forc
 
 app.get("/", async (req, res: OfficerInfoAPIResponse) => {
     // Query the DB for the last shift of the officer
-    let result = await queryDB(req.header(FORCE_HEADER)!, `SELECT last_shift FROM officer_last_shift WHERE officer = ?`, res.locals.requestedOfficerData.nif);
+    let result = await queryDB(req.header(FORCE_HEADER)!, `SELECT last_shift FROM officer_last_shift WHERE officer = ?`, res.locals.targetOfficer.nif);
 
     if (result.length === 0) {
         res.status(404).json({
@@ -37,7 +37,7 @@ app.put("/", async (req, res: OfficerInfoAPIResponse) => {
     let {last_shift} = req.body as UpdateOfficerLastShiftBodyType;
 
     // Update the last shift of the officer
-    await updateOfficerLastShift(res.locals.requestedOfficerData.nif, new Date(Date.parse(last_shift)), <string>req.header(FORCE_HEADER));
+    await updateOfficerLastShift(res.locals.targetOfficer.nif, new Date(Date.parse(last_shift)), <string>req.header(FORCE_HEADER));
 
     let response: RequestSuccess = {
         message: "Operação efetuada com sucesso.",

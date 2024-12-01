@@ -1,7 +1,9 @@
 import express from "express";
-import {APIResponse} from "../../../types";
+import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
 import {listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
+import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {dateToString} from "../../../utils/date-handler";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // * Get the filters
@@ -22,4 +24,25 @@ export async function getOfficersListController(req: express.Request, res: APIRe
     // Return the result
     return res.status(result.status).json(result.data);
 
+}
+
+export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
+    res.json(<OfficerInfoGetResponse>{
+        message: "Operação bem sucedida",
+        data: {
+            name: res.locals.targetOfficer.name,
+            patent: res.locals.targetOfficer.patent,
+            callsign: res.locals.targetOfficer.callsign,
+            status: res.locals.targetOfficer.status,
+            nif: res.locals.targetOfficer.nif,
+            phone: res.locals.targetOfficer.phone,
+            iban: res.locals.targetOfficer.iban,
+            kms: res.locals.targetOfficer.kms,
+            discord: res.locals.targetOfficer.discord,
+            steam: res.locals.targetOfficer.steam,
+            entry_date: dateToString(res.locals.targetOfficer.entry_date, false),
+            promotion_date: res.locals.targetOfficer.promotion_date !== null ? dateToString(res.locals.targetOfficer.promotion_date, false) : null,
+            special_units: res.locals.targetOfficer.special_units
+        }
+    });
 }

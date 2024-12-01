@@ -1,6 +1,6 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
-import {OfficerData, OfficerDataRaw} from "@portalseguranca/api-types/officers/output";
+import {InnerOfficerData} from "./inner-types";
 
 export type APIResponse = express.Response & {
     locals: {
@@ -11,6 +11,6 @@ export type APIResponse = express.Response & {
 
 export type OfficerInfoAPIResponse = APIResponse & {
     locals: {
-        requestedOfficerData: OfficerData | OfficerDataRaw
+        targetOfficer: InnerOfficerData
     }
 }
