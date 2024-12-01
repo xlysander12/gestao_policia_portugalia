@@ -1,6 +1,6 @@
 import fs from "fs";
 import {join} from "path";
-import {ConfigTypes, StaticConfigTypes} from "../assets/config-types";
+import {ConfigTypes, StaticConfigTypes} from "../types";
 
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 

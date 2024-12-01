@@ -25,16 +25,16 @@ app.post("/login", loginUserController);
 app.post("/change-password", changeUserPasswordController);
 
 // Endpoint to fetch all forces an user has access to
-app.get("/:nif/forces", getAccountForcesController);
+app.get("/:nif(\\d+)/forces", getAccountForcesController);
 
 // Endpoint to get a user's accounts information
-app.get("/:nif", getUserAccountDetailsController);
+app.get("/:nif(\\d+)", getUserAccountDetailsController);
 
 // Endpoint to create an account
-app.post("/:nif", createAccountController);
+app.post("/:nif(\\d+)", createAccountController);
 
 // Endpoint to edit an account's permissions / suspended statuses
-app.patch("/:nif", changeAccountDetailsController);
+app.patch("/:nif(\\d+)", changeAccountDetailsController);
 
 // Import manage routes
 app.use(manageRoutes);

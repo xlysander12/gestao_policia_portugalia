@@ -6,6 +6,8 @@ import {getUserForces} from "./repository";
 
 const app = express.Router();
 
+// TODO: Finish converting all of this
+
 // Endpoint to delete an account
 // ! This endpoint will rarely be used since there's no big reason to need to delete an account
 // ! If an account needs to be deleted, in theory, the officer linked to it should be fired
