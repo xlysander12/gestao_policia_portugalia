@@ -52,7 +52,7 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(force: string, nif: number, pretty: boolean = false): Promise<InnerOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, pretty: boolean = false): Promise<InnerOfficerData | null> {
     // * Get the data from the database
     let officerDataResult;
     if (pretty) {

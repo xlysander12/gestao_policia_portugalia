@@ -80,7 +80,7 @@ export async function getForceIntents(force: string): Promise<string[]> {
     return intentsQuery.map((intent) => intent.name);
 }
 
-export async function getAccountDetails(force: string, nif: number): Promise<InnerAccountData | null> {
+export async function getAccountDetails(nif: number, force: string): Promise<InnerAccountData | null> {
     // Fetch all the data related to the account from the database
     const result = await queryDB(force, 'SELECT * FROM users WHERE nif = ? LIMIT 1', nif);
 

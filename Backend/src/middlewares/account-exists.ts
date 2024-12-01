@@ -6,7 +6,7 @@ import {AccountInfoAPIResponse} from "../types/response-types";
 async function accountExistsMiddle(req: express.Request, res: AccountInfoAPIResponse, next: express.NextFunction) {
     let {nif} = req.params;
 
-    let accountResult = await getAccountDetails(req.header(FORCE_HEADER)!, Number(nif));
+    let accountResult = await getAccountDetails(Number(nif), req.header(FORCE_HEADER)!);
     if (accountResult === null) {
         res.status(404).json({
             message: "Utilizador não encontrado"

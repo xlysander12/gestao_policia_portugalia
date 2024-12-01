@@ -12,6 +12,7 @@ import {compare, hash} from "bcrypt";
 import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 import {InnerAccountData} from "../../../types/inner-types";
 import {dateToString} from "../../../utils/date-handler";
+import {getOfficerData} from "../../officers/repository";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -124,7 +125,7 @@ export async function changeUserPassword(nif: number, force: string, oldPassword
     // * Check if the old password is correct
     // Get the password from the DB
     // ! This query will never return a "false" status since the user has to be logged in to change the password
-    const accountInfo = await getAccountDetails(force, nif);
+    const accountInfo = await getAccountDetails(nif, force);
 
     // If the password isn't the default one, hash the password and compare it
     let isPasswordCorrect: boolean;
@@ -156,14 +157,17 @@ export async function changeUserPassword(nif: number, force: string, oldPassword
 }
 
 export async function createAccount(nif: number, force: string): Promise<DefaultReturn<void>> {
-    // First, make sure this user doesn't already have an account
-    const user_forces = await getUserForces(nif);
-    if (user_forces.length > 0 ) {
-        return {result: false, status: 400, message: "Este utilizador já tem uma conta"};
+    // First, make sure this user doesn't already have an account in this force
+    const accountDetails = await getAccountDetails(nif, force);
+    if (accountDetails !== null) {
+        return {result: false, status: 400, message: "Este utilizador já tem uma conta nesta força"};
     }
 
     // After, make sure the officer exists in the force since there can't be accounts for non-existing officers
-    // TODO this needs to be done after the repository in the officers endpoint is completed
+    const officerDetails = await getOfficerData(nif, force);
+    if (officerDetails === null) {
+        return {result: false, status: 404, message: "Este efetivo não existe nesta força"};
+    }
 
     // Add the account in the force's DB
     await addAccount(nif, force);

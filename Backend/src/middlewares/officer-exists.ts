@@ -5,7 +5,7 @@ import {getOfficerData} from "../api/officers/repository";
 
 
 async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, next: NextFunction) {
-    let officerResult = await getOfficerData(req.header(FORCE_HEADER)!, Number(req.params.nif));
+    let officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!);
     if (officerResult === null) {
         res.status(404).json({
             message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
