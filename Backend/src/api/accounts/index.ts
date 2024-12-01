@@ -4,7 +4,7 @@ import express from "express";
 // Controllers
 import {
     changeAccountDetailsController,
-    changeUserPasswordController, createAccountController,
+    changeUserPasswordController, createAccountController, deleteAccountController,
     getAccountForcesController,
     getUserAccountDetailsController,
     loginUserController,
@@ -36,6 +36,12 @@ app.post("/:nif(\\d+)", createAccountController);
 
 // Endpoint to edit an account's permissions / suspended statuses
 app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
+
+// Endpoint to delete an account
+// ! This endpoint will rarely be used since there's no big reason to need to delete an account
+// ! If an account needs to be deleted, in theory, the officer linked to it should be fired
+app.delete("/:nif(\\d+)", accountExistsMiddle, deleteAccountController);
+
 
 // Import manage routes
 app.use(manageRoutes);

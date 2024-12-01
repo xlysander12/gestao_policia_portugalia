@@ -1,6 +1,6 @@
 import {
     addAccount,
-    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus,
+    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount,
     generateAccountToken,
     getAccountDetails,
     getUserForces,
@@ -196,5 +196,12 @@ export async function changeUserSuspendedStatus(nif: number, force: string, susp
     await changeAccountSuspendedStatus(nif, force, suspended);
 
     // Return success
+    return {result: true, status: 200};
+}
+
+export async function deleteUser(nif: number, force: string): Promise<DefaultReturn<void>> {
+    // Call the repository to delete the user
+    await deleteAccount(nif, force);
+
     return {result: true, status: 200};
 }

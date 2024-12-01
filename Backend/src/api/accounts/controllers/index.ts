@@ -17,6 +17,7 @@ import {
     changeUserPassword, changeUserPermissions,
     changeUserSuspendedStatus,
     createAccount,
+    deleteUser,
     getUserDetails,
     loginUser,
     validateToken
@@ -152,4 +153,16 @@ export async function changeAccountDetailsController(req: express.Request, res: 
     }
 
     res.status(200).json(<RequestSuccess>{message: "Account information updated successfully"});
+}
+
+export async function deleteAccountController(req: express.Request, res: AccountInfoAPIResponse) {
+    // Call the service
+    let serviceResult = await deleteUser(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!);
+
+    // Check the result of the service
+    if (serviceResult.result) {
+        res.status(200).json(<RequestSuccess>{message: "Conta eliminada com sucesso"});
+    } else {
+        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
+    }
 }

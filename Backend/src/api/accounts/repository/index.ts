@@ -192,3 +192,8 @@ export async function changeAccountIntent(nif: number, force: string, intent: st
         await queryDB(force, 'UPDATE user_intents SET enabled = ? WHERE user = ? AND intent = ?', [enabled ? 1 : 0, nif, intent]);
     }
 }
+
+export async function deleteAccount(nif: number, force: string) {
+    // Delete the account from the database
+    await queryDB(force, 'DELETE FROM users WHERE nif = ?', nif);
+}

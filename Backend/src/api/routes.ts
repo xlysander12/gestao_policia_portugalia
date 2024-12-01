@@ -128,6 +128,11 @@ const accountRoutes: routesType = {
                     type: ChangeAccountInfoRequestBody
                 }
             },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["accounts"]
+            }
         }
     },
 }
