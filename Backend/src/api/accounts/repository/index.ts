@@ -1,22 +1,21 @@
 import {queryDB} from "../../../utils/db-connector";
 import {getForcesList} from "../../../utils/config-handler";
 
-// TODO: Return type should be a proper object
-export async function isTokenValid(token: string, force: any) {
+export async function isTokenValid(token: string, force: any): Promise<{valid: boolean, status: number, nif?: number}> {
     // If token is undefined, return false as the token is invalid
-    if (token === undefined) return [false, 401];
+    if (token === undefined) return {valid: false, status: 401};
 
     // If the force is undefined, check all forces for the token
     if (force === undefined) {
-        return [false, 400];
+        return {valid: false, status: 400};
     }
 
     // Query the database to check if the token exists
     const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
-    if (result.length === 0) return [false, 401];
+    if (result.length === 0) return {valid: false, status: 401};
 
     // Return true and the corresponding user if the token exists
-    return [true, 200, result[0].nif];
+    return {valid: true, status: 200, nif: Number(result[0].nif)};
 }
 
 export async function userHasIntents(nif: number, force: any, intent: string | string[]) {
