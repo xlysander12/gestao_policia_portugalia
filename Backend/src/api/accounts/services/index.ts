@@ -1,6 +1,6 @@
 import {
     addAccount,
-    addAccountToken,
+    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus,
     generateAccountToken,
     getAccountDetails,
     getUserForces,
@@ -170,6 +170,33 @@ export async function createAccount(nif: number, force: string): Promise<Default
 
     // Add the account in the force's DB
     await addAccount(nif, force);
+
+    // Return success
+    return {result: true, status: 200};
+}
+
+export async function changeUserPermissions(nif: number, force: string, requestingUser: number, intents: {[intent: string]: boolean}): Promise<DefaultReturn<void>> {
+    // Get the intents names
+    const intentsNames = Object.keys(intents);
+
+    // Update intents in the database
+    for (let i = 0; i < intentsNames.length; i++) {
+        // Make sure the requesting user has the intent it wants to update and the intent to alter accounts
+        if (!(await userHasIntents(requestingUser, force, intentsNames[i])) || !(await userHasIntents(requestingUser, force, "accounts"))) {
+            return {result: false, status: 403, message: "Não tens permissão para efetuar esta ação"};
+        }
+
+        // Call the repository to update the intent
+        await changeAccountIntent(nif, force, intentsNames[i], intents[intentsNames[i]]);
+    }
+
+    // Return success
+    return {result: true, status: 200};
+}
+
+export async function changeUserSuspendedStatus(nif: number, force: string, suspended: boolean): Promise<DefaultReturn<void>> {
+    // Update the suspended status in the database
+    await changeAccountSuspendedStatus(nif, force, suspended);
 
     // Return success
     return {result: true, status: 200};

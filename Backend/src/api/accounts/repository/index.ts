@@ -171,6 +171,33 @@ export async function updateAccountPassword(nif: number, hash: string, currentTo
     }
 }
 
-export async function addAccount(nif: number, force: string) {
+export async function addAccount(nif: number, force: string): Promise<void> {
     await queryDB(force, 'INSERT INTO users (nif) VALUES (?)', nif);
+}
+
+export async function clearAccountTokens(nif: number, force: string, exclude?: string): Promise<void> {
+    if (exclude === undefined) {
+        await queryDB(force, 'DELETE FROM tokens WHERE nif = ?', nif);
+    } else {
+        await queryDB(force, 'DELETE FROM tokens WHERE nif = ? AND token != ?', [nif, exclude]);
+    }
+}
+
+export async function changeAccountSuspendedStatus(nif: number, force: string, suspended: boolean): Promise<void> {
+    // Set the suspended status to true in the database
+    await queryDB(force, 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? 1 : 0, nif]);
+
+    // Clear all tokens of the account, if it being suspended
+    if (suspended) {
+        await clearAccountTokens(nif, force);
+    }
+}
+
+export async function changeAccountIntent(nif: number, force: string, intent: string, enabled: boolean): Promise<void> {
+    // Check if the entry for this intent already exists
+    if ((await queryDB(force, 'SELECT * FROM user_intents WHERE user = ? AND intent = ?', [nif, intent])).length === 0) { // Entry doesn't exist
+        await queryDB(force, 'INSERT INTO user_intents (user, intent, enabled) VALUES (?, ?, ?)', [nif, intent, enabled ? 1 : 0]);
+    } else { // Entry already exists
+        await queryDB(force, 'UPDATE user_intents SET enabled = ? WHERE user = ? AND intent = ?', [enabled ? 1 : 0, nif, intent]);
+    }
 }

@@ -1,5 +1,6 @@
 import {APIResponse} from "../../../types";
 import {
+    ChangeAccountInfoRequestBodyType,
     ChangePasswordRequestBodyType,
     LoginRequestBodyType,
     ValidateTokenRequestBodyType
@@ -12,7 +13,14 @@ import {
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
 import express, {CookieOptions} from "express";
-import {changeUserPassword, createAccount, getUserDetails, loginUser, validateToken} from "../services";
+import {
+    changeUserPassword, changeUserPermissions,
+    changeUserSuspendedStatus,
+    createAccount,
+    getUserDetails,
+    loginUser,
+    validateToken
+} from "../services";
 import {getAccountForces} from "../services";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
@@ -115,4 +123,34 @@ export async function createAccountController(req: express.Request, res: APIResp
     } else {
         res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
     }
+}
+
+export async function changeAccountDetailsController(req: express.Request, res: APIResponse) {
+    const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
+
+    // * First, check if 'suspended' is present
+    if (suspended !== undefined) {
+        // Call the service to change the suspended status
+        let suspendedService = await changeUserSuspendedStatus(Number(req.params.nif), req.header(FORCE_HEADER)!, suspended);
+
+        // Check if the service was successful
+        if (!suspendedService.result) {
+            res.status(suspendedService.status).json(<RequestError>{message: suspendedService.message});
+            return;
+        }
+    }
+
+    // * Second, check if 'intents' is present
+    if (intents !== undefined) {
+        // Call the service to change the user permissions
+        let intentsService = await changeUserPermissions(Number(req.params.nif), req.header(FORCE_HEADER)!, res.locals.user!, intents);
+
+        // Check if the service was successful
+        if (!intentsService.result) {
+            res.status(intentsService.status).json(<RequestError>{message: intentsService.message});
+            return;
+        }
+    }
+
+    res.status(200).json(<RequestSuccess>{message: "Account information updated successfully"});
 }

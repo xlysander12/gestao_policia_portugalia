@@ -3,6 +3,7 @@ import express from "express";
 
 // Controllers
 import {
+    changeAccountDetailsController,
     changeUserPasswordController, createAccountController,
     getAccountForcesController,
     getUserAccountDetailsController,
@@ -23,14 +24,17 @@ app.post("/login", loginUserController);
 // Endpoint to allow an user to change their password
 app.post("/change-password", changeUserPasswordController);
 
+// Endpoint to fetch all forces an user has access to
+app.get("/:nif/forces", getAccountForcesController);
+
 // Endpoint to get a user's accounts information
 app.get("/:nif", getUserAccountDetailsController);
 
 // Endpoint to create an account
 app.post("/:nif", createAccountController);
 
-// Endpoint to fetch all forces an user has access to
-app.get("/:nif/forces", getAccountForcesController);
+// Endpoint to edit an account's permissions / suspended statuses
+app.patch("/:nif", changeAccountDetailsController);
 
 // Import manage routes
 app.use(manageRoutes);
