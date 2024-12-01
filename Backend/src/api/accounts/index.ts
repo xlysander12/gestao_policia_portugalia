@@ -12,6 +12,7 @@ import {
 } from "./controllers";
 
 import manageRoutes from "./manage";
+import {accountExistsMiddle} from "../../middlewares";
 
 const app = express.Router();
 
@@ -25,16 +26,16 @@ app.post("/login", loginUserController);
 app.post("/change-password", changeUserPasswordController);
 
 // Endpoint to fetch all forces an user has access to
-app.get("/:nif(\\d+)/forces", getAccountForcesController);
+app.get("/:nif(\\d+)/forces", accountExistsMiddle, getAccountForcesController);
 
 // Endpoint to get a user's accounts information
-app.get("/:nif(\\d+)", getUserAccountDetailsController);
+app.get("/:nif(\\d+)", accountExistsMiddle, getUserAccountDetailsController);
 
 // Endpoint to create an account
 app.post("/:nif(\\d+)", createAccountController);
 
 // Endpoint to edit an account's permissions / suspended statuses
-app.patch("/:nif(\\d+)", changeAccountDetailsController);
+app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
 
 // Import manage routes
 app.use(manageRoutes);

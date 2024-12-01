@@ -1,5 +1,6 @@
 import {queryDB} from "../../../utils/db-connector";
 import {getForcesList} from "../../../utils/config-handler";
+import {InnerAccountData} from "../../../types/inner-types";
 
 export async function isTokenValid(token: string, force: any): Promise<{valid: boolean, status: number, nif?: number}> {
     // If token is undefined, return false as the token is invalid
@@ -79,26 +80,17 @@ export async function getForceIntents(force: string): Promise<string[]> {
     return intentsQuery.map((intent) => intent.name);
 }
 
-type AccountDetailsDB = {
-    nif: number,
-    password: string,
-    suspended: boolean,
-    last_interaction: Date,
-    intents: {
-        [key: string]: boolean
-    }
-}
-export async function getAccountDetails(force: string, nif: number): Promise<{status: boolean, data?: AccountDetailsDB}> {
+export async function getAccountDetails(force: string, nif: number): Promise<InnerAccountData | null> {
     // Fetch all the data related to the account from the database
     const result = await queryDB(force, 'SELECT * FROM users WHERE nif = ? LIMIT 1', nif);
 
     // If no user exists, return 404
     if (result.length === 0) {
-        return {status: false};
+        return null;
     }
 
     // Build the return object
-    let details: AccountDetailsDB = {
+    let details: InnerAccountData = {
         nif: result[0].nif,
         password: result[0].password,
         suspended: result[0].suspended === 1,
@@ -120,7 +112,7 @@ export async function getAccountDetails(force: string, nif: number): Promise<{st
     }
 
     // Return the details of the Account
-    return {status: true, data: details};
+    return details;
 }
 
 export async function generateAccountToken() {

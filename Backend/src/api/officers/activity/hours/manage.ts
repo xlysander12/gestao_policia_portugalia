@@ -18,7 +18,7 @@ app.post("/", async (req, res: OfficerInfoAPIResponse) => {
     }
 
     // If there aren't, insert the new hours
-    await queryDB(req.header(FORCE_HEADER)!, `INSERT INTO officer_hours (week_start, week_end, minutes, officer, submitted_by) VALUES (?, ?, ?, ?, ?)`, [week_start, week_end, minutes, res.locals.targetOfficer.nif, res.locals.loggedUser]);
+    await queryDB(req.header(FORCE_HEADER)!, `INSERT INTO officer_hours (week_start, week_end, minutes, officer, submitted_by) VALUES (?, ?, ?, ?, ?)`, [week_start, week_end, minutes, res.locals.targetOfficer.nif, res.locals.loggedOfficer]);
 
     res.status(200).json({message: "Operação bem sucedida"});
 });

@@ -22,26 +22,25 @@ import {
     validateToken
 } from "../services";
 import {getAccountForces} from "../services";
+import {AccountInfoAPIResponse} from "../../../types/response-types";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
     let {intents} = req.body as ValidateTokenRequestBodyType;
 
     // Call the service
-    let isTokenValid = await validateToken(res.locals.loggedUser.nif, req.header(FORCE_HEADER)!, intents);
+    let isTokenValid = await validateToken(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, intents);
 
     // Check the result of the service
     if (isTokenValid.result) { // The result was positive, user has requested intents
-        res.status(isTokenValid.status).json(<ValidateTokenResponse>{message: isTokenValid.message, data: res.locals.loggedUser.nif})
+        res.status(isTokenValid.status).json(<ValidateTokenResponse>{message: isTokenValid.message, data: res.locals.loggedOfficer.nif})
     } else { // The result was negative, user doesn't have requested intents
         res.status(isTokenValid.status).json(<RequestError>{message: isTokenValid.message});
     }
 
 }
 
-export async function getUserAccountDetailsController(req: express.Request, res: APIResponse): Promise<void> {
-    let {nif} = req.params;
-
-    let userDetails = await getUserDetails(res.locals.loggedUser.nif, Number(nif), req.header(FORCE_HEADER)!);
+export async function getUserAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse): Promise<void> {
+    let userDetails = await getUserDetails(res.locals.loggedOfficer.nif, res.locals.targetAccount, req.header(FORCE_HEADER)!);
 
     if (userDetails.result) {
         res.status(userDetails.status).json(<AccountInfoResponse>{message: userDetails.message, data: userDetails.data});
@@ -54,7 +53,7 @@ export async function getAccountForcesController(req: express.Request, res: APIR
     let {nif} = req.params;
 
     // Call the service
-    let serviceResult = await getAccountForces(res.locals.loggedUser.nif, Number(nif));
+    let serviceResult = await getAccountForces(res.locals.loggedOfficer.nif, Number(nif));
 
     if (serviceResult.result) {
         res.status(serviceResult.status).json(<UserForcesResponse>{message: "Operação concluída com sucesso", data: {forces: serviceResult.data}});
@@ -102,7 +101,7 @@ export async function loginUserController(req: express.Request, res: APIResponse
 export async function changeUserPasswordController(req: express.Request, res: APIResponse) {
     const {oldPassword, newPassword, confirmPassword} = req.body as ChangePasswordRequestBodyType;
 
-    const serviceResult = await changeUserPassword(res.locals.loggedUser.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies["sessionToken"] || req.header("Authorization"));
+    const serviceResult = await changeUserPassword(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies["sessionToken"] || req.header("Authorization"));
 
     if (serviceResult.result) {
         res.status(serviceResult.status).json(<RequestSuccess>{message: "Password alterada com sucesso"});
@@ -143,7 +142,7 @@ export async function changeAccountDetailsController(req: express.Request, res: 
     // * Second, check if 'intents' is present
     if (intents !== undefined) {
         // Call the service to change the user permissions
-        let intentsService = await changeUserPermissions(Number(req.params.nif), req.header(FORCE_HEADER)!, res.locals.loggedUser.nif, intents);
+        let intentsService = await changeUserPermissions(Number(req.params.nif), req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, intents);
 
         // Check if the service was successful
         if (!intentsService.result) {

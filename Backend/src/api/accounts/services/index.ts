@@ -10,6 +10,8 @@ import {
 import {DefaultReturn} from "../../../types";
 import {compare, hash} from "bcrypt";
 import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
+import {InnerAccountData} from "../../../types/inner-types";
+import {dateToString} from "../../../utils/date-handler";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -31,9 +33,9 @@ type UserAccountDetails = {
         [key: string]: boolean
     }
 }
-export async function getUserDetails(requestingNif: number, requestedNif: number, force: string): Promise<DefaultReturn<UserAccountDetails>> {
+export async function getUserDetails(requestingNif: number, requestedAccount: InnerAccountData, force: string): Promise<DefaultReturn<UserAccountDetails>> {
     // Check if the requesting user is the user itself
-    if (requestingNif !== requestedNif) {
+    if (requestingNif !== requestedAccount.nif) {
         // If it's not the user itself, check if the user has the "accounts" intent
         let hasIntent = await userHasIntents(requestingNif, force, "accounts");
         if (!hasIntent) {
@@ -41,20 +43,15 @@ export async function getUserDetails(requestingNif: number, requestedNif: number
         }
     }
 
-    let accountData = await getAccountDetails(force, requestedNif);
-    if (!accountData.status) { // Status can only be false, if the account wasn't found
-        return {result: false, status: 404, message: "Utilizador não encontrado"};
-    }
-
     // Return the response
     return {
         result: true,
         status: 200,
         data: {
-            passwordChanged: accountData.data!.password !== null,
-            suspended: accountData.data!.suspended,
-            lastUsed: accountData.data!.last_interaction.toISOString(),
-            intents: accountData.data!.intents
+            passwordChanged: requestedAccount.password !== null,
+            suspended: requestedAccount.suspended,
+            lastUsed: dateToString(requestedAccount.last_interaction),
+            intents: requestedAccount.intents
         }
     }
 }
@@ -131,10 +128,10 @@ export async function changeUserPassword(nif: number, force: string, oldPassword
 
     // If the password isn't the default one, hash the password and compare it
     let isPasswordCorrect: boolean;
-    if (accountInfo.data!.password === null) { // Password is the default onew
+    if (accountInfo!.password === null) { // Password is the default onew
         isPasswordCorrect = "seguranca" == String(oldPassword);
     } else {
-        isPasswordCorrect = await compare(String(oldPassword), String(accountInfo.data!.password));
+        isPasswordCorrect = await compare(String(oldPassword), String(accountInfo!.password));
     }
 
     // If the password is incorrect, return 401
