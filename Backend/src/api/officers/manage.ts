@@ -1,7 +1,7 @@
 import {queryDB} from "../../utils/db-connector";
 import {FORCE_HEADER} from "../../utils/constants";
 import express from 'express';
-import {officerExistsMiddle} from "./officer-exists-middle";
+import officerExistsMiddle from "../../middlewares/officer-exists";
 import { DeleteOfficerRequestBody } from "@portalseguranca/api-types/officers/input";
 import {APIResponse, OfficerInfoAPIResponse} from "../../types";
 
