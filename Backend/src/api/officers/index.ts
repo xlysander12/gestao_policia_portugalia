@@ -1,10 +1,9 @@
 import express from 'express';
-import manageRoutes from './manage';
 import activityRoutes from './activity';
 import officerExistsMiddle from "../../middlewares/officer-exists";
 import {
     addOfficerController,
-    alterOfficerController,
+    alterOfficerController, deleteOfficerController,
     getOfficerDetailsController,
     getOfficersListController
 } from "./controllers";
@@ -23,9 +22,9 @@ app.put("/:nif(\\d+)", addOfficerController);
 // Route to change the details of an existing officer
 app.patch("/:nif(\\d+)", officerExistsMiddle, alterOfficerController);
 
+// Route to delete an existing officer
+app.delete("/:nif", officerExistsMiddle, deleteOfficerController);
 
-// Load the management routes
-app.use(manageRoutes);
 
 // Load the activity routes
 app.use("/:nif(\\d+)/activity", officerExistsMiddle, activityRoutes);

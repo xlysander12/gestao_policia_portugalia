@@ -69,3 +69,22 @@ export async function alterOfficer(nif: number, force: string, currentInfo: Inne
     // After all is complete, return a 200 status code
     return {result: true, status: 200};
 }
+
+export async function deleteOfficer(force: string, targetOfficer: InnerOfficerData, loggedOfficer: InnerOfficerData, ): Promise<DefaultReturn<void>> {
+    // Making sure the requesting user is higher patent the requested officer
+    if (targetOfficer.patent >= loggedOfficer.patent) {
+        return {result: false, status: 403, message: "Não tens permissão para despedir este efetivo."};
+    }
+
+    // TODO: This must not actually delete the officer from the database.
+    //  instead change a "fired" column that will be used to filter out the officers that are no longer active.
+
+    // After making sure the officer can be fired, run the SQL procedure to transfer the data to the archive db
+    // await queryDB(req.header(FORCE_HEADER)!, 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, reason]);
+
+    // After transferring the officer to the archive, delete the officer from the main database
+    // await queryDB(req.header(FORCE_HEADER)!, 'DELETE FROM officers WHERE nif = ?', req.params.nif);
+
+    // If everything went according to plan, return a 200 status code
+    return {result: true, status: 200};
+}

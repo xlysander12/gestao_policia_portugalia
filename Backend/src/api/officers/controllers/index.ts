@@ -4,7 +4,7 @@ import {alterOfficer, hireOfficer, listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
-import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // * Get the filters
@@ -75,4 +75,11 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
 
     // Return the result
     return res.status(result.status).json({message: "Operação bem sucedida"});
+}
+
+export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
+    const {reason} = req.body as DeleteOfficerRequestBody;
+
+
+
 }
