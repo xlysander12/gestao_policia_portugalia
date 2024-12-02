@@ -7,36 +7,7 @@ import {APIResponse, OfficerInfoAPIResponse} from "../../types";
 
 const app = express.Router();
 
-app.put("/:nif", async (req, res: APIResponse) => {
-    // Making sure the provided nif doesn't already exist
-    let officer_exists_check_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT * FROM officers WHERE nif = ?', req.params.nif);
-    if (officer_exists_check_result.length !== 0) {
-        res.status(409).json({
-            message: "Já existe um outro efetivo com esse NIF."
-        });
-        return;
-    }
 
-    // Checking if the patent will be a recruit or not
-    let patent = req.query.hasOwnProperty("recruit") ? -1: 0;
-
-    // Calculating what the new callsign will be, if it's not a recruit
-    let callsign = null
-    if (patent === 0) {
-        let callsigns_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT callsign FROM officers WHERE patent <= 3 ORDER BY callsign DESC');
-        let callsign_number = (Number.parseInt(callsigns_result[0].callsign.split("-")[1]) + 1);
-        callsign = `A-${callsign_number.toString().padStart(2, "0")}`;
-    }
-
-    // Adding the officer to the database
-    await queryDB(req.header(FORCE_HEADER)!, 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, patent, callsign, req.body.phone, req.params.nif, req.body.iban, req.body.kms, req.body.discord, req.body.steam]);
-
-    // If everything went according to plan, return a 200 status code
-    res.status(200).json({
-        message: "Operação bem sucedida"
-    });
-
-});
 
 app.patch("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];

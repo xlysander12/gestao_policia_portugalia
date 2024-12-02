@@ -2,7 +2,7 @@ import express from 'express';
 import manageRoutes from './manage';
 import activityRoutes from './activity';
 import officerExistsMiddle from "../../middlewares/officer-exists";
-import {getOfficerDetailsController, getOfficersListController} from "./controllers";
+import {addOfficerController, getOfficerDetailsController, getOfficersListController} from "./controllers";
 
 const app = express.Router();
 
@@ -11,6 +11,9 @@ app.get("/", getOfficersListController);
 
 // Route to get the details of a specific officer
 app.get("/:nif(\\d+)", officerExistsMiddle, getOfficerDetailsController);
+
+// Route to add a new officer
+app.put("/:nif(\\d+)", addOfficerController);
 
 // Load the management routes
 app.use(manageRoutes);

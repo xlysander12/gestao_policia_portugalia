@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
-import {listOfficers} from "../services";
+import {hireOfficer, listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
@@ -45,4 +45,17 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
             special_units: res.locals.targetOfficer.special_units
         }
     });
+}
+
+export async function addOfficerController(req: express.Request, res: APIResponse) {
+    // Call the service
+    let result = await hireOfficer(req.body.name, req.body.phone, req.body.iban, req.body.nif, req.body.kms, req.body.discord, req.body.steam, req.body.recruit, req.header(FORCE_HEADER)!);
+
+    // Check if the result is valid
+    if (!result.result) {
+        return res.status(result.status).json({message: result.message});
+    }
+
+    // Return the result
+    return res.status(result.status).json({message: "Operação bem sucedida"});
 }

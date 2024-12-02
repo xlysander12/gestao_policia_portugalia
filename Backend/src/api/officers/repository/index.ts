@@ -88,3 +88,24 @@ export async function getOfficerData(nif: number, force: string, pretty: boolean
         special_units: await getOfficerUnits(force, nif)
     };
 }
+
+export async function getNextAvaliableCallsign(startingLetter: string, force: string) {
+    // * Get the data from the database
+    const callsignsResult = await queryDB(force, `SELECT callsign
+                                                 FROM officers
+                                                 WHERE callsign LIKE ? ORDER BY callsign DESC`, `${startingLetter}%`);
+
+    // Get the next callsign number
+    let callsignNumber = 1;
+    if (callsignsResult.length > 0) {
+        callsignNumber = (Number.parseInt(callsignsResult[0].callsign.split("-")[1]) + 1);
+    }
+
+    return `${startingLetter}-${callsignNumber.toString().padStart(2, "0")}`;
+}
+
+export async function addOfficer(name: string, patent: number, callsign: string | null, phone: number, nif: number, iban: string, kms: number, discord: number, steam: string,
+                                 force: string) {
+    // * Add the officer to the database
+    await queryDB(force, 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, patent, callsign, phone, nif, iban, kms, discord, steam]);
+}
