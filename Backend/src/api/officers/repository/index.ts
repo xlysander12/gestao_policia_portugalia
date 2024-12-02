@@ -6,6 +6,7 @@ import {
     OfficerUnit
 } from "@portalseguranca/api-types/officers/output";
 import {InnerOfficerData} from "../../../types";
+import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
 export async function getOfficersList(force: string, routeDetails: routeMethodType, filters: {name: string, value: any}[]) {
     const filtersResult = buildFiltersQuery(routeDetails, filters);
@@ -108,4 +109,43 @@ export async function addOfficer(name: string, patent: number, callsign: string 
                                  force: string) {
     // * Add the officer to the database
     await queryDB(force, 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, patent, callsign, phone, nif, iban, kms, discord, steam]);
+}
+
+export async function updateOfficer(nif: number, force: string, changes: UpdateOfficerRequestBody, isPromotion: boolean) {
+    const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
+
+    // Build the query string and params depending on the fields that were provided
+    let params: string[] = [];
+    let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
+        // @ts-ignore
+        if (changes[field] !== undefined) {
+            acc += `${field} = ?, `;
+            // @ts-ignore
+            params.push(changes[field]);
+        }
+
+        return acc;
+    }, "").slice(0, -2)} WHERE nif = ?`;
+
+    await queryDB(force, updateQuery, [...params, nif]);
+
+    // If the change is considered a promotion, update the promotion date
+    if (isPromotion) {
+        await queryDB(force, `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, nif);
+    }
+
+    // If there are any new special units, update them
+    if (changes.special_units !== undefined) {
+        await updateOfficerUnits(nif, force, changes.special_units);
+    }
+}
+
+export async function updateOfficerUnits(nif: number, force: string, units: OfficerUnit[]) {
+    // * Delete the officer's current units
+    await queryDB(force, 'DELETE FROM specialunits_officers WHERE officer = ?', nif);
+
+    // * Add the new units
+    for (const unit of units) {
+        await queryDB(force, 'INSERT INTO specialunits_officers (officer, unit, role) VALUES (?, ?, ?)', [nif, unit.id, unit.role]);
+    }
 }

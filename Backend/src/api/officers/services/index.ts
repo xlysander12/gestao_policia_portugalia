@@ -1,7 +1,9 @@
-import {DefaultReturn} from "../../../types";
+import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {routeMethodType} from "../../routes";
-import {addOfficer, getNextAvaliableCallsign, getOfficerData, getOfficersList} from "../repository";
+import {addOfficer, getNextAvaliableCallsign, getOfficerData, getOfficersList, updateOfficer} from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
+import {getForcePromotionExpression} from "../../../utils/config-handler";
+import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
 export async function listOfficers(force: string, routeDetails: routeMethodType, filters: {name: string, value: any}[]): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
@@ -36,4 +38,34 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201};
+}
+
+export async function alterOfficer(nif: number, force: string, currentInfo: InnerOfficerData, changes: UpdateOfficerRequestBody, loggedOfficer: InnerOfficerData): Promise<DefaultReturn<void>> {
+    const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
+
+    // * Figure out if this change is considered a promotion
+    // Get the expression from the config file
+    let isPromotionExpression: string = getForcePromotionExpression(force);
+
+    // Alter all possible variables in the expression string
+    for (const field of validFields) {
+        // @ts-ignore
+        isPromotionExpression = isPromotionExpression.replaceAll(`$old${field}`, currentInfo[field]);
+        // @ts-ignore
+        isPromotionExpression = isPromotionExpression.replaceAll(`$new${field}`, changes[field] !== undefined ? changes[field] : currentInfo[field]);
+    }
+
+    // * An User cannot alter the information about an Officer with higher patent than them
+    if (currentInfo.patent >= loggedOfficer.patent) {
+        return {result: false, status: 403, message: "Não tens permissão para alterar este efetivo."};
+    }
+
+    // Evaluate the expression
+    let isPromotion = eval(isPromotionExpression);
+
+    // Call the repository to update the Officer
+    await updateOfficer(nif, force, changes, isPromotion);
+
+    // After all is complete, return a 200 status code
+    return {result: true, status: 200};
 }

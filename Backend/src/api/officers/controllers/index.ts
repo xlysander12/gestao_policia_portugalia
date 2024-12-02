@@ -1,9 +1,10 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
-import {hireOfficer, listOfficers} from "../services";
+import {alterOfficer, hireOfficer, listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
+import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // * Get the filters
@@ -50,6 +51,22 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
 export async function addOfficerController(req: express.Request, res: APIResponse) {
     // Call the service
     let result = await hireOfficer(req.body.name, req.body.phone, req.body.iban, req.body.nif, req.body.kms, req.body.discord, req.body.steam, req.body.recruit, req.header(FORCE_HEADER)!);
+
+    // Check if the result is valid
+    if (!result.result) {
+        return res.status(result.status).json({message: result.message});
+    }
+
+    // Return the result
+    return res.status(result.status).json({message: "Operação bem sucedida"});
+}
+
+export async function alterOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // * Get the changes
+    let changes = req.body as UpdateOfficerRequestBody;
+
+    // Call the service
+    let result = await alterOfficer(res.locals.targetOfficer.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer, changes, res.locals.loggedOfficer);
 
     // Check if the result is valid
     if (!result.result) {

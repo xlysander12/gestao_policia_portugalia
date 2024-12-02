@@ -30,3 +30,7 @@ export function getForceDatabase(force: string) {
 export function getForcesList(): string[] {
     return Object.keys(config.forces);
 }
+
+export function getForcePromotionExpression(force: string): string {
+    return config.forces[force].isPromotion;
+}

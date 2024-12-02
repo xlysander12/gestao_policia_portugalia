@@ -1,4 +1,4 @@
-import {Number, Optional, Record, Static, String} from "runtypes";
+import {Array, Number, Optional, Record, Static, String} from "runtypes";
 
 export const CreateOfficerRequestBody = Record({
     name: String,
@@ -21,6 +21,10 @@ export const UpdateOfficerRequestBody = Record({
     kms: Optional(Number),
     discord: Optional(String),
     steam: Optional(String),
+    special_units: Optional(Array(Record({
+        id: Number,
+        role: Number
+    })))
 });
 export type UpdateOfficerRequestBody = Static<typeof UpdateOfficerRequestBody>;
 

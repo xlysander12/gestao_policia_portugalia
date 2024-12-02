@@ -3,65 +3,10 @@ import {FORCE_HEADER} from "../../utils/constants";
 import express from 'express';
 import officerExistsMiddle from "../../middlewares/officer-exists";
 import { DeleteOfficerRequestBody } from "@portalseguranca/api-types/officers/input";
-import {APIResponse, OfficerInfoAPIResponse} from "../../types";
+import {OfficerInfoAPIResponse} from "../../types";
 
 const app = express.Router();
 
-
-
-app.patch("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
-    const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
-
-    let requested_officer_data = res.locals.targetOfficer;
-
-    // Figure out if this change is considered a promotion
-    // TODO: This needs to be properly address when additional forces are added. Statuses may vary between them.
-    let isPromotion = requested_officer_data.patent !== req.body.patent // If patent has changed
-        || (requested_officer_data.status === 1 && req.body.status === 3)  // If status has changed from "Formação" to "Ativo"
-        || (requested_officer_data.status === 2 && req.body.status === 3); // If status has changed from "Provisório" to "Ativo"
-
-
-    let requesting_officer_data_result = await queryDB(req.header(FORCE_HEADER)!, 'SELECT patent FROM officers WHERE nif = ?', res.locals.loggedOfficer);
-    const requestingOfficerPatente = requesting_officer_data_result[0].patent;
-
-    if (requested_officer_data.patent >= requestingOfficerPatente) {
-        res.status(403).json({
-            message: "Não tens permissão para editar este efetivo."
-        });
-        return;
-    }
-
-    // Build the query string and params depending on the fields that were provided
-    let params: string[] = [];
-    let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
-        if (req.body[field] !== undefined) {
-            acc += `${field} = ?, `;
-            params.push(req.body[field]);
-        }
-
-        return acc;
-    }, "").slice(0, -2)} WHERE nif = ?`;
-
-    await queryDB(req.header(FORCE_HEADER)!, updateQuery, [...params, req.params.nif]);
-
-    // If the change is considered a promotion, update the promotion date
-    if (isPromotion) {
-        await queryDB(req.header(FORCE_HEADER)!, `UPDATE officers SET promotion_date = CURRENT_TIMESTAMP WHERE nif = ?`, req.params.nif);
-    }
-
-    // Now, update the special units the officer belongs to
-    if (req.body.special_units !== undefined) {
-        await queryDB(req.header(FORCE_HEADER)!, 'DELETE FROM specialunits_officers WHERE officer = ?', req.params.nif);
-        for (const unit of req.body.special_units) {
-            await queryDB(req.header(FORCE_HEADER)!, 'INSERT INTO specialunits_officers (officer, unit, role) VALUES (?, ?, ?)', [req.params.nif, unit.id, unit.role]);
-        }
-    }
-
-    // After all is complete, return a 200 status code
-    res.status(200).json({
-        message: "Operação bem sucedida"
-    });
-});
 
 app.delete("/:nif", officerExistsMiddle, async (req, res: OfficerInfoAPIResponse) => {
     const {reason} = req.body as DeleteOfficerRequestBody;
