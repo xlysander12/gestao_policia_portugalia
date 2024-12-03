@@ -31,19 +31,9 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
     res.json(<OfficerInfoGetResponse>{
         message: "Operação bem sucedida",
         data: {
-            name: res.locals.targetOfficer.name,
-            patent: res.locals.targetOfficer.patent,
-            callsign: res.locals.targetOfficer.callsign,
-            status: res.locals.targetOfficer.status,
-            nif: res.locals.targetOfficer.nif,
-            phone: res.locals.targetOfficer.phone,
-            iban: res.locals.targetOfficer.iban,
-            kms: res.locals.targetOfficer.kms,
-            discord: res.locals.targetOfficer.discord,
-            steam: res.locals.targetOfficer.steam,
+            ...res.locals.targetOfficer,
             entry_date: dateToString(res.locals.targetOfficer.entry_date, false),
-            promotion_date: res.locals.targetOfficer.promotion_date !== null ? dateToString(res.locals.targetOfficer.promotion_date, false) : null,
-            special_units: res.locals.targetOfficer.special_units
+            promotion_date: res.locals.targetOfficer.promotion_date !== null ? dateToString(res.locals.targetOfficer.promotion_date, false) : null
         }
     });
 }
