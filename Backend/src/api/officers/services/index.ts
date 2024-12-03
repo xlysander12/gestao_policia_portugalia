@@ -1,6 +1,13 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {routeMethodType} from "../../routes";
-import {addOfficer, getNextAvaliableCallsign, getOfficerData, getOfficersList, updateOfficer} from "../repository";
+import {
+    addOfficer,
+    fireOfficer,
+    getNextAvaliableCallsign,
+    getOfficerData,
+    getOfficersList,
+    updateOfficer
+} from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {getForcePromotionExpression} from "../../../utils/config-handler";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
@@ -17,11 +24,19 @@ export async function listOfficers(force: string, routeDetails: routeMethodType,
 // TODO: This service should check if the provided nif is a former Officer, and if so, ask if the user wants to import their old data.
 export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string,
                                   recruit: boolean,
-                                  force: string): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
-    // Making sure the provided nif doesn't already exist
+                                  force: string, restore?: boolean | undefined): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
+
+    // Making sure the provided nif doesn't already exist as an active officer
     let officer_exists_check_result = await getOfficerData(nif, force);
     if (officer_exists_check_result !== null) {
         return {result: false, status: 409, message: "Já existe um efetivo com esse NIF."};
+    }
+
+    // Making sure the provided nif doesn't already exist as a former officer
+    // If it does, return 100 to ask if the user wants to import the old data
+    let former_officer_exists_check_result = await getOfficerData(nif, force, false, true);
+    if (former_officer_exists_check_result !== null) {
+        return {result: false, status: 100, message: "Este Nif é pertencente a um antigo efetivo. Desejas importar os dados antigos?"};
     }
 
     // Checking if the patent will be a recruit or not
@@ -70,7 +85,7 @@ export async function alterOfficer(nif: number, force: string, currentInfo: Inne
     return {result: true, status: 200};
 }
 
-export async function deleteOfficer(force: string, targetOfficer: InnerOfficerData, loggedOfficer: InnerOfficerData, ): Promise<DefaultReturn<void>> {
+export async function deleteOfficer(force: string, targetOfficer: InnerOfficerData, loggedOfficer: InnerOfficerData, reason?: string): Promise<DefaultReturn<void>> {
     // Making sure the requesting user is higher patent the requested officer
     if (targetOfficer.patent >= loggedOfficer.patent) {
         return {result: false, status: 403, message: "Não tens permissão para despedir este efetivo."};
@@ -80,10 +95,7 @@ export async function deleteOfficer(force: string, targetOfficer: InnerOfficerDa
     //  instead change a "fired" column that will be used to filter out the officers that are no longer active.
 
     // After making sure the officer can be fired, run the SQL procedure to transfer the data to the archive db
-    // await queryDB(req.header(FORCE_HEADER)!, 'CALL TransferOfficerToArchive(?, ?)', [req.params.nif, reason]);
-
-    // After transferring the officer to the archive, delete the officer from the main database
-    // await queryDB(req.header(FORCE_HEADER)!, 'DELETE FROM officers WHERE nif = ?', req.params.nif);
+    await fireOfficer(targetOfficer.nif, force, reason);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 200};

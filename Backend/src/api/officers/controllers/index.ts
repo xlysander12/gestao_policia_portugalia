@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
-import {alterOfficer, hireOfficer, listOfficers} from "../services";
+import {alterOfficer, deleteOfficer, hireOfficer, listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
@@ -39,6 +39,9 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
 }
 
 export async function addOfficerController(req: express.Request, res: APIResponse) {
+    // TODO: This route must check if the provided nif is a former Officer, and if so, ask if the user wants to import their old data.
+    //  To do this, if no query param is given, the server just responds with a 100 status code and a message asking if the user wants to import the old data.
+    //  If the query param "restore" is given as a boolean, the server will import the old data or replace it with the new data.
     // Call the service
     let result = await hireOfficer(req.body.name, req.body.phone, req.body.iban, req.body.nif, req.body.kms, req.body.discord, req.body.steam, req.body.recruit, req.header(FORCE_HEADER)!);
 
@@ -70,6 +73,15 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
 export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
     const {reason} = req.body as DeleteOfficerRequestBody;
 
+    // Call the service
+    let result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer, res.locals.loggedOfficer, reason);
 
+    // Check the result
+    if (!result.result) {
+        return res.status(result.status).json({message: result.message});
+    }
+
+    // Return the result
+    return res.status(result.status).json({message: "Operação bem sucedida"});
 
 }

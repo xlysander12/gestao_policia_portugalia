@@ -53,18 +53,18 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(nif: number, force: string, pretty: boolean = false): Promise<InnerOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, pretty: boolean = false, former: boolean = false): Promise<InnerOfficerData | null> {
     // * Get the data from the database
     let officerDataResult;
     if (pretty) {
         officerDataResult = await queryDB(force, `SELECT *
                                                   FROM officersV
-                                                  WHERE nif = ? LIMIT 1`, nif);
+                                                  WHERE nif = ? AND fired = ? LIMIT 1`, [nif, former ? 1: 0]);
     }
     else {
         officerDataResult = await queryDB(force, `SELECT *
                                                   FROM officers
-                                                  WHERE nif = ? LIMIT 1`, nif);
+                                                  WHERE nif = ? AND fired = ? LIMIT 1`, [nif, former ? 1: 0]);
     }
 
     // Check if the officer exists
@@ -148,4 +148,17 @@ export async function updateOfficerUnits(nif: number, force: string, units: Offi
     for (const unit of units) {
         await queryDB(force, 'INSERT INTO specialunits_officers (officer, unit, role) VALUES (?, ?, ?)', [nif, unit.id, unit.role]);
     }
+}
+
+export async function fireOfficer(nif: number, force: string, reason?: string) {
+    // Make sure the 'reason' field is present, if net, use default
+    if (reason === "" || reason === null || reason === undefined) {
+        reason = "Despedimento por opção própria";
+    }
+
+    // Set the fired column to true and add a value to the fire_reason column
+    await queryDB(force, "UPDATE officers SET fired = 1, fire_reason = ? WHERE nif = ?", [reason, nif]);
+
+    // Delete the account of the fired officer (tokens are automatically deleted when the account is deleted)
+    await queryDB(force, "DELETE FROM users WHERE nif = ?", nif);
 }
