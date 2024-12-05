@@ -9,36 +9,12 @@ import {
     UtilStatusesResponse
 } from "@portalseguranca/api-types/util/schema";
 import {FORCE_HEADER} from "../../utils/constants";
+import {getPatentsController} from "./controllers";
 
 const app = express.Router();
 
 
-app.get("/patents", async (req, res) => {
-    // Get what force the user is trying to get the patents from
-    let force = req.header(FORCE_HEADER)!;
-
-    // Get the list from the database
-    const patents = await queryDB(force, `SELECT * FROM patents`);
-
-    // Build an array with the patents
-    let patentsList: PatentData[] = [];
-    for (const patent of patents) {
-        patentsList.push({
-            id: patent.id,
-            name: patent.name,
-            max_evaluation: patent.max_evaluation
-        });
-    }
-
-    // Build the response
-    let response: UtilPatentsResponse = {
-        message: "Operação bem sucedida",
-        data: patentsList
-    };
-
-    // Return 200
-    res.status(200).json(response);
-});
+app.get("/patents", getPatentsController);
 
 app.get("/statuses", async (req, res) => {
     let force = req.header(FORCE_HEADER)!;

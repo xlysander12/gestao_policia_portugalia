@@ -3,7 +3,8 @@ import {RequestSuccess} from "../index";
 export interface PatentData {
     id: number,
     name: string,
-    max_evaluation: number
+    max_evaluation: number,
+    leading_char: string
 }
 
 export interface StatusData {

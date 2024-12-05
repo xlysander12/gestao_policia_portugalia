@@ -1,6 +1,5 @@
 import assert from "node:assert";
 
-// TODO: Check if the database connection is working properly before starting the server
 console.log("Loading: db-connector.ts");
 
 import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
