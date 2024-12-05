@@ -11,7 +11,11 @@
             "acronym": "PSP",
             "patrols": ["psp", "gnr"],
             "database": "database",
-            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)"
+            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
+            "patents": {
+                "recruit": 0,
+                "default": 1
+            }
         },
 
         "gnr": {
@@ -19,7 +23,11 @@
             "acronym": "GNR",
             "patrols": ["psp", "gnr"],
             "database": "database",
-            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)"
+            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
+            "patents": {
+                "recruit": 0,
+                "default": 1
+            }
         }
     }
 }

@@ -34,3 +34,7 @@ export function getForcesList(): string[] {
 export function getForcePromotionExpression(force: string): string {
     return config.forces[force].isPromotion;
 }
+
+export function getForceDefaultPatents(force: string) {
+    return config.forces[force].patents;
+}

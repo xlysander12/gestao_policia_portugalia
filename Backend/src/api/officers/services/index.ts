@@ -9,8 +9,9 @@ import {
     updateOfficer
 } from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
-import {getForcePromotionExpression} from "../../../utils/config-handler";
+import {getForceDefaultPatents, getForcePromotionExpression} from "../../../utils/config-handler";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {getForcePatents} from "../../util/repository";
 
 export async function listOfficers(force: string, routeDetails: routeMethodType, filters: {name: string, value: any}[]): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
@@ -40,12 +41,15 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     }
 
     // Checking if the patent will be a recruit or not
-    let patent = recruit ? -1: 0;
+    let patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
 
-    // Calculating what the new callsign will be, if it's not a recruit
+    // * Calculating what the new callsign will be, if it's not a recruit
+    // Get the leading char of the patent of the new officer
+    let leading_char = (await getForcePatents(force, patent))[0].leading_char;
+
     let callsign = null
     if (patent === 0) {
-        callsign = await getNextAvaliableCallsign("A", force); // TODO: This only works for the PSP force. This needs to be changed when other forces are added.
+        callsign = await getNextAvaliableCallsign(leading_char, force);
     }
 
     // Inserting the new officer into the database
