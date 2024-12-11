@@ -1,7 +1,8 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {forcePatents, forceSpecialUnits, forceStatuses} from "../services";
+import {forceIntents, forcePatents, forceSpecialUnits, forceStatuses} from "../services";
 import {
+    UtilIntentsResponse,
     UtilPatentsResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
@@ -38,4 +39,15 @@ export async function getSpecialUnitsController(req: express.Request, res: expre
 
     // Send the list to the user
     res.status(200).json({message: "Operação bem sucedida", data: result.data} as UtilSpecialUnitsResponse);
+}
+
+export async function getIntentsController(req: express.Request, res: express.Response) {
+    let force = req.header(FORCE_HEADER)!;
+
+    // Call the service to get the intents
+    const intents = await forceIntents(force);
+
+
+    // Send the list to the user
+    res.status(200).json({message: "Operação bem sucedida", data: intents.data} as UtilIntentsResponse);
 }

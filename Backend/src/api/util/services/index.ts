@@ -1,6 +1,18 @@
 import {DefaultReturn} from "../../../types";
-import {getForcePatents, getForceSpecialUnits, getForceSpecialUnitsRoles, getForceStatuses} from "../repository";
-import {PatentData, SpecialUnitData, SpecialUnitRoleData, StatusData} from "@portalseguranca/api-types/util/schema";
+import {
+    getForceIntents,
+    getForcePatents,
+    getForceSpecialUnits,
+    getForceSpecialUnitsRoles,
+    getForceStatuses
+} from "../repository";
+import {
+    IntentData,
+    PatentData,
+    SpecialUnitData,
+    SpecialUnitRoleData,
+    StatusData
+} from "@portalseguranca/api-types/util/schema";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -38,5 +50,18 @@ export async function forceSpecialUnits(force: string): Promise<DefaultReturn<{u
         result: true,
         status: 200,
         data: {units: units, roles: roles}
+    }
+}
+
+export async function forceIntents(force: string): Promise<DefaultReturn<IntentData[]>> {
+    // Get the list of special intents from the repository
+    const intents = await getForceIntents(force);
+
+
+    // Return 200
+    return {
+        result: true,
+        status: 200,
+        data: intents
     }
 }

@@ -1,4 +1,10 @@
-import {PatentData, SpecialUnitData, SpecialUnitRoleData, StatusData} from "@portalseguranca/api-types/util/schema";
+import {
+    IntentData,
+    PatentData,
+    SpecialUnitData,
+    SpecialUnitRoleData,
+    StatusData
+} from "@portalseguranca/api-types/util/schema";
 import {queryDB} from "../../../utils/db-connector";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[]> {
@@ -67,4 +73,20 @@ export async function getForceSpecialUnitsRoles(force: string): Promise<SpecialU
     }
 
     return rolesList;
+}
+
+export async function getForceIntents(force: string): Promise<IntentData[]> {
+    // Get the list from the database
+    const intents = await queryDB(force, `SELECT * FROM intents`);
+
+    // Build an array with the statuses
+    let intentsList: IntentData[] = [];
+    for (const intent of intents) {
+        intentsList.push({
+            name: intent.name,
+            description: intent.description
+        });
+    }
+
+    return intentsList;
 }

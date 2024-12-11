@@ -1,5 +1,5 @@
 import express from 'express';
-import utilRoutes from "./util/util";
+import utilRoutes from "./util";
 import metricsRoutes from "./metrics/metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
