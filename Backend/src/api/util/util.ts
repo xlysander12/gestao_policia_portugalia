@@ -2,45 +2,19 @@ import express from 'express';
 import {queryDB} from "../../utils/db-connector";
 import {
     IntentData,
-    PatentData,
     SpecialUnitData, SpecialUnitRoleData,
-    StatusData, UtilIntentsResponse,
-    UtilPatentsResponse, UtilSpecialUnitsResponse,
-    UtilStatusesResponse
+    UtilIntentsResponse,
+    UtilSpecialUnitsResponse,
 } from "@portalseguranca/api-types/util/schema";
 import {FORCE_HEADER} from "../../utils/constants";
-import {getPatentsController} from "./controllers";
+import {getPatentsController, getStatusesController} from "./controllers";
 
 const app = express.Router();
 
 
 app.get("/patents", getPatentsController);
 
-app.get("/statuses", async (req, res) => {
-    let force = req.header(FORCE_HEADER)!;
-
-
-    // Get the list from the database
-    const statuses = await queryDB(force, `SELECT * FROM status`);
-
-    // Build an array with the statuses
-    let statusesList: StatusData[] = [];
-    for (const status of statuses) {
-        statusesList.push({
-            id: status.id,
-            name: status.name
-        });
-    }
-
-    // Build the response
-    let response: UtilStatusesResponse = {
-        message: "Operação bem sucedida",
-        data: statusesList
-    };
-
-    // Send the list to the user
-    res.status(200).json(response);
-});
+app.get("/statuses", getStatusesController);
 
 app.get("/specialunits", async (req, res) => {
     let force = req.header(FORCE_HEADER)!;

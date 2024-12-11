@@ -1,4 +1,4 @@
-import {PatentData} from "@portalseguranca/api-types/util/schema";
+import {PatentData, StatusData} from "@portalseguranca/api-types/util/schema";
 import {queryDB} from "../../../utils/db-connector";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[]> {
@@ -17,4 +17,20 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
     }
 
     return patentsList;
+}
+
+export async function getForceStatuses(force: string): Promise<StatusData[]> {
+    // Get the list from the database
+    const statuses = await queryDB(force, `SELECT * FROM status`);
+
+    // Build an array with the statuses
+    let statusesList: StatusData[] = [];
+    for (const status of statuses) {
+        statusesList.push({
+            id: status.id,
+            name: status.name
+        });
+    }
+
+    return statusesList;
 }
