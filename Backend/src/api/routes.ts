@@ -187,7 +187,7 @@ const utilRoutes: routesType = {
     },
 
     // Route to get all special units of a force
-    "/util/specialunits": {
+    "/util/special-units": {
         methods: {
             GET: {
                 requiresToken: false,

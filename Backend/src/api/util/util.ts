@@ -1,13 +1,10 @@
 import express from 'express';
 import {queryDB} from "../../utils/db-connector";
 import {
-    IntentData,
-    SpecialUnitData, SpecialUnitRoleData,
-    UtilIntentsResponse,
-    UtilSpecialUnitsResponse,
+    IntentData, UtilIntentsResponse,
 } from "@portalseguranca/api-types/util/schema";
 import {FORCE_HEADER} from "../../utils/constants";
-import {getPatentsController, getStatusesController} from "./controllers";
+import {getPatentsController, getSpecialUnitsController, getStatusesController} from "./controllers";
 
 const app = express.Router();
 
@@ -16,45 +13,7 @@ app.get("/patents", getPatentsController);
 
 app.get("/statuses", getStatusesController);
 
-app.get("/specialunits", async (req, res) => {
-    let force = req.header(FORCE_HEADER)!;
-
-    // Get all the special units from the database and build an array with its data
-    const specialUnitsQuery = await queryDB(force, `SELECT * FROM special_units`);
-
-    let specialUnitsList: SpecialUnitData[] = [];
-    for (const unit of specialUnitsQuery) {
-        specialUnitsList.push({
-            id: unit.id,
-            name: unit.name,
-            acronym: unit.acronym,
-            description: unit.description
-        });
-    }
-
-    // Get all the roles for the units from the database and build an array with its data
-    const specialUnitsRolesQuery = await queryDB(force, `SELECT * FROM specialunits_roles`);
-
-    let specialUnitsRolesList: SpecialUnitRoleData[] = [];
-    for (const role of specialUnitsRolesQuery) {
-        specialUnitsRolesList.push({
-            id: role.id,
-            name: role.name
-        });
-    }
-
-    // Build the response
-    const response: UtilSpecialUnitsResponse = {
-        message: "Operação bem sucedida",
-        data: {
-            units: specialUnitsList,
-            roles: specialUnitsRolesList
-        }
-    }
-
-    // Return 200
-    res.status(200).json(response);
-});
+app.get("/special-units", getSpecialUnitsController);
 
 app.get("/intents", async (req, res) => {
     let force = req.header(FORCE_HEADER)!;
