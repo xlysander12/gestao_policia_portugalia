@@ -1,6 +1,6 @@
 import express from 'express';
 import utilRoutes from "./util";
-import metricsRoutes from "./metrics/metrics";
+import metricsRoutes from "./metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
 import {assureBodyFields, assureRouteBasicInfo, getRouteDetailsMiddleware} from "../middlewares";
