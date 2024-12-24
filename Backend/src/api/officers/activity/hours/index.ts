@@ -1,11 +1,13 @@
 import express from "express";
-import infoRoutes from "./info"
 import manageRoutes from "./manage"
+import {getOfficerHoursHistoryController} from "./controllers";
 
 const app = express.Router();
 
-// Info routes
-app.use(infoRoutes);
+// * Info routes
+// Route to get the list of hours of an officer
+app.get("/", getOfficerHoursHistoryController);
+
 
 // Manage routes
 app.use(manageRoutes);

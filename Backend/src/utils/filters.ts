@@ -1,6 +1,11 @@
 import {routeMethodType} from "../api/routes";
 
-function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): {query: string, values: any[]} {
+export type Filters = {
+    query: string,
+    values: any[]
+}
+
+function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): Filters {
     // Start the query string
     let subqueries: string[] = [];
     let values: any[] = [];
