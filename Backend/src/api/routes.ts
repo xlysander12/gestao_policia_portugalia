@@ -274,7 +274,7 @@ const activityRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true
             },
-            POST: {
+            PUT: {
                 requiresToken: true,
                 requiresForce: true,
                 intents: ["activity"],
@@ -324,6 +324,7 @@ const activityRoutes: routesType = {
         }
     }
 }
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */

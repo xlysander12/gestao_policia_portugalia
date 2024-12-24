@@ -1,5 +1,5 @@
 import {DefaultReturn} from "../../../../../types";
-import {fetchLastShift} from "../repository";
+import {fetchLastShift, updateLastShift} from "../repository";
 
 export async function getOfficerLastShift(force: string, nif: number): Promise<DefaultReturn<Date | null>> {
     // Fetch the last shift of the officer from the repository
@@ -17,5 +17,16 @@ export async function getOfficerLastShift(force: string, nif: number): Promise<D
         result: true,
         status: 200,
         data: last_shift
+    }
+}
+
+export async function updateOfficerLastShift(force: string, nif: number, last_shift: Date): Promise<DefaultReturn<void>> {
+    // Call the repository to update the last shift of the officer
+    await updateLastShift(force, nif, last_shift);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação efetuada com sucesso."
     }
 }
