@@ -9,7 +9,6 @@ import { RequestError } from "@portalseguranca/api-types";
 import {OfficerHoursEntryType} from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
-import {queryDB} from "../../../../../utils/db-connector";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the filters values

@@ -44,7 +44,7 @@ export type routesType = {
 
 const accountRoutes: routesType = {
     // Route to validate a token
-    "/accounts/validateToken": {
+    "/accounts/validateToken$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -57,7 +57,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to login a user
-    "/accounts/login": {
+    "/accounts/login$": {
         methods: {
             POST: {
                 requiresToken: false,
@@ -70,7 +70,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to change the password of a logged user
-    "/accounts/change-password": {
+    "/accounts/change-password$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -83,7 +83,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to reset the password of a user
-    "/accounts/.+/resetpassword": {
+    "/accounts/.+/reset-password$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -94,7 +94,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to get the forces of an account
-    "/accounts/.+/forces": {
+    "/accounts/.+/forces$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -104,7 +104,7 @@ const accountRoutes: routesType = {
     },
 
     // * Routes related to creation and data fetching of exsiting accounts
-    "/accounts/.+": {
+    "/accounts/.+$": {
         methods: {
             // Route to get information about an account
             GET: {
@@ -139,7 +139,7 @@ const accountRoutes: routesType = {
 
 const metricsRoutes: routesType = {
     // Route to submit an issue
-    "/metrics/issue": {
+    "/metrics/issue$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -152,7 +152,7 @@ const metricsRoutes: routesType = {
     },
 
     // Route to submit a suggestion
-    "/metrics/suggestion": {
+    "/metrics/suggestion$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -167,7 +167,7 @@ const metricsRoutes: routesType = {
 
 const utilRoutes: routesType = {
     // Route to get all patents of a force
-    "/util/patents": {
+    "/util/patents$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -177,7 +177,7 @@ const utilRoutes: routesType = {
     },
 
     // Route to get all statuses of a force
-    "/util/statuses": {
+    "/util/statuses$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -187,7 +187,7 @@ const utilRoutes: routesType = {
     },
 
     // Route to get all special units of a force
-    "/util/special-units": {
+    "/util/special-units$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -197,7 +197,7 @@ const utilRoutes: routesType = {
     },
 
     // Route to get all intents of a force
-    "/util/intents": {
+    "/util/intents$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -268,7 +268,7 @@ const officersRoutes: routesType = {
 }
 
 const activityRoutes: routesType = {
-    "/officers/.+/activity/last-shift": {
+    "/officers/.+/activity/last-shift$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -310,7 +310,7 @@ const activityRoutes: routesType = {
             }
         }
     },
-    "/officers/.+/activity/hours/.+": {
+    "/officers/.+/activity/hours/.+$": {
         methods: {
             GET: {
                 requiresToken: true,
