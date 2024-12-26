@@ -3,11 +3,12 @@ import {OfficerInfoAPIResponse} from "../../../../../types";
 import {OfficerHoursResponse, OfficerSpecificHoursResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {FORCE_HEADER} from "../../../../../utils/constants";
 import buildFiltersQuery from "../../../../../utils/filters";
-import {officerHoursEntry, officerHoursHistory} from "../services";
+import {addOfficerHoursEntry, officerHoursEntry, officerHoursHistory} from "../services";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import { RequestError } from "@portalseguranca/api-types";
 import {OfficerHoursEntryType} from "../repository";
-import {dateToString} from "../../../../../utils/date-handler";
+import {dateToString, stringToDate} from "../../../../../utils/date-handler";
+import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the filters values
@@ -20,7 +21,7 @@ export async function getOfficerHoursHistoryController(req: express.Request, res
     const filtersResult = buildFiltersQuery(res.locals.routeDetails!, filters, {subquery: "officer = ?", value: res.locals.targetOfficer.nif});
 
     // Call the service to get the hours
-    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, filtersResult);
+    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, filtersResult);
 
     if (!result.result) {
         res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message!}));
@@ -60,4 +61,13 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
             week_end: dateToString(result.data!.week_end, false)
         }
     }));
+}
+
+export async function addOfficerHoursEntryController(req: express.Request, res: OfficerInfoAPIResponse) {
+    const {week_start, week_end, minutes} = req.body as AddOfficerHoursBodyType;
+
+    // Call the service to add the hours
+    let result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, stringToDate(week_start), stringToDate(week_end), minutes, res.locals.loggedOfficer);
+
+    res.status(result.status).json({message: result.message});
 }

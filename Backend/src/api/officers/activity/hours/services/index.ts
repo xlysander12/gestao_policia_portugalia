@@ -1,10 +1,10 @@
 import {Filters} from "../../../../../utils/filters";
-import {DefaultReturn} from "../../../../../types";
-import {fetchHoursEntry, fetchHoursHistory, OfficerHoursEntryType} from "../repository";
+import {DefaultReturn, InnerOfficerData} from "../../../../../types";
+import {fetchHoursEntry, fetchHoursHistory, insertHoursEntry, OfficerHoursEntryType} from "../repository";
 
-export async function officerHoursHistory(force: string, officer: number, filters: Filters): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
+export async function officerHoursHistory(force: string, filters: Filters): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
     // Get the hours of the Officer from the repository
-    const hours = await fetchHoursHistory(force, officer, filters);
+    const hours = await fetchHoursHistory(force, filters);
 
     return {
         result: true,
@@ -30,4 +30,17 @@ export async function officerHoursEntry(force: string, nif: number, id: number):
         message: "Operação bem sucedida",
         data: result
     }
+}
+
+export async function addOfficerHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: InnerOfficerData): Promise<DefaultReturn<null>> {
+    // Make sure there already aren't hours for this week and officer
+    const hours = await fetchHoursHistory(force, {query: "WHERE week_end > ? AND officer = ?", values: [week_start, nif]});
+    if (hours.length > 0) {
+        return {result: false, status: 400, message: "Este efetivo já tem as horas registadas para esta semana registadas"};
+    }
+
+    // If there aren't, insert the new hours
+    await insertHoursEntry(force, nif, week_start, week_end, minutes, submitted_by.nif);
+
+    return {result: true, status: 200, message: "Operação bem sucedida"}
 }

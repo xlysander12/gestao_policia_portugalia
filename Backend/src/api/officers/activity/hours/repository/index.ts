@@ -6,7 +6,7 @@ export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" 
     week_start: Date,
     week_end: Date
 }
-export async function fetchHoursHistory(force: string, nif: number, filters: Filters): Promise<OfficerHoursEntryType[]> {
+export async function fetchHoursHistory(force: string, filters: Filters): Promise<OfficerHoursEntryType[]> {
     // Get the hours of the Officer from the database
     const result = await queryDB(force, `SELECT * FROM officer_hours ${filters.query}`, filters.values);
 
@@ -25,7 +25,6 @@ export async function fetchHoursHistory(force: string, nif: number, filters: Fil
     return hours;
 }
 
-
 export async function fetchHoursEntry(force: string, nif: number, id: number): Promise<OfficerHoursEntryType | null> {
     const result = await queryDB(force, `SELECT * FROM officer_hours WHERE id = ? AND officer = ?`, [id, nif]);
 
@@ -42,4 +41,8 @@ export async function fetchHoursEntry(force: string, nif: number, id: number): P
         minutes: result[0].minutes,
         submitted_by: result[0].submitted_by
     };
+}
+
+export async function insertHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: number) {
+    await queryDB(force, `INSERT INTO officer_hours (officer, week_start, week_end, minutes, submitted_by) VALUES (?, ?, ?, ?, ?)`, [nif, week_start, week_end, minutes, submitted_by]);
 }

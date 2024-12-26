@@ -7,3 +7,7 @@ export function dateToString(date: Date, preserveHours: boolean = true): string 
 
     return newDate.toISOString();
 }
+
+export function stringToDate(date: string): Date {
+    return new Date(Date.parse(date));
+}
