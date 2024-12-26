@@ -46,3 +46,7 @@ export async function fetchHoursEntry(force: string, nif: number, id: number): P
 export async function insertHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: number) {
     await queryDB(force, `INSERT INTO officer_hours (officer, week_start, week_end, minutes, submitted_by) VALUES (?, ?, ?, ?, ?)`, [nif, week_start, week_end, minutes, submitted_by]);
 }
+
+export async function deleteHoursEntry(force: string, nif: number, id: number): Promise<void> {
+    await queryDB(force, `DELETE FROM officer_hours WHERE id = ? AND officer = ?`, [id, nif]);
+}

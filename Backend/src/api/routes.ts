@@ -284,7 +284,7 @@ const activityRoutes: routesType = {
             }
         }
     },
-    "/officers/.+/activity/hours": {
+    "/officers/.+/activity/hours$": {
         methods: {
             GET: {
                 requiresToken: true,
