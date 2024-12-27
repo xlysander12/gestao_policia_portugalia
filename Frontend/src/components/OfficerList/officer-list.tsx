@@ -3,6 +3,7 @@ import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
+import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 
 type OfficerCardProps = {
     name: string,
@@ -63,7 +64,7 @@ type OfficerListProps = {
 
 function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     // Initialize state
-    const [officers, setOfficers] = useState([]);
+    const [officers, setOfficers] = useState<MinifiedOfficerData[] | []>([]);
     const [searchString, setSearchString] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -83,11 +84,10 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         }
 
         // Get the response as JSON
-        let responseJSON = await response.json();
-        responseJSON = responseJSON.data; // Only need the actual data. In this case is a list with all the results
+        let responseJSON: OfficerListResponse = await response.json();
 
         // Update the state with the new officers
-        setOfficers(responseJSON);
+        setOfficers(responseJSON.data);
 
         // Set the loading state to false
         setLoading(false);
@@ -95,11 +95,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
 
     // On component mount, do an initial search with an empty string
     useEffect(() => {
-        const initialSearch = async () => {
-            await search();
-        }
-
-        initialSearch();
+        search();
     }, []);
 
 

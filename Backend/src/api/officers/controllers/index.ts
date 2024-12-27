@@ -2,9 +2,11 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
 import {alterOfficer, deleteOfficer, hireOfficer, listOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {ensureAPIResponseType} from "../../../utils/request-handler";
+import { RequestError } from "@portalseguranca/api-types";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // * Get the filters
@@ -19,11 +21,16 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 
     // Check if the result is valid
     if (!result.result) {
-        return res.status(result.status).json({message: result.message});
+        return res.status(result.status).json(ensureAPIResponseType<RequestError>({
+            message: result.message!
+        }));
     }
 
     // Return the result
-    return res.status(result.status).json(result.data);
+    return res.status(result.status).json(ensureAPIResponseType<OfficerListResponse>({
+        message: "Operação bem sucedida",
+        data: result.data!
+    }));
 
 }
 
