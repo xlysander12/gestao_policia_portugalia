@@ -7,11 +7,18 @@ const DatabaseType = rt.Record({
   password: rt.String
 });
 
+const DefaultPatentsRt = rt.Record({
+    recruit: rt.Number,
+    default: rt.Number
+});
+
 const ForceRt = rt.Record({
   name: rt.String,
   acronym: rt.String,
   patrols: rt.Array(rt.String),
-  database: rt.String
+  database: rt.String,
+  isPromotion: rt.String,
+  patents: DefaultPatentsRt
 });
 
 const ForcesRt = rt.Dictionary(ForceRt, rt.String);

@@ -44,7 +44,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             }
 
             // Since there's a force in local storage, check if the token stored in the cookies is valid for that force
-            const response = await make_request("/accounts/validateToken", "POST", {redirectToLoginOn401: false});
+            const response = await make_request("/accounts/validate-token", "POST", {redirectToLoginOn401: false});
 
             // If the request returned status 401, the token isn't valid and the user should be redirected to login
             if (response.status === 401) {

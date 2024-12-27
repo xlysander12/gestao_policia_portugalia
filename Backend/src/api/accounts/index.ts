@@ -1,49 +1,49 @@
+// Libs
 import express from "express";
 
-import infoRoutes from "./info";
-import manageRoutes from "./manage";
-import actionRoutes from "./action";
-import {userHasIntents} from "../../utils/user-handler";
-import { RequestError } from "@portalseguranca/api-types";
-import { ValidateTokenResponse } from "@portalseguranca/api-types/account/output";
-import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input";
-import {FORCE_HEADER} from "../../utils/constants";
-import {APIResponse} from "../../types";
+// Controllers
+import {
+    changeAccountDetailsController,
+    changeUserPasswordController, createAccountController, deleteAccountController,
+    getAccountForcesController,
+    getUserAccountDetailsController,
+    loginUserController, resetPasswordController,
+    validateTokenController
+} from "./controllers";
+
+import {accountExistsMiddle} from "../../middlewares";
 
 const app = express.Router();
 
 // Endpoint to validate a Token and check if the user has the correct permissions
-app.post("/validateToken", async (req, res: APIResponse) => {
+app.post("/validate-token", validateTokenController);
 
-    let {intents} = req.body as ValidateTokenRequestBodyType;
-    // Check if intents were provided
-    if (intents) { // If intents were provided, check if the user has them
-        let hasIntents = await userHasIntents(Number(res.locals.user), req.header(FORCE_HEADER), intents);
-        if (!hasIntents) { // If the user doesn't have intents, return a 403
-            let response: RequestError = {
-                message: "Não tens esta permissão"
-            };
-            return res.status(403).json(response);
-        }
-    }
+// Endpoint to login an user
+app.post("/login", loginUserController);
 
-    // Since the user has the request intents, return the token as valid
-    let response: ValidateTokenResponse = {
-        message: "Operação bem sucedida",
-        data: Number(res.locals.user)
-    };
-    return res.status(200).json(response);
+// Endpoint to allow an user to change their password
+app.post("/change-password", changeUserPasswordController);
 
-});
+// Endpoint to fetch all forces an user has access to
+app.get("/:nif(\\d+)/forces", accountExistsMiddle, getAccountForcesController);
 
-// Import action routes
-app.use(actionRoutes);
+// Endpoint to reset the password of another account
+app.post("/:nif(\\d+)/reset-password", accountExistsMiddle, resetPasswordController);
 
-// Import info routes
-app.use(infoRoutes);
+// Endpoint to get a user's accounts information
+app.get("/:nif(\\d+)", accountExistsMiddle, getUserAccountDetailsController);
 
-// Import manage routes
-app.use(manageRoutes);
+// Endpoint to create an account
+app.post("/:nif(\\d+)", createAccountController);
+
+// Endpoint to edit an account's permissions / suspended statuses
+app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
+
+// Endpoint to delete an account
+// ! This endpoint will rarely be used since there's no big reason to need to delete an account
+// ! If an account needs to be deleted, in theory, the officer linked to it should be fired
+app.delete("/:nif(\\d+)", accountExistsMiddle, deleteAccountController);
+
 
 console.log("[Portal Segurança] Account routes loaded successfully!");
 

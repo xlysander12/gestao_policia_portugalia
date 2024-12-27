@@ -54,7 +54,7 @@ function App() {
             forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
 
             // Fetching the special units
-            const specialUnitsResponse = await make_request("/util/specialunits", "GET");
+            const specialUnitsResponse = await make_request("/util/special-units", "GET");
             const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
 
             // Store the special units in the temp object

@@ -1,6 +1,6 @@
 import fs from "fs";
 import {join} from "path";
-import {ConfigTypes, StaticConfigTypes} from "../assets/config-types";
+import {ConfigTypes, StaticConfigTypes} from "../types";
 
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 
@@ -29,4 +29,12 @@ export function getForceDatabase(force: string) {
 
 export function getForcesList(): string[] {
     return Object.keys(config.forces);
+}
+
+export function getForcePromotionExpression(force: string): string {
+    return config.forces[force].isPromotion;
+}
+
+export function getForceDefaultPatents(force: string) {
+    return config.forces[force].patents;
 }

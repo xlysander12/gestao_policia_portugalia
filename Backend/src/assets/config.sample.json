@@ -10,14 +10,24 @@
             "name": "Polícia de Segurança Pública",
             "acronym": "PSP",
             "patrols": ["psp", "gnr"],
-            "database": "database"
+            "database": "database",
+            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
+            "patents": {
+                "recruit": 0,
+                "default": 1
+            }
         },
 
         "gnr": {
             "name": "Guarda Nacional Republicana",
             "acronym": "GNR",
             "patrols": ["psp", "gnr"],
-            "database": "database"
+            "database": "database",
+            "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
+            "patents": {
+                "recruit": 0,
+                "default": 1
+            }
         }
     }
 }

@@ -13,8 +13,8 @@ import {getForcesList, loadConfig} from "./utils/config-handler";
 loadConfig();
 
 import apiRoutes from "./api";
-import {isTokenValid} from "./utils/user-handler";
 import {queryDB} from "./utils/db-connector";
+import {isTokenValid} from "./api/accounts/repository";
 
 const app = Router(); // This app is a router to compartimentalize routes
 
@@ -35,26 +35,30 @@ app.use("/api", apiRoutes);
 // Database backup files
 app.use("/db", async (req, res, next) => {
     // Check if the user is authenticated and has the right patent
-    let loggedUser = [false, "", "", ""];
+    let loggedUser: {valid: boolean, status: number, nif?: number, force: string} = {
+        valid: false,
+        status: 0,
+        force: ""
+    };
+
     for (const force of getForcesList()) {
         const isValid = await isTokenValid(req.cookies["sessionToken"], force);
-        if (isValid[0]) {
-            loggedUser = [...isValid, ""];
-            loggedUser[3] = force;
+        if (isValid.valid) {
+            loggedUser = {...isValid, force: force};
             break;
         }
     }
 
-    if (!loggedUser[0]) { // Token is invalid
+    if (!loggedUser.valid) { // Token is invalid
         res.status(401).send("Unauthorized");
         return;
     }
 
     // * Check if the user has the right patent
-    const loggedNif = loggedUser[2];
+    const loggedNif = loggedUser.nif;
 
     // Fecth patent from database
-    const result = await queryDB(loggedUser[3], "SELECT patent FROM officers WHERE nif = ?", loggedNif);
+    const result = await queryDB(loggedUser.force, "SELECT patent FROM officers WHERE nif = ?", loggedNif);
 
     // Check if the patent is valid
     if (result.length === 0) {
@@ -73,7 +77,7 @@ app.use("/db", async (req, res, next) => {
 }, express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true, view: "details"}));
 
 // React Build
-app.get("/*", (req, res) => {
+app.get(/\/.*/, (req, res) => {
     res.sendFile(join(__dirname, "..", "..", "Frontend", "dist", "index.html"));
 });
 
