@@ -15,12 +15,12 @@ export async function getLastShiftController(req: express.Request, res: OfficerI
     // * Return the result of the service
     // If the result is negative, return an error
     if (!result.result) {
-        return res.status(result.status).json({message: result.message} as RequestError);
+        return res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message}));
     }
 
     // If the result is positive, return the last shift as a date string
     return res.status(result.status).json(ensureAPIResponseType<OfficerLastShiftResponse>({
-        message: "Operação bem sucedida",
+        message: result.message,
         data: {
             last_shift: dateToString(result.data!, false)
         }

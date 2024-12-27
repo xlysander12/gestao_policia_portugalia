@@ -22,6 +22,7 @@ export async function forcePatents(force: string): Promise<DefaultReturn<PatentD
     return {
         result: true,
         status: 200,
+        message: "Operação concluída com sucesso",
         data: patents
     }
 }
@@ -34,6 +35,7 @@ export async function forceStatuses(force: string): Promise<DefaultReturn<Status
     return {
         result: true,
         status: 200,
+        message: "Operação concluída com sucesso",
         data: statuses
     }
 }
@@ -49,6 +51,7 @@ export async function forceSpecialUnits(force: string): Promise<DefaultReturn<{u
     return {
         result: true,
         status: 200,
+        message: "Operação concluída com sucesso",
         data: {units: units, roles: roles}
     }
 }
@@ -62,6 +65,7 @@ export async function forceIntents(force: string): Promise<DefaultReturn<IntentD
     return {
         result: true,
         status: 200,
+        message: "Operação concluída com sucesso",
         data: intents
     }
 }

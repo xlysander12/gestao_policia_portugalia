@@ -24,6 +24,7 @@ import {
 } from "../services";
 import {getAccountForces} from "../services";
 import {AccountInfoAPIResponse} from "../../../types/response-types";
+import {ensureAPIResponseType} from "../../../utils/request-handler";
 
 export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
     let {intents} = req.body as ValidateTokenRequestBodyType;
@@ -32,22 +33,28 @@ export async function validateTokenController (req: express.Request, res: APIRes
     let isTokenValid = await validateToken(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, intents);
 
     // Check the result of the service
-    if (isTokenValid.result) { // The result was positive, user has requested intents
-        res.status(isTokenValid.status).json(<ValidateTokenResponse>{message: isTokenValid.message, data: res.locals.loggedOfficer.nif})
-    } else { // The result was negative, user doesn't have requested intents
-        res.status(isTokenValid.status).json(<RequestError>{message: isTokenValid.message});
+    if (!isTokenValid.result) { // The result was negative, user doesn't have requested intents
+        res.status(isTokenValid.status).json(ensureAPIResponseType<RequestError>({message: isTokenValid.message!}));
+        return
     }
+
+    // The result was positive, user has requested intents
+    res.status(isTokenValid.status).json(ensureAPIResponseType<ValidateTokenResponse>({message: isTokenValid.message!, data: res.locals.loggedOfficer.nif}));
 
 }
 
 export async function getUserAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse): Promise<void> {
     let userDetails = await getUserDetails(res.locals.loggedOfficer.nif, res.locals.targetAccount, req.header(FORCE_HEADER)!);
 
-    if (userDetails.result) {
-        res.status(userDetails.status).json(<AccountInfoResponse>{message: userDetails.message, data: userDetails.data});
-    } else {
-        res.status(userDetails.status).json(<RequestError>{message: userDetails.message});
+    if (!userDetails.result) {
+        res.status(userDetails.status).json(ensureAPIResponseType<RequestError>({message: userDetails.message}));
+        return;
     }
+
+    res.status(userDetails.status).json(ensureAPIResponseType<AccountInfoResponse>({
+        message: userDetails.message,
+        data: userDetails.data!
+    }));
 }
 
 export async function getAccountForcesController(req: express.Request, res: APIResponse) {
@@ -56,11 +63,12 @@ export async function getAccountForcesController(req: express.Request, res: APIR
     // Call the service
     let serviceResult = await getAccountForces(res.locals.loggedOfficer.nif, Number(nif));
 
-    if (serviceResult.result) {
-        res.status(serviceResult.status).json(<UserForcesResponse>{message: "Operação concluída com sucesso", data: {forces: serviceResult.data}});
-    } else {
-        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
+    if (!serviceResult.result) {
+        res.status(serviceResult.status).json(ensureAPIResponseType<RequestError>({message: serviceResult.message}));
+        return;
     }
+
+    res.status(serviceResult.status).json(ensureAPIResponseType<UserForcesResponse>({message: serviceResult.message, data: {forces: serviceResult.data!}}));
 }
 
 export async function loginUserController(req: express.Request, res: APIResponse) {
@@ -71,7 +79,7 @@ export async function loginUserController(req: express.Request, res: APIResponse
 
     // If the result of the service was negative, return an error
     if (!loginData.result) {
-        res.status(loginData.status).json(<RequestError>{message: loginData.message});
+        res.status(loginData.status).json(ensureAPIResponseType<RequestError>({message: loginData.message}));
         return;
     }
 
@@ -90,13 +98,13 @@ export async function loginUserController(req: express.Request, res: APIResponse
     res.cookie("sessionToken", loginData.data?.token, cookieOptions);
 
     // Send the token to the user
-    res.status(200).json(<LoginResponse>{
+    res.status(200).json(ensureAPIResponseType<LoginResponse>({
         message: "Operação bem sucedida",
         data: {
             token: loginData.data!.token,
             forces: loginData.data!.forces
         }
-    });
+    }));
 }
 
 export async function changeUserPasswordController(req: express.Request, res: APIResponse) {
@@ -104,11 +112,7 @@ export async function changeUserPasswordController(req: express.Request, res: AP
 
     const serviceResult = await changeUserPassword(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies["sessionToken"] || req.header("Authorization"));
 
-    if (serviceResult.result) {
-        res.status(serviceResult.status).json(<RequestSuccess>{message: "Password alterada com sucesso"});
-    } else {
-        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
-    }
+    res.status(serviceResult.status).json(ensureAPIResponseType<RequestError>({message: serviceResult.message}));
 }
 
 export async function createAccountController(req: express.Request, res: APIResponse) {
@@ -117,12 +121,8 @@ export async function createAccountController(req: express.Request, res: APIResp
     // Call the service
     let serviceResult = await createAccount(Number(nif), req.header(FORCE_HEADER)!);
 
-    // Check the result of the service
-    if (serviceResult.result) {
-        res.status(serviceResult.status).json(<RequestSuccess>{message: "Conta criada com sucesso"});
-    } else {
-        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
-    }
+    // Return the result of the service
+    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
 }
 
 export async function changeAccountDetailsController(req: express.Request, res: APIResponse) {
@@ -135,7 +135,7 @@ export async function changeAccountDetailsController(req: express.Request, res: 
 
         // Check if the service was successful
         if (!suspendedService.result) {
-            res.status(suspendedService.status).json(<RequestError>{message: suspendedService.message});
+            res.status(suspendedService.status).json(ensureAPIResponseType<RequestError>({message: suspendedService.message}));
             return;
         }
     }
@@ -147,34 +147,26 @@ export async function changeAccountDetailsController(req: express.Request, res: 
 
         // Check if the service was successful
         if (!intentsService.result) {
-            res.status(intentsService.status).json(<RequestError>{message: intentsService.message});
+            res.status(intentsService.status).json(ensureAPIResponseType<RequestError>({message: intentsService.message}));
             return;
         }
     }
 
-    res.status(200).json(<RequestSuccess>{message: "Account information updated successfully"});
+    res.status(200).json(ensureAPIResponseType<RequestSuccess>({message: "Account information updated successfully"}));
 }
 
 export async function deleteAccountController(req: express.Request, res: AccountInfoAPIResponse) {
     // Call the service
     let serviceResult = await deleteUser(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!);
 
-    // Check the result of the service
-    if (serviceResult.result) {
-        res.status(200).json(<RequestSuccess>{message: "Conta eliminada com sucesso"});
-    } else {
-        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
-    }
+    // Return the result of the service
+    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
 }
 
 export async function resetPasswordController(_req: express.Request, res: AccountInfoAPIResponse) {
     // Call the service
     let serviceResult = await resetUserPassword(res.locals.targetAccount);
 
-    // Check the result of the service
-    if (serviceResult.result) {
-        res.status(200).json(<RequestSuccess>{message: "Password redefinida com sucesso"});
-    } else {
-        res.status(serviceResult.status).json(<RequestError>{message: serviceResult.message});
-    }
+    // Return the result of the service
+    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
 }

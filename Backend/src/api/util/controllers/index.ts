@@ -7,6 +7,7 @@ import {
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
 } from "@portalseguranca/api-types/util/schema";
+import {ensureAPIResponseType} from "../../../utils/request-handler";
 
 export async function getPatentsController(req: express.Request, res: express.Response) {
     // Get what force the user is trying to get the patents from
@@ -15,8 +16,7 @@ export async function getPatentsController(req: express.Request, res: express.Re
     // Call the service to get the patents
     const result = await forcePatents(force);
 
-    // Send the response to the user
-    res.send({message: "Operação bem sucedida", data: result.data} as UtilPatentsResponse);
+    res.status(result.status).json(ensureAPIResponseType<UtilPatentsResponse>({message: result.message, data: result.data!}));
 }
 
 export async function getStatusesController(req: express.Request, res: express.Response) {
@@ -27,7 +27,7 @@ export async function getStatusesController(req: express.Request, res: express.R
     const result = await forceStatuses(force);
 
     // Send the list to the user
-    res.status(200).json({message: "Operação bem sucedida", data: result.data} as UtilStatusesResponse);
+    res.status(result.status).json(ensureAPIResponseType<UtilStatusesResponse>({message: result.message, data: result.data!}));
 }
 
 export async function getSpecialUnitsController(req: express.Request, res: express.Response) {
@@ -38,16 +38,13 @@ export async function getSpecialUnitsController(req: express.Request, res: expre
     const result = await forceSpecialUnits(force);
 
     // Send the list to the user
-    res.status(200).json({message: "Operação bem sucedida", data: result.data} as UtilSpecialUnitsResponse);
+    res.status(result.status).json(ensureAPIResponseType<UtilSpecialUnitsResponse>({message: result.message, data: result.data!}));
 }
 
 export async function getIntentsController(req: express.Request, res: express.Response) {
-    let force = req.header(FORCE_HEADER)!;
-
     // Call the service to get the intents
-    const intents = await forceIntents(force);
-
+    const result = await forceIntents(req.header(FORCE_HEADER)!);
 
     // Send the list to the user
-    res.status(200).json({message: "Operação bem sucedida", data: intents.data} as UtilIntentsResponse);
+    res.status(result.status).json(ensureAPIResponseType<UtilIntentsResponse>({message: result.message, data: result.data!}));
 }

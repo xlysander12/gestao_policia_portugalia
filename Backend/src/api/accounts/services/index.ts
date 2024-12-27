@@ -48,6 +48,7 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
     return {
         result: true,
         status: 200,
+        message: "Operação bem sucedida",
         data: {
             passwordChanged: requestedAccount.password !== null,
             suspended: requestedAccount.suspended,
@@ -67,7 +68,7 @@ export async function getAccountForces(requestingNif: number, nif: number): Prom
     // Get the forces the account belongs to
     let response = await getUserForces(nif);
 
-    return {result: true, status: 200, data: response};
+    return {result: true, status: 200, message: "Operação bem sucedida", data: response};
 }
 
 export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<{token: string, forces: string[]}>> {
@@ -118,7 +119,7 @@ export async function loginUser(nif: number, password: string, persistent: boole
 
     // Return the data to the Controller
     // * The "forces" field must only include the forces the user is not suspended in
-    return {result: true, status: 200, data: {token, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
+    return {result: true, status: 200, message: "Operação bem sucedida", data: {token, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
 }
 
 export async function changeUserPassword(nif: number, force: string, oldPassword: string, newPassword: string, confirmPassword: string, sessionToken: string): Promise<DefaultReturn<void>> {
@@ -153,7 +154,7 @@ export async function changeUserPassword(nif: number, force: string, oldPassword
 
 
     // Return success
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Password alterada com sucesso"};
 }
 
 export async function createAccount(nif: number, force: string): Promise<DefaultReturn<void>> {
@@ -173,7 +174,7 @@ export async function createAccount(nif: number, force: string): Promise<Default
     await addAccount(nif, force);
 
     // Return success
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Conta criada com sucesso"};
 }
 
 export async function changeUserPermissions(nif: number, force: string, requestingUser: number, intents: {[intent: string]: boolean}): Promise<DefaultReturn<void>> {
@@ -192,7 +193,7 @@ export async function changeUserPermissions(nif: number, force: string, requesti
     }
 
     // Return success
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Permissões alteradas com sucesso"};
 }
 
 export async function changeUserSuspendedStatus(nif: number, force: string, suspended: boolean): Promise<DefaultReturn<void>> {
@@ -200,14 +201,14 @@ export async function changeUserSuspendedStatus(nif: number, force: string, susp
     await changeAccountSuspendedStatus(nif, force, suspended);
 
     // Return success
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
 }
 
 export async function deleteUser(nif: number, force: string): Promise<DefaultReturn<void>> {
     // Call the repository to delete the user
     await deleteAccount(nif, force);
 
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Conta eliminada com sucesso"};
 }
 
 export async function resetUserPassword(targetUser: InnerAccountData): Promise<DefaultReturn<void>> {
@@ -222,5 +223,5 @@ export async function resetUserPassword(targetUser: InnerAccountData): Promise<D
     }
 
     // Return success
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Password resetada com sucesso"};
 }

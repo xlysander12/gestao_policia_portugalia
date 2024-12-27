@@ -6,7 +6,7 @@ import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-
 import {dateToString} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {ensureAPIResponseType} from "../../../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // * Get the filters
@@ -28,21 +28,21 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 
     // Return the result
     return res.status(result.status).json(ensureAPIResponseType<OfficerListResponse>({
-        message: "Operação bem sucedida",
+        message: result.message,
         data: result.data!
     }));
 
 }
 
 export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
-    res.json(<OfficerInfoGetResponse>{
+    res.json(ensureAPIResponseType<OfficerInfoGetResponse>({
         message: "Operação bem sucedida",
         data: {
             ...res.locals.targetOfficer,
             entry_date: dateToString(res.locals.targetOfficer.entry_date, false),
             promotion_date: res.locals.targetOfficer.promotion_date !== null ? dateToString(res.locals.targetOfficer.promotion_date, false) : null
         }
-    });
+    }));
 }
 
 export async function addOfficerController(req: express.Request, res: APIResponse) {
@@ -52,13 +52,8 @@ export async function addOfficerController(req: express.Request, res: APIRespons
     // Call the service
     let result = await hireOfficer(req.body.name, req.body.phone, req.body.iban, req.body.nif, req.body.kms, req.body.discord, req.body.steam, req.body.recruit, req.header(FORCE_HEADER)!);
 
-    // Check if the result is valid
-    if (!result.result) {
-        return res.status(result.status).json({message: result.message});
-    }
-
     // Return the result
-    return res.status(result.status).json({message: "Operação bem sucedida"});
+    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 }
 
 export async function alterOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -68,13 +63,8 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
     // Call the service
     let result = await alterOfficer(res.locals.targetOfficer.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer, changes, res.locals.loggedOfficer);
 
-    // Check if the result is valid
-    if (!result.result) {
-        return res.status(result.status).json({message: result.message});
-    }
-
     // Return the result
-    return res.status(result.status).json({message: "Operação bem sucedida"});
+    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 }
 
 export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -83,12 +73,7 @@ export async function deleteOfficerController(req: express.Request, res: Officer
     // Call the service
     let result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer, res.locals.loggedOfficer, reason);
 
-    // Check the result
-    if (!result.result) {
-        return res.status(result.status).json({message: result.message});
-    }
-
     // Return the result
-    return res.status(result.status).json({message: "Operação bem sucedida"});
+    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 
 }

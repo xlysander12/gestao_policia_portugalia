@@ -1,6 +1,6 @@
 export interface DefaultReturn<Type> {
     result: boolean,
     status: number,
-    message?: string
+    message: string
     data?: Type
 }

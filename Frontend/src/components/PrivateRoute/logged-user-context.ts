@@ -22,7 +22,7 @@ export type LoggedUserContextType = {
             callsign: string,
             status: number,
             entry_date: string,
-            promotion_date: string,
+            promotion_date: string | null,
             special_units: OfficerSpecialUnitType[]
         }
     },

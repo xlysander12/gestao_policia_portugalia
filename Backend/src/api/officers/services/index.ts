@@ -19,7 +19,7 @@ export async function listOfficers(force: string, routeDetails: routeMethodType,
     let officerList = await getOfficersList(force, routeDetails, filters);
 
     // Return the list
-    return {result: true, status: 200, data: officerList};
+    return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
 }
 
 // TODO: This service should check if the provided nif is a former Officer, and if so, ask if the user wants to import their old data.
@@ -56,7 +56,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     await addOfficer(name, patent, callsign, phone, nif, iban, kms, discord, steam, force);
 
     // If everything went according to plan, return a 200 status code
-    return {result: true, status: 201};
+    return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
 }
 
 export async function alterOfficer(nif: number, force: string, currentInfo: InnerOfficerData, changes: UpdateOfficerRequestBody, loggedOfficer: InnerOfficerData): Promise<DefaultReturn<void>> {
@@ -86,7 +86,7 @@ export async function alterOfficer(nif: number, force: string, currentInfo: Inne
     await updateOfficer(nif, force, changes, isPromotion);
 
     // After all is complete, return a 200 status code
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Efetivo editado com sucesso."};
 }
 
 export async function deleteOfficer(force: string, targetOfficer: InnerOfficerData, loggedOfficer: InnerOfficerData, reason?: string): Promise<DefaultReturn<void>> {
@@ -102,5 +102,5 @@ export async function deleteOfficer(force: string, targetOfficer: InnerOfficerDa
     await fireOfficer(targetOfficer.nif, force, reason);
 
     // If everything went according to plan, return a 200 status code
-    return {result: true, status: 200};
+    return {result: true, status: 200, message: "Efetivo despedido com sucesso."};
 }

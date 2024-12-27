@@ -5,7 +5,7 @@ import {FORCE_HEADER} from "../../../../../utils/constants";
 import buildFiltersQuery from "../../../../../utils/filters";
 import {addOfficerHoursEntry, deleteOfficerHoursEntry, officerHoursEntry, officerHoursHistory} from "../services";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {OfficerHoursEntryType} from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
@@ -69,7 +69,7 @@ export async function addOfficerHoursEntryController(req: express.Request, res: 
     // Call the service to add the hours
     let result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, stringToDate(week_start), stringToDate(week_end), minutes, res.locals.loggedOfficer);
 
-    res.status(result.status).json({message: result.message});
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 }
 
 export async function deleteOfficerGetHoursEntryController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -78,5 +78,5 @@ export async function deleteOfficerGetHoursEntryController(req: express.Request,
     // Call the service to delete the hours
     const result = await deleteOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, parseInt(id));
 
-    res.status(result.status).json({message: result.message});
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 }

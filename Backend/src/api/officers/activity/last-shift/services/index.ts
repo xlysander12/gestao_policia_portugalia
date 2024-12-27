@@ -16,6 +16,7 @@ export async function getOfficerLastShift(force: string, nif: number): Promise<D
     return {
         result: true,
         status: 200,
+        message: "Operação concluída com sucesso.",
         data: last_shift
     }
 }
