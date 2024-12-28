@@ -83,7 +83,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to reset the password of a user
-    "/accounts/.+/reset-password$": {
+    "/accounts/[0-9]+/reset-password$": {
         methods: {
             POST: {
                 requiresToken: true,
@@ -94,7 +94,7 @@ const accountRoutes: routesType = {
     },
 
     // Route to get the forces of an account
-    "/accounts/.+/forces$": {
+    "/accounts/[0-9]+/forces$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -104,7 +104,7 @@ const accountRoutes: routesType = {
     },
 
     // * Routes related to creation and data fetching of exsiting accounts
-    "/accounts/.+$": {
+    "/accounts/[0-9]+$": {
         methods: {
             // Route to get information about an account
             GET: {
@@ -225,7 +225,7 @@ const officersRoutes: routesType = {
     },
 
     // * Routes about existing officers or to create new officers
-    "/officers/.+": {
+    "/officers/[0-9]+$": {
         methods: {
             // Route to get an officer's information
             GET: {
@@ -268,7 +268,7 @@ const officersRoutes: routesType = {
 }
 
 const activityRoutes: routesType = {
-    "/officers/.+/activity/last-shift$": {
+    "/officers/[0-9]+/activity/last-shift$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -285,7 +285,7 @@ const activityRoutes: routesType = {
         }
     },
 
-    "/officers/.+/activity/hours$": {
+    "/officers/[0-9]+/activity/hours$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -311,7 +311,7 @@ const activityRoutes: routesType = {
             }
         }
     },
-    "/officers/.+/activity/hours/.+$": {
+    "/officers/[0-9]+/activity/hours/[0-9]+$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -326,11 +326,19 @@ const activityRoutes: routesType = {
     },
 
     // TODO: Add filters to this route
-    "/officers/.+/activity/justifications$": {
+    "/officers/[0-9]+/activity/justifications$": {
         methods: {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+            }
+        }
+    },
+    "/officers/[0-9]+/activity/justifications/[0-9]+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
             }
         }
     }

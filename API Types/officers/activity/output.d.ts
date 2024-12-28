@@ -24,12 +24,19 @@ export interface OfficerHoursResponse extends RequestSuccess {
 
 export type OfficerMinifiedJustification = {
     id: number,
+    type: number,
     start: string,
     end: string,
     status: Enumerator<"pending" | "approved" | "denied">,
     managed_by: number
 }
-
 export interface OfficerJustificationsHistoryResponse extends RequestSuccess {
     data: OfficerMinifiedJustification[]
+}
+
+export type OfficerJustification = OfficerMinifiedJustification & {
+    description: string
+}
+export interface OfficerJustificationDetailsResponse extends RequestSuccess {
+    data: OfficerJustification
 }
