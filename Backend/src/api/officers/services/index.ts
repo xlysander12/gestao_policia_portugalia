@@ -1,5 +1,5 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
-import {routeMethodType} from "../../routes";
+import {RouteFilterType} from "../../routes";
 import {
     addOfficer,
     fireOfficer,
@@ -13,10 +13,10 @@ import {getForceDefaultPatents, getForcePromotionExpression} from "../../../util
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getForcePatents} from "../../util/repository";
 
-export async function listOfficers(force: string, routeDetails: routeMethodType, filters: {name: string, value: any}[]): Promise<DefaultReturn<MinifiedOfficerData[]>> {
+export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
     // Fetch the list from the database
-    let officerList = await getOfficersList(force, routeDetails, filters);
+    let officerList = await getOfficersList(force, routeValidFilters, filters);
 
     // Return the list
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};

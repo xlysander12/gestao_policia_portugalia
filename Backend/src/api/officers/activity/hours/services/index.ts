@@ -1,16 +1,16 @@
-import {Filters} from "../../../../../utils/filters";
 import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {
-    deleteHoursEntry,
+    deleteHoursEntry, ensureNoHoursThisWeek,
     fetchHoursEntry,
     fetchHoursHistory,
     insertHoursEntry,
     OfficerHoursEntryType
 } from "../repository";
+import {RouteFilterType} from "../../../../routes";
 
-export async function officerHoursHistory(force: string, filters: Filters): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
+export async function officerHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
     // Get the hours of the Officer from the repository
-    const hours = await fetchHoursHistory(force, filters);
+    const hours = await fetchHoursHistory(force, nif, routeValidFilters, filters);
 
     return {
         result: true,
@@ -40,8 +40,8 @@ export async function officerHoursEntry(force: string, nif: number, id: number):
 
 export async function addOfficerHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: InnerOfficerData): Promise<DefaultReturn<void>> {
     // Make sure there already aren't hours for this week and officer
-    const hours = await fetchHoursHistory(force, {query: "WHERE week_end > ? AND officer = ?", values: [week_start, nif]});
-    if (hours.length > 0) {
+    const isWeekUnique = await ensureNoHoursThisWeek(force, nif, week_start);
+    if (!isWeekUnique) {
         return {result: false, status: 400, message: "Este efetivo já tem as horas registadas para esta semana registadas"};
     }
 

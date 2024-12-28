@@ -17,7 +17,7 @@ export async function getOfficersListController(req: express.Request, res: APIRe
     }
 
     // Call the service
-    let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails, filters);
+    let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, filters);
 
     // Check if the result is valid
     if (!result.result) {

@@ -15,7 +15,7 @@ import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-type filterType = {
+export type RouteFilterType = {
     [key: string]: {
         queryFunction: () => string,
         valueFunction?: (value: any) => any
@@ -26,7 +26,7 @@ export type routeMethodType = {
     requiresToken: boolean,
     requiresForce: boolean,
     intents?: string[],
-    filters?: filterType,
+    filters?: RouteFilterType,
     body?: {
         type: Record<any, any>
     }
@@ -103,7 +103,7 @@ const accountRoutes: routesType = {
         }
     },
 
-    // * Routes related to creation and data fetching of exsiting accounts
+    // * Routes related to creation and data fetching of existing accounts
     "/accounts/\\d+$": {
         methods: {
             // Route to get information about an account
@@ -311,7 +311,7 @@ const activityRoutes: routesType = {
             }
         }
     },
-    "/officers/\\d+/activity/hours/[0-9]+$": {
+    "/officers/\\d+/activity/hours/\\d+$": {
         methods: {
             GET: {
                 requiresToken: true,
@@ -325,16 +325,33 @@ const activityRoutes: routesType = {
         }
     },
 
-    // TODO: Add filters to this route
     "/officers/\\d+/activity/justifications$": {
         methods: {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+                filters: {
+                    "type": {
+                        queryFunction: () => `type = ?`,
+                        valueFunction: (value: number) => value
+                    },
+                    "status": {
+                        queryFunction: () => `status = ?`,
+                        valueFunction: (value: string) => value
+                    },
+                    "during": {
+                        queryFunction: () => `start_date <= ? AND end_date >= ?`,
+                        valueFunction: (value: string) => value
+                    },
+                    "managed": {
+                        queryFunction: () => `managed = ?`,
+                        valueFunction: (value: number) => value
+                    }
+                }
             }
         }
     },
-    "/officers/\\d+/activity/justifications/[0-9]+$": {
+    "/officers/\\d+/activity/justifications/\\d+$": {
         methods: {
             GET: {
                 requiresToken: true,

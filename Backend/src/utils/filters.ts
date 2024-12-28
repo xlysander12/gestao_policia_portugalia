@@ -1,11 +1,11 @@
-import {routeMethodType} from "../api/routes";
+import {RouteFilterType} from "../api/routes";
 
 export type Filters = {
     query: string,
     values: any[]
 }
 
-function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): Filters {
+function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): Filters {
     // Start the query string
     let subqueries: string[] = [];
     let values: any[] = [];
@@ -13,12 +13,12 @@ function buildFiltersQuery(routeMethod: routeMethodType, filters: {name: string,
     // Otherwise, iterate over the filters and build the query
     for (const filter of filters) {
         // If the filter doesn't exist in the route, skip it
-        if (!routeMethod.filters!.hasOwnProperty(filter.name)) {
+        if (!routeValidFilters!.hasOwnProperty(filter.name)) {
             continue;
         }
 
         // Next, get the filter function
-        const filterFunctions = routeMethod.filters![filter.name];
+        const filterFunctions = routeValidFilters![filter.name];
 
         // Append the result of the filter function to the query
         subqueries.push(filterFunctions.queryFunction());

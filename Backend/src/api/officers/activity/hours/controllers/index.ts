@@ -2,7 +2,6 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {OfficerHoursResponse, OfficerSpecificHoursResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {FORCE_HEADER} from "../../../../../utils/constants";
-import buildFiltersQuery from "../../../../../utils/filters";
 import {addOfficerHoursEntry, deleteOfficerHoursEntry, officerHoursEntry, officerHoursHistory} from "../services";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
@@ -17,11 +16,8 @@ export async function getOfficerHoursHistoryController(req: express.Request, res
         filters.push({name: query, value: req.query[query]});
     }
 
-    // Build the filters from the route
-    const filtersResult = buildFiltersQuery(res.locals.routeDetails!, filters, {subquery: "officer = ?", value: res.locals.targetOfficer.nif});
-
     // Call the service to get the hours
-    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, filtersResult);
+    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, res.locals.routeDetails.filters!, filters);
 
     if (!result.result) {
         res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message!}));

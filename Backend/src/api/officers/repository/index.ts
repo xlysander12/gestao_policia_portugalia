@@ -1,4 +1,4 @@
-import {routeMethodType} from "../../routes";
+import {RouteFilterType} from "../../routes";
 import buildFiltersQuery from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {
@@ -8,8 +8,8 @@ import {
 import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
-export async function getOfficersList(force: string, routeDetails: routeMethodType, filters: {name: string, value: any}[]) {
-    const filtersResult = buildFiltersQuery(routeDetails, filters);
+export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]) {
+    const filtersResult = buildFiltersQuery(routeValidFilters, filters);
 
     // * Get the data from the database
     const officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
