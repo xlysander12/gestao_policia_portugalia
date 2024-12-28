@@ -284,6 +284,7 @@ const activityRoutes: routesType = {
             }
         }
     },
+
     "/officers/.+/activity/hours$": {
         methods: {
             GET: {
@@ -320,6 +321,16 @@ const activityRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 intents: ["activity"]
+            }
+        }
+    },
+
+    // TODO: Add filters to this route
+    "/officers/.+/activity/justifications$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
             }
         }
     }

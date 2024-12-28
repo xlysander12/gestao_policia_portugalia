@@ -21,3 +21,15 @@ export interface OfficerSpecificHoursResponse extends RequestSuccess {
 export interface OfficerHoursResponse extends RequestSuccess {
     data: OfficerSpecificHoursType[]
 }
+
+export type OfficerMinifiedJustification = {
+    id: number,
+    start: string,
+    end: string,
+    status: Enumerator<"pending" | "approved" | "denied">,
+    managed_by: number
+}
+
+export interface OfficerJustificationsHistoryResponse extends RequestSuccess {
+    data: OfficerMinifiedJustification[]
+}

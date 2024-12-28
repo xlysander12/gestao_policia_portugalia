@@ -19,7 +19,8 @@ for (let force of getForcesList()) {
     let options: PoolOptions = {
         ...databaseConfig,
         database: forceDB,
-        connectionLimit: 10
+        connectionLimit: 10,
+        connectTimeout: 100000,
     }
 
     pools[force] = createPool(options);
