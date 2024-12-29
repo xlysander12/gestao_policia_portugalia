@@ -53,3 +53,8 @@ export async function createOfficerJustification(force: string, nif: number, typ
     // Insert into the database
     await queryDB(force, "INSERT INTO officer_justifications (officer, type, start_date, end_date, description) VALUES (?, ?, ?, ?, ?)", [nif, type, start, end, description]);
 }
+
+export async function updateOfficerJustificationStatus(force: string, nif: number, id: number, approved: boolean, managed_by: number): Promise<void> {
+    // Update the database
+    await queryDB(force, "UPDATE officer_justifications SET status = ?, managed_by = ? WHERE officer = ? AND id = ?", [approved ? "approved": "denied", managed_by, nif, id]);
+}

@@ -3,7 +3,7 @@ import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguran
 import {
     createOfficerJustification,
     getOfficerJustificationDetails,
-    getOfficerJustificationsHistory
+    getOfficerJustificationsHistory, updateOfficerJustificationStatus
 } from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../util/repository";
@@ -82,5 +82,29 @@ export async function officerJustificationCreate(force: string, nif: number, typ
         result: true,
         status: 201,
         message: "Justificação criada com sucesso"
+    }
+}
+
+export async function officerJustificationUpdateStatus(force: string, nif: number, id: number, approved: boolean, managed_by: number): Promise<DefaultReturn<void>> {
+    // * Make sure the provided justification id is valid
+    let justification = await getOfficerJustificationDetails(force, nif, id);
+
+    // If the justification doesn't exist, return an error
+    if (justification === null) {
+        return {
+            result: false,
+            status: 404,
+            message: "Justificação não encontrada"
+        }
+    }
+
+    // * Call the repository to update the justification status
+    await updateOfficerJustificationStatus(force, nif, id, approved, managed_by);
+
+    // Return the result
+    return {
+        result: true,
+        status: 200,
+        message: "Justificação atualizada com sucesso"
     }
 }

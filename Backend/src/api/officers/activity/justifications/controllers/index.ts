@@ -1,6 +1,11 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
-import {officerHistory, officerJustificationCreate, officerJustificationDetails} from "../services";
+import {
+    officerHistory,
+    officerJustificationCreate,
+    officerJustificationDetails,
+    officerJustificationUpdateStatus
+} from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
@@ -9,7 +14,10 @@ import {
     OfficerJustificationsHistoryResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {userHasIntents} from "../../../../accounts/repository";
-import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import {
+    AddOfficerJusitificationBodyType,
+    ManageOfficerJustificationBodyType
+} from "@portalseguranca/api-types/officers/activity/input";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
     // * Make sure the requesting account has permission to check this info
@@ -83,6 +91,20 @@ export async function createOfficerJustificationController(req: express.Request,
 
     // Get the result from the service
     let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, type, description, start, end);
+
+    // Return the result
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+        message: result.message
+    }));
+}
+
+export async function manageOfficerJustificationController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // Get the value from the request
+    let {id} = req.params;
+    let {approved} = req.body as ManageOfficerJustificationBodyType;
+
+    // Call the service to manage the justification
+    let result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, parseInt(id), approved, res.locals.loggedOfficer.nif);
 
     // Return the result
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({

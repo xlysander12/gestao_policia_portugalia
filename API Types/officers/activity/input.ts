@@ -14,7 +14,7 @@ export const AddOfficerHoursBody = rt.Record({
 });
 export type AddOfficerHoursBodyType = rt.Static<typeof AddOfficerHoursBody>;
 
-export const AddOfficerJusitificationBody = rt.Record({
+export const AddOfficerJustificationBody = rt.Record({
     type: rt.Number,
     start: rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
@@ -24,4 +24,9 @@ export const AddOfficerJusitificationBody = rt.Record({
     })),
     description: rt.String
 });
-export type AddOfficerJusitificationBodyType = rt.Static<typeof AddOfficerJusitificationBody>;
+export type AddOfficerJusitificationBodyType = rt.Static<typeof AddOfficerJustificationBody>;
+
+export const ManageOfficerJustificationBody = rt.Record({
+    approved: rt.Boolean
+});
+export type ManageOfficerJustificationBodyType = rt.Static<typeof ManageOfficerJustificationBody>;

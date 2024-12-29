@@ -2,7 +2,7 @@ import express from "express";
 import {
     createOfficerJustificationController,
     getOfficerJustificationDetailsController,
-    getOfficerJustificationsHistoryController
+    getOfficerJustificationsHistoryController, manageOfficerJustificationController
 } from "./controllers";
 
 const app = express.Router();
@@ -15,5 +15,8 @@ app.post("/", createOfficerJustificationController);
 
 // Route to get the details of a justification
 app.get("/:id(\\d+)", getOfficerJustificationDetailsController);
+
+// Route to aprove or deny a justification
+app.post("/:id(\\d+)", manageOfficerJustificationController);
 
 export default app;
