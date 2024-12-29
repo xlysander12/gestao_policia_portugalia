@@ -48,3 +48,8 @@ export async function getOfficerJustificationDetails(force: string, nif: number,
         managed_by: result[0].managed_by
     }
 }
+
+export async function createOfficerJustification(force: string, nif: number, type: number, description: string, start: Date, end?: Date): Promise<void> {
+    // Insert into the database
+    await queryDB(force, "INSERT INTO officer_justifications (officer, type, start_date, end_date, description) VALUES (?, ?, ?, ?, ?)", [nif, type, start, end, description]);
+}

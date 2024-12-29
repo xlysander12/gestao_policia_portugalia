@@ -1,7 +1,12 @@
 import {DefaultReturn} from "../../../../../types";
 import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
-import {getOfficerJustificationDetails, getOfficerJustificationsHistory} from "../repository";
-import {dateToString} from "../../../../../utils/date-handler";
+import {
+    createOfficerJustification,
+    getOfficerJustificationDetails,
+    getOfficerJustificationsHistory
+} from "../repository";
+import {dateToString, stringToDate} from "../../../../../utils/date-handler";
+import {getForceInactivityTypes} from "../../../../util/repository";
 
 export async function officerHistory(force: string, nif: number): Promise<DefaultReturn<OfficerMinifiedJustification[]>> {
     // Call the repository to get the data
@@ -17,7 +22,7 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
                 id: r.id,
                 type: r.type,
                 start: dateToString(r.start, false),
-                end: dateToString(r.end, false),
+                end: r.end ? dateToString(r.end, false): null,
                 status: r.status,
                 managed_by: r.managed_by
             }
@@ -46,10 +51,36 @@ export async function officerJustificationDetails(force: string, nif: number, id
             id: result.id,
             type: result.type,
             start: dateToString(result.start, false),
-            end: dateToString(result.end, false),
+            end: result.end ? dateToString(result.end, false): null,
             description: result.description,
             status: result.status,
             managed_by: result.managed_by
         }
+    }
+}
+
+export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: string, end?: string): Promise<DefaultReturn<void>> {
+    // * Make sure the provided type is valid
+    // Get the types of inactivity
+    let inactivityTypes = await getForceInactivityTypes(force);
+
+    // Check if the provided type is a valid id
+    if (!inactivityTypes.map((t) => t.id).includes(type)) {
+        // If the type is invalid, return an error
+        return {
+            result: false,
+            status: 400,
+            message: "Tipo de inatividade inválido"
+        }
+    }
+
+    // * Call the repository to create the justification
+    await createOfficerJustification(force, nif, type, description, stringToDate(start), end ? stringToDate(end): undefined);
+
+    // Return the result
+    return {
+        result: true,
+        status: 201,
+        message: "Justificação criada com sucesso"
     }
 }

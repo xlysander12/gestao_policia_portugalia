@@ -10,7 +10,11 @@ import {
     DeleteOfficerRequestBody,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
-import {AddOfficerHoursBody, UpdateOfficerLastShiftBody} from "@portalseguranca/api-types/officers/activity/input";
+import {
+    AddOfficerHoursBody,
+    AddOfficerJusitificationBody,
+    UpdateOfficerLastShiftBody
+} from "@portalseguranca/api-types/officers/activity/input";
 import {Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -357,6 +361,13 @@ const activityRoutes: routesType = {
                         queryFunction: () => `managed = ?`,
                         valueFunction: (value: number) => value
                     }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: AddOfficerJusitificationBody
                 }
             }
         }

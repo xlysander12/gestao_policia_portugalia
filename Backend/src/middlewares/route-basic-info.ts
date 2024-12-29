@@ -82,7 +82,7 @@ async function assureRouteBasicInfo(req: express.Request, res: APIResponse, next
             // Check all the intents present in the route
             for (const intent of res.locals.routeDetails.intents) {
                 // If the user doesn't have all the required intents, assume they can't access the route
-                if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER), intent))) {
+                if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, intent))) {
                     hasIntents = false;
                     break;
                 }

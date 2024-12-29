@@ -13,3 +13,15 @@ export const AddOfficerHoursBody = rt.Record({
     minutes: rt.Number
 });
 export type AddOfficerHoursBodyType = rt.Static<typeof AddOfficerHoursBody>;
+
+export const AddOfficerJusitificationBody = rt.Record({
+    type: rt.Number,
+    start: rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    }),
+    end: rt.Optional(rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    })),
+    description: rt.String
+});
+export type AddOfficerJusitificationBodyType = rt.Static<typeof AddOfficerJusitificationBody>;

@@ -1,19 +1,20 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
-import {officerHistory, officerJustificationDetails} from "../services";
+import {officerHistory, officerJustificationCreate, officerJustificationDetails} from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {
     OfficerJustificationDetailsResponse,
     OfficerJustificationsHistoryResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {userHasIntents} from "../../../../accounts/repository";
+import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
     // * Make sure the requesting account has permission to check this info
     // If the requesting account isn't the target officer, check if the requesting account has the "activity" intent
-    if (res.locals.targetOfficer.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER), "activity"))) {
+    if (res.locals.targetOfficer.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
         res.status(403).json(ensureAPIResponseType<RequestError>({
             message: "Não tem permissão para aceder a esta informação"
         }));
@@ -39,7 +40,7 @@ export async function getOfficerJustificationsHistoryController(req: express.Req
 export async function getOfficerJustificationDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
     // * Make sure the requesting account has permission to check this info
     // If the requesting account isn't the target officer, check if the requesting account has the "activity" intent
-    if (res.locals.targetOfficer.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER), "activity"))) {
+    if (res.locals.targetOfficer.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
         res.status(403).json(ensureAPIResponseType<RequestError>({
             message: "Não tem permissão para aceder a esta informação"
         }));
@@ -62,5 +63,29 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
     res.status(result.status).json(ensureAPIResponseType<OfficerJustificationDetailsResponse>({
         message: result.message,
         data: result.data!
+    }));
+}
+
+export async function createOfficerJustificationController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // * If the logged officer is not the target officer, then the logged officer must have the "activity" intent
+    if (res.locals.loggedOfficer.nif !== res.locals.targetOfficer.nif) {
+        if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
+            res.status(403).json(ensureAPIResponseType<RequestError>({
+                message: "Não tens permissão para realizar esta ação"
+            }));
+            return;
+        }
+    }
+
+    // * Since the permissions are okay, call the service to create the justification
+    // Get the data from the request
+    let {type, start, end, description} = req.body as AddOfficerJusitificationBodyType;
+
+    // Get the result from the service
+    let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, type, description, start, end);
+
+    // Return the result
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+        message: result.message
     }));
 }

@@ -19,7 +19,7 @@ export async function isTokenValid(token: string, force: any): Promise<{valid: b
     return {valid: true, status: 200, nif: Number(result[0].nif)};
 }
 
-export async function userHasIntents(nif: number, force: any, intent: string | string[]) {
+export async function userHasIntents(nif: number, force: string, intent: string | string[]) {
     // Check if it is just one intent or an array of them
     if (Array.isArray(intent)) {
         // If it is an array, check all of them
