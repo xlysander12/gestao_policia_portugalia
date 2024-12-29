@@ -12,7 +12,9 @@ import {
 } from "@portalseguranca/api-types/officers/input";
 import {
     AddOfficerHoursBody,
-    AddOfficerJustificationBody, ManageOfficerJustificationBody,
+    AddOfficerJustificationBody,
+    ChangeOfficerJustificationBody,
+    ManageOfficerJustificationBody,
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
 import {Record} from "runtypes";
@@ -385,7 +387,14 @@ const activityRoutes: routesType = {
                 body: {
                     type: ManageOfficerJustificationBody
                 }
-            }
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: ChangeOfficerJustificationBody
+                }
+            },
         }
     }
 }

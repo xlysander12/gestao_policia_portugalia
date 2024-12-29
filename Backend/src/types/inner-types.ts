@@ -14,3 +14,14 @@ export interface InnerAccountData {
         [key: string]: boolean
     }
 }
+
+export interface InnerOfficerJustificationData {
+    id: number,
+    officer: number,
+    type: number,
+    start: Date,
+    end: Date | null,
+    description: string,
+    status: "pending" | "approved" | "denied",
+    managed_by: number | null
+}

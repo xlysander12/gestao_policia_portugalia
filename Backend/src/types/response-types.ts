@@ -1,6 +1,6 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
-import {InnerAccountData, InnerOfficerData} from "./inner-types";
+import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData} from "./inner-types";
 
 export type APIResponse = express.Response & {
     locals: {
@@ -18,5 +18,11 @@ export type OfficerInfoAPIResponse = APIResponse & {
 export type AccountInfoAPIResponse = APIResponse & {
     locals: {
         targetAccount: InnerAccountData
+    }
+}
+
+export type OfficerJustificationAPIResponse = OfficerInfoAPIResponse & {
+    locals: {
+        justification: InnerOfficerJustificationData
     }
 }

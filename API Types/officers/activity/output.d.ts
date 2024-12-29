@@ -27,7 +27,7 @@ export type OfficerMinifiedJustification = {
     type: number,
     start: string,
     end: string | null,
-    status: Enumerator<"pending" | "approved" | "denied">,
+    status: "pending" | "approved" | "denied",
     managed_by: number | null
 }
 export interface OfficerJustificationsHistoryResponse extends RequestSuccess {

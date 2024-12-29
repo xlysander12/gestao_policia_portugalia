@@ -1,5 +1,6 @@
 import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
 import {queryDB} from "../../../../../utils/db-connector";
+import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 
 type MinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "start | end"> &  {
     start: Date,
@@ -57,4 +58,34 @@ export async function createOfficerJustification(force: string, nif: number, typ
 export async function updateOfficerJustificationStatus(force: string, nif: number, id: number, approved: boolean, managed_by: number): Promise<void> {
     // Update the database
     await queryDB(force, "UPDATE officer_justifications SET status = ?, managed_by = ? WHERE officer = ? AND id = ?", [approved ? "approved": "denied", managed_by, nif, id]);
+}
+
+export async function updateOfficerJustificationDetails(force: string, nif: number, id: number, changes: ChangeOfficerJustificationBodyType): Promise<void> {
+    // * Variable that holds the possible changes and their columns in the database
+    const validFields = [{name: "type", db: "type"}, {name: "start", db: "start_date"}, {name: "end", db: "end_date"}, {name: "description", db: "description"}];
+
+    // * Build the query and params
+    // Initialize the params array and the query string
+    let params: any[] = [];
+    let updateQuery = `UPDATE officer_justifications SET`;
+    updateQuery += " ";
+
+    // Loop through all valid fields and check if they are present in the changes list
+    for (const field of validFields) {
+        // If the field is present in the changes list, add it to the query
+        if (Object.keys(changes).includes(field.name)) {
+            updateQuery += `${field.db} = ?, `;
+            // @ts-expect-error
+            params.push(changes[field.name]);
+        }
+    }
+
+    // Remove the last comma and space from the query
+    updateQuery = updateQuery.slice(0, -2);
+
+    // Add the officer nif to the query
+    updateQuery += ` WHERE officer = ? AND id = ?`;
+
+    // Query the database to update the justification
+    await queryDB(force, updateQuery, [...params, nif, id]);
 }

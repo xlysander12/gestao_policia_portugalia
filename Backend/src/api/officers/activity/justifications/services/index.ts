@@ -3,10 +3,12 @@ import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguran
 import {
     createOfficerJustification,
     getOfficerJustificationDetails,
-    getOfficerJustificationsHistory, updateOfficerJustificationStatus
+    getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../util/repository";
+import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import {InnerOfficerJustificationData} from "../../../../../types/inner-types";
 
 export async function officerHistory(force: string, nif: number): Promise<DefaultReturn<OfficerMinifiedJustification[]>> {
     // Call the repository to get the data
@@ -85,21 +87,21 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 }
 
-export async function officerJustificationUpdateStatus(force: string, nif: number, id: number, approved: boolean, managed_by: number): Promise<DefaultReturn<void>> {
-    // * Make sure the provided justification id is valid
-    let justification = await getOfficerJustificationDetails(force, nif, id);
-
-    // If the justification doesn't exist, return an error
-    if (justification === null) {
-        return {
-            result: false,
-            status: 404,
-            message: "Justificação não encontrada"
-        }
-    }
-
+export async function officerJustificationUpdateStatus(force: string, nif: number, justificationData: InnerOfficerJustificationData, approved: boolean, managed_by: number): Promise<DefaultReturn<void>> {
     // * Call the repository to update the justification status
-    await updateOfficerJustificationStatus(force, nif, id, approved, managed_by);
+    await updateOfficerJustificationStatus(force, nif, justificationData.id, approved, managed_by);
+
+    // Return the result
+    return {
+        result: true,
+        status: 200,
+        message: "Justificação atualizada com sucesso"
+    }
+}
+
+export async function officerJustificationChangeDetails(force: string, nif: number, justificationData: InnerOfficerJustificationData, changes: ChangeOfficerJustificationBodyType): Promise<DefaultReturn<void>> {
+    // * Call the repository to update the justification
+    await updateOfficerJustificationDetails(force, nif, justificationData.id, changes);
 
     // Return the result
     return {
