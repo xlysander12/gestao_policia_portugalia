@@ -1,12 +1,13 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {forceIntents, forcePatents, forceSpecialUnits, forceStatuses} from "../services";
+import {forceInactivityTypes, forceIntents, forcePatents, forceSpecialUnits, forceStatuses} from "../services";
 import {
+    UtilInactivityTypesResponse,
     UtilIntentsResponse,
     UtilPatentsResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
-} from "@portalseguranca/api-types/util/schema";
+} from "@portalseguranca/api-types/util/output";
 import {ensureAPIResponseType} from "../../../utils/request-handler";
 
 export async function getPatentsController(req: express.Request, res: express.Response) {
@@ -47,4 +48,12 @@ export async function getIntentsController(req: express.Request, res: express.Re
 
     // Send the list to the user
     res.status(result.status).json(ensureAPIResponseType<UtilIntentsResponse>({message: result.message, data: result.data!}));
+}
+
+export async function getInactivityTypesController(req: express.Request, res: express.Response) {
+    // Call the service to get the types
+    const result = await forceInactivityTypes(req.header(FORCE_HEADER)!);
+
+    // Send the list to the user
+    res.status(result.status).json(ensureAPIResponseType<UtilInactivityTypesResponse>({message: result.message, data: result.data!}));
 }

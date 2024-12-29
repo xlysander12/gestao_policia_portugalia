@@ -1,10 +1,11 @@
 import {
+    InactivityData,
     IntentData,
     PatentData,
     SpecialUnitData,
     SpecialUnitRoleData,
     StatusData
-} from "@portalseguranca/api-types/util/schema";
+} from "@portalseguranca/api-types/util/output";
 import {queryDB} from "../../../utils/db-connector";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[]> {
@@ -89,4 +90,20 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
     }
 
     return intentsList;
+}
+
+export async function getForceInactivityTypes(force: string): Promise<InactivityData[]> {
+    // Get the list from the database
+    const types = await queryDB(force, `SELECT * FROM inactivity_types`);
+
+    // Build an array with the types
+    let typesList: InactivityData[] = [];
+    for (const type of types) {
+        typesList.push({
+            id: type.id,
+            name: type.name
+        });
+    }
+
+    return typesList;
 }

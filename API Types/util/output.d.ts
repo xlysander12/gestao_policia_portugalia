@@ -29,6 +29,11 @@ export interface SpecialUnitRoleData {
     name: string
 }
 
+export interface InactivityData {
+    id: number,
+    name: string
+}
+
 export interface UtilPatentsResponse extends RequestSuccess {
     data: PatentData[]
 }
@@ -46,4 +51,8 @@ export interface UtilSpecialUnitsResponse extends RequestSuccess {
         units: SpecialUnitData[],
         roles: SpecialUnitRoleData[]
     }
+}
+
+export interface UtilInactivityTypesResponse extends RequestSuccess {
+    data: InactivityData[]
 }

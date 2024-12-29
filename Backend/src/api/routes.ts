@@ -205,6 +205,16 @@ const utilRoutes: routesType = {
             }
         }
     },
+
+    // Route to get all inactivity types of a force
+    "/util/inactivity-types$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    }
 }
 
 const officersRoutes: routesType = {
