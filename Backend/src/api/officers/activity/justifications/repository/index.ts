@@ -8,7 +8,7 @@ type MinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "start | 
 }
 export async function getOfficerJustificationsHistory(force: string, nif: number): Promise<MinifiedOfficerJustification[]> {
     // Fetch from the database
-    const results = await queryDB(force, "SELECT id, start_date, end_date, status, managed_by FROM officer_justifications WHERE officer = ?", [nif]);
+    const results = await queryDB(force, "SELECT id, type, start_date, end_date, status, managed_by FROM officer_justifications WHERE officer = ?", [nif]);
 
     // Order the result in an proper array
     let arr: MinifiedOfficerJustification[] = [];
