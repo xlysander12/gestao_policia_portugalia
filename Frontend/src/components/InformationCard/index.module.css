@@ -1,0 +1,28 @@
+.informationCardMain {
+    display: flex;
+    width: calc(95% - 5px);
+    background-color: var(--portalseguranca-color-background-dark);
+    margin: 5px auto;
+    padding: 10px;
+    border-radius: 10px;
+    border-left: 5px solid var(--portalseguranca-color-background-dark);
+}
+
+.informationCardMain:hover {
+    background-color: #4e6581;
+    cursor: pointer;
+}
+
+.informationCardMainDisabled {
+    display: flex;
+    width: calc(95% - 5px);
+    background-color: var(--portalseguranca-color-background-dark);
+    margin: 5px auto;
+    padding: 10px;
+    border-radius: 10px;
+    border-left: 5px solid var(--portalseguranca-color-background-dark);
+}
+
+.informationCardMainDisabled:hover {
+    cursor: not-allowed;
+}

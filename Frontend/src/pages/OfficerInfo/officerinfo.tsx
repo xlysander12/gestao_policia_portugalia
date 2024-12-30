@@ -23,6 +23,7 @@ import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./special-units-table.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./activity-panel.tsx";
+import ManagementBar from "../../components/ManagementBar";
 
 
 type InformationPairProps = {
@@ -309,7 +310,7 @@ function OfficerInfo() {
                 {/*Div where content's will be*/}
                 <div className={style.officerInfoInnerDiv}>
                     {/*Div that holds the buttons to alter the officer's info*/}
-                    <div className={style.officerInfoAlterbarDiv}>
+                    <ManagementBar>
                         {/*Buttons that lie on the left side of the bar*/}
                         <div className={style.officerInfoAlterbarLeft}>
                             <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent > officerInfo.professional.patent}>
@@ -370,7 +371,7 @@ function OfficerInfo() {
                                 </DefaultButton>
                             </Gate>
                         </div>
-                    </div>
+                    </ManagementBar>
 
                     {/*@ts-ignore*/}
                     <form id={"information-form"} onSubmit={updateOfficerInfo}>

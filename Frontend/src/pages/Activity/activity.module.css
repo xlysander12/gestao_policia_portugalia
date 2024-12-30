@@ -1,0 +1,7 @@
+.entriesList {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - calc(4rem + 114px));
+    padding-top: 0.7rem;
+    overflow-y: auto;
+}

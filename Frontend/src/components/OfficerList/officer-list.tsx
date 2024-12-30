@@ -4,6 +4,7 @@ import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import InformationCard from "../InformationCard";
 
 type OfficerCardProps = {
     name: string,
@@ -24,9 +25,9 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
     const statusToColor = (status: string) => {
         switch (status) {
             case "Ativo":
-                return ["#00fd00", "#000000"];
+                return ["#00ff00", "#000000"];
             case "Inativo":
-                return ["#fd0000", "#FFFFFF"];
+                return ["#ff0000", "#FFFFFF"];
             case "Suspenso":
                 return ["#fd0000", "#FFFFFF"];
             case "Provisório":
@@ -41,7 +42,11 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
     const [statusDivColor] = statusToColor(status);
 
     return(
-        <div className={disabled ? style.officerListCardDivDisabled : style.officerListCardDiv} style={{borderColor: `${statusDivColor}`}} onClick={handleDivClick}>
+        <InformationCard
+            disabled={disabled}
+            statusColor={statusDivColor}
+            callback={handleDivClick}
+        >
             <div>
                 <p className={style.officerListCardName}>{name}</p>
                 <p className={style.officerListCardNif}>(#{nif})</p>
@@ -50,7 +55,7 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
             {/*<div className={style.officerListCardStatus} style={{backgroundColor: statusDivColor}}>*/}
             {/*    <p className={style.officerListCardStatusText} style={{color: statusTextColor}}>{this.props.status}</p>*/}
             {/*</div>*/}
-        </div>
+        </InformationCard>
     );
 
 }

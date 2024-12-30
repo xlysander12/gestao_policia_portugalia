@@ -11,6 +11,7 @@ import OfficerInfo from "./pages/OfficerInfo/officerinfo.tsx";
 import {ForceDataContext, ForceDataContextType} from "./force-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilInactivityTypesResponse,
     UtilIntentsResponse,
     UtilPatentsResponse,
     UtilSpecialUnitsResponse,
@@ -19,6 +20,7 @@ import {
 import Loader from "./components/Loader/loader.tsx";
 import {createTheme, ThemeProvider} from "@mui/material";
 import defaultThemeData from "./theme.ts";
+import Activity from "./pages/Activity";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -37,6 +39,7 @@ function App() {
                 patents: [],
                 statuses: [],
                 intents: [],
+                inactivity_types: [],
                 special_units: [],
                 special_unit_roles: []
             }
@@ -52,6 +55,10 @@ function App() {
             // Fetching the intents
             const intentsResponse = await make_request("/util/intents", "GET");
             forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+
+            // Fetching the inactivity types
+            const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET");
+            forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
 
             // Fetching the special units
             const specialUnitsResponse = await make_request("/util/special-units", "GET");
@@ -78,28 +85,32 @@ function App() {
 
     const router = createBrowserRouter(
         [
-        {
-            path: "/login",
-            element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
-        },
-        {
-            path: "/",
-            element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
-        },
-        {
-            path: "/efetivos",
-            children: [
-                {
-                    path: "",
-                    element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
-                },
-                {
-                    path: ":nif",
-                    element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
-                }
-            ]
-        }
-    ], {
+            {
+                path: "/login",
+                element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
+            },
+            {
+                path: "/",
+                element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
+            },
+            {
+                path: "/efetivos",
+                children: [
+                    {
+                        path: "",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
+                    },
+                    {
+                        path: ":nif",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
+                    }
+                ]
+            },
+            {
+                path: "/atividade",
+                element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+            }
+        ], {
             basename: BASE_URL
         })
 
