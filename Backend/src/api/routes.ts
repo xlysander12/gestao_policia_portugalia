@@ -50,7 +50,7 @@ export type routesType = {
 
 const accountRoutes: routesType = {
     // Route to validate a token
-    "/accounts/validateToken$": {
+    "/accounts/validate-token$": {
         methods: {
             POST: {
                 requiresToken: true,
