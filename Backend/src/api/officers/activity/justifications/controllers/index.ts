@@ -62,8 +62,8 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
         data: {
             id: res.locals.justification.id,
             type: res.locals.justification.type,
-            start: dateToString(res.locals.justification.start),
-            end: res.locals.justification.end ? dateToString(res.locals.justification.end): null,
+            start: dateToString(res.locals.justification.start, false),
+            end: res.locals.justification.end ? dateToString(res.locals.justification.end, false): null,
             description: res.locals.justification.description,
             status: res.locals.justification.status,
             managed_by: res.locals.justification.managed_by
