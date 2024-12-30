@@ -395,6 +395,10 @@ const activityRoutes: routesType = {
                     type: ChangeOfficerJustificationBody
                 }
             },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true
+            }
         }
     }
 }

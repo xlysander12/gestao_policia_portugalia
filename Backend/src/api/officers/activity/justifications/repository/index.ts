@@ -89,3 +89,8 @@ export async function updateOfficerJustificationDetails(force: string, nif: numb
     // Query the database to update the justification
     await queryDB(force, updateQuery, [...params, nif, id]);
 }
+
+export async function deleteOfficerJustification(force: string, nif: number, id: number): Promise<void> {
+    // Delete the justification from the database
+    await queryDB(force, "DELETE FROM officer_justifications WHERE officer = ? AND id = ?", [nif, id]);
+}

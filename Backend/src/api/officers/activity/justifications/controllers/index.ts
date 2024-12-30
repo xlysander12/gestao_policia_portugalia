@@ -2,7 +2,7 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {
     officerHistory, officerJustificationChangeDetails,
-    officerJustificationCreate,
+    officerJustificationCreate, officerJustificationDelete,
     officerJustificationUpdateStatus
 } from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
@@ -109,26 +109,18 @@ export async function manageOfficerJustificationController(req: express.Request,
 }
 
 export async function changeOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
-    // If the requesting officer is not the target officer, then the requesting officer must have the "activity" intent
-    if (res.locals.loggedOfficer.nif !== res.locals.targetOfficer.nif) {
-        if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-            res.status(403).json(ensureAPIResponseType<RequestError>({
-                message: "Não tens permissão para realizar esta ação"
-            }));
-            return;
-        }
-    }
-
-    // If the status of the justification is not pending and the requesting officer doesn't have the activity intent, return an error
-    if (res.locals.justification.status !== "pending" && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-        res.status(403).json(ensureAPIResponseType<RequestError>({
-            message: "Esta justificação já foi processada e não pode ser alterada"
-        }));
-        return;
-    }
-
     // Call the service to change the data of the justification
     let result = await officerJustificationChangeDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, res.locals.justification, req.body as ChangeOfficerJustificationBodyType);
+
+    // Return the result
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+        message: result.message
+    }));
+}
+
+export async function deleteOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
+    // Call the service to change the data of the justification
+    let result = await officerJustificationDelete(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, res.locals.justification);
 
     // Return the result
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({

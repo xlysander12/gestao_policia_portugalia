@@ -1,7 +1,7 @@
 import {DefaultReturn} from "../../../../../types";
 import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
 import {
-    createOfficerJustification,
+    createOfficerJustification, deleteOfficerJustification,
     getOfficerJustificationDetails,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
@@ -88,6 +88,15 @@ export async function officerJustificationCreate(force: string, nif: number, typ
 }
 
 export async function officerJustificationUpdateStatus(force: string, nif: number, justificationData: InnerOfficerJustificationData, approved: boolean, managed_by: number): Promise<DefaultReturn<void>> {
+    // * Make sure the provided justification is pending
+    if (justificationData.status !== "pending") {
+        return {
+            result: false,
+            status: 403,
+            message: "Esta justificação já foi processada e não pode ser alterada"
+        }
+    }
+
     // * Call the repository to update the justification status
     await updateOfficerJustificationStatus(force, nif, justificationData.id, approved, managed_by);
 
@@ -108,5 +117,17 @@ export async function officerJustificationChangeDetails(force: string, nif: numb
         result: true,
         status: 200,
         message: "Justificação atualizada com sucesso"
+    }
+}
+
+export async function officerJustificationDelete(force: string, nif: number, justificationData: InnerOfficerJustificationData): Promise<DefaultReturn<void>> {
+    // * cCall the repository to delete the justification
+    await deleteOfficerJustification(force, nif, justificationData.id);
+
+    // Return the result
+    return {
+        result: true,
+        status: 200,
+        message: "Justificação eliminada com sucesso"
     }
 }
