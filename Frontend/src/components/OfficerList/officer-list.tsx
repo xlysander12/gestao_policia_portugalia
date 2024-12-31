@@ -1,4 +1,4 @@
-import {ReactElement, useEffect, useState, ChangeEvent} from "react";
+import {ReactElement, useEffect, useState, FormEvent} from "react";
 import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
@@ -105,7 +105,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
 
 
     // When the search button is pressed, do a search with the given string
-    const handleSearch = async (event: ChangeEvent) => {
+    const handleSearch = async (event: FormEvent) => {
         event.preventDefault();
 
         await search(searchString);
@@ -135,7 +135,6 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     return(
         <div className={style.officerListMainDiv}>
             {/*Barra de pesquisa*/}
-            {/*@ts-ignore*/}
             <form onSubmit={handleSearch}>
                 <div className={style.officerListSearchDiv}>
                     {/*TODO: Label looks awful when there's someting written on the field*/}
@@ -154,7 +153,6 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
                     <DefaultButton
                         type={"submit"}
                         buttonColor={"var(--portalseguranca-color-accent)"}
-                        darkTextOnHover
                         disabled={disabled}
                         sx={{
                             padding: "5px"
