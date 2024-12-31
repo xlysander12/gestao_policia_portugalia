@@ -7,7 +7,8 @@ import modalsStyle from "./officerinfomodals.module.css";
 import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal/modal.tsx";
-import {CancelOutlined, CheckCircleOutlined} from "@mui/icons-material";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
@@ -189,12 +190,12 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                     <div className={modalsStyle.informationInnerSectionDiv}>
                         <Stack alignItems={"center"} direction={"row"} gap={0.5}>
                             <Typography>Palavra-passe alterada:</Typography>
-                            {!accountInfo.defaultPassword ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
+                            {!accountInfo.defaultPassword ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
                         <Stack alignItems={"center"} direction={"row"} gap={0.5}>
                             <Typography>Conta ativa:</Typography>
-                            {!accountInfo.suspended ? <CheckCircleOutlined sx={{color: "green"}}/> : <CancelOutlined sx={{color: "red"}}/>}
+                            {!accountInfo.suspended ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
                         <Typography>Última utilização: {lastUsedString}</Typography>
