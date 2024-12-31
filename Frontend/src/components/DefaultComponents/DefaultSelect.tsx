@@ -16,10 +16,10 @@ const DefaultSelectStyle = styled(Select, {
 
     "& .MuiInput-input": {
         fontWeight: 500,
-        WebkitTextFillColor: `${sameTextColorWhenDisabled ? "var(--portalseguranca-color-text-light)": "#d0c7d380"} !important`,
+        WebkitTextFillColor: "var(--portalseguranca-color-text-light)",
 
         "&.Mui-disabled": {
-            WebkitTextFillColor: "var(--portalseguranca-color-text-light)",
+            WebkitTextFillColor: `${sameTextColorWhenDisabled ? "var(--portalseguranca-color-text-light)": "#d0c7d380"} !important`,
             WebkitUserSelect: "auto",
             userSelect: "auto"
         }

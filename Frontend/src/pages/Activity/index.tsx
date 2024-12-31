@@ -16,6 +16,7 @@ import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
 import {Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
+import {InactivityJustificationModal} from "./modals";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -109,6 +110,15 @@ function Activity() {
 
     // Set the states with the history of the officer
     const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | OfficerMinifiedJustification)[]>([]);
+
+    // Set the modal opened states
+    const [hoursModalOpen, setHoursModalOpen] = useState<boolean>(false);
+    const [justificationModalOpen, setJustificationModalOpen] = useState<boolean>(false);
+
+    // Set the states for the current working hour and justification
+    const [currentHourId, setCurrentHourId] = useState<number>(0);
+    const [currentJustificationId, setCurrentJustificationId] = useState<number>(0);
+
 
     // Everytime the currentOfficer changes, we will fetch the data from the API
     useEffect(() => {
@@ -239,7 +249,7 @@ function Activity() {
                                             start={new Date(Date.parse(entryData.start))}
                                             end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
                                             status={entryData.status}
-                                            onClick={() => {console.log(`Justificação #${entryData.id}`)}} // TODO: Open modal with details and possible actions
+                                            onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}} // TODO: Open modal with details and possible actions
                                         />
                                     )
                                 }
@@ -248,6 +258,12 @@ function Activity() {
                     </div>
                 </div>
             </ScreenSplit>
+
+            <InactivityJustificationModal
+                open={justificationModalOpen}
+                onClose={() => setJustificationModalOpen(false)}
+                officerNif={currentOfficer}
+                justificationId={currentJustificationId}/>
         </>
     );
 }
