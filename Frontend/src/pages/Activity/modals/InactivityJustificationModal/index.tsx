@@ -328,6 +328,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     buttonColor={"lightgreen"}
                                     darkTextOnHover
                                     onClick={handleSaveChanges}
+                                    sx={{flex: 1}}
                                 >
                                     Guardar Alterações
                                 </DefaultButton>
@@ -336,6 +337,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                 <DefaultButton
                                     buttonColor={"red"}
                                     onClick={() => {setEditMode(false); setNeedsReload(true)}}
+                                    sx={{flex: 1}}
                                 >
                                     Cancelar
                                 </DefaultButton>
@@ -350,6 +352,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={() => handleApproveOrReject(true)}
+                                        sx={{flex: 1}}
                                     >
                                         Aprovar
                                     </DefaultButton>
@@ -357,14 +360,15 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     <DefaultButton
                                         buttonColor={"red"}
                                         onClick={() => handleApproveOrReject(false)}
+                                        sx={{flex: 1}}
                                     >
                                         Rejeitar
                                     </DefaultButton>
                                 </Gate>
 
                                 <Gate show={justificationData?.status === "pending" || loggedUser.intents["activity"]}>
-                                    <DefaultButton onClick={() => setEditMode(true)}>Editar</DefaultButton>
-                                    <DefaultButton buttonColor={"red"} onClick={() => setDeleteDialogOpen(true)}>Apagar</DefaultButton>
+                                    <DefaultButton onClick={() => setEditMode(true)} sx={{flex: 1}}>Editar</DefaultButton>
+                                    <DefaultButton buttonColor={"red"} onClick={() => setDeleteDialogOpen(true)} sx={{flex: 1}}>Apagar</DefaultButton>
                                 </Gate>
                             </Gate>
                         </div>
