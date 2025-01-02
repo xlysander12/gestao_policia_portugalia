@@ -154,8 +154,8 @@ function Activity() {
             // If it's a justification with no end date, it will be placed at the start
             officerData.sort((a, b) => {
                 if ("end" in a && "end" in b) { // Both entries are justifications
-                    if (a.end === null && b.end === null) { // If both justifications don't have an end date, they're equal
-                        return 0;
+                    if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
+                        return Date.parse(b.start) - Date.parse(a.start);
                     } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
                         return -1;
                     } else if (a.end !== null && b.end === null) { // If A has an end date and B doesn't, B must go last
@@ -263,7 +263,8 @@ function Activity() {
                 open={justificationModalOpen}
                 onClose={() => setJustificationModalOpen(false)}
                 officerNif={currentOfficer}
-                justificationId={currentJustificationId}/>
+                justificationId={currentJustificationId}
+            />
         </>
     );
 }
