@@ -14,7 +14,7 @@ import {
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
-import {Typography} from "@mui/material";
+import {Skeleton, Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
 import {InactivityJustificationModal} from "./modals";
 
@@ -102,11 +102,17 @@ function Activity() {
     // Get the logged user from context
     const loggedUser = useContext(LoggedUserContext);
 
+    // Get the force data from context
+    const forceData = useContext(ForceDataContext);
+
     // Set the loading state
     const [loading, setLoading] = useState<boolean>(true);
 
     // Set the state for the current viewing officer
     const [currentOfficer, setCurrentOfficer] = useState<number>(loggedUser.info.personal.nif);
+
+    // Set the state for the current viewing officer's patent and name
+    const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{patent: string, name: string}>();
 
     // Set the states with the history of the officer
     const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | OfficerMinifiedJustification)[]>([]);
@@ -186,6 +192,18 @@ function Activity() {
                 return Date.parse((b as OfficerSpecificHoursType).week_end) - Date.parse((a as OfficerSpecificHoursType).week_end);
             });
 
+            // Fetch the officer's patent and name
+            const officerDataResponse = await make_request(`/officers/${currentOfficer}`, "GET");
+            const officerDataResponseData = await officerDataResponse.json();
+            if (!officerDataResponse.ok) {
+                toast(officerDataResponseData.message, {type: "error"});
+            }
+
+            setCurrentOfficerPatentAndName({
+                patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents).name,
+                name: officerDataResponseData.data.name
+            });
+
             // Set the loading state to false
             setLoading(false);
         }
@@ -212,7 +230,16 @@ function Activity() {
                     }}
                 >
                     <ManagementBar>
-                        <></>
+                        <div style={{display: "flex", flexDirection: "row", gap: "5px"}}>
+                            <Typography color={"white"} fontSize={"larger"}>Atividade de</Typography>
+                            <Gate show={loading}>
+                                <Skeleton variant={"text"} width={"400px"} height={"29px"}/>
+                            </Gate>
+
+                            <Gate show={!loading}>
+                                <Typography color={"white"} fontSize={"larger"}>{currentOfficerPatentAndName?.patent} {currentOfficerPatentAndName?.name}</Typography>
+                            </Gate>
+                        </div>
                     </ManagementBar>
 
                     <div className={style.entriesList}>
