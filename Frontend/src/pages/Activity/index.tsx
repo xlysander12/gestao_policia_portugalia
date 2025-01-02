@@ -233,7 +233,7 @@ function Activity() {
                         <div style={{display: "flex", flexDirection: "row", gap: "5px"}}>
                             <Typography color={"white"} fontSize={"larger"}>Atividade de</Typography>
                             <Gate show={loading}>
-                                <Skeleton variant={"text"} width={"400px"} height={"29px"}/>
+                                <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
                             </Gate>
 
                             <Gate show={!loading}>
@@ -255,32 +255,38 @@ function Activity() {
                         </Gate>
 
                         <Gate show={!loading}>
-                            {officerHistory.map((entry, index) => {
-                                if ("minutes" in entry) { // This means it's an "hours" entry
-                                    const entryData = entry as OfficerSpecificHoursType;
-                                    return (
-                                        <ActivityHoursCard
-                                            key={`ActivityEntryHours${index}`}
-                                            minutes={entryData.minutes}
-                                            week_start={new Date(Date.parse(entryData.week_start))}
-                                            week_end={new Date(Date.parse(entryData.week_end))}
-                                            onClick={() => {console.log(`Horas #${entryData.id}`)}} // TODO: Open modal with details and possible actions
-                                        />
-                                    )
-                                } else { // If it's not an "hours" entry, it's a "justification" entry
-                                    const entryData = entry as OfficerMinifiedJustification;
-                                    return (
-                                        <ActivityJustificationCard
-                                            key={`ActivityEntryJustification${index}`}
-                                            type={entryData.type}
-                                            start={new Date(Date.parse(entryData.start))}
-                                            end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
-                                            status={entryData.status}
-                                            onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}} // TODO: Open modal with details and possible actions
-                                        />
-                                    )
-                                }
-                            })}
+                            <Gate show={officerHistory.length === 0}>
+                                <Typography color={"var(--portalseguranca-color-text-dark)"} fontSize={"xx-large"} sx={{alignSelf: "center"}}>Sem Registos</Typography>
+                            </Gate>
+
+                            <Gate show={officerHistory.length > 0}>
+                                {officerHistory.map((entry, index) => {
+                                    if ("minutes" in entry) { // This means it's an "hours" entry
+                                        const entryData = entry as OfficerSpecificHoursType;
+                                        return (
+                                            <ActivityHoursCard
+                                                key={`ActivityEntryHours${index}`}
+                                                minutes={entryData.minutes}
+                                                week_start={new Date(Date.parse(entryData.week_start))}
+                                                week_end={new Date(Date.parse(entryData.week_end))}
+                                                onClick={() => {console.log(`Horas #${entryData.id}`)}} // TODO: Open modal with details and possible actions
+                                            />
+                                        )
+                                    } else { // If it's not an "hours" entry, it's a "justification" entry
+                                        const entryData = entry as OfficerMinifiedJustification;
+                                        return (
+                                            <ActivityJustificationCard
+                                                key={`ActivityEntryJustification${index}`}
+                                                type={entryData.type}
+                                                start={new Date(Date.parse(entryData.start))}
+                                                end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
+                                                status={entryData.status}
+                                                onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}}
+                                            />
+                                        )
+                                    }
+                                })}
+                            </Gate>
                         </Gate>
                     </div>
                 </div>
