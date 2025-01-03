@@ -16,7 +16,7 @@ import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
 import {Skeleton, Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
-import {InactivityJustificationModal} from "./modals";
+import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -38,6 +38,7 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
     return (
         <InformationCard
             callback={onClick}
+            statusColor={minutes >= 500 ? "rgb(0, 255, 0)": "red"}
         >
             <div>
                 <Typography color={"white"} fontSize={"large"} marginBottom={"5px"}>Registo de Horas Semanais</Typography>
@@ -67,7 +68,7 @@ function ActivityJustificationCard({type, start, end, status, onClick}: Activity
     const forceData = useContext(ForceDataContext);
 
     // Compute the color of the status bar of the card based on the status of the justification
-    const statusColor = status === "pending" ? "#efc032" : status === "approved" ? "#00ff00" : "#ff0000";
+    const statusColor = status === "pending" ? "#efc032" : status === "approved" ? "green" : "darkred";
 
     return (
         <InformationCard
@@ -269,7 +270,7 @@ function Activity() {
                                                 minutes={entryData.minutes}
                                                 week_start={new Date(Date.parse(entryData.week_start))}
                                                 week_end={new Date(Date.parse(entryData.week_end))}
-                                                onClick={() => {console.log(`Horas #${entryData.id}`)}} // TODO: Open modal with details and possible actions
+                                                onClick={() => {setCurrentHourId(entryData.id); setHoursModalOpen(true)}}
                                             />
                                         )
                                     } else { // If it's not an "hours" entry, it's a "justification" entry
@@ -297,6 +298,13 @@ function Activity() {
                 onClose={() => setJustificationModalOpen(false)}
                 officerNif={currentOfficer}
                 justificationId={currentJustificationId}
+            />
+
+            <WeekHoursRegistryModal
+                open={hoursModalOpen}
+                onClose={() => setHoursModalOpen(false)}
+                officer={currentOfficer}
+                entryId={currentHourId}
             />
         </>
     );
