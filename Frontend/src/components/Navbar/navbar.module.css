@@ -74,13 +74,14 @@
     margin: 0;
     display: inline-block;
     color: white;
+    line-height: 55px;
 }
 
 .navButtonsDiv {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    gap: 10px;
+    gap: 20px;
     height: 100%;
     line-height: 3.5rem;
 }
