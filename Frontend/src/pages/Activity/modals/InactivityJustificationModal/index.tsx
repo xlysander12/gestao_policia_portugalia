@@ -216,83 +216,80 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                         <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                         {/* Duration */}
-                        <div style={{width: "100%", marginBottom: "10px"}}>
-                            <ScreenSplit leftSideComponent={
-                                // Start Date
-                                <div className={style.justificationDetailsDurationStartDiv}>
+                        <div className={style.justificationDurationRowDiv}>
+                            {/* Start Date */}
+                            <div className={style.justificationDetailsDurationDiv}>
+                                <Typography
+                                    color={"var(--portalseguranca-color-accent)"}
+                                    fontSize={"medium"}
+                                    fontWeight={"bold"}
+                                >
+                                    Data de Início:
+                                </Typography>
+                                <DefaultTextField
+                                    disabled={!editMode}
+                                    sameTextColorWhenDisabled
+                                    type={"date"}
+                                    value={justificationData?.start}
+                                    onChange={(e) => {
+                                        setJustificationData((draft) => {
+                                            draft!.start = e.target.value;
+                                        });
+                                    }}
+                                />
+                            </div>
+
+                            {/* End Date */}
+                            <div className={style.justificationDetailsDurationDiv}>
+                                <Gate show={justificationData?.end !== null}>
                                     <Typography
                                         color={"var(--portalseguranca-color-accent)"}
                                         fontSize={"medium"}
                                         fontWeight={"bold"}
+                                        sx={{marginRight: "38px"}}
                                     >
-                                        Data de Início:
+                                        Data de Fim:
                                     </Typography>
                                     <DefaultTextField
                                         disabled={!editMode}
                                         sameTextColorWhenDisabled
                                         type={"date"}
-                                        value={justificationData?.start}
+                                        value={justificationData?.end}
                                         onChange={(e) => {
                                             setJustificationData((draft) => {
-                                                draft!.start = e.target.value;
+                                                draft!.end = e.target.value;
                                             });
                                         }}
                                     />
-                                </div>
-                            } leftSidePercentage={50}>
-                                {/* End Date */}
-                                <div className={style.justificationDetailsDurationEndDiv}>
-                                    <Gate show={justificationData?.end !== null}>
-                                        <Typography
-                                            color={"var(--portalseguranca-color-accent)"}
-                                            fontSize={"medium"}
-                                            fontWeight={"bold"}
-                                            sx={{marginRight: "38px"}}
-                                        >
-                                            Data de Fim:
-                                        </Typography>
-                                        <DefaultTextField
-                                            disabled={!editMode}
-                                            sameTextColorWhenDisabled
-                                            type={"date"}
-                                            value={justificationData?.end}
-                                            onChange={(e) => {
-                                                setJustificationData((draft) => {
-                                                    draft!.end = e.target.value;
-                                                });
-                                            }}
-                                        />
-                                    </Gate>
-                                </div>
-                            </ScreenSplit>
+                                </Gate>
+                            </div>
+                        </div>
 
-                            <div className={style.justificationDetailsDurationStartDiv}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={justificationData?.end === null}
-                                            onChange={(e) => {
-                                                setJustificationData((draft) => {
-                                                    draft!.end = e.target.checked ? null : new Date().toISOString().split("T")[0];
-                                                });
-                                            }}
-                                            disabled={!editMode}
-                                            sx={{
-                                                "&.MuiCheckbox-root.Mui-disabled": {
-                                                    color: "var(--portalseguranca-color-accent)"
-                                                }
-                                            }}
-                                        />
-                                    }
-                                    label={"Inatividade Indeterminada"}
-                                    sx={{marginRight: "4px", color: "var(--portalseguranca-color-text-light)",
-                                        "& .MuiFormControlLabel-label.Mui-disabled": {
-                                            color: "var(--portalseguranca-color-text-light)"
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={justificationData?.end === null}
+                                    onChange={(e) => {
+                                        setJustificationData((draft) => {
+                                            draft!.end = e.target.checked ? null : new Date().toISOString().split("T")[0];
+                                        });
+                                    }}
+                                    disabled={!editMode}
+                                    sx={{
+                                        "&.MuiCheckbox-root.Mui-disabled": {
+                                            color: "var(--portalseguranca-color-accent)"
                                         }
                                     }}
                                 />
-                            </div>
-                        </div>
+                            }
+                            label={"Inatividade Indeterminada"}
+                            sx={{
+                                marginRight: "4px", color: "var(--portalseguranca-color-text-light)",
+                                "& .MuiFormControlLabel-label.Mui-disabled": {
+                                    color: "var(--portalseguranca-color-text-light)"
+                                }
+                            }}
+                        />
 
                         <Divider flexItem sx={{marginBottom: "5px"}}/>
 
@@ -319,11 +316,12 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                     </div>
                 </ModalSection>
 
-                <Gate show={loggedUser.intents["activity"] || (justificationData !== null && justificationData.status === "pending")}>
+                <Gate
+                    show={loggedUser.intents["activity"] || (justificationData !== null && justificationData.status === "pending")}>
                     <ModalSection title={"Ações"}>
                         <div className={style.justificationActionsDiv}>
                             <Gate show={editMode}>
-                                {/*Save Changes Button*/}
+                            {/*Save Changes Button*/}
                                 <DefaultButton
                                     buttonColor={"lightgreen"}
                                     darkTextOnHover

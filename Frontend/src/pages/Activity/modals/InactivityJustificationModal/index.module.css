@@ -5,19 +5,20 @@
     align-items: flex-start;
 }
 
-.justificationDetailsDurationStartDiv {
+.justificationDurationRowDiv {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    width: 100%;
+}
+
+.justificationDetailsDurationDiv {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
 }
 
-.justificationDetailsDurationEndDiv {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-end;
-}
 
 .justificationActionsDiv {
     display: flex;
