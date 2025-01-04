@@ -39,7 +39,7 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
     return (
         <InformationCard
             callback={onClick}
-            statusColor={minutes >= 500 ? "rgb(0, 255, 0)": "red"}
+            statusColor={"#3498db"}
         >
             <div>
                 <Typography color={"white"} fontSize={"large"} marginBottom={"5px"}>Registo de Horas Semanais</Typography>
@@ -51,7 +51,15 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
                     {" > "}
                     {`${padToTwoDigits(week_end.getDate())}/${padToTwoDigits(week_end.getMonth() + 1)}/${week_end.getFullYear()}`}
                 </Typography>
-                <Typography color={"gray"}>Horas: {`${toHoursAndMinutes(minutes)} (${minutes})`}</Typography>
+                <div style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "5px"
+                }}>
+                    <Typography color={"gray"}>Horas:</Typography>
+                    <Typography color={minutes < 300 ? "red" : "gray"}>{`${toHoursAndMinutes(minutes)} (${minutes})`}</Typography>
+                </div>
+
             </div>
         </InformationCard>
     )
@@ -69,7 +77,7 @@ function ActivityJustificationCard({type, start, end, status, onClick}: Activity
     const forceData = useContext(ForceDataContext);
 
     // Compute the color of the status bar of the card based on the status of the justification
-    const statusColor = status === "pending" ? "#efc032" : status === "approved" ? "green" : "darkred";
+    const statusColor = status === "pending" ? "#efc032" : status === "approved" ? "#00ff00" : "red";
 
     return (
         <InformationCard
@@ -236,7 +244,6 @@ function Activity() {
                         <div className={style.managementBarMainDiv}>
                             <div className={style.managementBarLeftDiv}>
                                 <div className={style.managementBarCurrentEditingDiv}>
-                                    <Typography color={"white"} fontSize={"larger"}>Atividade de</Typography>
                                     <Gate show={loading}>
                                         <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
                                     </Gate>
