@@ -108,7 +108,16 @@ function App() {
             },
             {
                 path: "/atividade",
-                element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                children: [
+                    {
+                        path: "",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                    },
+                    {
+                        path: ":nif",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                    }
+                ]
             }
         ], {
             basename: BASE_URL

@@ -18,6 +18,7 @@ import {Skeleton, Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton} from "../../components/DefaultComponents";
+import {useParams} from "react-router-dom";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -115,11 +116,15 @@ function Activity() {
     // Get the force data from context
     const forceData = useContext(ForceDataContext);
 
+    // Get the officer's nif from the URL params
+    // ! This might not be present
+    let {nif} = useParams();
+
     // Set the loading state
     const [loading, setLoading] = useState<boolean>(true);
 
     // Set the state for the current viewing officer
-    const [currentOfficer, setCurrentOfficer] = useState<number>(loggedUser.info.personal.nif);
+    const [currentOfficer, setCurrentOfficer] = useState<number>(nif ? Number.parseInt(nif): loggedUser.info.personal.nif);
 
     // Set the state for the current viewing officer's patent and name
     const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{patent: string, name: string}>();
@@ -172,7 +177,7 @@ function Activity() {
             // Sort all entries by end date from the most recent to the most old
             // If it's a justification with no end date, it will be placed at the start
             officerData.sort((a, b) => {
-                if ("end" in a && "end" in b) { // Both entries are justifications
+                if ("end" in a && "end" in b) { // * Both entries are justifications
                     if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
                         return Date.parse(b.start) - Date.parse(a.start);
                     } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
@@ -184,7 +189,7 @@ function Activity() {
                     }
                 }
 
-                if ("end" in a && !("end" in b)) { // A is a justification and B is an hours entry
+                if ("end" in a && !("end" in b)) { // * A is a justification and B is an hours entry
                     if (a.end === null) { // If A doesn't have an end date, it must go last
                         return -1;
                     } else { // A has an end date, compare it with the week_end of B
@@ -192,7 +197,7 @@ function Activity() {
                     }
                 }
 
-                if (!("end" in a) && "end" in b) { // A is an hours entry and B is a justification
+                if (!("end" in a) && "end" in b) { // * A is an hours entry and B is a justification
                     if (b.end === null) { // If B doesn't have an end date, it must go last
                         return 1;
                     } else { // B has an end date, compare it with the week_end of A
@@ -200,7 +205,7 @@ function Activity() {
                     }
                 }
 
-                // The remaining case is, both entries are hours entries.
+                // * The remaining case is, both entries are hours entries.
                 // In that case, compare the week_end of both entries
                 return Date.parse((b as OfficerSpecificHoursType).week_end) - Date.parse((a as OfficerSpecificHoursType).week_end);
             });
