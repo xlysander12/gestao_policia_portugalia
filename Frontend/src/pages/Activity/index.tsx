@@ -17,6 +17,7 @@ import InformationCard from "../../components/InformationCard";
 import {Skeleton, Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
+import {DefaultButton} from "../../components/DefaultComponents";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -120,6 +121,7 @@ function Activity() {
 
     // Set the modal opened states
     const [hoursModalOpen, setHoursModalOpen] = useState<boolean>(false);
+    const [newHoursModalOpen, setNewHoursModalOpen] = useState<boolean>(false);
     const [justificationModalOpen, setJustificationModalOpen] = useState<boolean>(false);
 
     // Set the states for the current working hour and justification
@@ -231,15 +233,29 @@ function Activity() {
                     }}
                 >
                     <ManagementBar>
-                        <div style={{display: "flex", flexDirection: "row", gap: "5px"}}>
-                            <Typography color={"white"} fontSize={"larger"}>Atividade de</Typography>
-                            <Gate show={loading}>
-                                <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
-                            </Gate>
+                        <div className={style.managementBarMainDiv}>
+                            <div className={style.managementBarLeftDiv}>
+                                <div className={style.managementBarCurrentEditingDiv}>
+                                    <Typography color={"white"} fontSize={"larger"}>Atividade de</Typography>
+                                    <Gate show={loading}>
+                                        <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
+                                    </Gate>
 
-                            <Gate show={!loading}>
-                                <Typography color={"white"} fontSize={"larger"}>{currentOfficerPatentAndName?.patent} {currentOfficerPatentAndName?.name}</Typography>
-                            </Gate>
+                                    <Gate show={!loading}>
+                                        <Typography color={"white"} fontSize={"larger"}>{currentOfficerPatentAndName?.patent} {currentOfficerPatentAndName?.name}</Typography>
+                                    </Gate>
+                                </div>
+                            </div>
+
+                            <div className={style.managementBarRightDiv}>
+                                <Gate show={loggedUser.intents["activity"]}>
+                                    <DefaultButton
+                                        onClick={() => setNewHoursModalOpen(true)}
+                                    >
+                                        Novo Registo de Horas
+                                    </DefaultButton>
+                                </Gate>
+                            </div>
                         </div>
                     </ManagementBar>
 
@@ -301,10 +317,14 @@ function Activity() {
             />
 
             <WeekHoursRegistryModal
-                open={hoursModalOpen}
-                onClose={() => setHoursModalOpen(false)}
+                open={hoursModalOpen || newHoursModalOpen}
+                onClose={() => {
+                    setHoursModalOpen(false);
+                    setNewHoursModalOpen(false);
+                }}
                 officer={currentOfficer}
                 entryId={currentHourId}
+                newEntry={newHoursModalOpen}
             />
         </>
     );
