@@ -38,3 +38,11 @@ export function getForcePromotionExpression(force: string): string {
 export function getForceDefaultPatents(force: string) {
     return config.forces[force].patents;
 }
+
+export function getForceInactiveStatus(force: string) {
+    return config.forces[force].inactive_status;
+}
+
+export function getForceInactivityJustificationType(force: string) {
+    return config.forces[force].inactivity_justification_type;
+}

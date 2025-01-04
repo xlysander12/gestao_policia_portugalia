@@ -1,10 +1,11 @@
-import {ReactElement, useEffect, useState, FormEvent} from "react";
+import {ReactElement, useEffect, useState, FormEvent, useContext} from "react";
 import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
+import {ForceDataContext, getObjectFromId, Patent, Status} from "../../force-data-context.ts";
 
 type OfficerCardProps = {
     name: string,
@@ -68,6 +69,9 @@ type OfficerListProps = {
 }
 
 function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
+    // Get the force's data from Context
+    const forceData = useContext(ForceDataContext);
+
     // Initialize state
     const [officers, setOfficers] = useState<MinifiedOfficerData[] | []>([]);
     const [searchString, setSearchString] = useState("");
@@ -123,9 +127,9 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         officersCards.push(
             <OfficerCard
                 key={"officer" + officers[i]["nif"]}
-                name={`[${officers[i]["callsign"]}] ${officers[i]["patent"]} ${officers[i]["name"]}`}
+                name={`[${officers[i]["callsign"]}] ${(getObjectFromId(officers[i]["patent"], forceData.patents) as Patent).name} ${officers[i]["name"]}`}
                 nif={officers[i]["nif"]}
-                status={officers[i]["status"]}
+                status={(getObjectFromId(officers[i]["status"], forceData.statuses) as Status).name}
                 callback={handleClick}
                 disabled={disabled}
             />

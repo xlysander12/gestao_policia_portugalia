@@ -18,7 +18,9 @@ const ForceRt = rt.Record({
   patrols: rt.Array(rt.String),
   database: rt.String,
   isPromotion: rt.String,
-  patents: DefaultPatentsRt
+  patents: DefaultPatentsRt,
+  inactivity_justification_type: rt.Number,
+  inactive_status: rt.Number
 });
 
 const ForcesRt = rt.Dictionary(ForceRt, rt.String);

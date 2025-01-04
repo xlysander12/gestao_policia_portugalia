@@ -15,7 +15,9 @@
             "patents": {
                 "recruit": 0,
                 "default": 1
-            }
+            },
+            "inactivity_justification_type": 1,
+            "inactive_status": 1
         },
 
         "gnr": {
@@ -27,7 +29,9 @@
             "patents": {
                 "recruit": 0,
                 "default": 1
-            }
+            },
+            "inactivity_justification_type": 1,
+            "inactive_status": 1
         }
     }
 }

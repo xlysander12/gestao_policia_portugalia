@@ -7,6 +7,8 @@ import {
 } from "@portalseguranca/api-types/officers/output";
 import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {getOfficerActiveJustifications} from "../activity/justifications/repository";
+import {getForceInactiveStatus, getForceInactivityJustificationType} from "../../../utils/config-handler";
 
 export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]) {
     const filtersResult = buildFiltersQuery(routeValidFilters, filters);
@@ -17,12 +19,19 @@ export async function getOfficersList(force: string, routeValidFilters: RouteFil
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
     for (const officer of officersListResult) {
+        // * Check if the officer has any active "inactivity type" justifications
+        // Get the officer's active justifications
+        const justifications = await getOfficerActiveJustifications(force, officer.nif);
+
+        // Check if any of the justifications are of the "inactivity type"
+        const hasInactivityJustification: boolean = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
+
         // Build officer data
         const officerData: MinifiedOfficerData = {
             name: officer.name,
             patent: officer.patent,
             callsign: officer.callsign,
-            status: officer.status,
+            status: hasInactivityJustification ? getForceInactiveStatus(force): officer.status,
             nif: officer.nif
         }
 
@@ -72,12 +81,20 @@ export async function getOfficerData(nif: number, force: string, pretty: boolean
         return null;
     }
 
+    // * Check if the officer has any active "inactivity type" justifications
+    // Get the officer's active justifications
+    const justifications = await getOfficerActiveJustifications(force, nif);
+
+    // Check if any of the justifications are of the "inactivity type"
+    const hasInactivityJustification: boolean = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
+
+
     // Get the officer data
     return {
         name: officerDataResult[0].name,
         patent: officerDataResult[0].patent,
         callsign: officerDataResult[0].callsign,
-        status: officerDataResult[0].status,
+        status: hasInactivityJustification ? getForceInactiveStatus(force): officerDataResult[0].status,
         entry_date: officerDataResult[0].entry_date,
         promotion_date: officerDataResult[0].promotion_date,
         phone: officerDataResult[0].phone,

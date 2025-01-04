@@ -1,9 +1,9 @@
 import {RequestSuccess} from "../index";
 export interface MinifiedOfficerData {
     name: string,
-    patent: string,
+    patent: number,
     callsign: string,
-    status: string,
+    status: number,
     nif: number
 }
 
