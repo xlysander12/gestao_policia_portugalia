@@ -1,4 +1,8 @@
-import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    OfficerActiveJustification,
+    OfficerJustification,
+    OfficerMinifiedJustification
+} from "@portalseguranca/api-types/officers/activity/output";
 import {queryDB} from "../../../../../utils/db-connector";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 
@@ -48,6 +52,23 @@ export async function getOfficerJustificationDetails(force: string, nif: number,
         status: result[0].status,
         managed_by: result[0].managed_by
     }
+}
+
+export async function getOfficerActiveJustifications(force: string, nif: number): Promise<OfficerActiveJustification[]> {
+    // Fetch from the database
+    const results = await queryDB(force, "SELECT id, type FROM officer_justifications WHERE officer = ? AND ((current_date() BETWEEN start_date AND end_date) OR current_date() > start_date AND end_date IS NULL) AND status = 'approved'", [nif]);
+
+    // Order the result in an proper array
+    let arr: OfficerActiveJustification[] = [];
+    for (const result of results) {
+        arr.push({
+            id: result.id,
+            type: result.type,
+        });
+    }
+
+    // Return the array
+    return arr;
 }
 
 export async function createOfficerJustification(force: string, nif: number, type: number, description: string, start: Date, end?: Date): Promise<void> {

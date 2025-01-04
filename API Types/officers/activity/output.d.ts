@@ -34,6 +34,14 @@ export interface OfficerJustificationsHistoryResponse extends RequestSuccess {
     data: OfficerMinifiedJustification[]
 }
 
+export type OfficerActiveJustification = {
+    id: number,
+    type: number
+}
+export interface OfficerActiveJustificationsResponse extends RequestSuccess {
+    data: OfficerActiveJustification[]
+}
+
 export type OfficerJustification = OfficerMinifiedJustification & {
     description: string
 }

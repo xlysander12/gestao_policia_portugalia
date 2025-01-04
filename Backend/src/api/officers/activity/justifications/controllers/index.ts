@@ -1,6 +1,7 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {
+    officerActive,
     officerHistory, officerJustificationChangeDetails,
     officerJustificationCreate, officerJustificationDelete,
     officerJustificationUpdateStatus
@@ -9,6 +10,7 @@ import {FORCE_HEADER} from "../../../../../utils/constants";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {
+    OfficerActiveJustificationsResponse,
     OfficerJustificationDetailsResponse,
     OfficerJustificationsHistoryResponse
 } from "@portalseguranca/api-types/officers/activity/output";
@@ -92,6 +94,23 @@ export async function createOfficerJustificationController(req: express.Request,
     // Return the result
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
         message: result.message
+    }));
+}
+
+export async function getOfficerActiveJustificationsController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // Call the service to get the data
+    let result = await officerActive(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif);
+
+    // Return the result, depending on success
+    if (!result.result) {
+        res.status(result.status).json(ensureAPIResponseType<RequestError>({
+            message: result.message,
+        }));
+    }
+
+    res.status(result.status).json(ensureAPIResponseType<OfficerActiveJustificationsResponse>({
+        message: result.message,
+        data: result.data!
     }));
 }
 

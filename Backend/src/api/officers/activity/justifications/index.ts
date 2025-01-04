@@ -1,9 +1,12 @@
 import express from "express";
 import {
     changeOfficerJustificationController,
-    createOfficerJustificationController, deleteOfficerJustificationController,
+    createOfficerJustificationController,
+    deleteOfficerJustificationController,
+    getOfficerActiveJustificationsController,
     getOfficerJustificationDetailsController,
-    getOfficerJustificationsHistoryController, manageOfficerJustificationController
+    getOfficerJustificationsHistoryController,
+    manageOfficerJustificationController
 } from "./controllers";
 import {isJustificationEditable, justificationExistsMiddleware} from "./middlewares";
 
@@ -14,6 +17,9 @@ app.get("/", getOfficerJustificationsHistoryController);
 
 // Route to create a new justification
 app.post("/", createOfficerJustificationController);
+
+// Route to get all active justifications of an officer
+app.get("/active", getOfficerActiveJustificationsController);
 
 // Route to get the details of a justification
 app.get("/:id(\\d+)", justificationExistsMiddleware, getOfficerJustificationDetailsController);

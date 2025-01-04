@@ -1,7 +1,11 @@
 import {DefaultReturn} from "../../../../../types";
-import {OfficerJustification, OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
 import {
-    createOfficerJustification, deleteOfficerJustification,
+    OfficerActiveJustification,
+    OfficerJustification,
+    OfficerMinifiedJustification
+} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationDetails,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
@@ -32,32 +36,21 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
     }
 }
 
-export async function officerJustificationDetails(force: string, nif: number, id: number): Promise<DefaultReturn<OfficerJustification>> {
+export async function officerActive(force: string, nif: number): Promise<DefaultReturn<OfficerActiveJustification[]>> {
     // Call the repository to get the data
-    let result = await getOfficerJustificationDetails(force, nif, id);
+    let result = await getOfficerActiveJustifications(force, nif);
 
     // Return the result
-    if (result === null) {
-        return {
-            result: false,
-            status: 404,
-            message: "Justificação não encontrada"
-        }
-    }
-
     return {
         result: true,
         status: 200,
         message: "Operação concluída com sucesso",
-        data: {
-            id: result.id,
-            type: result.type,
-            start: dateToString(result.start, false),
-            end: result.end ? dateToString(result.end, false): null,
-            description: result.description,
-            status: result.status,
-            managed_by: result.managed_by
-        }
+        data: result.map((r) => {
+            return {
+                id: r.id,
+                type: r.type
+            }
+        })
     }
 }
 

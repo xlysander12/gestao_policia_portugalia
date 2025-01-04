@@ -374,6 +374,14 @@ const activityRoutes: routesType = {
             }
         }
     },
+    "/officers/\\d+/activity/justifications/active": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
     "/officers/\\d+/activity/justifications/\\d+$": {
         methods: {
             GET: {
