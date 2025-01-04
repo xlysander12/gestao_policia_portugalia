@@ -41,4 +41,5 @@
     justify-content: flex-end;
     height: 100%;
     flex: 1;
+    gap: 10px;
 }

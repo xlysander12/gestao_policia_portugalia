@@ -131,6 +131,7 @@ function Activity() {
     const [hoursModalOpen, setHoursModalOpen] = useState<boolean>(false);
     const [newHoursModalOpen, setNewHoursModalOpen] = useState<boolean>(false);
     const [justificationModalOpen, setJustificationModalOpen] = useState<boolean>(false);
+    const [newJustificationModalOpen, setNewJustificationModalOpen] = useState<boolean>(false);
 
     // Set the states for the current working hour and justification
     const [currentHourId, setCurrentHourId] = useState<number>(0);
@@ -151,6 +152,7 @@ function Activity() {
             const hoursResponseData: OfficerHoursResponse = await hoursResponse.json();
             if (!hoursResponse.ok) { // Make sure the request was successful
                 toast(hoursResponseData.message, {type: "error"});
+                return;
             }
 
             officerData.push(...hoursResponseData.data);
@@ -255,11 +257,21 @@ function Activity() {
                             </div>
 
                             <div className={style.managementBarRightDiv}>
+                                {/*The option to add an hours entry must only be present if the logged user has the activity intent*/}
                                 <Gate show={loggedUser.intents["activity"]}>
                                     <DefaultButton
                                         onClick={() => setNewHoursModalOpen(true)}
                                     >
                                         Novo Registo de Horas
+                                    </DefaultButton>
+                                </Gate>
+
+                                {/*The option to add a justification entry must only be present if the logged user is the same as the current officer or the logged officer has the activity intent*/}
+                                <Gate show={loggedUser.info.personal.nif === currentOfficer || loggedUser.intents["activity"]}>
+                                    <DefaultButton
+                                        onClick={() => setNewJustificationModalOpen(true)}
+                                    >
+                                        Nova Justificação
                                     </DefaultButton>
                                 </Gate>
                             </div>
@@ -317,10 +329,14 @@ function Activity() {
             </ScreenSplit>
 
             <InactivityJustificationModal
-                open={justificationModalOpen}
-                onClose={() => setJustificationModalOpen(false)}
+                open={justificationModalOpen || newJustificationModalOpen}
+                onClose={() => {
+                    setJustificationModalOpen(false);
+                    setNewJustificationModalOpen(false);
+                }}
                 officerNif={currentOfficer}
                 justificationId={currentJustificationId}
+                newEntry={newJustificationModalOpen}
             />
 
             <WeekHoursRegistryModal
