@@ -1,12 +1,10 @@
 import {DefaultReturn} from "../../../../../types";
 import {
     OfficerActiveJustification,
-    OfficerJustification,
     OfficerMinifiedJustification
 } from "@portalseguranca/api-types/officers/activity/output";
 import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
-    getOfficerJustificationDetails,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
@@ -30,7 +28,8 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
                 start: dateToString(r.start, false),
                 end: r.end ? dateToString(r.end, false): null,
                 status: r.status,
-                managed_by: r.managed_by
+                managed_by: r.managed_by,
+                timestamp: r.timestamp.getTime()
             }
         })
     }

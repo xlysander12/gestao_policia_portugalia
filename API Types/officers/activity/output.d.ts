@@ -28,7 +28,8 @@ export type OfficerMinifiedJustification = {
     start: string,
     end: string | null,
     status: "pending" | "approved" | "denied",
-    managed_by: number | null
+    managed_by: number | null,
+    timestamp: number
 }
 export interface OfficerJustificationsHistoryResponse extends RequestSuccess {
     data: OfficerMinifiedJustification[]

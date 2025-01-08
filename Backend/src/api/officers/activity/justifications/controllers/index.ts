@@ -68,7 +68,8 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
             end: res.locals.justification.end ? dateToString(res.locals.justification.end, false): null,
             description: res.locals.justification.description,
             status: res.locals.justification.status,
-            managed_by: res.locals.justification.managed_by
+            managed_by: res.locals.justification.managed_by,
+            timestamp: res.locals.justification.timestamp.getTime()
         }
     }));
 }

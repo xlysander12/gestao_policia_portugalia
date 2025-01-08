@@ -24,4 +24,5 @@ export interface InnerOfficerJustificationData {
     description: string,
     status: "pending" | "approved" | "denied",
     managed_by: number | null
+    timestamp: Date
 }

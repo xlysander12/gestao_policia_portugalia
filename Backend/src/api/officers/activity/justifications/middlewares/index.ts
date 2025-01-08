@@ -28,7 +28,8 @@ export async function justificationExistsMiddleware(req: express.Request, res: O
         end: justification.end ? stringToDate(justification.end): null,
         description: justification.description,
         status: justification.status,
-        managed_by: justification.managed_by
+        managed_by: justification.managed_by,
+        timestamp: justification.timestamp
     };
 
     next();
