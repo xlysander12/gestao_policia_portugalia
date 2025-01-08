@@ -12,8 +12,13 @@ import {ForceDataContext} from "../../../../force-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
-import {Checkbox, Divider, FormControlLabel, MenuItem, Typography} from "@mui/material";
-import {DefaultButton, DefaultSelect, DefaultTextField} from "../../../../components/DefaultComponents";
+import {Checkbox, Divider, FormControlLabel, MenuItem} from "@mui/material";
+import {
+    DefaultButton,
+    DefaultSelect,
+    DefaultTextField,
+    DefaultTypography
+} from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
 
@@ -22,6 +27,7 @@ const justificationDataDefault: OfficerJustification = {
     type: 0,
     start: new Date().toISOString().split("T")[0],
     end: new Date().toISOString().split("T")[0],
+    timestamp: new Date().getTime(),
     status: "pending",
     managed_by: 0,
     description: ""
@@ -216,29 +222,29 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                             {/* Only show the status option if it's not a new entry*/}
                             <Gate show={!newEntry}>
                                 {/* Status */}
-                                <Typography
+                                <DefaultTypography
                                     color={"var(--portalseguranca-color-accent)"}
                                     fontSize={"medium"}
                                     fontWeight={"bold"}
                                 >Estado:
-                                </Typography>
-                                <Typography
+                                </DefaultTypography>
+                                <DefaultTypography
                                     color={justificationData?.status === "pending" ? "#efc032" : justificationData?.status === "approved" ? "#00ff00" : "#ff0000"}
                                     sx={{marginBottom: "10px"}}
                                 >
                                     {justificationData?.status === "pending" ? "Pendente" : justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"}
-                                </Typography>
+                                </DefaultTypography>
 
                                 <Divider flexItem sx={{marginBottom: "5px"}}/>
                             </Gate>
                             {/* Type */}
-                            <Typography
+                            <DefaultTypography
                                 color={"var(--portalseguranca-color-accent)"}
                                 fontSize={"medium"}
                                 fontWeight={"bold"}
                             >
                                 Tipo de Inatividade:
-                            </Typography>
+                            </DefaultTypography>
                             <DefaultSelect
                                 fullWidth={false}
                                 disabled={!editMode && !newEntry}
@@ -265,17 +271,31 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
 
+                            {/* Submission date */}
+                            <DefaultTypography
+                                color={"var(--portalseguranca-color-accent)"}
+                                fontSize={"medium"}
+                                fontWeight={"bold"}
+                            >
+                                Data de Submissão:
+                            </DefaultTypography>
+                            <DefaultTypography
+                                sx={{marginBottom: "10px"}}
+                            >
+                                {new Date(justificationData?.timestamp).toLocaleString()}
+                            </DefaultTypography>
+
                             {/* Duration */}
                             <div className={style.justificationDurationRowDiv}>
                                 {/* Start Date */}
                                 <div className={style.justificationDetailsDurationDiv}>
-                                    <Typography
+                                    <DefaultTypography
                                         color={"var(--portalseguranca-color-accent)"}
                                         fontSize={"medium"}
                                         fontWeight={"bold"}
                                     >
                                         Data de Início:
-                                    </Typography>
+                                    </DefaultTypography>
                                     <DefaultTextField
                                         disabled={!editMode && !newEntry}
                                         sameTextColorWhenDisabled
@@ -292,14 +312,14 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                 {/* End Date */}
                                 <div className={style.justificationDetailsDurationDiv}>
                                     <Gate show={justificationData?.end !== null}>
-                                        <Typography
+                                        <DefaultTypography
                                             color={"var(--portalseguranca-color-accent)"}
                                             fontSize={"medium"}
                                             fontWeight={"bold"}
                                             sx={{marginRight: "38px"}}
                                         >
                                             Data de Fim:
-                                        </Typography>
+                                        </DefaultTypography>
                                         <DefaultTextField
                                             disabled={!editMode && !newEntry}
                                             sameTextColorWhenDisabled
@@ -344,13 +364,13 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                             {/* Description */}
-                            <Typography
+                            <DefaultTypography
                                 color={"var(--portalseguranca-color-accent)"}
                                 fontSize={"medium"}
                                 fontWeight={"bold"}
                             >
                                 Descrição:
-                            </Typography>
+                            </DefaultTypography>
                             <DefaultTextField
                                 disabled={!editMode && !newEntry}
                                 sameTextColorWhenDisabled

@@ -17,8 +17,9 @@ import InformationCard from "../../components/InformationCard";
 import {Skeleton, Typography} from "@mui/material";
 import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
-import {DefaultButton} from "../../components/DefaultComponents";
+import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
+import moment from "moment";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -70,10 +71,12 @@ type ActivityJustificationCardProps = {
     type: number,
     start: Date,
     end: Date | null,
+    timestamp: Date,
     status: "pending" | "approved" | "denied",
     onClick: (id: number) => void
 }
-function ActivityJustificationCard({type, start, end, status, onClick}: ActivityJustificationCardProps) {
+function ActivityJustificationCard({type, start, end, status, timestamp, onClick}: ActivityJustificationCardProps) {
+
     // Get the force data from context
     const forceData = useContext(ForceDataContext);
 
@@ -85,25 +88,38 @@ function ActivityJustificationCard({type, start, end, status, onClick}: Activity
             statusColor={statusColor}
             callback={onClick}
         >
-            <div>
-                <Typography color={"white"} fontSize={"large"} marginBottom={"5px"}>Justificação de Inatividade</Typography>
-                <Typography color={"gray"}>Tipo: {(getObjectFromId(type, forceData.inactivity_types) as InactivityType).name}</Typography>
+            <div style={{display: "flex", flexDirection: "row", width: "100%"}}>
+                <div style={{flex: 1}}>
+                    <Typography color={"white"} fontSize={"large"} marginBottom={"5px"}>Justificação de
+                        Inatividade</Typography>
+                    <Typography
+                        color={"gray"}>Tipo: {(getObjectFromId(type, forceData.inactivity_types) as InactivityType).name}</Typography>
 
-                <Gate show={end !== null}>
-                    <Typography color={"gray"}>
-                        Duração: {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
-                        {` > `}
-                        {`${end ? `${padToTwoDigits(end!.getDate())}/${padToTwoDigits(end!.getMonth() + 1)}/${end!.getFullYear()}`: ``}`}
-                    </Typography>
-                </Gate>
+                    <Gate show={end !== null}>
+                        <Typography color={"gray"}>
+                            Duração: {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
+                            {` > `}
+                            {`${end ? `${padToTwoDigits(end!.getDate())}/${padToTwoDigits(end!.getMonth() + 1)}/${end!.getFullYear()}` : ``}`}
+                        </Typography>
+                    </Gate>
 
-                <Gate show={end == null}>
-                    <Typography color={"gray"}>
-                        Duração: A partir de {" "}
-                        {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
-                    </Typography>
-                </Gate>
+                    <Gate show={end == null}>
+                        <Typography color={"gray"}>
+                            Duração: A partir de {" "}
+                            {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
+                        </Typography>
+                    </Gate>
 
+                </div>
+
+                <div style={{display: "flex", flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-end", flex: 0.5}}>
+                    <DefaultTypography
+                        color={"gray"}
+                        fontSize={"small"}
+                    >
+                        {moment(timestamp).calendar()}
+                    </DefaultTypography>
+                </div>
             </div>
         </InformationCard>
     )
@@ -124,10 +140,10 @@ function Activity() {
     const [loading, setLoading] = useState<boolean>(true);
 
     // Set the state for the current viewing officer
-    const [currentOfficer, setCurrentOfficer] = useState<number>(nif ? Number.parseInt(nif): loggedUser.info.personal.nif);
+    const [currentOfficer, setCurrentOfficer] = useState<number>(nif ? Number.parseInt(nif) : loggedUser.info.personal.nif);
 
     // Set the state for the current viewing officer's patent and name
-    const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{patent: string, name: string}>();
+    const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{ patent: string, name: string }>();
 
     // Set the states with the history of the officer
     const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | OfficerMinifiedJustification)[]>([]);
@@ -321,6 +337,7 @@ function Activity() {
                                                 type={entryData.type}
                                                 start={new Date(Date.parse(entryData.start))}
                                                 end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
+                                                timestamp={new Date(entryData.timestamp)}
                                                 status={entryData.status}
                                                 onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}}
                                             />
