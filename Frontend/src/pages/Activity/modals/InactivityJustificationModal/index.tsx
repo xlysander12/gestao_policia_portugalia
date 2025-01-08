@@ -285,6 +285,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                 {new Date(justificationData?.timestamp).toLocaleString()}
                             </DefaultTypography>
 
+                            <Divider flexItem sx={{marginBottom: "5px"}}/>
+
                             {/* Duration */}
                             <div className={style.justificationDurationRowDiv}>
                                 {/* Start Date */}
