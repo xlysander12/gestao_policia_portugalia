@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
-import {DefaultButton, DefaultTextField} from "../../components/DefaultComponents";
+import {DefaultButton, DefaultTextField, DefaultTypography} from "../../components/DefaultComponents";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import Gate from "../../components/Gate/gate.tsx";
 import {Divider, Skeleton} from "@mui/material";
@@ -30,28 +30,36 @@ const LastShiftPair = ({date, onDateChange}: LastShiftPairProps) => {
                     gap: "10px"
                 }}
             >
-                <DefaultTextField
-                    required
-                    sameTextColorWhenDisabled
-                    disabled={!editMode}
-                    type={"date"}
-                    value={dateState !== null ? dateState.toISOString().split("T")[0]: ""}
-                    onChange={(event) => setDate(new Date(Date.parse(event.target.value)))}
-                />
+                <Gate show={!editMode}>
+                    <DefaultTypography
+                        sx={{marginTop: "4px"}}
+                        clickable={loggedUser.intents["activity"]}
+                        onClick={() => {
+                            if (loggedUser.intents["activity"]) {
+                                setEditMode(true);
+                            }
+                        }}
+                    >
+                        {dateState !== null ? `${dateState.getDate()}/${dateState.getMonth()}/${dateState.getFullYear()}`: "N/A"}
+                    </DefaultTypography>
+                </Gate>
 
-                {/* Only show the button to change the last shift date if the logged user has the activity intent */}
-                <Gate show={loggedUser.intents["activity"] && !editMode}>
-                    <DefaultButton
-                        size={"small"}
-                        onClick={() => setEditMode(true)}
-                    >Alterar data</DefaultButton>
+                <Gate show={editMode}>
+                    <DefaultTextField
+                        required
+                        sameTextColorWhenDisabled
+                        disabled={!editMode}
+                        type={"date"}
+                        value={dateState !== null ? dateState.toISOString().split("T")[0]: ""}
+                        onChange={(event) => setDate(new Date(Date.parse(event.target.value)))}
+                    />
                 </Gate>
 
                 <Gate show={loggedUser.intents["activity"] && editMode}>
                     <DefaultButton
                         size={"small"}
                         buttonColor={"lightgreen"}
-                        onClick={(event) => {
+                        onClick={() => {
                             // Call the onDateChange function
                             if (onDateChange) {
                                 onDateChange(dateState!);
@@ -60,7 +68,9 @@ const LastShiftPair = ({date, onDateChange}: LastShiftPairProps) => {
                             // Disable the editing mode for the last shift date
                             setEditMode(false);
                         }}
-                        >Guardar</DefaultButton>
+                        >
+                        Guardar
+                    </DefaultButton>
                 </Gate>
             </div>
         </div>
