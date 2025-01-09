@@ -66,4 +66,7 @@ mkdir Backend/dist/node_modules/@portalseguranca/api-types
 # Move the dist contents from API Types to Backend
 cp -r API\ Types/dist/* Backend/dist/node_modules/@portalseguranca/api-types
 
+# Move the assets folder from the Backend to the Backend dist folder
+cp -r Backend/src/assets Backend/dist
+
 echo "Build Completed"
