@@ -542,11 +542,12 @@ function OfficerInfo() {
 
                             <fieldset>
                             <legend>Punições</legend>
-
-                                <p>Punição Ativa: <span></span>
-                                </p>
-                                <p>Histórico: <span></span>
-                                </p>
+                                <div style={{filter: "blur(5px)"}}>
+                                    <p>Punição Ativa: <span></span>
+                                    </p>
+                                    <p>Histórico: <span></span>
+                                    </p>
+                                </div>
                             </fieldset>
                         </div>
                     </form>
