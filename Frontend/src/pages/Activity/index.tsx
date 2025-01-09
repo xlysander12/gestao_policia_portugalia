@@ -19,16 +19,8 @@ import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-dat
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
-import moment from "moment";
-
-function toHoursAndMinutes(totalMinutes: number) {
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return `${padToTwoDigits(hours)}:${padToTwoDigits(minutes)}`;
-}
-function padToTwoDigits(num: number) {
-    return num.toString().padStart(2, "0");
-}
+import moment from "moment"
+import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 
 
 type ActivityHoursCardProps = {

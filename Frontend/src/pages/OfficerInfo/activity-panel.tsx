@@ -5,8 +5,13 @@ import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-conte
 import Gate from "../../components/Gate/gate.tsx";
 import {Divider, Skeleton} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
-import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    OfficerLastShiftResponse,
+    OfficerSpecificHoursResponse
+} from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
+import {toHoursAndMinutes} from "../../utils/misc.ts";
+import {WeekHoursRegistryModal} from "../Activity/modals";
 
 type LastShiftPairProps = {
     date: Date | null,
@@ -77,12 +82,40 @@ const LastShiftPair = ({date, onDateChange}: LastShiftPairProps) => {
     );
 }
 
+type LastWeekHoursProps = {
+    id: number | null
+    minutes: number | null
+    officer: number
+}
+const LastWeekHours = ({id, minutes, officer}: LastWeekHoursProps) => {
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
+
+    return (
+        <>
+            <div className={style.informationPairDiv}>
+                <label>Últimos minutos (horas):</label>
+                <DefaultTypography
+                    sx={{marginTop: "4px"}}
+                    color={minutes ? (minutes < 300 ? "red": "var(--portalseguranca-color-text-light)"): "var(--portalseguranca-color-text-light)"}
+                    clickable={!!minutes}
+                    onClick={() => setModalOpen(true)}
+                >
+                    {minutes ? minutes : "N/A"} ({minutes ? toHoursAndMinutes(minutes) : "N/A"})
+                </DefaultTypography>
+            </div>
+
+            <WeekHoursRegistryModal open={isModalOpen} onClose={() => setModalOpen(false)} officer={officer} entryId={id ? id: undefined}/>
+        </>
+    )
+}
+
 type ActivityPanelProps = {
     nif: number
 }
 export const ActivityPanel = ({nif}: ActivityPanelProps) => {
     const [loading, setLoading] = useState<boolean>(true);
-    const [last_shift, setLastShift] = useState<Date | null>(null);
+    const [lastShift, setLastShift] = useState<Date | null>(null);
+    const [lastWeekHours, setLastWeekHours] = useState<{ id: number, minutes: number } | null>(null);
 
     const fetchLastShift = async () => {
         // Fetch the API the last shift date
@@ -95,6 +128,22 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
         const responseJson = await response.json();
 
         setLastShift(new Date(Date.parse((responseJson as OfficerLastShiftResponse).data.last_shift)));
+    }
+
+    const fetchLastWeekHours = async () => {
+        // Fetch the API the last week hours
+        let response = await make_request(`/officers/${nif}/activity/hours/last`, "GET");
+
+        if (response.status === 404) {
+            return null;
+        }
+
+        const responseJson: OfficerSpecificHoursResponse = await response.json();
+
+        setLastWeekHours({
+            id: responseJson.data.id,
+            minutes: responseJson.data.minutes
+        });
     }
 
     const updateOfficerLastShift = async (date: Date) => {
@@ -119,6 +168,9 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
     const updateOfficerActivity = async () => {
         // Update the last shift date
         await fetchLastShift();
+
+        // Update the last week's hours
+        await fetchLastWeekHours();
 
         // Set the loading to false
         setLoading(false);
@@ -151,7 +203,9 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
         content = (
             <>
                 <div className={style.officerInfoInnerFieldsetDiv}>
-                    <LastShiftPair date={last_shift} onDateChange={updateOfficerLastShift}/>
+                    <LastShiftPair date={lastShift} onDateChange={updateOfficerLastShift}/>
+                    <Divider/>
+                    <LastWeekHours id={lastWeekHours?.id!} minutes={lastWeekHours?.minutes!} officer={nif}/>
                 </div>
             </>
         );
