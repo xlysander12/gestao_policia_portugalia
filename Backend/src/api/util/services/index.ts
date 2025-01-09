@@ -8,7 +8,7 @@ import {
     getForceStatuses
 } from "../repository";
 import {
-    InactivityData,
+    InactivityTypeData,
     IntentData,
     PatentData,
     SpecialUnitData,
@@ -72,7 +72,7 @@ export async function forceIntents(force: string): Promise<DefaultReturn<IntentD
     }
 }
 
-export async function forceInactivityTypes(force: string): Promise<DefaultReturn<InactivityData[]>> {
+export async function forceInactivityTypes(force: string): Promise<DefaultReturn<InactivityTypeData[]>> {
     // Get the list of inactivity types from the repository
     const types = await getForceInactivityTypes(force);
 

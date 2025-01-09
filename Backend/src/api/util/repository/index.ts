@@ -1,5 +1,5 @@
 import {
-    InactivityData,
+    InactivityTypeData,
     IntentData,
     PatentData,
     SpecialUnitData,
@@ -93,16 +93,18 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
     return intentsList;
 }
 
-export async function getForceInactivityTypes(force: string): Promise<InactivityData[]> {
+export async function getForceInactivityTypes(force: string): Promise<InactivityTypeData[]> {
     // Get the list from the database
     const types = await queryDB(force, `SELECT * FROM inactivity_types`);
 
     // Build an array with the types
-    let typesList: InactivityData[] = [];
+    let typesList: InactivityTypeData[] = [];
     for (const type of types) {
         typesList.push({
             id: type.id,
-            name: type.name
+            name: type.name,
+            description: type.description,
+            color: type.color
         });
     }
 
