@@ -35,7 +35,8 @@ export async function getForceStatuses(force: string): Promise<StatusData[]> {
     for (const status of statuses) {
         statusesList.push({
             id: status.id,
-            name: status.name
+            name: status.name,
+            color: status.color
         });
     }
 
