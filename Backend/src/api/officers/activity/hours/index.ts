@@ -2,7 +2,7 @@ import express from "express";
 import {
     addOfficerHoursEntryController, deleteOfficerGetHoursEntryController,
     getOfficerHoursEntryController,
-    getOfficerHoursHistoryController
+    getOfficerHoursHistoryController, getOfficerLastWeekController
 } from "./controllers";
 
 const app = express.Router();
@@ -10,6 +10,9 @@ const app = express.Router();
 // * Routes to gather information about the hours of an officer
 // Route to get the list of hours of an officer
 app.get("/", getOfficerHoursHistoryController);
+
+// Route to get the hours of the last week of an officer
+app.get("/last", getOfficerLastWeekController);
 
 // Route to get a specific entry of hours of an officer
 app.get("/:id(\\d+)", getOfficerHoursEntryController);

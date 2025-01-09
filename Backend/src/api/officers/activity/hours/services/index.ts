@@ -2,7 +2,7 @@ import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {
     deleteHoursEntry, ensureNoHoursThisWeek,
     fetchHoursEntry,
-    fetchHoursHistory,
+    fetchHoursHistory, fetchLastHoursEntry,
     insertHoursEntry,
     OfficerHoursEntryType
 } from "../repository";
@@ -27,6 +27,24 @@ export async function officerHoursEntry(force: string, nif: number, id: number):
     // If not results are found, either the entry doesn't exist, or it's not from the requested officer
     if (result === null) {
         return {result: false, status: 404, message: "Não foi encontrado o registo de horas pretendido"};
+    }
+
+    // Return the object
+    return {
+        result: true,
+        status: 200,
+        message: "Operação bem sucedida",
+        data: result
+    }
+}
+
+export async function lastOfficerHours(force: string, nif: number): Promise<DefaultReturn<OfficerHoursEntryType>> {
+    // Get the information about the last hours entry from the repository
+    const result = await fetchLastHoursEntry(force, nif);
+
+    // If no results are found, this officer doesn't have any entries
+    if (result === null) {
+        return {result: false, status: 404, message: "Não foram encontrados registos de horas"};
     }
 
     // Return the object

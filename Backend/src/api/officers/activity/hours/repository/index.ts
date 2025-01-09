@@ -48,6 +48,24 @@ export async function fetchHoursEntry(force: string, nif: number, id: number): P
     };
 }
 
+export async function fetchLastHoursEntry(force: string, nif: number): Promise<OfficerHoursEntryType | null> {
+    const result = await queryDB(force, `SELECT * FROM officer_hours WHERE officer = ? ORDER BY week_end DESC LIMIT 1`, [nif]);
+
+    // Make sure to return null if no results are found, aka this officer doens't have any entries
+    if (result.length === 0) {
+        return null;
+    }
+
+    // Return the object with the information
+    return {
+        id: result[0].id,
+        week_start: result[0].week_start,
+        week_end: result[0].week_end,
+        minutes: result[0].minutes,
+        submitted_by: result[0].submitted_by
+    };
+}
+
 export async function ensureNoHoursThisWeek(force: string, nif: number, week_start: Date): Promise<boolean> {
     const result = await queryDB(force, `SELECT * FROM officer_hours WHERE officer = ? AND week_end > ?`, [nif, dateToString(week_start, false)]);
 

@@ -2,7 +2,13 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {OfficerHoursResponse, OfficerSpecificHoursResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {FORCE_HEADER} from "../../../../../utils/constants";
-import {addOfficerHoursEntry, deleteOfficerHoursEntry, officerHoursEntry, officerHoursHistory} from "../services";
+import {
+    addOfficerHoursEntry,
+    deleteOfficerHoursEntry,
+    lastOfficerHours,
+    officerHoursEntry,
+    officerHoursHistory
+} from "../services";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {OfficerHoursEntryType} from "../repository";
@@ -42,6 +48,26 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
 
     // Call the service to get the hours
     let result = await officerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, parseInt(id));
+
+    // Return the result of the service
+    if (!result.result) {
+        res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message!}));
+        return;
+    }
+
+    res.status(result.status).json(ensureAPIResponseType<OfficerSpecificHoursResponse>({
+        message: result.message!,
+        data: {
+            ...result.data!,
+            week_start: dateToString(result.data!.week_start, false),
+            week_end: dateToString(result.data!.week_end, false)
+        }
+    }));
+}
+
+export async function getOfficerLastWeekController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // Call the service to get the last week hours
+    let result = await lastOfficerHours(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif);
 
     // Return the result of the service
     if (!result.result) {
