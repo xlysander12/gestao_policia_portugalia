@@ -5,17 +5,20 @@ import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
-import {ForceDataContext, getObjectFromId, Patent, Status} from "../../force-data-context.ts";
+import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
 
 type OfficerCardProps = {
     name: string,
     nif: number,
-    status: string,
+    status: number,
     callback: (nif: number) => void,
     disabled: boolean
 }
 
 function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps): ReactElement {
+    // Get the force's data from context
+    const forceData = useContext(ForceDataContext);
+
     const handleDivClick = () => {
         if (disabled)
             return;
@@ -23,29 +26,10 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
         callback(nif);
     }
 
-    const statusToColor = (status: string) => {
-        switch (status) {
-            case "Ativo":
-                return ["#00ff00", "#000000"];
-            case "Inativo":
-                return ["#ff0000", "#FFFFFF"];
-            case "Suspenso":
-                return ["#fd0000", "#FFFFFF"];
-            case "Provisório":
-                return ["#efc032", "#000000"];
-            case "Formação":
-                return ["#9800fd", "#000000"];
-            default:
-                return ["#000000", "#FFFFFF"];
-        }
-    }
-
-    const [statusDivColor] = statusToColor(status);
-
     return(
         <InformationCard
             disabled={disabled}
-            statusColor={statusDivColor}
+            statusColor={getObjectFromId(status, forceData.statuses)!.color}
             callback={handleDivClick}
         >
             <div>
@@ -126,10 +110,10 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     for (let i = 0; i < officers.length; i++) {
         officersCards.push(
             <OfficerCard
-                key={"officer" + officers[i]["nif"]}
-                name={`[${officers[i]["callsign"]}] ${(getObjectFromId(officers[i]["patent"], forceData.patents) as Patent).name} ${officers[i]["name"]}`}
+                key={"officer" + officers[i].nif}
+                name={`[${officers[i]["callsign"]}] ${getObjectFromId(officers[i].patent, forceData.patents)!.name} ${officers[i]["name"]}`}
                 nif={officers[i]["nif"]}
-                status={(getObjectFromId(officers[i]["status"], forceData.statuses) as Status).name}
+                status={officers[i].status}
                 callback={handleClick}
                 disabled={disabled}
             />
