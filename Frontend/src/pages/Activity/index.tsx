@@ -51,8 +51,8 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
                     flexDirection: "row",
                     gap: "5px"
                 }}>
-                    <Typography color={"gray"}>Horas:</Typography>
-                    <Typography color={minutes < 300 ? "red" : "gray"}>{`${toHoursAndMinutes(minutes)} (${minutes})`}</Typography>
+                    <DefaultTypography color={"gray"}>Horas:</DefaultTypography>
+                    <DefaultTypography color={"gray"}>{`${toHoursAndMinutes(minutes)} (${minutes})`}</DefaultTypography>
                 </div>
 
             </div>
@@ -150,7 +150,6 @@ function Activity() {
     // Set the states for the current working hour and justification
     const [currentHourId, setCurrentHourId] = useState<number>(0);
     const [currentJustificationId, setCurrentJustificationId] = useState<number>(0);
-
 
     // Everytime the currentOfficer changes, we will fetch the data from the API
     useEffect(() => {

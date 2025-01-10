@@ -10,7 +10,7 @@ import {
     OfficerLastShiftResponse, OfficerSpecificHoursResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
-import {toHoursAndMinutes} from "../../utils/misc.ts";
+import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
 import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
 
@@ -22,8 +22,11 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
     const loggedUser = useContext(LoggedUserContext);
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [lastShift, setLastShift] = useState<Date | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
+
+    const [lastShift, setLastShift] = useState<Date | null>(null);
+    const [maxDaysPassed, setMaxDaysPassed] = useState<boolean>(false);
+
 
     async function fetchLastShift() {
         // Set the loading to true and editmode to false
@@ -44,6 +47,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         const responseJson: OfficerLastShiftResponse = await response.json();
 
         setLastShift(new Date(responseJson.data.last_shift));
+        setMaxDaysPassed(responseJson.meta.passed_max_days);
 
         // Set loading to false
         setLoading(false);
@@ -90,6 +94,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                 <Gate show={!loading}>
                     <Gate show={!editMode}>
                         <DefaultTypography
+                            color={maxDaysPassed ? "red": "var(--portalseguranca-color-text-light)"}
                             sx={{marginTop: "4px"}}
                             clickable={loggedUser.intents["activity"]}
                             onClick={() => {
@@ -98,7 +103,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                                 }
                             }}
                         >
-                            {lastShift !== null ? `${lastShift.getDate()}/${lastShift.getMonth()}/${lastShift.getFullYear()}`: "N/A"}
+                            {lastShift !== null ? `${padToTwoDigits(lastShift.getDate())}/${padToTwoDigits(lastShift.getMonth() + 1)}/${lastShift.getFullYear()}`: "N/A"}
                         </DefaultTypography>
                     </Gate>
 
@@ -137,7 +142,9 @@ type LastWeekHoursPairProps = {
 const LastWeekHoursPair = ({officer}: LastWeekHoursPairProps) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+
     const [lastHours, setLastHours] = useState<{id: number, minutes: number} | null>(null);
+    const [didMinHours, setDidMinHours] = useState<boolean>(false);
 
     async function fetchLastWeekHours() {
         // Ensure loading is true
@@ -160,6 +167,7 @@ const LastWeekHoursPair = ({officer}: LastWeekHoursPairProps) => {
             id: responseJson.data.id,
             minutes: responseJson.data.minutes
         });
+        setDidMinHours(responseJson.meta.min_hours);
 
         // Set loading to false
         setLoading(false);
@@ -183,7 +191,7 @@ const LastWeekHoursPair = ({officer}: LastWeekHoursPairProps) => {
                 <Gate show={!loading}>
                     <DefaultTypography
                         sx={{marginTop: "4px"}}
-                        color={lastHours?.minutes ? (lastHours?.minutes < 300 ? "red": "var(--portalseguranca-color-text-light)"): "var(--portalseguranca-color-text-light)"}
+                        color={lastHours?.minutes ? (!didMinHours ? "red": "var(--portalseguranca-color-text-light)"): "var(--portalseguranca-color-text-light)"}
                         clickable={!!lastHours?.minutes}
                         onClick={() => setModalOpen(true)}
                     >

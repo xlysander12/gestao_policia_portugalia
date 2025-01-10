@@ -55,6 +55,9 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         submitted_by: 0
     });
 
+    // Set the state that holds if the officer did the minimum hours
+    const [didMinimumHours, setDidMinimumHours] = useState<boolean>(false);
+
     // Set the state that holds the patent and name of the officer that submitted the registry
     const [submittedBy, setSubmittedBy] = useState<string>();
 
@@ -126,6 +129,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
 
             // Set the registry data
             setEntryData((data as OfficerSpecificHoursResponse).data);
+            setDidMinimumHours((data as OfficerSpecificHoursResponse).meta.min_hours);
 
             // Get the name and patent of the officer that submitted the registry
             const submittedByResponse = await make_request(`/officers/${(data as OfficerSpecificHoursResponse).data.submitted_by}`, "GET");
