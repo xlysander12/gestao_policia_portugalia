@@ -6,7 +6,7 @@ import {toast} from "react-toastify";
 import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultTextField} from "../../../components/DefaultComponents";
-import {Checkbox, FormControlLabel, Switch} from "@mui/material";
+import {Checkbox, FormControlLabel} from "@mui/material";
 
 type RecruitModalProps = {
     open: boolean

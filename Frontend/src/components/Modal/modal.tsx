@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {ReactElement} from "react";
 import style from "./modal.module.css";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider} from "@mui/material";
+import {Button, Divider} from "@mui/material";
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {

@@ -137,7 +137,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                     handleForceChange(event.target.value as string);
                                 }}
                             >
-                                {loggedUser.forces.map((force, i) => {
+                                {loggedUser.forces.map((force) => {
                                     return (
                                         <MenuItem key={`userforcenavbar${force.name}`} value={force.name} disabled={force.suspended}>{force.name.toUpperCase()}</MenuItem>
                                     )

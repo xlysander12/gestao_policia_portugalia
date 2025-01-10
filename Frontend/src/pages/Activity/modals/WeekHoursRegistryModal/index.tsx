@@ -139,7 +139,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
 
             // Set the state that holds the patent and name of the officer that submitted the registry
             const officerData = (submittedByData as OfficerInfoGetResponse).data as OfficerDataRaw;
-            setSubmittedBy(`${getObjectFromId((officerData).patent, forceData.patents).name} ${officerData.name}`);
+            setSubmittedBy(`${getObjectFromId((officerData).patent, forceData.patents)!.name} ${officerData.name}`);
 
             // Set the loading state to false
             setLoading(false);

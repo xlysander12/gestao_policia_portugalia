@@ -13,13 +13,12 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import {
     ForceDataContext,
-    ForceDataContextType, getObjectFromId,
-    SpecialUnit,
-    SpecialUnitRole
+    ForceDataContextType, getObjectFromId
 } from "../../force-data-context.ts";
 import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {useImmer} from "use-immer";
 import Gate from "../../components/Gate/gate.tsx";
+import {SpecialUnitData, SpecialUnitRoleData} from "@portalseguranca/api-types/util/output";
 
 const TableSelectStyle = {
     "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
@@ -79,7 +78,7 @@ const SpecialUnitsTableRow = ({selectSx, unit, unitName, unitRoles, editMode, on
                     sx={selectSx}
                     variant={"outlined"}
                 >
-                    {unitRoles.map((role: SpecialUnit) => {
+                    {unitRoles.map((role: SpecialUnitData) => {
                         return (
                             <MenuItem key={`role${role.id}`} value={role.id}>{role.name}</MenuItem>
                         )
@@ -139,7 +138,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
     const specialUnitsRoles = forceData.special_unit_roles;
 
     // Array that will hold all special units the officer isn't a part of
-    let availableSpecialUnits: SpecialUnit[] = [];
+    let availableSpecialUnits: SpecialUnitData[] = [];
     for (const unit of specialUnits) {
         let isPartOf = false;
         for (const officerUnit of officerSpecialUnits) {
@@ -172,7 +171,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                             });
                         }}
                     >
-                        {availableSpecialUnits.map((unit: SpecialUnit) => {
+                        {availableSpecialUnits.map((unit: SpecialUnitData) => {
                             return (
                                 <MenuItem key={`newUnit${unit.id}`} value={unit.id}>{unit.name}</MenuItem>
                             )
@@ -193,7 +192,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                             });
                         }}
                     >
-                        {specialUnitsRoles.map((role: SpecialUnitRole) => {
+                        {specialUnitsRoles.map((role: SpecialUnitRoleData) => {
                             return (
                                 <MenuItem key={`newUnitRole${role.id}`} value={role.id}>{role.name}</MenuItem>
                             )

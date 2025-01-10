@@ -5,7 +5,7 @@ import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultOutlinedTextField} from "../../../components/DefaultComponents";
 import React from "react";
-import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup} from "@mui/material";
+import {FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Gate from "../../../components/Gate/gate.tsx";
 
 type FireModalProps = {

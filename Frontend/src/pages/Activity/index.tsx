@@ -15,12 +15,13 @@ import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
 import {Skeleton, Typography} from "@mui/material";
-import {ForceDataContext, getObjectFromId, InactivityType} from "../../force-data-context.ts";
+import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
 import moment from "moment"
 import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
+import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 
 
 type ActivityHoursCardProps = {
@@ -85,7 +86,7 @@ function ActivityJustificationCard({type, start, end, status, timestamp, onClick
                     <Typography color={"white"} fontSize={"large"} marginBottom={"5px"}>Justificação de
                         Inatividade</Typography>
                     <Typography
-                        color={"gray"}>Tipo: {(getObjectFromId(type, forceData.inactivity_types) as InactivityType).name}</Typography>
+                        color={"gray"}>Tipo: {(getObjectFromId(type, forceData.inactivity_types) as InactivityTypeData).name}</Typography>
 
                     <Gate show={end !== null}>
                         <Typography color={"gray"}>
@@ -226,7 +227,7 @@ function Activity() {
             }
 
             setCurrentOfficerPatentAndName({
-                patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents).name,
+                patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents)!.name,
                 name: officerDataResponseData.data.name
             });
 
