@@ -1,6 +1,9 @@
 import {RequestSuccess} from "../../index";
 
 export interface OfficerLastShiftResponse extends RequestSuccess {
+    meta: {
+        passed_max_days: boolean
+    }
     data: {
         last_shift: string
     }

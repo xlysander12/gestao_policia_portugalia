@@ -7,6 +7,7 @@ import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/acti
 import {dateToString} from "../../../../../utils/date-handler";
 import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import {getForceMaxNonWorkingDays} from "../../../../../utils/config-handler";
 
 export async function getLastShiftController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Call the service to get the last shift of the officer
@@ -21,6 +22,9 @@ export async function getLastShiftController(req: express.Request, res: OfficerI
     // If the result is positive, return the last shift as a date string
     return res.status(result.status).json(ensureAPIResponseType<OfficerLastShiftResponse>({
         message: result.message,
+        meta: {
+           passed_max_days: Date.now() > result.data!.getTime() + getForceMaxNonWorkingDays(req.header(FORCE_HEADER)!) * 24 * 60 * 60 * 1000
+        },
         data: {
             last_shift: dateToString(result.data!, false)
         }
