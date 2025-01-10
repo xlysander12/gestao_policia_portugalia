@@ -14,6 +14,7 @@ import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {OfficerHoursEntryType} from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import {getForceMinWeekMinutes} from "../../../../../utils/config-handler";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the filters values
@@ -57,6 +58,9 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
 
     res.status(result.status).json(ensureAPIResponseType<OfficerSpecificHoursResponse>({
         message: result.message!,
+        meta: {
+            min_hours: result.data!.minutes >= getForceMinWeekMinutes(req.header(FORCE_HEADER)!)
+        },
         data: {
             ...result.data!,
             week_start: dateToString(result.data!.week_start, false),
@@ -77,6 +81,9 @@ export async function getOfficerLastWeekController(req: express.Request, res: Of
 
     res.status(result.status).json(ensureAPIResponseType<OfficerSpecificHoursResponse>({
         message: result.message!,
+        meta: {
+            min_hours: result.data!.minutes >= getForceMinWeekMinutes(req.header(FORCE_HEADER)!)
+        },
         data: {
             ...result.data!,
             week_start: dateToString(result.data!.week_start, false),

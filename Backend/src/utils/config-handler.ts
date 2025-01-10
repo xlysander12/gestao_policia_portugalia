@@ -46,3 +46,11 @@ export function getForceInactiveStatus(force: string) {
 export function getForceInactivityJustificationType(force: string) {
     return config.forces[force].inactivity_justification_type;
 }
+
+export function getForceMaxNonWorkingDays(force: string) {
+    return config.forces[force].maximum_non_working_days;
+}
+
+export function getForceMinWeekMinutes(force: string) {
+    return config.forces[force].minumum_week_minutes;
+}

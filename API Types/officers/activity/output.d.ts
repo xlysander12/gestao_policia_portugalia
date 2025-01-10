@@ -15,6 +15,9 @@ interface OfficerSpecificHoursType {
 }
 
 export interface OfficerSpecificHoursResponse extends RequestSuccess {
+    meta: {
+        min_hours: boolean
+    }
     data: OfficerSpecificHoursType
 }
 
