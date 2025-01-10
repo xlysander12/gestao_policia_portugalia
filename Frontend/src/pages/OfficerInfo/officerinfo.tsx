@@ -305,7 +305,7 @@ function OfficerInfo() {
             {/*Div that splits the screen*/}
             <ScreenSplit
                 leftSidePercentage={30}
-                leftSideComponent={<OfficerList callbackFunction={officerListCallback}/>}
+                leftSideComponent={<OfficerList callbackFunction={officerListCallback} disabled={loading}/>}
             >
                 {/*Div where content's will be*/}
                 <div className={style.officerInfoInnerDiv}>
