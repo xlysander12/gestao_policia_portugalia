@@ -4,10 +4,14 @@ import metricsRoutes from "./metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
 import {assureBodyFields, assureRouteBasicInfo, getRouteDetailsMiddleware} from "../middlewares";
+import {loggerMiddleware} from "../middlewares";
 
 const apiRoutes = express.Router();
 
 // * Import Middlewares
+// Middleware to log all requests
+apiRoutes.use(loggerMiddleware);
+
 // Middleware to gather the route's information from the routes object
 apiRoutes.use(getRouteDetailsMiddleware);
 

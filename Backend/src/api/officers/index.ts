@@ -1,6 +1,6 @@
 import express from 'express';
 import activityRoutes from './activity';
-import officerExistsMiddle from "../../middlewares/officer-exists";
+import {officerExistsMiddle} from "../../middlewares";
 import {
     addOfficerController,
     alterOfficerController, deleteOfficerController,
