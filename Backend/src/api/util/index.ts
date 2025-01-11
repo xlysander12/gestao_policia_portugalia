@@ -6,6 +6,7 @@ import {
     getSpecialUnitsController,
     getStatusesController
 } from "./controllers";
+import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
@@ -20,6 +21,6 @@ app.get("/intents", getIntentsController);
 
 app.get("/inactivity-types", getInactivityTypesController);
 
-console.log("[Portal Segurança] Util routes loaded successfully.");
+logToConsole("Util routes loaded successfully", "info");
 
 export default app;

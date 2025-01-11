@@ -11,3 +11,7 @@ export function dateToString(date: Date, preserveHours: boolean = true): string 
 export function stringToDate(date: string): Date {
     return new Date(Date.parse(date));
 }
+
+export function formatDateTime(date: Date): string {
+    return date.toISOString().split(".")[0].replace("T", " @ ");
+}

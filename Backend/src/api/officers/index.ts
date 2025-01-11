@@ -7,6 +7,7 @@ import {
     getOfficerDetailsController,
     getOfficersListController
 } from "./controllers";
+import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
@@ -32,6 +33,6 @@ app.delete("/:nif", officerExistsMiddle, deleteOfficerController);
 // Load the activity routes
 app.use("/:nif(\\d+)/activity", officerExistsMiddle, activityRoutes);
 
-console.log("[Portal Segurança] Officers routes loaded successfully.")
+logToConsole("Officers routes loaded successfully", "info");
 
 export default app;

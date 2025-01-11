@@ -12,12 +12,15 @@ config({path: join(__dirname, "..", ".env")});
 import {getForcesList, loadConfig} from "./utils/config-handler";
 loadConfig();
 
+// Initialize the log file
+import {initializeLogFile, logToConsole} from "./utils/logger";
+initializeLogFile();
+
 import apiRoutes from "./api";
 import {queryDB} from "./utils/db-connector";
 import {isTokenValid} from "./api/accounts/repository";
 
 const app = Router(); // This app is a router to compartimentalize routes
-
 
 // * Most basic Middleware
 // Body Parser
@@ -84,4 +87,4 @@ app.get(/\/.*/, (req, res) => {
 
 export default app;
 
-console.log("[Portal Segurança] Portal Segurança has been fully loaded!")
+logToConsole("Portal Segurança has been fully loaded!", "info", true);

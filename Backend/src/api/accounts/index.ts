@@ -12,6 +12,7 @@ import {
 } from "./controllers";
 
 import {accountExistsMiddle} from "../../middlewares";
+import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
@@ -45,6 +46,6 @@ app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
 app.delete("/:nif(\\d+)", accountExistsMiddle, deleteAccountController);
 
 
-console.log("[Portal Segurança] Account routes loaded successfully!");
+logToConsole("Account routes loaded successfully", "info");
 
 export default app;

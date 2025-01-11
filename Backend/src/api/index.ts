@@ -5,6 +5,7 @@ import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
 import {assureBodyFields, assureRouteBasicInfo, getRouteDetailsMiddleware} from "../middlewares";
 import {loggerMiddleware} from "../middlewares";
+import {logToConsole} from "../utils/logger";
 
 const apiRoutes = express.Router();
 
@@ -35,6 +36,6 @@ apiRoutes.use("/accounts", accountRoutes);
 apiRoutes.use("/officers", officerInfoRoutes)
 
 
-console.log("[Portal Segurança] API routes loaded successfully.");
+logToConsole("API routes loaded successfully", "info");
 
 export default apiRoutes;

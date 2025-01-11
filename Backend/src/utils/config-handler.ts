@@ -1,12 +1,14 @@
 import fs from "fs";
 import {join} from "path";
 import {ConfigTypes, StaticConfigTypes} from "../types";
+import {logToConsole} from "./logger";
 
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 
 export function loadConfig() {
     if (!fs.existsSync(join(__dirname, "..", "..", "config.json"))) {
         // Since the config file doesn't exist, create a new one based on the sample
+        logToConsole("Config file doesn't exist, creating a new one based on the sample", "info");
         fs.copyFileSync(join(__dirname, "..", "assets", "config.sample.json"), join(__dirname, "..", "..","config.json"));
     } else { // Since the config file exists, check if it's valid
         // Read the config file
@@ -15,7 +17,7 @@ export function loadConfig() {
         // Check if the config file is valid
         config = ConfigTypes.check(file);
 
-        console.log("Config file is valid");
+        logToConsole("Config file validated and loaded", "info");
     }
 }
 

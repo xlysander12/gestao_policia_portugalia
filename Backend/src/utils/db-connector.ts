@@ -1,7 +1,5 @@
 import assert from "node:assert";
 
-console.log("Loading: db-connector.ts");
-
 import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
 import {getDatabaseConnetionDetails, getForceDatabase, getForcesList} from "./config-handler";
 type poolsType = {

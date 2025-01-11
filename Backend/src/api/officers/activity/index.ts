@@ -2,6 +2,7 @@ import express from "express";
 import lastShiftRoutes from "./last-shift";
 import hoursRoutes from "./hours";
 import justificationsRoutes from "./justifications";
+import {logToConsole} from "../../../utils/logger";
 
 const app = express.Router();
 
@@ -15,6 +16,6 @@ app.use("/hours", hoursRoutes);
 app.use("/justifications", justificationsRoutes);
 
 
-console.log("[Portal Segurança] Officer Activity routes loaded successfully.")
+logToConsole("Officer Activity routes loaded successfully", "info");
 
 export default app;
