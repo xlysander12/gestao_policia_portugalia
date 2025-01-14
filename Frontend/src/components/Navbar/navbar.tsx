@@ -1,12 +1,16 @@
 import {useContext, useState} from "react";
 import style from "./navbar.module.css";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
+import {make_request} from "../../utils/requests.ts";
+import {toast} from "react-toastify";
+import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import {ConfirmationDialog} from "../Modal/modal.tsx";
 
 type SubPathProps = {
     path?: string,
@@ -75,10 +79,14 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     // Set other useful hooks
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Set the state that holds if the account menu is open
     const [accountMenuOpen, setAccountMenuOpen] = useState<boolean>(false);
     const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
+
+    // Set the state that holds if the confirmation dialog for the logout is open
+    const [isLogoutOpen, setLogoutOpen] = useState<boolean>(false);
 
     // Set the full name of the officer
     let fullName = "";
@@ -98,6 +106,25 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // If we're in a path different than the main one, add the main path to the paths array
     if (currentPath !== "") {
         paths.push(<SubPath key={`navbarPath${currentPath}`} name={currentPath[0].toUpperCase() + currentPath.slice(1)}/>);
+    }
+
+    async function logout() {
+        // Call the logout endpoint
+        const response = await make_request(`/accounts/logout`, "POST");
+        const responseJson: RequestSuccess = await response.json();
+
+        // If the response is not ok, show a toast with the error
+        if (!response.ok) {
+            toast(responseJson.message, {type: "error"});
+            return;
+        }
+
+        // Since the request was successful, the cookie with the session token has already been deleted
+        // Delete the force from the local storage
+        localStorage.removeItem("force");
+
+        // Redirect to the login page
+        navigate("/login");
     }
 
     return (
@@ -165,8 +192,10 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 <MenuItem>Fazer Sugestão</MenuItem>
                 <Divider/>
                 <MenuItem>Alterar Palavra-Passe</MenuItem>
-                <MenuItem>Terminar Sessão</MenuItem>
+                <MenuItem onClick={() => {setAccountMenuOpen(false); setLogoutOpen(true)}}>Terminar Sessão</MenuItem>
             </Menu>
+
+            <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>
         </>
     );
 }
