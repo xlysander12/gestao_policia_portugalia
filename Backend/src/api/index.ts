@@ -3,7 +3,12 @@ import utilRoutes from "./util";
 import metricsRoutes from "./metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
-import {assureBodyFields, assureRouteBasicInfo, getRouteDetailsMiddleware} from "../middlewares";
+import {
+    assureBodyFields,
+    assureRouteBasicInfo,
+    errorHandlerMiddleware,
+    getRouteDetailsMiddleware
+} from "../middlewares";
 import {loggerMiddleware} from "../middlewares";
 import {logToConsole} from "../utils/logger";
 
@@ -33,7 +38,10 @@ apiRoutes.use("/metrics", metricsRoutes);
 apiRoutes.use("/accounts", accountRoutes);
 
 // Import Officer Info routes
-apiRoutes.use("/officers", officerInfoRoutes)
+apiRoutes.use("/officers", officerInfoRoutes);
+
+// * Middleware to handle errors
+apiRoutes.use(errorHandlerMiddleware);
 
 
 logToConsole("API routes loaded successfully", "info");

@@ -22,15 +22,15 @@ app.post("/", createOfficerJustificationController);
 app.get("/active", getOfficerActiveJustificationsController);
 
 // Route to get the details of a justification
-app.get("/:id(\\d+)", justificationExistsMiddleware, getOfficerJustificationDetailsController);
+app.get("/:id", justificationExistsMiddleware, getOfficerJustificationDetailsController);
 
 // Route to aprove or deny a justification
-app.post("/:id(\\d+)", justificationExistsMiddleware, manageOfficerJustificationController);
+app.post("/:id", justificationExistsMiddleware, manageOfficerJustificationController);
 
 // Route to change the details of a justification
-app.patch("/:id(\\d+)", justificationExistsMiddleware, isJustificationEditable, changeOfficerJustificationController);
+app.patch("/:id", justificationExistsMiddleware, isJustificationEditable, changeOfficerJustificationController);
 
 // Route to delete a justification
-app.delete("/:id(\\d+)", justificationExistsMiddleware, isJustificationEditable, deleteOfficerJustificationController);
+app.delete("/:id", justificationExistsMiddleware, isJustificationEditable, deleteOfficerJustificationController);
 
 export default app;

@@ -15,7 +15,7 @@ app.get("/", getOfficerHoursHistoryController);
 app.get("/last", getOfficerLastWeekController);
 
 // Route to get a specific entry of hours of an officer
-app.get("/:id(\\d+)", getOfficerHoursEntryController);
+app.get("/:id", getOfficerHoursEntryController);
 
 
 // * Routes to manage the hours of an officer
@@ -23,6 +23,6 @@ app.get("/:id(\\d+)", getOfficerHoursEntryController);
 app.post("/", addOfficerHoursEntryController);
 
 // Route to delete an entry of hours of an officer
-app.delete("/:id(\\d+)", deleteOfficerGetHoursEntryController);
+app.delete("/:id", deleteOfficerGetHoursEntryController);
 
 export default app;

@@ -26,24 +26,24 @@ app.post("/login", loginUserController);
 app.post("/change-password", changeUserPasswordController);
 
 // Endpoint to fetch all forces an user has access to
-app.get("/:nif(\\d+)/forces", accountExistsMiddle, getAccountForcesController);
+app.get("/:nif/forces", accountExistsMiddle, getAccountForcesController);
 
 // Endpoint to reset the password of another account
-app.post("/:nif(\\d+)/reset-password", accountExistsMiddle, resetPasswordController);
+app.post("/:nif/reset-password", accountExistsMiddle, resetPasswordController);
 
 // Endpoint to get a user's accounts information
-app.get("/:nif(\\d+)", accountExistsMiddle, getUserAccountDetailsController);
+app.get("/:nif", accountExistsMiddle, getUserAccountDetailsController);
 
 // Endpoint to create an account
-app.post("/:nif(\\d+)", createAccountController);
+app.post("/:nif", createAccountController);
 
 // Endpoint to edit an account's permissions / suspended statuses
-app.patch("/:nif(\\d+)", accountExistsMiddle, changeAccountDetailsController);
+app.patch("/:nif", accountExistsMiddle, changeAccountDetailsController);
 
 // Endpoint to delete an account
 // ! This endpoint will rarely be used since there's no big reason to need to delete an account
 // ! If an account needs to be deleted, in theory, the officer linked to it should be fired
-app.delete("/:nif(\\d+)", accountExistsMiddle, deleteAccountController);
+app.delete("/:nif", accountExistsMiddle, deleteAccountController);
 
 
 logToConsole("Account routes loaded successfully", "info");

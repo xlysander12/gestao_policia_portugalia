@@ -98,18 +98,20 @@ function logTypeColorFromString(type: "info" | "warning" | "error") {
 
 export function logToConsole(message: string, type?: "info" | "warning" | "error", outputToFile = false) {
     const finalMessage = `${pc.blue("[Portal Segurança]")} [${formatDateTime(new Date())}]${type ? ` [${logTypeColorFromString(type)(capitalizeFirstLetter(type))}]`: ""} ${message}`;
-    console.log(finalMessage);
+    const finalMessageNoColors = finalMessage.replace(/\u001b\[.*?m/g, "");
+
+    console.log(pc.isColorSupported ? finalMessage: finalMessageNoColors);
 
     if (outputToFile) {
-        logToConsole("Outputting to file is DISABLED", "warning");
+        // logToConsole("Outputting to file is DISABLED", "warning");
 
-        // let fileLogBuilder = "=================== // ====================\n";
-        //
-        // // Add the message to the builder
-        // fileLogBuilder += finalMessage + "\n";
-        //
-        // // Append the message to the file
-        // fs.appendFileSync(logFile, fileLogBuilder);
+        let fileLogBuilder = "=================== // ====================\n";
+
+        // Add the message to the builder
+        fileLogBuilder += finalMessageNoColors + "\n";
+
+        // Append the message to the file
+        fsa.appendFile(logFile, fileLogBuilder);
     }
 }
 
@@ -128,11 +130,11 @@ export async function logRequestToFile(res: APIResponse) {
     // Add the line with the Logged User, if applicable
     builder += `Logged User: ${res.locals.routeDetails.requiresToken ? res.locals.loggedOfficer.nif: "N/A"}\n`;
 
-    // Add a blank line
-    builder += "\n";
-
     // Add a line with the request body, if applicable
     if (res.locals.routeDetails.body !== undefined) {
+        // Add a blank line
+        builder += "\n";
+
         builder += `${JSON.stringify(res.req.body)}\n`;
     }
 

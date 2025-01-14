@@ -3,6 +3,7 @@ import express, {Router} from "express";
 import bodyParser from "body-parser"
 import cookieParser from "cookie-parser";
 import serveIndex from "serve-index";
+
 // Load .env file
 import {config} from "dotenv";
 import {join} from "path";
@@ -26,16 +27,17 @@ const app = Router(); // This app is a router to compartimentalize routes
 // Body Parser
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+
 // Cookies Parser
 app.use(cookieParser());
 
-// React Static
+// * React Static
 app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));
 
-// Import the API routes
+// * Import the API routes
 app.use("/api", apiRoutes);
 
-// Database backup files
+// * Database backup files
 app.use("/db", async (req, res, next) => {
     // Check if the user is authenticated and has the right patent
     let loggedUser: {valid: boolean, status: number, nif?: number, force: string} = {
@@ -87,4 +89,4 @@ app.get(/\/.*/, (req, res) => {
 
 export default app;
 
-logToConsole("Portal Segurança has been fully loaded!", "info", true);
+logToConsole("Portal Segurança has been fully loaded!", "info");
