@@ -7,7 +7,7 @@ import {
     changeUserPasswordController, createAccountController, deleteAccountController,
     getAccountForcesController,
     getUserAccountDetailsController,
-    loginUserController, resetPasswordController,
+    loginUserController, logoutUserController, resetPasswordController,
     validateTokenController
 } from "./controllers";
 
@@ -21,6 +21,9 @@ app.post("/validate-token", validateTokenController);
 
 // Endpoint to login an user
 app.post("/login", loginUserController);
+
+// Endpoint to logout an user
+app.post("/logout", logoutUserController);
 
 // Endpoint to allow an user to change their password
 app.post("/change-password", changeUserPasswordController);

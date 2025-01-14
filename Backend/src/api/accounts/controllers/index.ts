@@ -19,7 +19,7 @@ import {
     createAccount,
     deleteUser,
     getUserDetails,
-    loginUser, resetUserPassword,
+    loginUser, logoutUser, resetUserPassword,
     validateToken
 } from "../services";
 import {getAccountForces} from "../services";
@@ -105,6 +105,17 @@ export async function loginUserController(req: express.Request, res: APIResponse
             forces: loginData.data!.forces
         }
     }));
+}
+
+export async function logoutUserController(req: express.Request, res: APIResponse) {
+    // Call the service to remove the token from the database
+    let result = await logoutUser(res.locals.loggedOfficer.nif, req.cookies["sessionToken"] || req.header("Authorization"));
+
+    // Clear the cookie
+    res.clearCookie("sessionToken");
+
+    // Return the result
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 }
 
 export async function changeUserPasswordController(req: express.Request, res: APIResponse) {

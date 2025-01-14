@@ -147,6 +147,10 @@ export async function addAccountToken(force: string, nif: number, token: string,
     await queryDB(force, 'INSERT INTO tokens (token, nif, persistent) VALUES (?, ?, ?)', [token, nif, persistent ? 1: 0]);
 }
 
+export async function deleteAccountToken(force: string, nif: number, token: string) {
+    await queryDB(force, 'DELETE FROM tokens WHERE nif = ? AND token = ?', [nif, token]);
+}
+
 export async function updateAccountPassword(nif: number, hash: string, currentToken: string) {
     // Get the list of forces the user belongs to
     let userForces = await getUserForces(nif);

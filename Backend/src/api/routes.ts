@@ -75,6 +75,16 @@ const accountRoutes: routesType = {
         }
     },
 
+    // Route to logout a user
+    "/accounts/logout$": {
+        methods: {
+            POST: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to change the password of a logged user
     "/accounts/change-password$": {
         methods: {

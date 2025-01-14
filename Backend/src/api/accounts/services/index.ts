@@ -1,6 +1,6 @@
 import {
     addAccount,
-    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount,
+    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountToken,
     generateAccountToken,
     getAccountDetails,
     getUserForces, resetAccountPassword,
@@ -120,6 +120,19 @@ export async function loginUser(nif: number, password: string, persistent: boole
     // Return the data to the Controller
     // * The "forces" field must only include the forces the user is not suspended in
     return {result: true, status: 200, message: "Operação bem sucedida", data: {token, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
+}
+
+export async function logoutUser(nif: number, token: string): Promise<DefaultReturn<void>> {
+    // Get all the forces the user belongs to
+    let forces = await getUserForces(nif);
+
+    // Delete the token from all forces
+    for (const force of forces) {
+        await deleteAccountToken(force.name, nif, token);
+    }
+
+    // Return success
+    return {result: true, status: 200, message: "Sessão terminada!"};
 }
 
 export async function changeUserPassword(nif: number, force: string, oldPassword: string, newPassword: string, confirmPassword: string, sessionToken: string): Promise<DefaultReturn<void>> {
