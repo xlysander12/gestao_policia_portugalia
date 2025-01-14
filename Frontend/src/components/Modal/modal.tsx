@@ -3,6 +3,7 @@ import Popup from "reactjs-popup";
 import React, {ReactElement} from "react";
 import style from "./modal.module.css";
 import {Button, Divider} from "@mui/material";
+import {DefaultTypography} from "../DefaultComponents";
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
@@ -115,8 +116,8 @@ export function ConfirmationDialog({open, title, text, onConfirm, onDeny}: Confi
             />
 
             {/*Text of the dialog*/}
-            <div className={style.content} style={{color: "white"}}>
-                {text}
+            <div className={style.content} style={{textAlign: "left"}}>
+                {text.split("\n").map((line, index) => <DefaultTypography key={index}>{line}</DefaultTypography>)}
             </div>
 
             {/*Cancel and Accept buttons*/}

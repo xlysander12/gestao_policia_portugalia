@@ -471,7 +471,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
             <ConfirmationDialog open={deleteDialogOpen} title={"Apagar Justificação"}
                                 text={"Tens a certeza que desejas apagar esta justificação?\n" +
-                                    "Esta ação não pode ser revertida"} onConfirm={handleDeleteJustification}
+                                    "\n" +
+                                    "Esta ação não pode ser revertida!"} onConfirm={handleDeleteJustification}
                                 onDeny={() => setDeleteDialogOpen(false)}/>
         </>
     );
