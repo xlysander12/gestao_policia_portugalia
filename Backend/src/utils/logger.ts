@@ -125,10 +125,10 @@ export async function logRequestToFile(res: APIResponse) {
     builder += `Source IP: ${res.req.socket.remoteAddress}\n`;
 
     // Add the line with the force, if applicable
-    builder += `Force: ${res.locals.routeDetails.requiresForce ? res.req.header(FORCE_HEADER)!.toUpperCase(): "N/A"}\n`;
+    builder += `Force: ${res.locals.routeDetails.requiresForce ? (res.req.header(FORCE_HEADER) ? res.req.header(FORCE_HEADER)!.toUpperCase(): "Force not Present"): "N/A"}\n`;
 
     // Add the line with the Logged User, if applicable
-    builder += `Logged User: ${res.locals.routeDetails.requiresToken ? res.locals.loggedOfficer.nif: "N/A"}\n`;
+    builder += `Logged User: ${res.locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? res.locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
 
     // Add a line with the request body, if applicable
     if (res.locals.routeDetails.body !== undefined) {
