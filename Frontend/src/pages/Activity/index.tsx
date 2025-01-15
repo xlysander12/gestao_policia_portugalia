@@ -20,7 +20,7 @@ import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
 import moment from "moment"
-import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
+import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 
 
@@ -61,14 +61,15 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
 }
 
 type ActivityJustificationCardProps = {
-    type: number,
-    start: Date,
-    end: Date | null,
-    timestamp: Date,
-    status: "pending" | "approved" | "denied",
+    type: number
+    start: Date
+    end: Date | null
+    timestamp: Date
+    status: "pending" | "approved" | "denied"
+    managed_by: string
     onClick: (id: number) => void
 }
-function ActivityJustificationCard({type, start, end, status, timestamp, onClick}: ActivityJustificationCardProps) {
+function ActivityJustificationCard({type, start, end, status, managed_by, timestamp, onClick}: ActivityJustificationCardProps) {
 
     // Get the force data from context
     const forceData = useContext(ForceDataContext);
@@ -112,11 +113,21 @@ function ActivityJustificationCard({type, start, end, status, timestamp, onClick
                     >
                         {moment(timestamp).calendar()}
                     </DefaultTypography>
+
+                    <DefaultTypography
+                        color={"gray"}
+                        fontSize={"small"}
+                        sx={{marginTop: "auto"}}
+                    >
+                        {managed_by}
+                    </DefaultTypography>
                 </div>
             </div>
         </InformationCard>
     )
 }
+
+type InnerMinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "managed_by"> & {managed_by: string};
 
 function Activity() {
     // Get the logged user from context
@@ -139,7 +150,7 @@ function Activity() {
     const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{ patent: string, name: string }>();
 
     // Set the states with the history of the officer
-    const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | OfficerMinifiedJustification)[]>([]);
+    const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[]>([]);
 
     // Set the modal opened states
     const [hoursModalOpen, setHoursModalOpen] = useState<boolean>(false);
@@ -158,7 +169,7 @@ function Activity() {
             setLoading(true);
 
             // Create a variable to store the officer's data
-            let officerData: (OfficerSpecificHoursType | OfficerMinifiedJustification)[] = [];
+            let officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = [];
 
             // * Fetch the officer's hours
             const hoursResponse = await make_request(`/officers/${currentOfficer}/activity/hours`, "GET");
@@ -175,9 +186,22 @@ function Activity() {
             const justificationsResponseData: OfficerJustificationsHistoryResponse = await justificationsResponse.json();
             if (!justificationsResponse.ok) { // Make sure the request was successful
                 toast(justificationsResponseData.message, {type: "error"});
+                return;
             }
 
-            officerData.push(...justificationsResponseData.data);
+            // Make a secondary array with the justifications to change the managed_by value
+            let justificationsManagedBy = [];
+
+            for (const justification of justificationsResponseData.data) {
+                const officer = await getOfficerFromNif(justification.managed_by!);
+
+                justificationsManagedBy.push({
+                    ...justification,
+                    managed_by: justification.status !== "pending" ? `${getObjectFromId(officer.patent, forceData.patents)?.name} ${officer.name}` : ""
+                });
+            }
+
+            officerData.push(...justificationsManagedBy);
 
             // * Update the state with the officer's data
             setOfficerHistory(officerData);
@@ -322,7 +346,7 @@ function Activity() {
                                             />
                                         )
                                     } else { // If it's not an "hours" entry, it's a "justification" entry
-                                        const entryData = entry as OfficerMinifiedJustification;
+                                        const entryData = entry as InnerMinifiedOfficerJustification;
                                         return (
                                             <ActivityJustificationCard
                                                 key={`ActivityEntryJustification${index}`}
@@ -331,6 +355,7 @@ function Activity() {
                                                 end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
                                                 timestamp={new Date(entryData.timestamp)}
                                                 status={entryData.status}
+                                                managed_by={entryData.managed_by}
                                                 onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}}
                                             />
                                         )

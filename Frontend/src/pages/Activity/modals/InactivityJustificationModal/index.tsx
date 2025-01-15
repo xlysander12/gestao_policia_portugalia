@@ -21,7 +21,7 @@ import {
 } from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
-import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {getOfficerFromNif} from "../../../../utils/misc.ts";
 
 const justificationDataDefault: OfficerJustification = {
     id: 0,
@@ -94,9 +94,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
             // Fetch the managed by name
             if ((data as OfficerJustificationDetailsResponse).data.managed_by) {
-                const managedByResponse = await make_request(`/officers/${(data as OfficerJustificationDetailsResponse).data.managed_by}`, "GET");
-                const managedByData: RequestError | OfficerInfoGetResponse = await managedByResponse.json();
-                setJustificationManagedBy(`${getObjectFromId((managedByData as OfficerInfoGetResponse).data.patent, forceData.patents)?.name} ${(managedByData as OfficerInfoGetResponse).data.name}`);
+                const managedBy = await getOfficerFromNif((data as OfficerJustificationDetailsResponse).data.managed_by!);
+                setJustificationManagedBy(`${getObjectFromId(managedBy.patent, forceData.patents)?.name} ${managedBy.name}`);
             }
 
             // Set the need to reload to false
