@@ -136,11 +136,16 @@ export async function logRequestToFile(res: APIResponse) {
     builder += `Logged User: ${res.locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? res.locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
 
     // Add a line with the request body, if applicable
-    if (res.locals.routeDetails.body !== undefined) {
+    if (res.locals.routeDetails.body !== undefined) { // Make sure this route is supposed to have a body
         // Add a blank line
         builder += "\n";
 
-        builder += `${JSON.stringify(res.req.body)}\n`;
+        // If the route is either the login or change-password, don't log the body to prevent leaking sensitive information
+        if (res.req.originalUrl.includes("login") || res.req.originalUrl.includes("change-password")) {
+            builder += "[Body not logged to prevent leaking sensitive information]\n";
+        } else {
+            builder += `${JSON.stringify(res.req.body)}\n`;
+        }
     }
 
     // After everything has been added to the string, write it to the file
