@@ -10,6 +10,9 @@ function Login() {
     // Set the useNavigate hook
     const navigate = useNavigate()
 
+    // Set the state for the loading
+    const [loading, setLoading] = useState<boolean>(false);
+
     // Set the state for the NIF and password
     const [nif, setNif] = useState<number>(0);
     const [password, setPassword] = useState("");
@@ -18,6 +21,9 @@ function Login() {
     const onLogin = async (event: any) => {
         // Prevent the page from reloading and reidireting by itself
         event.preventDefault();
+
+        // Set the loading state to true
+        setLoading(true);
 
         // Check if the credentials are correct
         let loginResponse = await make_request("/accounts/login", "POST", {
@@ -35,6 +41,7 @@ function Login() {
         // If the request didn't return a 200 code, the login was unsuccessful
         if (!loginResponse.ok) {
             toast(loginJson.message, {type: "error"});
+            setLoading(false);
             return;
         }
 
@@ -46,6 +53,10 @@ function Login() {
         localStorage.setItem("needsReload", "true");
 
         // ! Since the token should now be stored in cookies, there's no need to store it in the local storage
+        // Disable the loading flag
+        setLoading(false);
+
+        // Redirect the user to the home page
         navigate("/");
     }
 
@@ -54,8 +65,6 @@ function Login() {
             <form onSubmit={onLogin}>
                 <div className={style.innerLoginDiv}>
                     {/*Login form*/}
-                    {/*@ts-ignore*/}
-
 
                     <DefaultOutlinedTextField
                         alternateColor
@@ -69,6 +78,7 @@ function Login() {
                             pattern: "^[0-9]*$"
                         }}
                         value={nif === 0 ? "" : nif}
+                        disabled={loading}
                     />
 
                     <DefaultOutlinedTextField
@@ -80,6 +90,7 @@ function Login() {
                         onChange={(event) => setPassword(event.target.value)}
                         value={password}
                         required
+                        disabled={loading}
                     />
 
                     <FormControlLabel
@@ -106,11 +117,13 @@ function Login() {
                         sx={{
                             margin: "-10px"
                         }}
+                        disabled={loading}
                     />
 
                     <DefaultButton
                         fullWidth
                         type={"submit"}
+                        disabled={loading}
                     >Entrar</DefaultButton>
             </div>
         </form>
