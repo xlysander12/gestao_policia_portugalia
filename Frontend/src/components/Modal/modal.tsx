@@ -126,7 +126,7 @@ export function ConfirmationDialog({open, title, text, onConfirm, onDeny}: Confi
                     Cancelar
                 </Button>
 
-                <Button onClick={onConfirm}>
+                <Button onClick={() => {onConfirm(null); onDeny(null)}}>
                     Aceitar
                 </Button>
             </div>
