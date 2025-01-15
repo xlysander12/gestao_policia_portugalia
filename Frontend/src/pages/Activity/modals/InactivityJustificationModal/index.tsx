@@ -8,7 +8,7 @@ import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Mo
 import {make_request} from "../../../../utils/requests.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";
-import {ForceDataContext} from "../../../../force-data-context.ts";
+import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
@@ -21,6 +21,7 @@ import {
 } from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
+import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 
 const justificationDataDefault: OfficerJustification = {
     id: 0,
@@ -61,6 +62,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
     // Set the state with the data of the justification
     const [justificationData, setJustificationData] = useImmer<OfficerJustification>(justificationDataDefault);
+    const [justificationManagedBy, setJustificationManagedBy] = useState<string | null>(null);
 
     // Everytime the modal is opened, set the justification data to the default
     useEffect(() => {
@@ -89,6 +91,13 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
             // Set the justification data
             setJustificationData((data as OfficerJustificationDetailsResponse).data);
+
+            // Fetch the managed by name
+            if ((data as OfficerJustificationDetailsResponse).data.managed_by) {
+                const managedByResponse = await make_request(`/officers/${(data as OfficerJustificationDetailsResponse).data.managed_by}`, "GET");
+                const managedByData: RequestError | OfficerInfoGetResponse = await managedByResponse.json();
+                setJustificationManagedBy(`${getObjectFromId((managedByData as OfficerInfoGetResponse).data.patent, forceData.patents)?.name} ${(managedByData as OfficerInfoGetResponse).data.name}`);
+            }
 
             // Set the need to reload to false
             setNeedsReload(false);
@@ -236,6 +245,23 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                 </DefaultTypography>
 
                                 <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                <Gate show={justificationData?.status !== "pending"}>
+                                    <DefaultTypography
+                                        color={"var(--portalseguranca-color-accent)"}
+                                        fontSize={"medium"}
+                                        fontWeight={"bold"}
+                                    >
+                                        {justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"} por:
+                                    </DefaultTypography>
+                                    <DefaultTypography
+                                        sx={{marginBottom: "10px"}}
+                                    >
+                                        {justificationManagedBy ? justificationManagedBy : "N/A"}
+                                    </DefaultTypography>
+
+                                    <Divider flexItem sx={{marginBottom: "5px"}}/>
+                                </Gate>
                             </Gate>
                             {/* Type */}
                             <DefaultTypography
