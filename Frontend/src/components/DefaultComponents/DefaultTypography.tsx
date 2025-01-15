@@ -5,6 +5,7 @@ type DefaultTypographyProps = Partial<TypographyProps> & {
     color?: string
     clickable?: boolean
     clickableColorHover?: string
+    onClick?: () => void
 }
 
 const DefaultTypographyStyle = styled(Typography, {
@@ -16,12 +17,13 @@ const DefaultTypographyStyle = styled(Typography, {
     }
 }));
 
-function DefaultTypography({color = "var(--portalseguranca-color-text-light)", clickable = false, clickableColorHover = "var(--portalseguranca-color-text-hover)", ...props}: DefaultTypographyProps) {
+function DefaultTypography({color = "var(--portalseguranca-color-text-light)", clickable = false, clickableColorHover = "var(--portalseguranca-color-text-hover)", onClick, ...props}: DefaultTypographyProps) {
     return (
         <DefaultTypographyStyle
             color={color}
             clickable={clickable}
             clickableColorHover={clickableColorHover}
+            onClick={clickable ? onClick: undefined}
             {...props}
         >
             {props.children}
