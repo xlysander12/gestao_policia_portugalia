@@ -37,6 +37,10 @@
     /*margin: auto;*/
 }
 
+.content .section:last-child {
+    margin: 0;
+}
+
 .confimationButtonsDiv {
     width: 100%;
     display: flex;

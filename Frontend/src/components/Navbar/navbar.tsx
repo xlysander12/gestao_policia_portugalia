@@ -11,6 +11,7 @@ import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal/modal.tsx";
+import ChangePasswordModal from "./modals/change-password.tsx";
 
 type SubPathProps = {
     path?: string,
@@ -85,8 +86,11 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const [accountMenuOpen, setAccountMenuOpen] = useState<boolean>(false);
     const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
 
-    // Set the state that holds if the confirmation dialog for the logout is open
+    // Set the state of the confirmation dialog for the logout
     const [isLogoutOpen, setLogoutOpen] = useState<boolean>(false);
+
+    // Set the state of the change password modal
+    const [isChangePasswordOpen, setChangePasswordOpen] = useState<boolean>(false);
 
     // Set the full name of the officer
     let fullName = "";
@@ -191,9 +195,11 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 <MenuItem>Reportar Problema</MenuItem>
                 <MenuItem>Fazer Sugestão</MenuItem>
                 <Divider/>
-                <MenuItem>Alterar Palavra-Passe</MenuItem>
+                <MenuItem onClick={() => {setAccountMenuOpen(false); setChangePasswordOpen(true)}}>Alterar Palavra-Passe</MenuItem>
                 <MenuItem onClick={() => {setAccountMenuOpen(false); setLogoutOpen(true)}}>Terminar Sessão</MenuItem>
             </Menu>
+
+            <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
 
             <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>
         </>

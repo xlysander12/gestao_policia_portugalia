@@ -125,7 +125,6 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
             {/*Barra de pesquisa*/}
             <form onSubmit={handleSearch}>
                 <div className={style.officerListSearchDiv}>
-                    {/*TODO: Label looks awful when there's someting written on the field*/}
                     <DefaultOutlinedTextField
                         size={"small"}
                         value={searchString}

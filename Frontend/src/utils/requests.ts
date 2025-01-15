@@ -45,7 +45,7 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
     }
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reload the current page
-    // TODO: Add a toast with the error code
+    // TODO: Redirect to a custom error page instead of reloading the page and, somewhere, show the error code
     if (response.status >= 500) {
         window.location.reload();
     }
