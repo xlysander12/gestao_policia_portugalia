@@ -90,7 +90,7 @@ function OfficerInfo() {
             phone: number,
             iban: string,
             kms: number,
-            discord: string,
+            discord: number,
             steam: string
         },
         professional: {
@@ -123,7 +123,7 @@ function OfficerInfo() {
     const [officerNif, setOfficerNif] = useState<number>((nif ? Number(nif): false) || loggedUser.info.personal.nif);
     const [officerInfo, setOfficerInfo] = useImmer<OfficerInfoState>({
         personal: {
-            discord: "",
+            discord: 0,
             iban: "",
             kms: 0,
             name: "",
@@ -208,7 +208,7 @@ function OfficerInfo() {
                     phone: officerInfo.personal.phone,
                     iban: officerInfo.personal.iban,
                     kms: officerInfo.personal.kms,
-                    discord: Number(officerInfo.personal.discord),
+                    discord: officerInfo.personal.discord,
                     steam: officerInfo.personal.steam,
 
                     // Professional Info
@@ -216,7 +216,6 @@ function OfficerInfo() {
                     callsign: officerInfo.professional.callsign,
                     status: officerInfo.professional.status,
                     entry_date: officerInfo.professional.entry_date,
-                    promotion_date: officerInfo.professional.promotion_date,
 
                     // Special Units
                     special_units: officerInfo.professional.special_units

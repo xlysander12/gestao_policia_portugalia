@@ -19,7 +19,7 @@ export const UpdateOfficerRequestBody = Record({
     phone: Optional(Number),
     iban: Optional(String),
     kms: Optional(Number),
-    discord: Optional(String),
+    discord: Optional(Number),
     steam: Optional(String),
     special_units: Optional(Array(Record({
         id: Number,
