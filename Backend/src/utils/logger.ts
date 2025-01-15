@@ -116,6 +116,11 @@ export function logToConsole(message: string, type?: "info" | "warning" | "error
 }
 
 export async function logRequestToFile(res: APIResponse) {
+    if (!res.locals.routeDetails) {
+        logToConsole(`Route details not present in response oject. Skipping logging... [${res.req.originalUrl}]`, "warning");
+        return;
+    }
+
     let builder = "=================== // ====================\n";
 
     // Add the line with the Method, URL, status code and timestamp
