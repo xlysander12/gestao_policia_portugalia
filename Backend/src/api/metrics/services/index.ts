@@ -16,7 +16,7 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
-        return {result: false, status: githubResponse.status, message: "Ocorreu um erro ao enviar o problema"};
+        return {result: false, status: 500, message: "Ocorreu um erro ao enviar o problema"};
     }
 
     // Return a 200 status code
@@ -37,9 +37,9 @@ export async function sendSuggestion(loggedUser: InnerOfficerData, title: string
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
-        return {result: false, status: githubResponse.status, message: "Ocorreu um erro ao enviar o problema"};
+        return {result: false, status: 500, message: "Ocorreu um erro ao enviar a sugestão"};
     }
 
     // Return a 200 status code
-    return {result: true, status: 200, message: "Problema reportado com sucesso. Obrigado!"};
+    return {result: true, status: 200, message: "Sugestão enviada com sucesso. Obrigado!"};
 }
