@@ -12,6 +12,7 @@ import {toast} from "react-toastify";
 import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal/modal.tsx";
 import ChangePasswordModal from "./modals/change-password.tsx";
+import FeedbackModal from "./modals/feedback.tsx";
 
 type SubPathProps = {
     path?: string,
@@ -91,6 +92,9 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     // Set the state of the change password modal
     const [isChangePasswordOpen, setChangePasswordOpen] = useState<boolean>(false);
+
+    // Set the state of the feedback modal
+    const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
 
     // Set the full name of the officer
     let fullName = "";
@@ -191,17 +195,46 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 }}
             >
                 <MenuItem>Atualizar Data Última Cerimónia</MenuItem>
+
                 <Divider/>
-                <MenuItem>Reportar Problema</MenuItem>
-                <MenuItem>Fazer Sugestão</MenuItem>
+
+                <MenuItem
+                    onClick={() => {
+                        setAccountMenuOpen(false);
+                        setFeedbackOpen({open: true, type: "error"})
+                    }}
+                >
+                    Reportar Problema
+                </MenuItem>
+
+                <MenuItem
+                    onClick={() => {
+                        setAccountMenuOpen(false);
+                        setFeedbackOpen({open: true, type: "suggestion"});
+                    }}
+                >
+                    Fazer Sugestão
+                </MenuItem>
+
                 <Divider/>
-                <MenuItem onClick={() => {setAccountMenuOpen(false); setChangePasswordOpen(true)}}>Alterar Palavra-Passe</MenuItem>
-                <MenuItem onClick={() => {setAccountMenuOpen(false); setLogoutOpen(true)}}>Terminar Sessão</MenuItem>
+
+                <MenuItem
+                    onClick={() => {setAccountMenuOpen(false); setChangePasswordOpen(true)}}
+                >
+                    Alterar Palavra-Passe
+                </MenuItem>
+
+                <MenuItem
+                    onClick={() => {setAccountMenuOpen(false); setLogoutOpen(true)}}
+                >
+                    Terminar Sessão
+                </MenuItem>
             </Menu>
 
             <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
-
             <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>
+
+            <FeedbackModal type={isFeedbackOpen.type} open={isFeedbackOpen.open} onClose={() => setFeedbackOpen({open: false, type: "error"})} />
         </>
     );
 }

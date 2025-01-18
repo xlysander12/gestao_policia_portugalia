@@ -9,6 +9,7 @@ type MakeRequestOptions = {
     useAuth?: boolean,
     useBaseAPIURL?: boolean,
     redirectToLoginOn401?: boolean
+    reloadOn500?: boolean
 }
 // ! 'useAuth' option is deprecated, and such, has been deleted
 export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
@@ -16,7 +17,8 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
                                        body = {},
                                        force = <string>localStorage.getItem("force"),
                                        useBaseAPIURL = true,
-                                       redirectToLoginOn401 = true
+                                       redirectToLoginOn401 = true,
+                                       reloadOn500 = true
                                    }: MakeRequestOptions = {}) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
@@ -46,7 +48,7 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reload the current page
     // TODO: Redirect to a custom error page instead of reloading the page and, somewhere, show the error code
-    if (response.status >= 500) {
+    if (response.status >= 500 && reloadOn500) {
         window.location.reload();
     }
 
