@@ -47,7 +47,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                 <DefaultTextField
                     fullWidth
                     required
-                    sameTextColorWhenDisabled
+                    textWhenDisabled
                     disabled={!editMode}
                     type={type}
                     error={(pattern !== undefined) && !(pattern.test(String(value)))}

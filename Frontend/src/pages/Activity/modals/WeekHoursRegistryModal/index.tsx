@@ -217,7 +217,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                     </Typography>
                                     <DefaultTextField
                                         disabled={!newEntry}
-                                        sameTextColorWhenDisabled
+                                        textWhenDisabled
                                         type={"date"}
                                         value={entryData?.week_start}
                                         onChange={(e) => setEntryData((draft) => {
@@ -236,7 +236,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                     </Typography>
                                     <DefaultTextField
                                         disabled={!newEntry}
-                                        sameTextColorWhenDisabled
+                                        textWhenDisabled
                                         type={"date"}
                                         value={entryData?.week_end}
                                         onChange={(e) => setEntryData((draft) => {
@@ -258,7 +258,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                             <div className={style.hoursDetailsMinutesDiv}>
                                 <DefaultTextField
                                     disabled={!newEntry}
-                                    sameTextColorWhenDisabled
+                                    textWhenDisabled
                                     type={"number"}
                                     value={entryData?.minutes}
                                     onChange={(e) => setEntryData((draft) => {

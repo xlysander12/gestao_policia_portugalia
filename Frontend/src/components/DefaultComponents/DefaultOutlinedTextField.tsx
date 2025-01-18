@@ -1,11 +1,11 @@
 import {styled} from "@mui/material/styles";
 import {OutlinedTextFieldProps, TextField} from "@mui/material";
 
-type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean};
+type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean, textWhenDisabled?: boolean};
 
 const DefaultOutlinedTextFieldStyle = styled(TextField, {
-    shouldForwardProp: (prop) => prop !== "alternateColor"
-})<DefaultOutlinedTextFieldProps>(({alternateColor}) => ({
+    shouldForwardProp: (prop) => prop !== "alternateColor" && prop !== "sameBehaviourWhenDisabled"
+})<DefaultOutlinedTextFieldProps>(({alternateColor, textWhenDisabled}) => ({
     "& label": {
         color: alternateColor ? "rgba(0, 0, 0, 0.6)": "var(--portalseguranca-color-text-light)",
     },
@@ -30,6 +30,20 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
 
         "&.Mui-focused fieldset": {
             borderColor: "var(--portalseguranca-color-focus)",
+        },
+
+        "&.Mui-disabled": {
+            "& fieldset": {
+                borderColor: `${textWhenDisabled ? "transparent": "var(--portalseguranca-color-accent)"}`,
+            },
+
+            padding: `${textWhenDisabled ? "4px 0 5px": "16.5px, 14px"}`,
+        },
+
+        "& .MuiOutlinedInput-input": {
+            "&.Mui-disabled": {
+                WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "rgba(208,199,211,0.5)"}`,
+            }
         }
     }
 }));

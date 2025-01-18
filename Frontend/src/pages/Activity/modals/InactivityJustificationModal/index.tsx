@@ -14,7 +14,7 @@ import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts"
 import style from "./index.module.css";
 import {Checkbox, Divider, FormControlLabel, MenuItem} from "@mui/material";
 import {
-    DefaultButton,
+    DefaultButton, DefaultOutlinedTextField,
     DefaultSelect,
     DefaultTextField,
     DefaultTypography
@@ -325,7 +325,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     </DefaultTypography>
                                     <DefaultTextField
                                         disabled={!editMode && !newEntry}
-                                        sameTextColorWhenDisabled
+                                        textWhenDisabled
                                         type={"date"}
                                         value={justificationData?.start}
                                         onChange={(e) => {
@@ -349,7 +349,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         </DefaultTypography>
                                         <DefaultTextField
                                             disabled={!editMode && !newEntry}
-                                            sameTextColorWhenDisabled
+                                            textWhenDisabled
                                             type={"date"}
                                             value={justificationData?.end}
                                             onChange={(e) => {
@@ -398,9 +398,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                             >
                                 Descrição:
                             </DefaultTypography>
-                            <DefaultTextField
+                            <DefaultOutlinedTextField
                                 disabled={!editMode && !newEntry}
-                                sameTextColorWhenDisabled
+                                textWhenDisabled
                                 multiline
                                 value={justificationData?.description}
                                 onChange={(e) => {

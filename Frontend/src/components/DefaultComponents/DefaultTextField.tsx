@@ -1,11 +1,11 @@
 import {StandardTextFieldProps, TextField} from "@mui/material";
 import {styled} from "@mui/material/styles";
 
-type DefaultTextFieldProps = Partial<StandardTextFieldProps> & {sameTextColorWhenDisabled?: boolean}
+type DefaultTextFieldProps = Partial<StandardTextFieldProps> & {textWhenDisabled?: boolean}
 
 const DefaultTextFieldStyle = styled(TextField, {
     shouldForwardProp: (prop) => prop !== "sameTextColorWhenDisabled"
-})<DefaultTextFieldProps>(({sameTextColorWhenDisabled}) => ({
+})<DefaultTextFieldProps>(({textWhenDisabled}) => ({
     "& .MuiInputLabel-root": {
         color: "white",
 
@@ -19,7 +19,7 @@ const DefaultTextFieldStyle = styled(TextField, {
         fontWeight: 500,
 
         "&.Mui-disabled": {
-            WebkitTextFillColor: `${sameTextColorWhenDisabled ? "var(--portalseguranca-color-text-light)": "var(--portalseguranca-color-text-light)"} !important`,
+            WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "var(--portalseguranca-color-text-light)"} !important`,
         },
 
 

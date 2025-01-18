@@ -110,7 +110,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                     <Gate show={editMode}>
                         <DefaultTextField
                             required
-                            sameTextColorWhenDisabled
+                            textWhenDisabled
                             disabled={!editMode}
                             type={"date"}
                             value={lastShift !== null ? lastShift.toISOString().split("T")[0]: ""}
