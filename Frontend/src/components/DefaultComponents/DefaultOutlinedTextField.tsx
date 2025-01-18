@@ -6,6 +6,10 @@ type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternat
 const DefaultOutlinedTextFieldStyle = styled(TextField, {
     shouldForwardProp: (prop) => prop !== "alternateColor"
 })<DefaultOutlinedTextFieldProps>(({alternateColor}) => ({
+    "& label": {
+        color: alternateColor ? "rgba(0, 0, 0, 0.6)": "var(--portalseguranca-color-text-light)",
+    },
+
     "& label.Mui-focused": {
         color: "white !important",
         textShadow: "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"
@@ -19,6 +23,10 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
     "& .MuiOutlinedInput-root": {
         backgroundColor: `${alternateColor ? "var(--portalseguranca-color-background-light)": "transparent"}`,
         color: `${alternateColor ? "black": "white"}`,
+
+        "& fieldset": {
+            borderColor: `${alternateColor ? "var(--portalseguranca-color-text-light)": "var(--portalseguranca-color-accent)"}`,
+        },
 
         "&.Mui-focused fieldset": {
             borderColor: "var(--portalseguranca-color-focus)",
