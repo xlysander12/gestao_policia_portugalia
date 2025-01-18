@@ -23,7 +23,9 @@
     "react-toastify": "^10.0.5",
     "reactjs-popup": "^2.0.6",
     "styled-components": "^6.1.12",
-    "use-immer": "^0.10.0"
+    "use-immer": "^0.10.0",
+      "@react-buddy/ide-toolbox": "^2.4.0",
+      "@react-buddy/palette-mui": "^5.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
