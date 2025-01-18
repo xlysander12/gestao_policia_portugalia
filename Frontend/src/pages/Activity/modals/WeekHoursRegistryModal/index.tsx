@@ -15,7 +15,7 @@ import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user
 import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.ts";
 import style from "./index.module.css";
 import {Divider, Typography} from "@mui/material";
-import {DefaultButton, DefaultTextField} from "../../../../components/DefaultComponents";
+import {DefaultButton, DefaultTextField, DefaultTypography} from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
 
@@ -152,6 +152,18 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         if (open && !newEntry) {
             execute();
         }
+
+        return () => {
+            if (!newEntry) {
+                setEntryData({
+                    id:  0,
+                    week_start: "",
+                    week_end: "",
+                    minutes: 0,
+                    submitted_by: 0
+                });
+            }
+        }
     }, [entryId, open]);
 
     // * Fetch the last entry of the officer when the modal is opened - New entry only
@@ -265,12 +277,15 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                         draft.minutes = parseInt(e.target.value);
                                     })}
                                     sx={{width: "55px"}}
+                                    inputProps={{
+                                        min: 0
+                                    }}
                                 />
-                                <Typography
-                                    color={"var(--portalseguranca-color-text-light)"}
+                                <DefaultTypography
+                                    color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
                                 >
                                     ({toHoursAndMinutes(entryData?.minutes!)})
-                                </Typography>
+                                </DefaultTypography>
                             </div>
 
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
