@@ -12,7 +12,7 @@ import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
-import {Checkbox, Divider, FormControlLabel, MenuItem} from "@mui/material";
+import {Checkbox, Divider, FormControlLabel, MenuItem, Tooltip} from "@mui/material";
 import {
     DefaultButton, DefaultOutlinedTextField,
     DefaultSelect,
@@ -22,6 +22,7 @@ import {
 import {useImmer} from "use-immer";
 import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
+import HelpIcon from "@mui/icons-material/Help";
 
 const justificationDataDefault: OfficerJustification = {
     id: 0,
@@ -270,29 +271,48 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                             >
                                 Tipo de Inatividade:
                             </DefaultTypography>
-                            <DefaultSelect
-                                fullWidth={false}
-                                disabled={!editMode && !newEntry}
-                                sameTextColorWhenDisabled
-                                value={justificationData?.type}
-                                onChange={(e) => {
-                                    setJustificationData((draft) => {
-                                        draft!.type = e.target.value as number;
-                                    });
-                                }}
-                                sx={{minWidth: "152px", textAlign: "start", marginBottom: "10px"}}
-                            >
-                                {forceData.inactivity_types.map((type) => {
-                                    return (
-                                        <MenuItem
-                                            key={`modalInactivityType${type.id}`}
-                                            value={type.id}
-                                        >
-                                            {type.name}
-                                        </MenuItem>
-                                    )
-                                })};
-                            </DefaultSelect>
+                            <div className={style.justificationDurationRowDiv}>
+                                <DefaultSelect
+                                    fullWidth={false}
+                                    disabled={!editMode && !newEntry}
+                                    sameTextColorWhenDisabled
+                                    value={justificationData?.type}
+                                    onChange={(e) => {
+                                        setJustificationData((draft) => {
+                                            draft!.type = e.target.value as number;
+                                        });
+                                    }}
+                                    sx={{minWidth: "152px", textAlign: "start", marginBottom: "10px"}}
+                                >
+                                    {forceData.inactivity_types.map((type) => {
+                                        return (
+                                            <MenuItem
+                                                key={`modalInactivityType${type.id}`}
+                                                value={type.id}
+                                            >
+                                                {type.name}
+                                            </MenuItem>
+                                        )
+                                    })};
+                                </DefaultSelect>
+
+                                <Tooltip
+                                    title={getObjectFromId(justificationData.type, forceData.inactivity_types)?.description}
+                                    arrow
+                                    describeChild
+                                    placement={"right"}
+                                    componentsProps={{
+                                        tooltip: {
+                                            sx: {
+                                                whiteSpace: "pre-line",
+                                                fontSize: "14px"
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <HelpIcon />
+                                </Tooltip>
+                            </div>
 
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
 
@@ -414,7 +434,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                     </ModalSection>
 
                     <Gate
-                        show={loggedUser.intents["activity"] || (justificationData !== null && justificationData.status === "pending") || newEntry}>
+                        show={loggedUser.intents["activity"] || (justificationData.status === "pending") || newEntry}>
                         <ModalSection title={"Ações"}>
                             <div className={style.justificationActionsDiv}>
                                 {/* Show the regular management buttons when it's not a new entry */}
