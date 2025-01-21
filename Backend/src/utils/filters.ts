@@ -4,8 +4,7 @@ export type Filters = {
     query: string,
     values: any[]
 }
-
-function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: {name: string, value: any}[], suffix?: {subquery: string, value: any}): Filters {
+function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: ReceivedFilter[], suffix?: {subquery: string, value: any}): Filters {
     // Start the query string
     let subqueries: string[] = [];
     let values: any[] = [];
@@ -54,6 +53,18 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: {name: s
     return {query: `WHERE ${query}`, values: values};
 }
 
+export type ReceivedFilter = {
+    name: string,
+    value: any
+}
+export function queryParamsToFilters(query: any): ReceivedFilter[] {
+    let filters: ReceivedFilter[] = [];
+    for (const queryName in query) {
+        filters.push({name: queryName, value: query[queryName]});
+    }
+
+    return filters;
+}
 // let filters = buildFiltersQuery({
 //     requiresToken: true,
 //     requiresForce: true,

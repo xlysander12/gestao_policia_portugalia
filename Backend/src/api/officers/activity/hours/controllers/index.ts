@@ -15,16 +15,11 @@ import {OfficerHoursEntryType} from "../repository";
 import {dateToString, stringToDate} from "../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMinWeekMinutes} from "../../../../../utils/config-handler";
+import {queryParamsToFilters} from "../../../../../utils/filters";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
-    // Get the filters values
-    let filters = [];
-    for (const query in req.query) {
-        filters.push({name: query, value: req.query[query]});
-    }
-
     // Call the service to get the hours
-    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, res.locals.routeDetails.filters!, filters);
+    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, res.locals.routeDetails.filters!, queryParamsToFilters(req.query));
 
     if (!result.result) {
         res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message!}));
