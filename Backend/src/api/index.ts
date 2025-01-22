@@ -3,6 +3,7 @@ import utilRoutes from "./util";
 import metricsRoutes from "./metrics";
 import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
+import patrolsRoutes from "./patrols";
 import {
     assureBodyFields,
     assureRouteBasicInfo,
@@ -39,6 +40,9 @@ apiRoutes.use("/accounts", accountRoutes);
 
 // Import Officer Info routes
 apiRoutes.use("/officers", officerInfoRoutes);
+
+// Import all Patrols routes
+apiRoutes.use("/patrols", patrolsRoutes);
 
 // * Middleware to handle errors
 apiRoutes.use(errorHandlerMiddleware);

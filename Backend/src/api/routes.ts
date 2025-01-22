@@ -17,7 +17,9 @@ import {
     ManageOfficerJustificationBody,
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
-import {Record} from "runtypes";
+
+import { ListPatrolsQueryParams } from "@portalseguranca/api-types/patrols/input";
+import {Partial, Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -441,6 +443,30 @@ const activityRoutes: routesType = {
     }
 }
 
+const patrolsRoutes: routesType = {
+    "/patrols$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                  type: ListPatrolsQueryParams
+                },
+                filters: {
+                    after: {
+                        queryFunction: () => `start >= ? OR end >= ?`,
+                        valueFunction: (value: string) => [value, value]
+                    },
+                    before: {
+                        queryFunction: () => `end <= ? OR start <= ?`,
+                        valueFunction: (value: string) => [value, value]
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -449,7 +475,8 @@ const routes: routesType = {
     ...metricsRoutes,
     ...utilRoutes,
     ...activityRoutes,
-    ...officersRoutes
+    ...officersRoutes,
+    ...patrolsRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.
