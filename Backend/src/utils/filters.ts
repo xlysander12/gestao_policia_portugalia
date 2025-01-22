@@ -4,27 +4,27 @@ export type Filters = {
     query: string,
     values: any[]
 }
-function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: ReceivedFilter[], suffix?: {subquery: string, value: any}): Filters {
+function buildFiltersQuery(routeValidFilters: RouteFilterType, queryParams: ReceivedQueryParams = {}, suffix?: {subquery: string, value: any}): Filters {
     // Start the query string
     let subqueries: string[] = [];
     let values: any[] = [];
 
-    // Otherwise, iterate over the filters and build the query
-    for (const filter of filters) {
+    // Otherwise, iterate over the queryParams and build the query
+    for (const param of Object.keys(queryParams)) {
         // If the filter doesn't exist in the route, skip it
-        if (!routeValidFilters!.hasOwnProperty(filter.name)) {
+        if (!routeValidFilters!.hasOwnProperty(param)) {
             continue;
         }
 
         // Next, get the filter function
-        const filterFunctions = routeValidFilters![filter.name];
+        const filterFunctions = routeValidFilters![param];
 
         // Append the result of the filter function to the query
         subqueries.push(filterFunctions.queryFunction());
 
         // If the filter has a function, run it and append the result to the values array
         if (filterFunctions.valueFunction) {
-            let functionResult = filterFunctions.valueFunction(filter.value);
+            let functionResult = filterFunctions.valueFunction(queryParams[param]);
             // If the result is an array, append it to the values array
             if (Array.isArray(functionResult)) {
                 values.push(...functionResult);
@@ -32,7 +32,7 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: Received
                 values.push(functionResult);
             }
         } else {
-            values.push(filter.value);
+            values.push(queryParams[param]);
         }
     }
 
@@ -53,17 +53,18 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, filters: Received
     return {query: `WHERE ${query}`, values: values};
 }
 
-export type ReceivedFilter = {
-    name: string,
-    value: any
-}
-export function queryParamsToFilters(query: any): ReceivedFilter[] {
-    let filters: ReceivedFilter[] = [];
+export type ReceivedQueryParams = { [name: string]: string }
+export function requestQueryToReceivedQueryParams(query: any): ReceivedQueryParams {
+    let filters: ReceivedQueryParams = {};
     for (const queryName in query) {
-        filters.push({name: queryName, value: query[queryName]});
+        filters[queryName] = query[queryName];
     }
 
     return filters;
+}
+
+export function isQueryParamPresent(name: string, queryParms: ReceivedQueryParams): boolean {
+    return queryParms.hasOwnProperty(name);
 }
 // let filters = buildFiltersQuery({
 //     requiresToken: true,

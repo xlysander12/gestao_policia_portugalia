@@ -1,10 +1,12 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
 import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData} from "./inner-types";
+import {ReceivedQueryParams} from "../utils/filters";
 
 export type APIResponse = express.Response & {
     locals: {
         routeDetails: routeMethodType
+        queryParams: ReceivedQueryParams
         loggedOfficer: InnerOfficerData
     }
 }

@@ -12,8 +12,9 @@ import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {getForceDefaultPatents, getForcePromotionExpression} from "../../../utils/config-handler";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getForcePatents} from "../../util/repository";
+import {ReceivedQueryParams} from "../../../utils/filters";
 
-export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]): Promise<DefaultReturn<MinifiedOfficerData[]>> {
+export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
     // Fetch the list from the database
     let officerList = await getOfficersList(force, routeValidFilters, filters);

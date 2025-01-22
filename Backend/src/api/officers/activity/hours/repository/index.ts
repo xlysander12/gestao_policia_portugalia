@@ -1,4 +1,4 @@
-import buildFiltersQuery, {ReceivedFilter} from "../../../../../utils/filters";
+import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filters";
 import {queryDB} from "../../../../../utils/db-connector";
 import {OfficerSpecificHoursType} from "@portalseguranca/api-types/officers/activity/output";
 import {RouteFilterType} from "../../../../routes";
@@ -8,7 +8,7 @@ export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" 
     week_start: Date,
     week_end: Date
 }
-export async function fetchHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedFilter[]): Promise<OfficerHoursEntryType[]> {
+export async function fetchHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<OfficerHoursEntryType[]> {
     // Build the filters from the route
     const filtersResult = buildFiltersQuery(routeValidFilters, filters, {subquery: "officer = ?", value: nif});
 

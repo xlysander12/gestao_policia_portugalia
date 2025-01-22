@@ -9,15 +9,8 @@ import {ensureAPIResponseType} from "../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
-    // * Get the filters
-    // Build an array with all present filters in the query params of the request
-    let filters: {name: string, value: any}[] = [];
-    for (const key in req.query) {
-        filters.push({name: key, value: req.query[key]});
-    }
-
     // Call the service
-    let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, filters);
+    let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     // Check if the result is valid
     if (!result.result) {

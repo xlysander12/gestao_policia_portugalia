@@ -1,7 +1,8 @@
 export interface RequestSuccess {
-    message: string;
+    message: string
 }
 
 export interface RequestError extends RequestSuccess{
-    code?: string;
+    code?: string
+    details?: string
 }

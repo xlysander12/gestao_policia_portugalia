@@ -7,9 +7,9 @@ import {
     OfficerHoursEntryType
 } from "../repository";
 import {RouteFilterType} from "../../../../routes";
-import {ReceivedFilter} from "../../../../../utils/filters";
+import {ReceivedQueryParams} from "../../../../../utils/filters";
 
-export async function officerHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedFilter[]): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
+export async function officerHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
     // Get the hours of the Officer from the repository
     const hours = await fetchHoursHistory(force, nif, routeValidFilters, filters);
 

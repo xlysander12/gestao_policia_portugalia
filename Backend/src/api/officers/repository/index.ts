@@ -1,5 +1,5 @@
 import {RouteFilterType} from "../../routes";
-import buildFiltersQuery from "../../../utils/filters";
+import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {
     MinifiedOfficerData,
@@ -10,7 +10,7 @@ import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/inpu
 import {getOfficerActiveJustifications} from "../activity/justifications/repository";
 import {getForceInactiveStatus, getForceInactivityJustificationType} from "../../../utils/config-handler";
 
-export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: {name: string, value: any}[]) {
+export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams) {
     const filtersResult = buildFiltersQuery(routeValidFilters, filters);
 
     // * Get the data from the database

@@ -29,10 +29,13 @@ export type RouteFilterType = {
 }
 
 export type routeMethodType = {
-    requiresToken: boolean,
-    requiresForce: boolean,
-    intents?: string[],
-    filters?: RouteFilterType,
+    requiresToken: boolean
+    requiresForce: boolean
+    intents?: string[]
+    filters?: RouteFilterType
+    queryParams?: {
+        type: Record<any, any>
+    }
     body?: {
         type: Record<any, any>
     }
@@ -242,7 +245,7 @@ const officersRoutes: routesType = {
                 requiresForce: true,
                 filters: {
                     search: {
-                        queryFunction: () => `CONCAT(name, patent, callsign, nif, phone, discord) LIKE ?`,
+                        queryFunction: () => `CONCAT(name, callsign, nif, phone, discord) LIKE ?`,
                         valueFunction: (value: string) => `%${value}%`
                     }
                 }

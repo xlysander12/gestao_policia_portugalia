@@ -18,7 +18,7 @@ import {getOfficerData} from "../api/officers/repository";
  * - If the route requires a token, check if the token is present and valid
  * - If the route requires intents, check if the user has the required intents
  */
-async function assureRouteBasicInfo(req: express.Request, res: APIResponse, next: NextFunction) {
+async function assureRouteAuth(req: express.Request, res: APIResponse, next: NextFunction) {
     // * Checking the required basic information for the request
     // Check if this route requires a force header
     if (res.locals.routeDetails.requiresForce) {
@@ -103,4 +103,4 @@ async function assureRouteBasicInfo(req: express.Request, res: APIResponse, next
     next();
 }
 
-export default assureRouteBasicInfo;
+export default assureRouteAuth;
