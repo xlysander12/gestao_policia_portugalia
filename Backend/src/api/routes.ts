@@ -7,13 +7,13 @@ import {
 import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
 import {
     CreateOfficerRequestBody,
-    DeleteOfficerRequestBody,
+    DeleteOfficerRequestBody, ListOfficersQueryParams,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
 import {
     AddOfficerHoursBody,
     AddOfficerJustificationBody,
-    ChangeOfficerJustificationBody,
+    ChangeOfficerJustificationBody, ListOfficerHoursQueryParams, ListOfficerJustificationsQueryParams,
     ManageOfficerJustificationBody,
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
@@ -34,7 +34,7 @@ export type routeMethodType = {
     intents?: string[]
     filters?: RouteFilterType
     queryParams?: {
-        type: Record<any, any>
+        type: Record<any, any> | Partial<any, any>
     }
     body?: {
         type: Record<any, any>
@@ -243,6 +243,9 @@ const officersRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+                queryParams: {
+                    type: ListOfficersQueryParams
+                },
                 filters: {
                     search: {
                         queryFunction: () => `CONCAT(name, callsign, nif, phone, discord) LIKE ?`,
@@ -319,6 +322,9 @@ const activityRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+                queryParams: {
+                    type: ListOfficerHoursQueryParams
+                },
                 filters: {
                     after: {
                         queryFunction: () => `week_start >= ? OR week_end >= ?`,
@@ -367,6 +373,9 @@ const activityRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+                queryParams: {
+                    type: ListOfficerJustificationsQueryParams
+                },
                 filters: {
                     "type": {
                         queryFunction: () => `type = ?`,

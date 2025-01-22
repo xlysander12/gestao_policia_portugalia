@@ -1,5 +1,26 @@
 import * as rt from 'runtypes';
 
+export const ListOfficerHoursQueryParams = rt.Partial({
+    before: rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+        }),
+    after: rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    }),
+});
+export type ListOfficerHoursQueryParams = rt.Static<typeof ListOfficerHoursQueryParams>;
+
+export const ListOfficerJustificationsQueryParams = rt.Partial({
+    type: rt.Number,
+    status: rt.String.withConstraint((string) => {
+       return ['pending', 'approved', 'denied'].includes(string);
+    }),
+    during: rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    }),
+    managed: rt.Number
+});
+
 export const UpdateOfficerLastShiftBody = rt.Record({
    last_shift: rt.String.withConstraint((string) => {
          return !isNaN(Date.parse(string));

@@ -36,7 +36,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
 
     // Making sure the provided nif doesn't already exist as a former officer
     // If it does, return 100 to ask if the user wants to import the old data
-    let former_officer_exists_check_result = await getOfficerData(nif, force, false, true);
+    let former_officer_exists_check_result = await getOfficerData(nif, force, true);
     if (former_officer_exists_check_result !== null) {
         return {result: false, status: 100, message: "Este Nif é pertencente a um antigo efetivo. Desejas importar os dados antigos?"};
     }

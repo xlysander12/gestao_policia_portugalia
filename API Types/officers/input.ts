@@ -1,4 +1,9 @@
-import {Array, Number, Optional, Record, Static, String} from "runtypes";
+import {Array, Number, Optional, Partial, Record, Static, String} from "runtypes";
+
+export const ListOfficersQueryParams = Partial({
+   search: String
+});
+export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;
 
 export const CreateOfficerRequestBody = Record({
     name: String,

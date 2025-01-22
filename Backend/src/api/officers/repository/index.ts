@@ -62,19 +62,11 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(nif: number, force: string, pretty: boolean = false, former: boolean = false): Promise<InnerOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, former: boolean = false): Promise<InnerOfficerData | null> {
     // * Get the data from the database
-    let officerDataResult;
-    if (pretty) {
-        officerDataResult = await queryDB(force, `SELECT *
-                                                  FROM officersV
-                                                  WHERE nif = ? AND fired = ? LIMIT 1`, [nif, former ? 1: 0]);
-    }
-    else {
-        officerDataResult = await queryDB(force, `SELECT *
-                                                  FROM officers
-                                                  WHERE nif = ? AND fired = ? LIMIT 1`, [nif, former ? 1: 0]);
-    }
+    const officerDataResult = await queryDB(force, `SELECT *
+                                              FROM officers
+                                              WHERE nif = ? AND fired = ? LIMIT 1`, [nif, former ? 1: 0]);
 
     // Check if the officer exists
     if (officerDataResult.length === 0) {
