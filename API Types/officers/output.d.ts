@@ -33,5 +33,8 @@ export interface OfficerListResponse extends RequestSuccess {
 }
 
 export interface OfficerInfoGetResponse extends RequestSuccess {
+    meta: {
+        former: boolean
+    }
     data: OfficerData | OfficerDataRaw
 }

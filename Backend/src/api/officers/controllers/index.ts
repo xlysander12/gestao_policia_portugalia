@@ -30,6 +30,9 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
     res.json(ensureAPIResponseType<OfficerInfoGetResponse>({
         message: "Operação bem sucedida",
+        meta: {
+            former: !!res.locals.targetOfficerFormer
+        },
         data: {
             ...res.locals.targetOfficer,
             entry_date: dateToString(res.locals.targetOfficer.entry_date, false),

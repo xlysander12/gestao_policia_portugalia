@@ -41,6 +41,7 @@ export type routeMethodType = {
     body?: {
         type: Record<any, any>
     }
+    notes?: string
 }
 
 export type routeType = {
@@ -264,7 +265,8 @@ const officersRoutes: routesType = {
             // Route to get an officer's information
             GET: {
                 requiresToken: true,
-                requiresForce: true
+                requiresForce: true,
+                notes: "basic_get"
             },
 
             // Route to create an officer

@@ -17,9 +17,6 @@ app.get("/", getOfficersListController);
 // Route to get the details of a specific officer
 app.get("/:nif", officerExistsMiddle, getOfficerDetailsController);
 
-// TODO: Add a route to check if the provided nif can be used as a new Officer, and if it belongs to a former Officer or not
-// ? Maybe this can be a HEAD route?
-
 // Route to add a new officer
 app.put("/:nif", addOfficerController);
 
