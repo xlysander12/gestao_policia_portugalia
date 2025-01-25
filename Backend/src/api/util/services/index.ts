@@ -18,7 +18,7 @@ import {
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
-    const patents = await getForcePatents(force);
+    const patents: PatentData[] = ((await getForcePatents(force))! as PatentData[]);
 
     // Return 200
     return {

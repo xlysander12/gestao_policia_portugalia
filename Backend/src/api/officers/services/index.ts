@@ -12,6 +12,7 @@ import {getForceDefaultPatents, getForcePromotionExpression} from "../../../util
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getForcePatents} from "../../util/repository";
 import {ReceivedQueryParams} from "../../../utils/filters";
+import {PatentData} from "@portalseguranca/api-types/util/output";
 
 export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
@@ -54,7 +55,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     let callsign = null
     if (patent === getForceDefaultPatents(force).default) {
         // Get the leading char of the patent of the new officer
-        let leading_char = (await getForcePatents(force, patent))[0].leading_char;
+        let leading_char = ((await getForcePatents(force, patent))! as PatentData).leading_char;
 
         callsign = await getNextAvailableCallsign(leading_char, force);
     }
@@ -72,8 +73,14 @@ export async function restoreOfficer(officer: InnerOfficerData, force: string): 
         return {result: false, status: 409, message: "Este efetivo já é ativo na força."};
     }
 
+    // * Get the new officer's callsign
+    // Get the leading char of the patent of the new officer
+    let leading_char = ((await getForcePatents(force, getForceDefaultPatents(force).default))! as PatentData).leading_char;
+
+    let callsign = await getNextAvailableCallsign(leading_char, force);
+
     // Call the repository to restore the officer
-    await reHireOfficer(officer.nif, force);
+    await reHireOfficer(officer.nif, force, callsign);
 
     // After all is complete, return a 200 status code
     return {result: true, status: 200, message: "Efetivo restaurado com sucesso."};

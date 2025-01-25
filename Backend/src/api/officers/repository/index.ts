@@ -8,7 +8,11 @@ import {
 import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getOfficerActiveJustifications} from "../activity/justifications/repository";
-import {getForceInactiveStatus, getForceInactivityJustificationType} from "../../../utils/config-handler";
+import {
+    getForceDefaultPatents,
+    getForceInactiveStatus,
+    getForceInactivityJustificationType
+} from "../../../utils/config-handler";
 
 export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams) {
     const filtersResult = buildFiltersQuery(routeValidFilters, filters);
@@ -104,7 +108,7 @@ export async function getNextAvailableCallsign(startingLetter: string, force: st
     // * Get the data from the database
     const callsignsResult = await queryDB(force, `SELECT callsign
                                                  FROM officers
-                                                 WHERE callsign LIKE ? ORDER BY callsign DESC`, `${startingLetter}%`);
+                                                 WHERE officers.fired = 0 AND callsign LIKE ? ORDER BY callsign DESC`, `${startingLetter}%`);
 
     // Get the next callsign number
     let callsignNumber = 1;
@@ -177,6 +181,6 @@ export async function eraseOfficer(nif: number, force: string) {
     await queryDB(force, 'DELETE FROM officers WHERE nif = ?', nif);
 }
 
-export async function reHireOfficer(nif: number, force: string) {
-    await queryDB(force, 'UPDATE officers SET fired = 0, fire_reason = NULL WHERE nif = ?', nif);
+export async function reHireOfficer(nif: number, force: string, callsign: string) {
+    await queryDB(force, 'UPDATE officers SET fired = 0, fire_reason = NULL, patent = ?, callsign = ?, entry_date = CURRENT_TIMESTAMP WHERE nif = ?', [getForceDefaultPatents(force).default, callsign, nif]);
 }

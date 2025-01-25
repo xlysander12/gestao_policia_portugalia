@@ -8,9 +8,23 @@ import {
 } from "@portalseguranca/api-types/util/output";
 import {queryDB} from "../../../utils/db-connector";
 
-export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[]> {
+export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[] | PatentData | null> {
     // Get the list from the database
     const patents = await queryDB(force, `SELECT * FROM patents ${patent_id ? `WHERE id = ${patent_id}` : ""}`, patent_id);
+
+    // * If a patent_id was passed, return the patent data
+    if (patent_id) {
+        if (patents.length === 0) {
+            return null;
+        }
+
+        return {
+            id: patents[0].id,
+            name: patents[0].name,
+            max_evaluation: patents[0].max_evaluation,
+            leading_char: patents[0].leading_char
+        };
+    }
 
     // Build an array with the patents
     let patentsList: PatentData[] = [];
