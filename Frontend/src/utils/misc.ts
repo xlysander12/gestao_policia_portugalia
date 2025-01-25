@@ -1,6 +1,6 @@
 import { RequestError } from "@portalseguranca/api-types/index.ts";
 import {make_request} from "./requests.ts";
-import {OfficerDataRaw, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {toast} from "react-toastify";
 
 export function toHoursAndMinutes(totalMinutes: number) {
@@ -12,7 +12,7 @@ export function padToTwoDigits(num: number) {
     return num.toString().padStart(2, "0");
 }
 
-export async function getOfficerFromNif(nif: number): Promise<OfficerDataRaw> {
+export async function getOfficerFromNif(nif: number): Promise<OfficerData> {
     const response = await make_request(`/officers/${nif}`, "GET");
     const responseJson: RequestError | OfficerInfoGetResponse = await response.json();
 

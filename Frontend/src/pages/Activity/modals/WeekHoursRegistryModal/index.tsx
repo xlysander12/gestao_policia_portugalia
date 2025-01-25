@@ -10,7 +10,7 @@ import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts"
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal/modal.tsx";
 import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";
-import {OfficerDataRaw, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.ts";
 import style from "./index.module.css";
@@ -142,7 +142,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             }
 
             // Set the state that holds the patent and name of the officer that submitted the registry
-            const officerData = (submittedByData as OfficerInfoGetResponse).data as OfficerDataRaw;
+            const officerData = (submittedByData as OfficerInfoGetResponse).data as OfficerData;
             setSubmittedBy(`${getObjectFromId((officerData).patent, forceData.patents)!.name} ${officerData.name}`);
 
             // Set the loading state to false
