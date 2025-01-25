@@ -14,20 +14,26 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
         return;
     }
 
-    // If it's not and the request URL is just to get the data of the officer, check if it's a former officer
+    // If it's not and the request URL is just to get the data of the officer, add a new officer or to restore a former officer, check if it's a former officer
     // This should only be done if the logged officer has the "officers" intent
-    if (res.locals.routeDetails.notes === "basic_get" && await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, ["officers"])) {
+    if ((res.locals.routeDetails.notes === "basic_get" || res.locals.routeDetails.notes === "add_officer" || res.locals.routeDetails.notes === "restore_officer") && await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers")) {
         officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!, true);
 
         if (officerResult !== null) {
             res.locals.targetOfficer = officerResult;
-            res.locals.targetOfficerFormer = true;
+            res.locals.targetOfficer.isFormer = true;
             next();
             return;
         }
     }
 
-    // If the officer doesn't exist, return a 404 status code
+    // If the officer doesn't exist, return a 404 status code, if the request is not to add a new officer
+    // If it is to add a new officer, just continue with a null value in the locals
+    if (res.locals.routeDetails.notes === "add_officer") {
+        res.locals.targetOfficer = null;
+        next();
+        return;
+    }
     res.status(404).json({
         message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
     });

@@ -7,7 +7,7 @@ export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;
 
 export const CreateOfficerRequestBody = Record({
     name: String,
-    phone: Number,
+    phone: Number.withConstraint(n => n.toString().length === 9),
     iban: String,
     kms: Number,
     discord: Number,

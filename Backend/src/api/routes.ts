@@ -276,7 +276,8 @@ const officersRoutes: routesType = {
                 intents: ["officers"],
                 body: {
                     type: CreateOfficerRequestBody
-                }
+                },
+                notes: "add_officer"
             },
 
             // Route to update an officer's information
@@ -301,6 +302,18 @@ const officersRoutes: routesType = {
 
         }
     },
+
+    // Route to restore a former officer
+    "/officers/\\d+/restore$": {
+        methods: {
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["officers"],
+                notes: "restore_officer"
+            }
+        }
+    }
 }
 
 const activityRoutes: routesType = {

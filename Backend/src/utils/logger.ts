@@ -117,7 +117,7 @@ export function logToConsole(message: string, type?: "info" | "warning" | "error
 
 export async function logRequestToFile(res: APIResponse) {
     if (!res.locals.routeDetails) {
-        logToConsole(`Route details not present in response oject. Skipping logging... [${res.req.originalUrl}]`, "warning");
+        logToConsole(`Route details not present in response oject. Skipping logging... [${res.req.originalUrl} - ${res.req.method}]`, "warning");
         return;
     }
 

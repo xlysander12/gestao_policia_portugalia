@@ -1,11 +1,10 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {RouteFilterType} from "../../routes";
 import {
-    addOfficer,
+    addOfficer, eraseOfficer,
     fireOfficer,
-    getNextAvaliableCallsign,
-    getOfficerData,
-    getOfficersList,
+    getNextAvailableCallsign,
+    getOfficersList, reHireOfficer,
     updateOfficer
 } from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
@@ -23,34 +22,41 @@ export async function listOfficers(force: string, routeValidFilters: RouteFilter
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
 }
 
-// TODO: This service should check if the provided nif is a former Officer, and if so, ask if the user wants to import their old data.
 export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string,
                                   recruit: boolean,
-                                  force: string, restore?: boolean | undefined): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
+                                  force: string, targetOfficer: InnerOfficerData | null, isTargetOfficerFormer: boolean, overwrite: boolean): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
 
-    // Making sure the provided nif doesn't already exist as an active officer
-    let officer_exists_check_result = await getOfficerData(nif, force);
-    if (officer_exists_check_result !== null) {
-        return {result: false, status: 409, message: "Já existe um efetivo com esse NIF."};
+    // First, check if the nif is already in use, either by an active or former officer
+    if (targetOfficer !== null) {
+        // Then check if it is an active officer
+        if (!isTargetOfficerFormer) {
+            // If it is, return a 409 status code
+            return {result: false, status: 409, message: "Já existe um efetivo com esse NIF."};
+        }
+
+        // Since it's not an active officer, make sure the "overwrite" query param is present or false
+        // If it's not present, or its value is false, return a 409 status code
+        if (!overwrite) {
+            return {result: false, status: 409, message: "Já existe um antigo efetivo com esse NIF."};
+        }
     }
 
-    // Making sure the provided nif doesn't already exist as a former officer
-    // If it does, return 100 to ask if the user wants to import the old data
-    let former_officer_exists_check_result = await getOfficerData(nif, force, true);
-    if (former_officer_exists_check_result !== null) {
-        return {result: false, status: 100, message: "Este Nif é pertencente a um antigo efetivo. Desejas importar os dados antigos?"};
+    // * Since this request is now validated, we can proceed to add the new officer
+    // Delete all previous data of the officer
+    if (targetOfficer !== null) {
+        await eraseOfficer(nif, force);
     }
 
     // Checking if the patent will be a recruit or not
     let patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
 
     // * Calculating what the new callsign will be, if it's not a recruit
-    // Get the leading char of the patent of the new officer
-    let leading_char = (await getForcePatents(force, patent))[0].leading_char;
-
     let callsign = null
-    if (patent === 0) {
-        callsign = await getNextAvaliableCallsign(leading_char, force);
+    if (patent === getForceDefaultPatents(force).default) {
+        // Get the leading char of the patent of the new officer
+        let leading_char = (await getForcePatents(force, patent))[0].leading_char;
+
+        callsign = await getNextAvailableCallsign(leading_char, force);
     }
 
     // Inserting the new officer into the database
@@ -58,6 +64,19 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
+}
+
+export async function restoreOfficer(officer: InnerOfficerData, force: string): Promise<DefaultReturn<void>> {
+    // Make sure this officer is, indeed, a former officer
+    if (!officer.isFormer) {
+        return {result: false, status: 409, message: "Este efetivo já é ativo na força."};
+    }
+
+    // Call the repository to restore the officer
+    await reHireOfficer(officer.nif, force);
+
+    // After all is complete, return a 200 status code
+    return {result: true, status: 200, message: "Efetivo restaurado com sucesso."};
 }
 
 export async function alterOfficer(nif: number, force: string, currentInfo: InnerOfficerData, changes: UpdateOfficerRequestBody, loggedOfficer: InnerOfficerData): Promise<DefaultReturn<void>> {
@@ -95,9 +114,6 @@ export async function deleteOfficer(force: string, targetOfficer: InnerOfficerDa
     if (targetOfficer.patent >= loggedOfficer.patent) {
         return {result: false, status: 403, message: "Não tens permissão para despedir este efetivo."};
     }
-
-    // TODO: This must not actually delete the officer from the database.
-    //  instead change a "fired" column that will be used to filter out the officers that are no longer active.
 
     // After making sure the officer can be fired, run the SQL procedure to transfer the data to the archive db
     await fireOfficer(targetOfficer.nif, force, reason);

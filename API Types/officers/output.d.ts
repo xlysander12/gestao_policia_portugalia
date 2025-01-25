@@ -23,11 +23,6 @@ export interface OfficerData extends MinifiedOfficerData {
     special_units: OfficerUnit[]
 }
 
-export interface OfficerDataRaw extends Omit<OfficerData, "patent" | "status"> {
-    patent: number,
-    status: number
-}
-
 export interface OfficerListResponse extends RequestSuccess {
     data: MinifiedOfficerData[]
 }
@@ -36,5 +31,5 @@ export interface OfficerInfoGetResponse extends RequestSuccess {
     meta: {
         former: boolean
     }
-    data: OfficerData | OfficerDataRaw
+    data: OfficerData
 }

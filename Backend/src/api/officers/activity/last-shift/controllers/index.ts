@@ -11,7 +11,7 @@ import {getForceMaxNonWorkingDays} from "../../../../../utils/config-handler";
 
 export async function getLastShiftController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Call the service to get the last shift of the officer
-    const result = await getOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif);
+    const result = await getOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // * Return the result of the service
     // If the result is negative, return an error
@@ -35,7 +35,7 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     let {last_shift} = req.body as UpdateOfficerLastShiftBodyType;
 
     // Call the service to update the last shift
-    const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer.nif, new Date(Date.parse(last_shift)));
+    const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, new Date(Date.parse(last_shift)));
 
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message!}));
 }

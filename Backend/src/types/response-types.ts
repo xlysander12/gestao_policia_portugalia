@@ -13,8 +13,7 @@ export type APIResponse = express.Response & {
 
 export type OfficerInfoAPIResponse = APIResponse & {
     locals: {
-        targetOfficer: InnerOfficerData
-        targetOfficerFormer?: boolean
+        targetOfficer: InnerOfficerData | null
     }
 }
 

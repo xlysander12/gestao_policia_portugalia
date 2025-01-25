@@ -95,11 +95,12 @@ export async function getOfficerData(nif: number, force: string, former: boolean
         kms: officerDataResult[0].kms,
         discord: officerDataResult[0].discord,
         steam: officerDataResult[0].steam,
-        special_units: await getOfficerUnits(force, nif)
+        special_units: await getOfficerUnits(force, nif),
+        isFormer: former
     };
 }
 
-export async function getNextAvaliableCallsign(startingLetter: string, force: string) {
+export async function getNextAvailableCallsign(startingLetter: string, force: string) {
     // * Get the data from the database
     const callsignsResult = await queryDB(force, `SELECT callsign
                                                  FROM officers
@@ -160,7 +161,7 @@ export async function updateOfficerUnits(nif: number, force: string, units: Offi
 }
 
 export async function fireOfficer(nif: number, force: string, reason?: string) {
-    // Make sure the 'reason' field is present, if net, use default
+    // Make sure the 'reason' field is present, if not, use default
     if (reason === "" || reason === null || reason === undefined) {
         reason = "Despedimento por opção própria";
     }
@@ -170,4 +171,12 @@ export async function fireOfficer(nif: number, force: string, reason?: string) {
 
     // Delete the account of the fired officer (tokens are automatically deleted when the account is deleted)
     await queryDB(force, "DELETE FROM users WHERE nif = ?", nif);
+}
+
+export async function eraseOfficer(nif: number, force: string) {
+    await queryDB(force, 'DELETE FROM officers WHERE nif = ?', nif);
+}
+
+export async function reHireOfficer(nif: number, force: string) {
+    await queryDB(force, 'UPDATE officers SET fired = 0, fire_reason = NULL WHERE nif = ?', nif);
 }
