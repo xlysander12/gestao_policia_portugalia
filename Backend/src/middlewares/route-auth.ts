@@ -8,7 +8,7 @@ import {
     userHasIntents
 } from "../api/accounts/repository";
 import express, {NextFunction} from "express";
-import {APIResponse} from "../types";
+import {APIResponse, InnerOfficerData} from "../types";
 import {getOfficerData} from "../api/officers/repository";
 
 /**
@@ -68,7 +68,7 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
         }
 
         // * Since the token is valid, update the last time the token was used and the last time the user interacted
-        res.locals.loggedOfficer = (await getOfficerData(tokenValidity.nif!, req.header(FORCE_HEADER)!))!; // Store the user's NIF in locals
+        res.locals.loggedOfficer = ((await getOfficerData(tokenValidity.nif!, req.header(FORCE_HEADER)!))! as InnerOfficerData); // Store the user's NIF in locals
         // Update the last time the token was used
         updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]).then(); // No need to wait for this to finish
         // Update the last time the user has interacted
