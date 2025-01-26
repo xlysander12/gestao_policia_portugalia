@@ -18,7 +18,7 @@ import {
     DefaultSelect,
     DefaultTextField
 } from "../../components/DefaultComponents";
-import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerInfoGetResponse, OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./special-units-table.tsx";
 import Gate from "../../components/Gate/gate.tsx";
@@ -98,7 +98,7 @@ function OfficerInfo() {
             callsign: string,
             status: number,
             entry_date: string,
-            promotion_date: string,
+            promotion_date: string | null,
             special_units: OfficerUnit[]
         }
     }
@@ -164,7 +164,14 @@ function OfficerInfo() {
         }
 
         // Convert the received data to JSON and fetch the actual data
-        const data = (await response.json()).data;
+        const responseJson: OfficerInfoGetResponse = await response.json();
+
+        if (responseJson.meta.former && !loggedUser.intents["officers"]) {
+            toast("O NIF inserido não corresponde a nenhum efetivo.", {type: "error"});
+            return setOfficerNif(loggedUser.info.personal.nif); // Set the active nif as the logged user
+        }
+
+        const data = responseJson.data as OfficerData;
 
         // Apply the data to the officerInfo object
         setOfficerInfo({
@@ -514,7 +521,7 @@ function OfficerInfo() {
                                     {/*Data de Subida pair*/}
                                     <InformationPair
                                         label={"Data de Subida:"}
-                                        value={officerInfo.professional.promotion_date}
+                                        value={officerInfo.professional.promotion_date || ""}
                                         type={"date"}
                                         editMode={false}
                                     />

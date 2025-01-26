@@ -10,7 +10,7 @@ import {
 } from "@portalseguranca/api-types/account/output";
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
-import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -62,7 +62,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
             // Get the data from the response
             const responseJson: OfficerInfoGetResponse = await userResponse.json();
-            const userData = responseJson.data;
+            const userData = responseJson.data as OfficerData;
 
             // Initialize a temp object that will hold the user's information and intents
             const tempLoggedUser: LoggedUserContextType = loggedUser;
