@@ -266,7 +266,7 @@ function Activity() {
             <ScreenSplit
                 leftSideComponent={
                     <OfficerList
-                        disabled={!loggedUser.intents["activity"]}
+                        disabled={!loggedUser.intents["activity"] || loading}
                         callbackFunction={setCurrentOfficer}
                     />
                 }
