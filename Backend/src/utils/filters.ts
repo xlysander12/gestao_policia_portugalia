@@ -72,7 +72,7 @@ export function isQueryParamPresent(name: string, queryParms: ReceivedQueryParam
 //     filters: {
 //         search: (value: string) => `CONCAT(name, patent, callsign, nif, phone, discord) LIKE '%?%'`
 //     }
-// }, [{name: "search", value: "test"}]);
+// }, [{name: "search", value: "tests"}]);
 //
 // console.log(filters);
 
