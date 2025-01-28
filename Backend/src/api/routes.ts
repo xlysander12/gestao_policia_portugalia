@@ -7,7 +7,7 @@ import {
 import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
 import {
     CreateOfficerRequestBody,
-    DeleteOfficerRequestBody, ListOfficersQueryParams,
+    DeleteOfficerRequestBody, GetOfficerQueryParams, ListOfficersQueryParams,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
 import {
@@ -266,6 +266,9 @@ const officersRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true,
+                queryParams: {
+                    type: GetOfficerQueryParams
+                },
                 notes: "basic_get"
             },
 

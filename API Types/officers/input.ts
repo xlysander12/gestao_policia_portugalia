@@ -5,6 +5,11 @@ export const ListOfficersQueryParams = Partial({
 });
 export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;
 
+export const GetOfficerQueryParams = Partial({
+   patrol: String.withConstraint(s => s === "true" || s === "false")
+});
+export type GetOfficerQueryParams = Static<typeof GetOfficerQueryParams>;
+
 export const CreateOfficerRequestBody = Record({
     name: String,
     phone: Number.withConstraint(n => n.toString().length === 9),
