@@ -19,7 +19,7 @@
             "inactivity_justification_type": 1,
             "inactive_status": 1,
             "maximum_non_working_days": 5,
-            "minumum_week_minutes": 300
+            "minimum_week_minutes": 300
         },
 
         "gnr": {
@@ -35,7 +35,7 @@
             "inactivity_justification_type": 1,
             "inactive_status": 1,
             "maximum_non_working_days": 5,
-            "minumum_week_minutes": 300
+            "minimum_week_minutes": 300
         }
     }
 }

@@ -54,5 +54,5 @@ export function getForceMaxNonWorkingDays(force: string) {
 }
 
 export function getForceMinWeekMinutes(force: string) {
-    return config.forces[force].minumum_week_minutes;
+    return config.forces[force].minimum_week_minutes;
 }

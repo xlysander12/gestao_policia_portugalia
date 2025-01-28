@@ -22,7 +22,7 @@ const ForceRt = rt.Record({
     inactivity_justification_type: rt.Number,
     inactive_status: rt.Number,
     maximum_non_working_days: rt.Number,
-    minumum_week_minutes: rt.Number
+    minimum_week_minutes: rt.Number
 });
 
 const ForcesRt = rt.Dictionary(ForceRt, rt.String);
