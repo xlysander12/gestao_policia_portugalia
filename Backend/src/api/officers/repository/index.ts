@@ -66,7 +66,7 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(nif: number, force: string, former: boolean = false, minified: boolean = false): Promise<InnerOfficerData | MinifiedOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, former: boolean = false): Promise<InnerOfficerData | null> {
     // * Get the data from the database
     const officerDataResult = await queryDB(force, `SELECT *
                                               FROM officers
@@ -86,15 +86,6 @@ export async function getOfficerData(nif: number, force: string, former: boolean
 
 
     // Return the officer data
-    if (minified) {
-        return {
-            name: officerDataResult[0].name,
-            patent: officerDataResult[0].patent,
-            callsign: officerDataResult[0].callsign,
-            status: hasInactivityJustification ? getForceInactiveStatus(force): officerDataResult[0].status,
-            nif: officerDataResult[0].nif
-        };
-    }
     return {
         name: officerDataResult[0].name,
         patent: officerDataResult[0].patent,

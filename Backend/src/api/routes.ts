@@ -269,7 +269,7 @@ const officersRoutes: routesType = {
                 queryParams: {
                     type: GetOfficerQueryParams
                 },
-                notes: "basic_get"
+                notes: "get_officer"
             },
 
             // Route to create an officer

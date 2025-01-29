@@ -35,19 +35,20 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
     res.json(ensureAPIResponseType<OfficerInfoGetResponse>({
         message: "Operação bem sucedida",
         meta: {
-            former: !!res.locals.targetOfficer?.isFormer
+            former: res.locals.targetOfficer!.isFormer,
+            sameForce: !!res.locals.targetOfficer!.isSameForce
         },
-        data: !res.locals.targetOfficer?.isFormer || await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers") ?
+        data: (res.locals.targetOfficer?.isFormer && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers"))) || !res.locals.targetOfficer!.isSameForce ?
             {
-                ...officerData!,
-                entry_date: dateToString(res.locals.targetOfficer!.entry_date, false),
-                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null,
-            } : {
                 name: res.locals.targetOfficer!.name,
                 patent: res.locals.targetOfficer!.patent,
                 callsign: res.locals.targetOfficer!.callsign,
                 status: res.locals.targetOfficer!.status,
                 nif: res.locals.targetOfficer!.nif,
+            } : {
+                ...officerData!,
+                entry_date: dateToString(res.locals.targetOfficer!.entry_date, false),
+                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null
             }
     }));
 }
