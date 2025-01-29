@@ -60,6 +60,7 @@ async function errorHandlerMiddleware(err: Error, req: express.Request, res: API
     res.status(500).json(ensureAPIResponseType<RequestError>({
         message: "Erro interno do servidor",
         code: code,
+        details: process.env.PS_IS_PRODUCTION !== "true" ? err.stack: undefined
     }));
 }
 
