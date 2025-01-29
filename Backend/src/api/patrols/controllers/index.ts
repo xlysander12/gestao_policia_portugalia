@@ -40,7 +40,7 @@ export async function getPatrolController(req: express.Request, res: PatrolInfoA
         data: {
             ...res.locals.patrol,
             start: dateToString(res.locals.patrol.start),
-            end: dateToString(res.locals.patrol.start)
+            end: res.locals.patrol.end !== null ? dateToString(res.locals.patrol.end): null
         }
     }));
 }
