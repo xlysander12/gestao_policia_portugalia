@@ -16,6 +16,7 @@ for (let force of getForcesList()) {
 
     let options: PoolOptions = {
         ...databaseConfig,
+        charset: "utf8mb4",
         database: forceDB,
         connectionLimit: 10,
         connectTimeout: 100000,
