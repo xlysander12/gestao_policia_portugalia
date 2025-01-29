@@ -4,8 +4,10 @@ import {patrolsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {ensureAPIResponseType} from "../../../utils/request-handler";
-import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
+import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import { RequestError } from "@portalseguranca/api-types";
+import {PatrolInfoAPIResponse} from "../../../types/response-types";
+import {dateToString} from "../../../utils/date-handler";
 
 export async function listPatrolsController(req: express.Request, res: APIResponse) {
     // *  Call the service to get the patrols
@@ -29,5 +31,16 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     res.status(result.status).json(ensureAPIResponseType<PatrolHistoryResponse>({
         message: result.message,
         data: result.data!
+    }));
+}
+
+export async function getPatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
+    res.status(200).json(ensureAPIResponseType<PatrolInfoResponse>({
+        message: "Operação bem sucedida",
+        data: {
+            ...res.locals.patrol,
+            start: dateToString(res.locals.patrol.start),
+            end: dateToString(res.locals.patrol.start)
+        }
     }));
 }

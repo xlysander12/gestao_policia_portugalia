@@ -30,9 +30,9 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 }
 
 export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
-    const {isFormer, ...officerData} = res.locals.targetOfficer!;
+    const {isFormer, isSameForce, ...officerData} = res.locals.targetOfficer!;
 
-    res.json(ensureAPIResponseType<OfficerInfoGetResponse>({
+    res.status(200).json(ensureAPIResponseType<OfficerInfoGetResponse>({
         message: "Operação bem sucedida",
         meta: {
             former: res.locals.targetOfficer!.isFormer,

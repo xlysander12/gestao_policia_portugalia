@@ -1,6 +1,6 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
-import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData} from "./inner-types";
+import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData, InnerPatrolData} from "./inner-types";
 import {ReceivedQueryParams} from "../utils/filters";
 
 export type APIResponse = express.Response & {
@@ -26,5 +26,11 @@ export type AccountInfoAPIResponse = APIResponse & {
 export type OfficerJustificationAPIResponse = OfficerInfoAPIResponse & {
     locals: {
         justification: InnerOfficerJustificationData
+    }
+}
+
+export type PatrolInfoAPIResponse = APIResponse & {
+    locals: {
+        patrol: InnerPatrolData
     }
 }

@@ -482,6 +482,15 @@ const patrolsRoutes: routesType = {
                 }
             }
         }
+    },
+
+    "/patrols/[a-z]+\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
     }
 }
 
