@@ -1,9 +1,20 @@
 import * as rt from "runtypes";
+import * as util from "node:util";
 
 export const ListPatrolsQueryParams = rt.Partial({
     after: rt.String.withConstraint(string => !isNaN(Date.parse(string))),
     before: rt.String.withConstraint(string => !isNaN(Date.parse(string))),
     active: rt.String.withConstraint(string => string === "true" || string === "false"),
+    officers: rt.String.withConstraint(string => {
+            if (!Array.isArray(string.split(","))) return false;
+
+            const arr = string.split(",");
+            for (const element of arr) {
+                if (isNaN(parseInt(element))) return false;
+            }
+
+            return true;
+    }),
     page: rt.String.withConstraint(string => !isNaN(parseInt(string))),
 });
 export type ListPatrolsQueryParams = rt.Static<typeof ListPatrolsQueryParams>;

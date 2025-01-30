@@ -501,6 +501,21 @@ const patrolsRoutes: routesType = {
                     },
                     active: {
                         queryFunction: (receivedParams) => receivedParams["active"] === "true" ? "end IS NULL" : "end IS NOT NULL",
+                    },
+                    officers: {
+                        queryFunction: (receivedParams) => {
+                            const arr = receivedParams["officers"].split(",");
+
+                            let query = "";
+                            for (let _ = 0; _ < arr.length; _++) {
+                                query += `officers LIKE ? AND `;
+                            }
+
+                            return query.slice(0, -5);
+                        },
+                        valueFunction: (value: string) => {
+                            return value.split(",").map((element) => `%${element}%`);
+                        }
                     }
                 }
             },
