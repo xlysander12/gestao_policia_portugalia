@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
-import {alterOfficer, deleteOfficer, hireOfficer, listOfficers, restoreOfficer} from "../services";
+import {alterOfficer, deleteOfficer, hireOfficer, listOfficers, officerPatrol, restoreOfficer} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
@@ -9,6 +9,7 @@ import {ensureAPIResponseType} from "../../../utils/request-handler";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {userHasIntents} from "../../accounts/repository";
+import {PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse) {
     // Call the service
@@ -101,4 +102,23 @@ export async function deleteOfficerController(req: express.Request, res: Officer
     // Return the result
     return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
 
+}
+
+export async function getOfficerCurrentPatrolController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // Call the service
+    let result = await officerPatrol(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
+
+    // Return the result
+    if (!result.result) {
+        return res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message}));
+    }
+
+    return res.status(result.status).json(ensureAPIResponseType<PatrolInfoResponse>({
+        message: result.message,
+        data: {
+            ...result.data!,
+            start: dateToString(result.data!.start),
+            end: result.data!.end !== null ? dateToString(result.data!.end): null
+        }
+    }));
 }

@@ -13,6 +13,8 @@ import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/inpu
 import {getForcePatents} from "../../util/repository";
 import {ReceivedQueryParams} from "../../../utils/filters";
 import {PatentData} from "@portalseguranca/api-types/util/output";
+import {InnerPatrolData} from "../../../types/inner-types";
+import {getOfficerPatrol} from "../../patrols/repository";
 
 export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
@@ -127,4 +129,16 @@ export async function deleteOfficer(force: string, targetOfficer: InnerOfficerDa
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 200, message: "Efetivo despedido com sucesso."};
+}
+
+export async function officerPatrol(force: string, officerNif: number): Promise<DefaultReturn<InnerPatrolData>> {
+    // Call the repository to get the patrol
+    let result = await getOfficerPatrol(force, officerNif);
+
+    if (result === null) {
+        return {result: false, status: 404, message: "Este efetivo não está em patrulha."};
+    }
+
+    // Return the result
+    return {result: true, status: 200, message: "Operação concluida com sucesso", data: result};
 }

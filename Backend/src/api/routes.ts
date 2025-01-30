@@ -316,6 +316,16 @@ const officersRoutes: routesType = {
                 notes: "restore_officer"
             }
         }
+    },
+
+    // Route to get the current patrol of an officer
+    "/officers/\\d+/patrol$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
     }
 }
 

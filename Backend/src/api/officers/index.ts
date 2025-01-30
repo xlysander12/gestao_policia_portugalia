@@ -3,7 +3,7 @@ import activityRoutes from './activity';
 import {officerExistsMiddle} from "../../middlewares";
 import {
     addOfficerController,
-    alterOfficerController, deleteOfficerController,
+    alterOfficerController, deleteOfficerController, getOfficerCurrentPatrolController,
     getOfficerDetailsController,
     getOfficersListController, restoreOfficerController
 } from "./controllers";
@@ -31,6 +31,9 @@ app.delete("/:nif", deleteOfficerController);
 
 // Route to restore an officer
 app.post("/:nif/restore", restoreOfficerController);
+
+// Route to fetch the current officer's patrol
+app.get("/:nif/patrol", getOfficerCurrentPatrolController);
 
 // Load the activity routes
 app.use("/:nif/activity", activityRoutes);
