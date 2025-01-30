@@ -256,7 +256,7 @@ const officersRoutes: routesType = {
                         valueFunction: (value: string) => `%${value}%`
                     },
                     force: {
-                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams["patrol"] === "true" ? `force = ?`: "",
+                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams["patrol"] === "true" ? '`force` = ?': "",
                         valueFunction: (value: number) => value
                     }
                 }

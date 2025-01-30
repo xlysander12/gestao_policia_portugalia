@@ -1,7 +1,9 @@
 import {Array, Number, Optional, Partial, Record, Static, String} from "runtypes";
 
 export const ListOfficersQueryParams = Partial({
-   search: String
+    search: String,
+    force: String,
+    patrol: String.withConstraint(s => s === "true" || s === "false")
 });
 export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;
 

@@ -1,5 +1,5 @@
 import {RouteFilterType} from "../../routes";
-import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
+import buildFiltersQuery, {isQueryParamPresent, ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {
     MinifiedOfficerData,
@@ -18,7 +18,12 @@ export async function getOfficersList(force: string, routeValidFilters: RouteFil
     const filtersResult = buildFiltersQuery(routeValidFilters, filters);
 
     // * Get the data from the database
-    const officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
+    let officersListResult;
+    if (isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
+        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersVPatrols ${filtersResult.query}`, filtersResult.values);
+    } else {
+        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
+    }
 
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
@@ -40,6 +45,12 @@ export async function getOfficersList(force: string, routeValidFilters: RouteFil
         }
 
         officersList.push(officerData);
+    }
+
+    // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
+    // If so, remove the duplicates nifs
+    if (isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
+        officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif)) === index);
     }
 
     return officersList;
