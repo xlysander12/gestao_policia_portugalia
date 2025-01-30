@@ -4,6 +4,7 @@ export interface MinifiedPatrolData {
     id: string
     type: number
     unit: number | null
+    officers: number[]
     start: string
     end: string | null
     canceled: boolean

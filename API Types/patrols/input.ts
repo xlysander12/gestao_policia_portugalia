@@ -1,5 +1,4 @@
 import * as rt from "runtypes";
-import * as util from "node:util";
 
 export const ListPatrolsQueryParams = rt.Partial({
     after: rt.String.withConstraint(string => !isNaN(Date.parse(string))),
