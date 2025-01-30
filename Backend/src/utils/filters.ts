@@ -20,7 +20,11 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, queryParams: Rece
         const filterFunctions = routeValidFilters![param];
 
         // Append the result of the filter function to the query
-        subqueries.push(filterFunctions.queryFunction());
+        const query = filterFunctions.queryFunction(queryParams);
+        if (query === "") {
+            continue;
+        }
+        subqueries.push(filterFunctions.queryFunction(queryParams));
 
         // If the filter has a function, run it and append the result to the values array
         if (filterFunctions.valueFunction) {

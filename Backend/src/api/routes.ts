@@ -20,12 +20,13 @@ import {
 
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {Partial, Record} from "runtypes";
+import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type RouteFilterType = {
     [key: string]: {
-        queryFunction: () => string,
+        queryFunction: (receivedParams: ReceivedQueryParams) => string,
         valueFunction?: (value: any) => any
     }
 }
@@ -253,6 +254,10 @@ const officersRoutes: routesType = {
                     search: {
                         queryFunction: () => `CONCAT(name, callsign, nif, phone, discord) LIKE ?`,
                         valueFunction: (value: string) => `%${value}%`
+                    },
+                    force: {
+                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams["patrol"] === "true" ? `force = ?`: "",
+                        valueFunction: (value: number) => value
                     }
                 }
             }
