@@ -20,7 +20,7 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
             type: patrol.type,
             unit: patrol.unit,
             start: dateToString(patrol.start),
-            end: dateToString(patrol.end) || null,
+            end: patrol.end !== null ? dateToString(patrol.end) : null,
             canceled: patrol.canceled === 1
         });
     }

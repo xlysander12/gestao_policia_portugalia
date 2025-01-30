@@ -37,7 +37,12 @@ export type routeMethodType = {
     intents?: string[]
     filters?: RouteFilterType
     queryParams?: {
-        type: Record<any, any> | Partial<any, any>
+        type: Record<any, any> | Partial<any, any>,
+        schema?: {
+            [key: string]: {
+                parseFunction: <T>(value: string) => T,
+            }
+        }
     }
     body?: {
         type: Record<any, any>
@@ -248,7 +253,7 @@ const officersRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 queryParams: {
-                    type: ListOfficersQueryParams
+                    type: ListOfficersQueryParams,
                 },
                 filters: {
                     search: {
@@ -493,6 +498,9 @@ const patrolsRoutes: routesType = {
                     before: {
                         queryFunction: () => `end <= ? OR start <= ?`,
                         valueFunction: (value: string) => [value, value]
+                    },
+                    active: {
+                        queryFunction: (receivedParams) => receivedParams["active"] === "true" ? "end IS NULL" : "end IS NOT NULL",
                     }
                 }
             },
