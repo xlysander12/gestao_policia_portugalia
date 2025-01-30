@@ -2,7 +2,10 @@ import {DefaultReturn} from "../../../types";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
-import {listPatrols} from "../repository";
+import {createPatrol, isOfficerInPatrol, listPatrols} from "../repository";
+import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input";
+import {getOfficerData} from "../../officers/repository";
+import {getForcePatrolForces} from "../../../utils/config-handler";
 
 export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<MinifiedPatrolData[]>> {
     // Fetch the patrols from the repository
@@ -14,5 +17,57 @@ export async function patrolsHistory(force: string, validFilters: RouteFilterTyp
         status: 200,
         message: "Operação efetuada com sucesso",
         data: result
+    }
+}
+
+export async function patrolCreate(force: string, patrolData: CreatePatrolBody, requestingOfficer: number): Promise<DefaultReturn<void>> {
+    // * If the current officer is not in the list of officers, add it
+    if (!patrolData.officers.includes(requestingOfficer)) {
+        patrolData.officers.push(requestingOfficer);
+    }
+
+    // Loop through all the officers and check if they exist and aren't in antoher patrol
+    for (const officerNif of patrolData.officers) {
+        if (await isOfficerInPatrol(force, officerNif)) {
+            return {
+                result: false,
+                status: 400,
+                message: "Um ou mais efetivos já estão em patrulha"
+            }
+        }
+
+        // First, check in the request's force's database
+        const result = await getOfficerData(officerNif, force);
+
+        // If the officer does exist, continue to the next one on the array
+        if (result !== null) {
+            continue;
+        }
+
+        // Then, check if the officer exists in all of the other forces the current force has patrols with
+        for (const patrolForce of getForcePatrolForces(force)) {
+            const result = await getOfficerData(officerNif, patrolForce);
+
+            if (result !== null) {
+                continue;
+            }
+
+            // If the officer does not exist in any of the forces, return an error
+            return {
+                result: false,
+                status: 400,
+                message: "Um ou mais efetivos não existem"
+            }
+        }
+    }
+
+    // Since all officers exist, create the patrol
+    await createPatrol(force, patrolData.type, patrolData.special_unit || null, patrolData.officers, patrolData.start, patrolData.end || null, patrolData.notes || null);
+
+    // If everything went well, return success
+    return {
+        result: true,
+        status: 201,
+        message: "Patrulha criada com sucesso"
     }
 }

@@ -49,3 +49,39 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
         notes: patrol.notes
     };
 }
+
+export async function isOfficerInPatrol(force: string, officerNif: number): Promise<boolean> {
+    const result = await queryDB(force, `SELECT *
+                                         FROM patrolsV
+                                         WHERE officers LIKE ?
+                                           AND end IS NULL`, [`%${officerNif}%`]);
+
+    return result.length !== 0;
+}
+
+export async function getOfficerPatrol(force: string, officerNif: number): Promise<InnerPatrolData | null> {
+    const result = await queryDB(force, `SELECT *
+                                         FROM patrolsV
+                                         WHERE officers LIKE ?
+                                           AND end IS NULL`, [`%${officerNif}%`]);
+
+    if (result.length === 0) {
+        return null;
+    }
+
+    const patrol = result[0];
+    return {
+        id: patrol.id,
+        type: patrol.type,
+        unit: patrol.unit,
+        start: patrol.start,
+        end: patrol.end,
+        canceled: patrol.canceled === 1,
+        notes: patrol.notes
+    };
+}
+
+export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: string, end: string | null, notes: string | null): Promise<void> {
+    // Insert the patrol into the database
+    await queryDB(force, `INSERT INTO patrols (type, special_unit, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?)`, [type, specialUnit, JSON.stringify(officers), start, end, notes]);
+}

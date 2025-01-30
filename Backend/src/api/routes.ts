@@ -18,7 +18,7 @@ import {
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
 
-import { ListPatrolsQueryParams } from "@portalseguranca/api-types/patrols/input";
+import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {Partial, Record} from "runtypes";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -479,6 +479,13 @@ const patrolsRoutes: routesType = {
                         queryFunction: () => `end <= ? OR start <= ?`,
                         valueFunction: (value: string) => [value, value]
                     }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: CreatePatrolBody
                 }
             }
         }

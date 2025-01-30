@@ -46,7 +46,7 @@ async function errorHandlerMiddleware(err: Error, req: express.Request, res: API
         logToConsole(`${route} - ${err.stack}`, "error");
         return res.status(500).json(ensureAPIResponseType<RequestError>({
             message: "Erro interno do servidor",
-        }))
+        }));
     }
 
     // Get a unique code

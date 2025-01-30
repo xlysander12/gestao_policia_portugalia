@@ -1,6 +1,6 @@
 import express from "express";
 import {logToConsole} from "../../utils/logger";
-import {getPatrolController, listPatrolsController} from "./controllers";
+import {createPatrolController, getPatrolController, listPatrolsController} from "./controllers";
 import {patrolExistsMiddle} from "../../middlewares";
 
 const app = express.Router();
@@ -10,6 +10,9 @@ app.get("/", listPatrolsController);
 
 // Endpoint to get the details of a patrol
 app.get("/:id", patrolExistsMiddle, getPatrolController);
+
+// Endpoint to add a new patrol
+app.post("/", createPatrolController);
 
 // Log success
 logToConsole("Patrols routes loaded successfully", "info");
