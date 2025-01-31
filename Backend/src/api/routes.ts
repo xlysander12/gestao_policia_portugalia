@@ -534,6 +534,11 @@ const patrolsRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            },
+
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
             }
         }
     }

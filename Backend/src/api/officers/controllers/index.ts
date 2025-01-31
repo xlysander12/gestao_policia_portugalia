@@ -117,6 +117,7 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
         message: result.message,
         data: {
             ...result.data!,
+            id: `${result.data!.force}${result.data!.id}`,
             start: dateToString(result.data!.start),
             end: result.data!.end !== null ? dateToString(result.data!.end): null
         }

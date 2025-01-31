@@ -1,11 +1,13 @@
-import {DefaultReturn} from "../../../types";
+import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
-import {createPatrol, isOfficerInPatrol, listPatrols} from "../repository";
-import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input";
+import {createPatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
+import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {getOfficerData} from "../../officers/repository";
 import {getForcePatrolForces} from "../../../utils/config-handler";
+import {InnerPatrolData} from "../../../types/inner-types";
+import {userHasIntents} from "../../accounts/repository";
 
 export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<MinifiedPatrolData[]>> {
     // Fetch the patrols from the repository
@@ -69,5 +71,37 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
         result: true,
         status: 201,
         message: "Patrulha criada com sucesso"
+    }
+}
+
+export async function patrolEdit(force: string, userData: InnerOfficerData, patrolData: InnerPatrolData, changes: EditPatrolBody): Promise<DefaultReturn<void>> {
+    // First of all, check if the user is in said patrol or if they have the "patrols" intent
+    const userHasIntentsResult = await userHasIntents(userData.nif, force, "patrols");
+
+    if (!userHasIntentsResult && !patrolData.officers.includes(userData.nif)) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tem permissões para editar esta patrulha"
+        }
+    }
+
+    // First, if the patrol has already ended for longer than 30 minutes and the user doesn't have the "patrols" intent, return an error
+    if (patrolData.end && (Date.now() - patrolData.end.getTime() > (30 * 60 * 1000)) && !(userHasIntentsResult)) {
+        return {
+            result: false,
+            status: 400,
+            message: "Não podes editar uma patrulha que já terminou há mais de 30 minutos"
+        }
+    }
+
+    // * If the above doesn't apply, the patrol is editable
+    // Call the repository to edit the patrol
+    await editPatrol(patrolData.force, patrolData.id, changes);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Patrulha editada com sucesso"
     }
 }

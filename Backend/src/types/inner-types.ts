@@ -30,7 +30,9 @@ export interface InnerOfficerJustificationData {
     timestamp: Date
 }
 
-export interface InnerPatrolData extends Omit<PatrolData, "start" | "end"> {
-    start: Date,
+export interface InnerPatrolData extends Omit<PatrolData, "id" | "start" | "end"> {
+    id: number
+    start: Date
     end: Date | null
+    force: string
 }

@@ -31,3 +31,14 @@ export const CreatePatrolBody = rt.Record({
     notes: rt.Optional(rt.String)
 });
 export type CreatePatrolBody = rt.Static<typeof CreatePatrolBody>;
+
+export const EditPatrolBody = rt.Record({
+    start: rt.Optional(rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    })),
+    end: rt.Optional(rt.String.withConstraint((string) => {
+        return !isNaN(Date.parse(string));
+    })),
+    notes: rt.Optional(rt.String)
+});
+export type EditPatrolBody = rt.Static<typeof EditPatrolBody>;
