@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, DefaultReturn} from "../../../types";
-import {patrolCreate, patrolEdit, patrolsHistory} from "../services";
+import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {ensureAPIResponseType} from "../../../utils/request-handler";
@@ -67,6 +67,16 @@ export async function editPatrolController(req: express.Request, res: PatrolInfo
 
     // Call the service to edit the patrol
     const result = await patrolEdit(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.patrol, body);
+
+    // Return the result
+    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+        message: result.message
+    }));
+}
+
+export async function deletePatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
+    // Call the service to delete the patrol
+    const result = await patrolDelete(res.locals.patrol.force, res.locals.patrol.id);
 
     // Return the result
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({

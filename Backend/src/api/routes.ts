@@ -539,6 +539,12 @@ const patrolsRoutes: routesType = {
             PATCH: {
                 requiresToken: true,
                 requiresForce: true,
+            },
+
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["patrols"]
             }
         }
     }

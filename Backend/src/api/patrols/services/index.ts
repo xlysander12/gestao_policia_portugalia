@@ -2,7 +2,7 @@ import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
-import {createPatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
+import {createPatrol, deletePatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {getOfficerData} from "../../officers/repository";
 import {getForcePatrolForces} from "../../../utils/config-handler";
@@ -103,5 +103,16 @@ export async function patrolEdit(force: string, userData: InnerOfficerData, patr
         result: true,
         status: 200,
         message: "Patrulha editada com sucesso"
+    }
+}
+
+export async function patrolDelete(force: string, id: number) {
+    // Call the repository to delete the patrol
+    await deletePatrol(force, id);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Patrulha eliminada com sucesso"
     }
 }

@@ -116,3 +116,7 @@ export async function editPatrol(force: string, id: number, changes: EditPatrolB
         await queryDB(force, `UPDATE patrols SET canceled = 1 WHERE id = ?`, [id]);
     }
 }
+
+export async function deletePatrol(force: string, id: number) {
+    await queryDB(force, `DELETE FROM patrols WHERE id = ?`, [id]);
+}
