@@ -1,7 +1,7 @@
 import {
     InactivityTypeData,
     IntentData,
-    PatentData,
+    PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
     StatusData
@@ -120,6 +120,22 @@ export async function getForceInactivityTypes(force: string): Promise<Inactivity
             description: type.description,
             color: type.color
         });
+    }
+
+    return typesList;
+}
+
+export async function getForcePatrolTypes(force: string): Promise<PatrolTypeData[]> {
+    // Get the list from the database
+    const types = await queryDB(force, `SELECT * FROM patrols_types`);
+
+    // Build an array with the types
+    let typesList: PatrolTypeData[] = [];
+    for (const type of types) {
+        typesList.push({
+            id: type.id,
+            name: type.name
+        })
     }
 
     return typesList;

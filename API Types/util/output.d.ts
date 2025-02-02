@@ -37,6 +37,11 @@ export interface InactivityTypeData {
     color: string
 }
 
+export interface PatrolTypeData {
+    id: number
+    name: string
+}
+
 export interface UtilPatentsResponse extends RequestSuccess {
     data: PatentData[]
 }
@@ -58,4 +63,8 @@ export interface UtilSpecialUnitsResponse extends RequestSuccess {
 
 export interface UtilInactivityTypesResponse extends RequestSuccess {
     data: InactivityTypeData[]
+}
+
+export interface UtilPatrolTypesResponse extends RequestSuccess {
+    data: PatrolTypeData[]
 }

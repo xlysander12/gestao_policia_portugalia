@@ -2,7 +2,7 @@ import {DefaultReturn} from "../../../types";
 import {
     getForceInactivityTypes,
     getForceIntents,
-    getForcePatents,
+    getForcePatents, getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
     getForceStatuses
@@ -10,7 +10,7 @@ import {
 import {
     InactivityTypeData,
     IntentData,
-    PatentData,
+    PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
     StatusData
@@ -75,6 +75,19 @@ export async function forceIntents(force: string): Promise<DefaultReturn<IntentD
 export async function forceInactivityTypes(force: string): Promise<DefaultReturn<InactivityTypeData[]>> {
     // Get the list of inactivity types from the repository
     const types = await getForceInactivityTypes(force);
+
+    // Return 200
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: types
+    }
+}
+
+export async function forcePatrolTypes(force: string): Promise<DefaultReturn<PatrolTypeData[]>> {
+    // Get the list of patrol types from the repository
+    const types = await getForcePatrolTypes(force);
 
     // Return 200
     return {
