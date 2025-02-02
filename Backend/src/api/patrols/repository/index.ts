@@ -12,7 +12,10 @@ function splitPatrolId(id: string): [string, number] {
     return [idMatch![1], parseInt(idMatch![2])];
 }
 
-export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<MinifiedPatrolData[]> {
+export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<{
+    patrols: MinifiedPatrolData[],
+    pages: number
+}> {
     // Build the filters from the route
     const filtersResult = buildFiltersQuery(routeFilters, filters);
 
@@ -33,8 +36,14 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
         });
     }
 
+    // Get the number of total pages regarding the entries per page
+    const totalEntries = await queryDB(force, `SELECT COUNT(*) FROM patrolsV ${filtersResult.query}`, filtersResult.values);
+
     // Return the result
-    return patrols;
+    return {
+        patrols: patrols,
+        pages: Math.ceil(totalEntries[0]["COUNT(*)"] / entriesPerPage)
+    };
 }
 
 export async function getPatrol(force: string, id: string): Promise<InnerPatrolData | null> {

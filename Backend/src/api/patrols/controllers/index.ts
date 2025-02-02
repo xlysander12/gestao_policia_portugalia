@@ -12,7 +12,10 @@ import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patro
 
 export async function listPatrolsController(req: express.Request, res: APIResponse) {
     // *  Call the service to get the patrols
-    let result: DefaultReturn<MinifiedPatrolData[]>;
+    let result: DefaultReturn<{
+        patrols: MinifiedPatrolData[],
+        pages: number
+    }>;
 
     // Check if there is a page parameter
     if (res.locals.queryParams && isQueryParamPresent("page", res.locals.queryParams)) {
@@ -30,8 +33,11 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     }
 
     res.status(result.status).json(ensureAPIResponseType<PatrolHistoryResponse>({
+        meta: {
+            pages: result.data!.pages
+        },
         message: result.message,
-        data: result.data!
+        data: result.data!.patrols
     }));
 }
 

@@ -9,7 +9,10 @@ import {getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 
-export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<MinifiedPatrolData[]>> {
+export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<{
+    patrols: MinifiedPatrolData[],
+    pages: number
+}>> {
     // Fetch the patrols from the repository
     const result = await listPatrols(force, validFilters, receivedFilters, page, entriesPerPage);
 

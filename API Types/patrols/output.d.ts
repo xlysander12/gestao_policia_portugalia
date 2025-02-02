@@ -11,6 +11,9 @@ export interface MinifiedPatrolData {
 }
 
 export interface PatrolHistoryResponse extends RequestSuccess {
+    meta: {
+        pages: number
+    }
     data: MinifiedPatrolData[]
 }
 
