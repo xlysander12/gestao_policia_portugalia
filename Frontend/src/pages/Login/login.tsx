@@ -14,7 +14,7 @@ function Login() {
     const [loading, setLoading] = useState<boolean>(false);
 
     // Set the state for the NIF and password
-    const [nif, setNif] = useState<number>(0);
+    const [nif, setNif] = useState<number>(localStorage.getItem("last_login") ? Number(localStorage.getItem("last_login")) : 0);
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
 
@@ -41,6 +41,7 @@ function Login() {
         // If the request didn't return a 200 code, the login was unsuccessful
         if (!loginResponse.ok) {
             toast(loginJson.message, {type: "error"});
+            setPassword("");
             setLoading(false);
             return;
         }
@@ -51,6 +52,11 @@ function Login() {
 
         // Set the flag in localStorage to indicate that the page needs to reload
         localStorage.setItem("needsReload", "true");
+
+        // Set the last_login nif in the local storage if the remind be checkbox is checked
+        if (remember) {
+            localStorage.setItem("last_login", nif.toString());
+        }
 
         // ! Since the token should now be stored in cookies, there's no need to store it in the local storage
         // Disable the loading flag
