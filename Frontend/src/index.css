@@ -5,6 +5,7 @@
   /*Background colors*/
   --portalseguranca-color-background-light: #C5C6C7;
   --portalseguranca-color-background-dark: #1F2833FF;
+  --portalseguranca-color-hover-light: #504f4f;
   --portalseguranca-color-hover-dark: #11161CFF;
 
   /*Text Colors*/
@@ -14,8 +15,6 @@
 
   --portalseguranca-color-accent: #049985;
   --portalseguranca-color-focus: #00fdfd;
-
-
 }
 
 .Toastify__toast-theme--dark {

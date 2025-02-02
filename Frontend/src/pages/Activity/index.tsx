@@ -192,6 +192,8 @@ function Activity() {
             // Make a secondary array with the justifications to change the managed_by value
             let justificationsManagedBy = [];
 
+            // ? This thing might be a huge performance hit.
+            // ? If the officer has a lot of justifications, this will make a lot of requests and the whole page won't load until all of them are done
             for (const justification of justificationsResponseData.data) {
                 const officer = await getOfficerFromNif(justification.managed_by!);
 

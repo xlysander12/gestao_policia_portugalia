@@ -4,7 +4,7 @@ import {OutlinedTextFieldProps, TextField} from "@mui/material";
 type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean, textWhenDisabled?: boolean};
 
 const DefaultOutlinedTextFieldStyle = styled(TextField, {
-    shouldForwardProp: (prop) => prop !== "alternateColor" && prop !== "sameBehaviourWhenDisabled"
+    shouldForwardProp: (prop) => prop !== "alternateColor" && prop !== "textWhenDisabled"
 })<DefaultOutlinedTextFieldProps>(({alternateColor, textWhenDisabled}) => ({
     "& label": {
         color: alternateColor ? "rgba(0, 0, 0, 0.6)": "var(--portalseguranca-color-text-light)",

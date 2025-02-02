@@ -14,6 +14,7 @@ import {
     UtilInactivityTypesResponse,
     UtilIntentsResponse,
     UtilPatentsResponse,
+    UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
 } from "@portalseguranca/api-types/util/output";
@@ -21,6 +22,7 @@ import Loader from "./components/Loader/loader.tsx";
 import {createTheme, ThemeProvider} from "@mui/material";
 import defaultThemeData from "./theme.ts";
 import Activity from "./pages/Activity";
+import Patrols from "./pages/Patrols";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -40,6 +42,7 @@ function App() {
                 statuses: [],
                 intents: [],
                 inactivity_types: [],
+                patrol_types: [],
                 special_units: [],
                 special_unit_roles: []
             }
@@ -59,6 +62,10 @@ function App() {
             // Fetching the inactivity types
             const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET");
             forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
+
+            // Fetching the patrol types
+            const patrolTypesResponse = await make_request("/util/patrol-types", "GET");
+            forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
 
             // Fetching the special units
             const specialUnitsResponse = await make_request("/util/special-units", "GET");
@@ -118,6 +125,10 @@ function App() {
                         element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
                     }
                 ]
+            },
+            {
+                path: "/patrulhas",
+                element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
             }
         ], {
             basename: BASE_URL

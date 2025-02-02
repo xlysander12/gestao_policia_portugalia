@@ -1,0 +1,37 @@
+.paginationDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+}
+
+.patrolsList {
+    height: calc(100vh - calc(4rem + 114px));
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.patrolCardMain {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.patrolCardLeft {
+    display: flex;
+    flex-direction: column;
+    flex: 1.5
+}
+
+.patrolCardRight {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    flex: 1;
+    height: 100%;
+}

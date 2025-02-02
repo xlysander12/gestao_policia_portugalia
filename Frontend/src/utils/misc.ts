@@ -6,10 +6,14 @@ import {toast} from "react-toastify";
 export function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${padToTwoDigits(hours)}:${padToTwoDigits(minutes)}`;
+    return `${padToTwoDigits(hours)}h${padToTwoDigits(minutes)}`;
 }
 export function padToTwoDigits(num: number) {
     return num.toString().padStart(2, "0");
+}
+
+export function getTimeDelta(start: Date, end: Date): string {
+    return toHoursAndMinutes(Math.floor((end.getTime() - start.getTime()) / 60000));
 }
 
 export async function getOfficerFromNif(nif: number): Promise<OfficerData | MinifiedOfficerData> {
@@ -17,7 +21,7 @@ export async function getOfficerFromNif(nif: number): Promise<OfficerData | Mini
     const responseJson: RequestError | OfficerInfoGetResponse = await response.json();
 
     if (!response.ok) {
-        toast("responseJson.message", {type: "error"});
+        toast(responseJson.message, {type: "error"});
         throw new Error((responseJson as RequestError).message);
     }
 
