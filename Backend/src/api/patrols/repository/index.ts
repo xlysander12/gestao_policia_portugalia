@@ -28,7 +28,7 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
         patrols.push({
             id: patrol.id,
             type: patrol.type,
-            unit: patrol.unit,
+            unit: patrol.special_unit,
             officers: JSON.parse(patrol.officers),
             start: dateToString(patrol.start),
             end: patrol.end !== null ? dateToString(patrol.end) : null,

@@ -5,7 +5,7 @@ import {ReceivedQueryParams} from "../../../utils/filters";
 import {createPatrol, deletePatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {getOfficerData} from "../../officers/repository";
-import {getForcePatrolForces} from "../../../utils/config-handler";
+import {getForceInactiveStatus, getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 
@@ -31,7 +31,7 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
         patrolData.officers.push(requestingOfficer);
     }
 
-    // Loop through all the officers and check if they exist and aren't in antoher patrol
+    // Loop through all the officers and check if they exist and aren't in antoher patrol or inactive
     for (const officerNif of patrolData.officers) {
         if (await isOfficerInPatrol(force, officerNif)) {
             return {
@@ -42,7 +42,8 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
         }
 
         // First, check in the request's force's database
-        const result = await getOfficerData(officerNif, force);
+        let result = await getOfficerData(officerNif, force);
+        let resultForce = force;
 
         // If the officer does exist, continue to the next one on the array
         if (result !== null) {
@@ -51,17 +52,30 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
 
         // Then, check if the officer exists in all of the other forces the current force has patrols with
         for (const patrolForce of getForcePatrolForces(force)) {
-            const result = await getOfficerData(officerNif, patrolForce);
+            const tempResult = await getOfficerData(officerNif, patrolForce);
 
-            if (result !== null) {
-                continue;
+            if (tempResult !== null) {
+                result = tempResult;
+                resultForce = patrolForce;
+                break;
             }
+        }
 
-            // If the officer does not exist in any of the forces, return an error
+        // If the officer does not exist in any of the forces, return an error
+        if (result === null) {
             return {
                 result: false,
                 status: 400,
                 message: "Um ou mais efetivos não existem"
+            }
+        }
+
+        // Since the officer exists, check if they are inactive or not
+        if (result!.status === getForceInactiveStatus(resultForce)) {
+            return {
+                result: false,
+                status: 400,
+                message: "Um ou mais efetivos estão inativos"
             }
         }
     }
