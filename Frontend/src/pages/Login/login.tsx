@@ -14,7 +14,7 @@ function Login() {
     const [loading, setLoading] = useState<boolean>(false);
 
     // Set the state for the NIF and password
-    const [nif, setNif] = useState<number>(localStorage.getItem("last_login") ? Number(localStorage.getItem("last_login")) : 0);
+    const [nif, setNif] = useState<string>(localStorage.getItem("last_login") ? localStorage.getItem("last_login")! : "");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
 
@@ -28,7 +28,7 @@ function Login() {
         // Check if the credentials are correct
         let loginResponse = await make_request("/accounts/login", "POST", {
             body: {
-                nif: nif,
+                nif: Number(nif),
                 password: password,
                 persistent: remember
             },
@@ -78,12 +78,12 @@ function Login() {
                         size={"small"}
                         label={"NIF"}
                         type={"text"}
-                        onChange={(event) => setNif(Number(event.target.value))}
+                        onChange={(event) => setNif(event.target.value)}
                         required
                         inputProps={{
                             pattern: "^[0-9]*$"
                         }}
-                        value={nif === 0 ? "" : nif}
+                        value={nif}
                         disabled={loading}
                     />
 
