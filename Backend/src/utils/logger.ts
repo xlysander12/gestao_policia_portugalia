@@ -127,7 +127,7 @@ export async function logRequestToFile(res: APIResponse) {
     builder += `${res.req.method} ${res.req.originalUrl} - ${res.statusCode} @ ${formatDateTime(new Date())}\n`;
 
     // Add the line with the source IP address
-    builder += `Source IP: ${res.req.socket.remoteAddress}\n`;
+    builder += `Source IP: ${res.req.header("cf-connecting-ip") ? res.req.header("cf-connecting-ip"): res.req.socket.remoteAddress}\n`;
 
     // Add the line with the force, if applicable
     builder += `Force: ${res.locals.routeDetails.requiresForce ? (res.req.header(FORCE_HEADER) ? res.req.header(FORCE_HEADER)!.toUpperCase(): "Force not Present"): "N/A"}\n`;
