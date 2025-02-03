@@ -4,7 +4,10 @@ import App from './App.tsx'
 import './index.css'
 import {DevSupport} from "@react-buddy/ide-toolbox";
 import {ComponentPreviews, useInitial} from "./dev";
+import moment from "moment";
+import 'moment/dist/locale/pt';
 
+moment().locale('pt');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -14,4 +17,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <App/>
         </DevSupport>
     </React.StrictMode>,
-)
+);
