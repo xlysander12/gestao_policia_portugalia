@@ -57,13 +57,12 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         // Set the loading to true
         setLoading(true);
 
-        // Build the request body
-        const requestBody: UpdateOfficerLastShiftBodyType = {
-            last_shift: lastShift!.toISOString()
-        }
-
         // Make the request
-        await make_request(`/officers/${officer}/activity/last-shift`, "PUT", {body: requestBody});
+        await make_request<UpdateOfficerLastShiftBodyType>(`/officers/${officer}/activity/last-shift`, "PUT", {
+            body: {
+                last_shift: lastShift!.toISOString()
+            }
+        });
 
         // Update the last shift date
         await fetchLastShift();

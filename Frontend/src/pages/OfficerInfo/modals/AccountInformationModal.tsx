@@ -14,6 +14,7 @@ import {LoggedUserContext, LoggedUserContextType} from "../../../components/Priv
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
+import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -134,7 +135,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         setLoading(true);
 
         // Make the request to change the suspended state
-        let response = await make_request(`/accounts/${officerNif}`, "PATCH", {
+        let response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
             body: {
                 suspended: suspend
             }
@@ -220,7 +221,13 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                                 setAccountInfo(draft => {
                                                     draft.intents[intent.name] = event.target.checked;
                                                 });
-                                                await make_request(`/accounts/${officerNif}`, "PATCH", {body: { intents: {[intent.name]: event.target.checked}}});
+                                                await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
+                                                    body: {
+                                                        intents: {
+                                                            [intent.name]: event.target.checked
+                                                        }
+                                                    }
+                                                });
                                                 setNeedsRefresh(true);
 
                                                 // ! Loading will be disabled by the refresh

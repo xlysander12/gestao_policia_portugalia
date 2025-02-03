@@ -7,6 +7,7 @@ import {Divider} from "@mui/material";
 import { make_request } from "../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import { ChangePasswordRequestBodyType } from "@portalseguranca/api-types/account/input";
 
 type ChangePasswordModalProps = {
     open: boolean,
@@ -34,7 +35,7 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
         setLoading(true);
 
         // Make the request to change the password
-        const response = await make_request(`/accounts/change-password`, "POST", {
+        const response = await make_request<ChangePasswordRequestBodyType>(`/accounts/change-password`, "POST", {
             body: {
                 oldPassword: oldPassword,
                 newPassword: newPassword,

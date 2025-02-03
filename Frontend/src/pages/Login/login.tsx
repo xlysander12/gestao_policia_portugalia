@@ -5,6 +5,7 @@ import React, {useState} from "react";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
+import { LoginRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 
 function Login() {
     // Set the useNavigate hook
@@ -26,7 +27,7 @@ function Login() {
         setLoading(true);
 
         // Check if the credentials are correct
-        let loginResponse = await make_request("/accounts/login", "POST", {
+        let loginResponse = await make_request<LoginRequestBodyType>("/accounts/login", "POST", {
             body: {
                 nif: Number(nif),
                 password: password,

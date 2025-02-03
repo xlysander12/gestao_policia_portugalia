@@ -19,8 +19,8 @@ import {
 } from "@portalseguranca/api-types/officers/activity/input";
 
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
-import {Partial, Record} from "runtypes";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
+import {RuntypeBase} from "runtypes/lib/runtype";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -37,7 +37,7 @@ export type routeMethodType = {
     intents?: string[]
     filters?: RouteFilterType
     queryParams?: {
-        type: Record<any, any> | Partial<any, any>,
+        type: RuntypeBase,
         schema?: {
             [key: string]: {
                 parseFunction: <T>(value: string) => T,
@@ -45,7 +45,7 @@ export type routeMethodType = {
         }
     }
     body?: {
-        type: Record<any, any>
+        type: RuntypeBase
     }
     notes?: string
 }

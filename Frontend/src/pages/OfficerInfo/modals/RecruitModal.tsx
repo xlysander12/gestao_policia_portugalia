@@ -8,6 +8,7 @@ import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultTextField} from "../../../components/DefaultComponents";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import { CreateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
 
 type RecruitModalProps = {
     open: boolean
@@ -41,15 +42,14 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await make_request(`/officers/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
+        const recruitRequest = await make_request<CreateOfficerRequestBody>(`/officers/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
             {
                 body: {
                     name: officerInfo.name,
-                    nif: officerInfo.nif,
-                    phone: officerInfo.phone,
+                    phone: Number(officerInfo.phone),
                     iban: officerInfo.iban,
                     kms: officerInfo.kms,
-                    discord: officerInfo.discord,
+                    discord: Number(officerInfo.discord),
                     steam: officerInfo.steam
                 }
             });

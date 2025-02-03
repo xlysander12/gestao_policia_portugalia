@@ -40,26 +40,26 @@ export const AddOfficerJustificationBody = rt.Record({
     start: rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
     }),
-    end: rt.Optional(rt.String.withConstraint((string) => {
+    end: rt.Optional(rt.Union(rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
-    })),
+    }), rt.Null)),
     description: rt.String
 });
-export type AddOfficerJusitificationBodyType = rt.Static<typeof AddOfficerJustificationBody>;
+export type AddOfficerJustificationBodyType = rt.Static<typeof AddOfficerJustificationBody>;
 
 export const ManageOfficerJustificationBody = rt.Record({
     approved: rt.Boolean
 });
 export type ManageOfficerJustificationBodyType = rt.Static<typeof ManageOfficerJustificationBody>;
 
-export const ChangeOfficerJustificationBody = rt.Record({
-    type: rt.Optional(rt.Number),
-    start: rt.Optional(rt.String.withConstraint((string) => {
+export const ChangeOfficerJustificationBody = rt.Partial({
+    type: rt.Number,
+    start: rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
-    })),
-    end: rt.Optional(rt.Union(rt.String.withConstraint((string) => {
+    }),
+    end: rt.Union(rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
-    }), rt.Null)),
-    description: rt.Optional(rt.String),
+    }), rt.Null),
+    description: rt.String,
 });
 export type ChangeOfficerJustificationBodyType = rt.Static<typeof ChangeOfficerJustificationBody>;

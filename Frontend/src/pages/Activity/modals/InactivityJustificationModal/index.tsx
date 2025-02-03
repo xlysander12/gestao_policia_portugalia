@@ -20,7 +20,10 @@ import {
     DefaultTypography
 } from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
-import { AddOfficerJusitificationBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
+import {
+    AddOfficerJustificationBodyType, ChangeOfficerJustificationBodyType,
+    ManageOfficerJustificationBodyType
+} from "@portalseguranca/api-types/officers/activity/input.ts";
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
 
@@ -122,9 +125,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         setLoading(true);
 
         // Make the request to change the state of the justification
-        const response = await make_request(`/officers/${officerNif}/activity/justifications/${justificationId}`, "POST", {
+        const response = await make_request<ManageOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "POST", {
             body: {
-                "approved": approve
+                approved: approve
             }
         });
 
@@ -147,12 +150,12 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         setEditMode(false);
 
         // Make the request to change the state of the justification
-        const response = await make_request(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
+        const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
-                "type": justificationData?.type,
-                "start": justificationData?.start,
-                "end": justificationData?.end,
-                "description": justificationData?.description.trim()
+                type: justificationData?.type,
+                start: justificationData?.start,
+                end: justificationData?.end,
+                description: justificationData?.description.trim()
             }
         });
 
@@ -195,13 +198,13 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         setLoading(true);
 
         // Make the request to create the justification
-        const response = await make_request(`/officers/${officerNif}/activity/justifications`, "POST", {
+        const response = await make_request<AddOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications`, "POST", {
             body: {
-                "type": justificationData?.type,
-                "start": justificationData?.start,
-                "end": justificationData?.end,
-                "description": justificationData?.description.trim()
-            } as AddOfficerJusitificationBodyType
+                type: justificationData?.type,
+                start: justificationData?.start,
+                end: justificationData?.end,
+                description: justificationData?.description.trim()
+            }
         });
 
         // Parse the response

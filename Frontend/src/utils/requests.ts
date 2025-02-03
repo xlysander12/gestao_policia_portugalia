@@ -3,8 +3,8 @@
 // It will be a wrapper around the fetch API, making it easier to use
 import {BASE_API_URL} from "./constants";
 
-type MakeRequestOptions = {
-    body?: object,
+type MakeRequestOptions<Body> = {
+    body?: Body | null,
     force?: string,
     useAuth?: boolean,
     useBaseAPIURL?: boolean,
@@ -12,14 +12,14 @@ type MakeRequestOptions = {
     reloadOn500?: boolean
 }
 // ! 'useAuth' option is deprecated, and such, has been deleted
-export async function make_request(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
+export async function make_request<BodyType>(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
                                    {
-                                       body = {},
+                                       body = null,
                                        force = <string>localStorage.getItem("force"),
                                        useBaseAPIURL = true,
                                        redirectToLoginOn401 = true,
                                        reloadOn500 = true
-                                   }: MakeRequestOptions = {}) {
+                                   }: MakeRequestOptions<BodyType> = {}) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
         url = '/' + url;
@@ -37,7 +37,7 @@ export async function make_request(url: string, method: ("GET" | "POST" | "PATCH
             'Content-Type': 'application/json',
             'X-Portalseguranca-Force': force
         },
-        body: method === "GET" ? undefined: JSON.stringify(body)
+        body: method === "GET" || body === null ? undefined: JSON.stringify(body)
     });
 
     // If the response status is 401, redirect to the login page

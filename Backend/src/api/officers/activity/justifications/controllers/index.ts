@@ -16,7 +16,7 @@ import {
 } from "@portalseguranca/api-types/officers/activity/output";
 import {userHasIntents} from "../../../../accounts/repository";
 import {
-    AddOfficerJusitificationBodyType, ChangeOfficerJustificationBodyType,
+    AddOfficerJustificationBodyType, ChangeOfficerJustificationBodyType,
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input";
 import {OfficerJustificationAPIResponse} from "../../../../../types/response-types";
@@ -87,10 +87,10 @@ export async function createOfficerJustificationController(req: express.Request,
 
     // * Since the permissions are okay, call the service to create the justification
     // Get the data from the request
-    let {type, start, end, description} = req.body as AddOfficerJusitificationBodyType;
+    let {type, start, end, description} = req.body as AddOfficerJustificationBodyType;
 
     // Get the result from the service
-    let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, type, description, start, end);
+    let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, type, description, start, end === null ? undefined: end);
 
     // Return the result
     res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({

@@ -7,6 +7,7 @@ import {DefaultButton, DefaultOutlinedTextField} from "../../../components/Defau
 import React from "react";
 import {FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Gate from "../../../components/Gate/gate.tsx";
+import {DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 
 type FireModalProps = {
     open: boolean,
@@ -28,9 +29,11 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
         // Prevent the form from submitting and therefore reloading the page
         event.preventDefault();
 
-        const fireRequest = await make_request(
-            `/officers/${officerNif}`,
-            "DELETE", {body: {reason: fireReason}}
+        const fireRequest = await make_request<DeleteOfficerRequestBody>(`/officers/${officerNif}`, "DELETE", {
+                body: {
+                    reason: fireReason
+                }
+            }
         );
 
         // Check if the response is ok

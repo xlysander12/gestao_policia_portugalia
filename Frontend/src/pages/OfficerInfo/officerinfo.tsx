@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ReactElement, useContext, useEffect, useState} from "react";
+import React, {ChangeEvent, ReactNode, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
 import OfficerList from "../../components/OfficerList/officer-list";
 import Loader from "../../components/Loader/loader";
@@ -24,6 +24,8 @@ import SpecialUnitsTable from "./special-units-table.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./activity-panel.tsx";
 import ManagementBar from "../../components/ManagementBar";
+import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
+import { RequestError } from "@portalseguranca/api-types/index.ts";
 
 
 type InformationPairProps = {
@@ -35,9 +37,9 @@ type InformationPairProps = {
     onChangeCallback?: ((event: ChangeEvent<HTMLInputElement>) => void) | any,
     step?: number,
     isSelect?: boolean,
-    children?: ReactElement | [ReactElement]
+    children?: ReactNode | ReactNode[]
 }
-const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactElement => {
+const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
 
     // If it's not a select, return a basic input
     if (!isSelect) {
@@ -207,7 +209,7 @@ function OfficerInfo() {
         }
 
         // Make the request to update the officer's info
-        const updateRequest = await make_request(`/officers/${officerNif}`, "PATCH",
+        const updateRequest = await make_request<UpdateOfficerRequestBody>(`/officers/${officerNif}`, "PATCH",
             {
                 body: {
                     // Personal Info
@@ -231,13 +233,13 @@ function OfficerInfo() {
 
         // Check if the response is ok
         if (!updateRequest.ok) {
-            alert((await updateRequest.json()).message);
+            toast.error(((await updateRequest.json()) as RequestError).message);
             return;
         }
 
         // After updating the data, we can show a notification and reload the info of the edit officer
         toast("Informações atualizadas com sucesso!", {type: "success"});
-        fetchOfficerInfo();
+        await fetchOfficerInfo();
     }
 
     // Whenever the nif in state changes, we need to fetch the officer's info
@@ -249,13 +251,6 @@ function OfficerInfo() {
 
         // Change the nif in state so useEffect can handle the info fetching
         setOfficerNif(nif);
-    }
-
-    function handleInformationChange(category: "personal" | "professional", info: string, value: any) {
-        setOfficerInfo(draft => {
-            // @ts-ignore
-            draft[category][info] = value
-        });
     }
 
     function handleSpecialUnitEdit(specialUnit: OfficerUnit) {
@@ -296,15 +291,6 @@ function OfficerInfo() {
             draft.professional.special_units.push(newUnit);
         });
     }
-
-    // Before rendering the page, we need to build the patentes and status options
-    const patentesOptions = forceData.patents.map((patent) => {
-        return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
-    });
-
-    const statusOptions = forceData.statuses.map((status: {id: number, name: string}) => {
-       return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
-    });
 
     return (
         <>
@@ -404,7 +390,9 @@ function OfficerInfo() {
                                         value={officerInfo.personal.name}
                                         pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "name", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.name = event.target.value
+                                        })}
                                     />
                                     <Divider flexItem/>
 
@@ -422,7 +410,9 @@ function OfficerInfo() {
                                         value={officerInfo.personal.phone}
                                         pattern={/^[0-9]{9}$/}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "phone", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.phone = Number(event.target.value)
+                                        })}
                                     />
                                     <Divider flexItem/>
 
@@ -432,7 +422,9 @@ function OfficerInfo() {
                                         value={officerInfo.personal.iban}
                                         pattern={/^PT[0-9]{5,8}$/}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "iban", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.iban = event.target.value
+                                        })}
                                     />
                                     <Divider flexItem/>
 
@@ -443,7 +435,9 @@ function OfficerInfo() {
                                         editMode={editMode}
                                         type={"number"}
                                         step={100}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "kms", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.kms = Number(event.target.value)
+                                        })}
                                     />
                                     <Divider flexItem/>
 
@@ -452,7 +446,9 @@ function OfficerInfo() {
                                         label={"Discord:"}
                                         value={officerInfo.personal.discord}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "discord", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.discord = Number(event.target.value)
+                                        })}
                                     />
                                     <Divider flexItem/>
 
@@ -463,7 +459,9 @@ function OfficerInfo() {
                                         value={officerInfo.personal.steam}
                                         pattern={/(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)/}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("personal", "steam", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.personal.steam = event.target.value
+                                        })}
                                     />
                                 </div>
                             </fieldset>
@@ -477,11 +475,14 @@ function OfficerInfo() {
                                         label={"Patente:"}
                                         value={officerInfo.professional.patent}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "patent", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                           draft.professional.patent = Number(event.target.value)
+                                        })}
                                         isSelect
                                     >
-                                        {/*@ts-ignore*/}
-                                        {patentesOptions}
+                                        {forceData.patents.map((patent) => {
+                                            return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
+                                        })}
                                     </InformationPair>
                                     <Divider/>
 
@@ -489,9 +490,11 @@ function OfficerInfo() {
                                     <InformationPair
                                         label={"CallSign:"}
                                         value={officerInfo.professional.callsign}
-                                        pattern={/^[FSTODCZAG]-([0-9]){2}$/}
+                                        pattern={/^[A-Z]+-([0-9]){2}$/}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "callsign", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.professional.callsign = event.target.value
+                                        })}
                                     />
                                     <Divider/>
 
@@ -501,10 +504,13 @@ function OfficerInfo() {
                                         value={officerInfo.professional.status}
                                         isSelect
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "status", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.professional.status = Number(event.target.value)
+                                        })}
                                     >
-                                        {/*@ts-ignore*/}
-                                        {statusOptions}
+                                        {forceData.statuses.map((status: {id: number, name: string}) => {
+                                            return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
+                                        })}
                                     </InformationPair>
                                     <Divider/>
 
@@ -514,7 +520,9 @@ function OfficerInfo() {
                                         value={officerInfo.professional.entry_date}
                                         type={"date"}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => handleInformationChange("professional", "entry_date", event.target.value)}
+                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                            draft.professional.entry_date = event.target.value
+                                        })}
                                     />
                                     <Divider/>
 

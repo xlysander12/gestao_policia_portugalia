@@ -3,10 +3,11 @@ import {Modal, ModalSection} from "../../Modal/modal";
 
 import style from "./feedback.module.css";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTextField, DefaultTypography} from "../../DefaultComponents";
-import {FormEvent, FormEventHandler, useEffect, useState} from "react";
+import {FormEvent, useEffect, useState} from "react";
 import {Divider} from "@mui/material";
 import {make_request} from "../../../utils/requests.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
+import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 import {toast} from "react-toastify";
 
 type FeedbackModalProps = {
@@ -28,11 +29,11 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
         const endpoint = type === "error" ? "/metrics/issue" : "/metrics/suggestion";
 
         // Make the request
-        const response = await make_request(endpoint, "POST", {
+        const response = await make_request<SubmitIssueRequestBodyType | SubmitSuggestionRequestBodyType>(endpoint, "POST", {
            body: {
-                code: errorCode,
+               code: errorCode,
                title: title,
-                body: message
+               body: message
            },
             reloadOn500: false
         });
