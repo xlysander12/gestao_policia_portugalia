@@ -12,6 +12,8 @@ import {DefaultPagination, DefaultTypography} from "../../components/DefaultComp
 import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
 import {getTimeDelta} from "../../utils/misc.ts";
 import moment from "moment";
+import {Skeleton} from "@mui/material";
+import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 
 type PatrolCardProps = {
     patrolInfo: MinifiedPatrolData
@@ -23,6 +25,56 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     // Get the force data from context
     const forceData = useContext(ForceDataContext);
 
+    const [loading, setLoading] = useState<boolean>(true);
+    const [officers, setOfficers] = useState<MinifiedOfficerData[]>([]);
+    const [addEtc, setAddEtc] = useState<boolean>(false);
+
+    async function getOfficersDetails(): Promise<MinifiedOfficerData[]> {
+        let temp: MinifiedOfficerData[] = [];
+        let i = 0;
+
+        for (const nif of patrolInfo.officers) {
+            if (patrolInfo.officers.length > 4) {
+                if (i < 3) {
+                    i++;
+                } else {
+                    setAddEtc(true);
+                    break;
+                }
+            } else {
+                setAddEtc(false);
+            }
+
+            const officerResponse = await make_request(`/officers/${nif}?patrol=true`, "GET");
+
+            if (!officerResponse.ok) {
+                temp.push({
+                    name: "Desconhecido",
+                    nif: nif,
+                    callsign: "N/A",
+                    patent: 0,
+                    status: 0,
+                });
+            } else {
+                const officerResponseJson: OfficerInfoGetResponse = await officerResponse.json();
+                temp.push(officerResponseJson.data);
+            }
+        }
+
+        return temp;
+    }
+
+    useEffect(() => {
+        const exec = async () => {
+            setLoading(true);
+
+            setOfficers(await getOfficersDetails());
+
+            setLoading(false);
+        }
+
+        exec();
+    }, [patrolInfo.id]);
 
     return (
         <InformationCard
@@ -35,8 +87,24 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                         Patrulha #{patrolInfo.id.toUpperCase()} - {patrolInfo.canceled ? "Cancelada": (patrolInfo.end ? "Terminada": "A decorrer...")}
                     </DefaultTypography>
 
-                    <DefaultTypography color={"gray"}>Tipo: {getObjectFromId(patrolInfo.type, forceData.patrol_types)?.name}</DefaultTypography>
+                    <DefaultTypography color={"gray"}>Tipo: {getObjectFromId(patrolInfo.type, forceData.patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, forceData.special_units)?.name}`: ""}</DefaultTypography>
                     <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? getTimeDelta(new Date(patrolInfo.start), new Date(patrolInfo.end)): "N/A"}</DefaultTypography>
+                </div>
+                <div className={style.patrolCardMiddle}>
+                    <Gate show={loading}>
+                        {patrolInfo.officers.map((_, index) => (
+                            index < 4 ? <Skeleton key={`skeleton#${index}`} variant={"text"} width={"100%"} height={"19.5px"} animation={"wave"} />: null
+                        ))}
+                    </Gate>
+
+                    <Gate show={!loading}>
+                        {officers.map((officer, index) => (
+                            <DefaultTypography key={`officer#${index}`} color={"gray"} fontSize={"small"}>[{officer.callsign}] {getObjectFromId(officer.patent, forceData.patents)?.name} {officer.name}</DefaultTypography>
+                        ))}
+                        <Gate show={addEtc}>
+                            <DefaultTypography color={"gray"} fontSize={"small"}>...</DefaultTypography>
+                        </Gate>
+                    </Gate>
                 </div>
                 <div className={style.patrolCardRight}>
                     <DefaultTypography fontSize={"small"} color={"gray"}>{moment(new Date(patrolInfo.start)).calendar()}</DefaultTypography>
