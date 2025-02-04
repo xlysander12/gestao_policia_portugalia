@@ -7,7 +7,9 @@
     "clean": "rimraf dist",
     "build-api-types": "cd ../API-Types && npm run build",
     "compile": "tsc -p tsconfig.prod.json",
-    "copy-assets": "copyfiles -u 1 src/assets/**/* dist && copyfiles -u 3 ../API-Types/dist/**/**/* dist/node_modules/@portalseguranca/api-types",
+    "copy-assets": "node -e \"require('os').platform() === 'linux' ? require('child_process').execSync('npm run copy-assets:linux'): require('child_process').execSync('npm run copy-assets:windows')\"",
+    "copy-assets:windows": "copyfiles -u 1 src/assets/**/* dist && copyfiles -u 3 ../API-Types/dist/**/* dist/node_modules/@portalseguranca/api-types",
+    "copy-assets:linux": "copyfiles -u 1 'src/assets/**/*' dist && copyfiles -u 3 '../API-Types/dist/**/*' dist/node_modules/@portalseguranca/api-types",
     "build": "npm run build-api-types && npm run clean && npm run compile && npm run copy-assets",
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
@@ -24,6 +26,7 @@
   },
   "homepage": "https://github.com/xlysander12/gestao_policia_portugalia#readme",
   "dependencies": {
+    "@portalseguranca/api-types": "file:../API-Types/src",
     "bcrypt": "^5.1.1",
     "body-parser": "1.20.3",
     "cookie-parser": "^1.4.6",
@@ -34,8 +37,7 @@
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",
     "runtypes": "^6.7.0",
-    "serve-index": "^1.9.1",
-    "@portalseguranca/api-types": "file:../API-Types/src"
+    "serve-index": "^1.9.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

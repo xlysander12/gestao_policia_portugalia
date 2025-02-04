@@ -21,13 +21,16 @@ cd API-Types || exit
 # Create a clean install of all modules
 npm ci
 
-# Build API Types
+# Start working in the Backend
+# ! Backend already builds the API Types
+cd Backend || exit
+
+# Create a clean install of all modules
+npm ci
+
+# Build Backend
 npm run build
-
-# Move out of API Types
-cd ..
-
-echo "API Types built successfully"
+echo "Backend built successfully"
 if [[ $SKIP_INTERACTION == false ]]; then
   read -p "Press enter to continue"
 fi
@@ -45,23 +48,11 @@ npm run build
 cd ..
 
 echo "Frontend built successfully"
-if [[ $SKIP_INTERACTION == false ]]; then
-  read -p "Press enter to continue"
-fi
-
-# Start working in the Backend
-cd Backend || exit
-
-# Create a clean install of all modules
-npm ci
-
-# Build Backend
-npm run build
-echo "Backend built successfully"
 echo "Build Completed"
 
 # Auto start the server if arg is present
 if [[ $AUTO_START == true ]]; then
   echo "Starting server..."
+  cd Backend || exit
   npm run start
 fi
