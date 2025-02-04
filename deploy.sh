@@ -15,12 +15,6 @@ do
   fi
 done
 
-# Start working in the API Types
-cd API-Types || exit
-
-# Create a clean install of all modules
-npm ci
-
 # Start working in the Backend
 # ! Backend already builds the API Types
 cd Backend || exit
