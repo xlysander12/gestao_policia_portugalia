@@ -24,17 +24,17 @@ jobs:
             - name: Setup API types
               uses: actions/setup-node@v4
               with:
-                node-version: 20.17.0
+                node-version: 22.13.1
                 cache: 'npm'
-                cache-dependency-path: 'API Types/package-lock.json'
+                cache-dependency-path: 'API-Types/package-lock.json'
             - run: npm ci
-              working-directory: 'API Types'
+              working-directory: 'API-Types'
 
             # Build the backend source
             - name: Build Backend
               uses: actions/setup-node@v4
               with:
-                  node-version: 20.17.0
+                  node-version: 22.13.1
                   cache: 'npm'
                   cache-dependency-path: Backend/package-lock.json
             - run: npm ci
@@ -50,21 +50,11 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
-            # Setup the API Types
-            - name: Setup API types
-              uses: actions/setup-node@v4
-              with:
-                node-version: 20.17.0
-                cache: 'npm'
-                cache-dependency-path: 'API Types/package-lock.json'
-            - run: npm ci
-              working-directory: 'API Types'
-
             # Build the frontend source
             - name: Build Frontend
               uses: actions/setup-node@v4
               with:
-                  node-version: 20.17.0
+                  node-version: 22.13.1
                   cache: 'npm'
                   cache-dependency-path: Frontend/package-lock.json
             - run: npm ci

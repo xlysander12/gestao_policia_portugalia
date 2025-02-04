@@ -3,7 +3,7 @@ import {APIResponse} from "../../../types";
 import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 import {sendIssue, sendSuggestion} from "../services";
 import {ensureAPIResponseType} from "../../../utils/request-handler";
-import { RequestSuccess } from "@portalseguranca/api-types";
+import { RequestSuccess } from "@portalseguranca/api-types/index";
 
 export async function submitIssueController(req: express.Request, res: APIResponse) {
     const {title, body, code} = req.body as SubmitIssueRequestBodyType;

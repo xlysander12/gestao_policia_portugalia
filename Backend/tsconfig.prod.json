@@ -1,4 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["./temp_server.ts", "./tests/*"]
+  "exclude": ["./tests/*", "../API-Types/*"],
+  "compilerOptions": {
+    "paths": {
+      "@portalseguranca/api-types": ["./api-types/*"],
+    }
+  }
 }

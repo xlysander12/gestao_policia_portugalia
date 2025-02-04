@@ -2,10 +2,14 @@
   "name": "@portalseguranca/backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "src/main.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.prod.json",
-    "dev": "nodemon temp_server.ts",
+    "clean": "rimraf dist",
+    "build-api-types": "cd ../API-Types && npm run build",
+    "compile": "tsc -p tsconfig.prod.json",
+    "copy-assets": "copyfiles -u 1 src/assets/**/* dist && copyfiles -u 3 ../API-Types/dist/**/* dist/node_modules/@portalseguranca/api-types",
+    "build": "npm run build-api-types && npm run clean && npm run compile && npm run copy-assets",
+    "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
     "test": "jest --watch"
   },
@@ -20,8 +24,6 @@
   },
   "homepage": "https://github.com/xlysander12/gestao_policia_portugalia#readme",
   "dependencies": {
-    "@portalseguranca/api-types": "file:../API Types/dist",
-    "@types/serve-index": "^1.9.4",
     "bcrypt": "^5.1.1",
     "body-parser": "1.20.3",
     "cookie-parser": "^1.4.6",
@@ -32,17 +34,21 @@
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",
     "runtypes": "^6.7.0",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "@portalseguranca/api-types": "file:../API-Types/src"
   },
   "devDependencies": {
-    "@portalseguranca/api-types": "file:../API Types",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.14.11",
+    "@types/serve-index": "^1.9.4",
+    "copyfiles": "^2.4.1",
     "execa": "^9.5.2",
     "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3"

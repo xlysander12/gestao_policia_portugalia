@@ -6,7 +6,7 @@ import {
     ValidateTokenRequestBodyType
 } from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
+import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index";
 import {
     AccountInfoResponse, LoginResponse,
     UserForcesResponse,

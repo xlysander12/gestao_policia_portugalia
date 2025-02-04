@@ -4,7 +4,8 @@
   "description": "Typescript Interfaces to connect the responses of the Backend to the Frontend",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "clean": "rimraf dist",
+    "build": "npm rum clean && tsc -p tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,8 @@
     "@types/node": "^20.14.11",
     "runtypes": "^6.7.0",
     "typescript": "^5.5.3"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
   }
 }

@@ -1,7 +1,7 @@
 import {Request, NextFunction} from "express";
 import {APIResponse} from "../types";
 import routes, {methodType} from "../api/routes";
-import { RequestError } from "@portalseguranca/api-types";
+import { RequestError } from "@portalseguranca/api-types/index";
 
 function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFunction) {
     // Check if the requested route is present in the routes object
