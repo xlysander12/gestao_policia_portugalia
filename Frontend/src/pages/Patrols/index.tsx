@@ -20,8 +20,6 @@ type PatrolCardProps = {
     callback: (id: string) => void
 }
 function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
-    // TODO: Add the members of the patrol at the center of the card
-
     // Get the force data from context
     const forceData = useContext(ForceDataContext);
 
