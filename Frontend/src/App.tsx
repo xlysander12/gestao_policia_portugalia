@@ -32,8 +32,8 @@ function App() {
     const [forceData, setForceData] = useImmer<ForcesDataContext>(useContext(ForcesDataContext));
 
     const handleForceChange = (newForce: string) => {
-        localStorage.setItem("force", newForce);
         setForce(newForce);
+        localStorage.setItem("force", newForce);
     }
 
     const fetchPatrolForces = async () => {
@@ -90,6 +90,9 @@ function App() {
 
     useEffect(() => {
         async function execute() {
+            // Make sure the page is loading
+            setCanLoad(false);
+
             // Get all forces current force can patrol with
             const patrolForces = await fetchPatrolForces();
 
