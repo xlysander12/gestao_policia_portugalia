@@ -29,7 +29,7 @@ cd ..
 
 echo "API Types built successfully"
 if [[ $SKIP_INTERACTION == false ]]; then
-  read -p -r "Press enter to continue"
+  read -p "Press enter to continue"
 fi
 
 # Start working in the Frontend
@@ -46,7 +46,7 @@ cd ..
 
 echo "Frontend built successfully"
 if [[ $SKIP_INTERACTION == false ]]; then
-  read -p -r "Press enter to continue"
+  read -p "Press enter to continue"
 fi
 
 # Start working in the Backend
