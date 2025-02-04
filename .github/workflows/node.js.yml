@@ -20,6 +20,7 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+
             # Setup the API types directory
             - name: Setup API types
               uses: actions/setup-node@v4
@@ -50,6 +51,17 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+
+            # Setup the API types directory
+            -   name: Setup API types
+                uses: actions/setup-node@v4
+                with:
+                    node-version: 22.13.1
+                    cache: 'npm'
+                    cache-dependency-path: 'API-Types/package-lock.json'
+            -   run: npm ci
+                working-directory: 'API-Types'
+
             # Build the frontend source
             - name: Build Frontend
               uses: actions/setup-node@v4
