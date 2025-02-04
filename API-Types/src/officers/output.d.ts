@@ -30,7 +30,7 @@ export interface OfficerListResponse extends RequestSuccess {
 export interface OfficerInfoGetResponse extends RequestSuccess {
     meta: {
         former: boolean
-        sameForce: boolean
+        force: string
     }
     data: OfficerData | MinifiedOfficerData
 }

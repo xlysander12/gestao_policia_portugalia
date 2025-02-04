@@ -111,7 +111,8 @@ export async function getOfficerData(nif: number, force: string, former: boolean
         discord: officerDataResult[0].discord,
         steam: officerDataResult[0].steam,
         special_units: await getOfficerUnits(force, nif),
-        isFormer: former
+        isFormer: former,
+        force: force
     };
 }
 

@@ -29,15 +29,15 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 }
 
 export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerInfoGetResponse>) {
-    const {isFormer, isSameForce, ...officerData} = res.locals.targetOfficer!;
+    const {isFormer, force, ...officerData} = res.locals.targetOfficer!;
 
     res.status(200).json({
         message: "Operação bem sucedida",
         meta: {
             former: res.locals.targetOfficer!.isFormer,
-            sameForce: !!res.locals.targetOfficer!.isSameForce
+            force: res.locals.targetOfficer!.force
         },
-        data: (res.locals.targetOfficer?.isFormer && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers"))) || !res.locals.targetOfficer!.isSameForce ?
+        data: (res.locals.targetOfficer?.isFormer && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers"))) || (res.locals.targetOfficer!.force !== req.header(FORCE_HEADER)!) ?
             {
                 name: res.locals.targetOfficer!.name,
                 patent: res.locals.targetOfficer!.patent,

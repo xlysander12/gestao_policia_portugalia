@@ -11,7 +11,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
     let officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!);
     if (officerResult !== null) { // If it is, set the officer data and continue
         res.locals.targetOfficer = officerResult as InnerOfficerData;
-        res.locals.targetOfficer.isSameForce = true;
+        res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
         res.locals.targetOfficer.isFormer = false;
         next();
         return;
@@ -24,7 +24,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
         if (officerResult !== null) {
             res.locals.targetOfficer = officerResult as InnerOfficerData;
             res.locals.targetOfficer.isFormer = true;
-            res.locals.targetOfficer.isSameForce = true;
+            res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
             next();
             return;
         }
@@ -36,7 +36,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
             officerResult = await getOfficerData(Number(req.params.nif), force, false);
             if (officerResult !== null) {
                 res.locals.targetOfficer = officerResult as InnerOfficerData;
-                res.locals.targetOfficer.isSameForce = false;
+                res.locals.targetOfficer.force = force;
                 res.locals.targetOfficer.isFormer = false;
                 next();
                 return;
@@ -46,7 +46,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
             officerResult = await getOfficerData(Number(req.params.nif), force, true);
             if (officerResult !== null) {
                 res.locals.targetOfficer = officerResult as InnerOfficerData;
-                res.locals.targetOfficer.isSameForce = false;
+                res.locals.targetOfficer.force = force;
                 res.locals.targetOfficer.isFormer = true;
                 next();
                 return;

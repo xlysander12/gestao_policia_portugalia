@@ -5,7 +5,7 @@ export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "prom
     entry_date: Date,
     promotion_date: Date | null
     isFormer: boolean
-    isSameForce?: boolean
+    force: string
 }
 
 export interface InnerAccountData {
