@@ -1,8 +1,6 @@
 import express from "express";
 import {getOfficerJustificationDetails} from "../repository";
 import {FORCE_HEADER} from "../../../../../utils/constants";
-import {ensureAPIResponseType} from "../../../../../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
 import {OfficerJustificationAPIResponse} from "../../../../../types/response-types";
 import {stringToDate} from "../../../../../utils/date-handler";
 import {userHasIntents} from "../../../../accounts/repository";
@@ -13,9 +11,9 @@ export async function justificationExistsMiddleware(req: express.Request, res: O
 
     // If the justification doesn't exist, return an error
     if (justification === null) {
-        res.status(404).json(ensureAPIResponseType<RequestError>({
+        res.status(404).json({
             message: "Justificação não encontrada"
-        }));
+        });
         return;
     }
 
@@ -39,18 +37,18 @@ export async function isJustificationEditable(req: express.Request, res: Officer
     // If the requesting officer is not the target officer, then the requesting officer must have the "activity" intent
     if (res.locals.loggedOfficer.nif !== res.locals.targetOfficer!.nif) {
         if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-            res.status(403).json(ensureAPIResponseType<RequestError>({
+            res.status(403).json({
                 message: "Não tens permissão para realizar esta ação"
-            }));
+            });
             return;
         }
     }
 
     // If the status of the justification is not pending and the requesting officer doesn't have the activity intent, return an error
     if (res.locals.justification.status !== "pending" && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-        res.status(403).json(ensureAPIResponseType<RequestError>({
+        res.status(403).json({
             message: "Esta justificação já foi processada e não pode ser alterada"
-        }));
+        });
         return;
     }
 

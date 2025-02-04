@@ -7,8 +7,6 @@ import {
     officerJustificationUpdateStatus
 } from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
-import {ensureAPIResponseType} from "../../../../../utils/request-handler";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {
     OfficerActiveJustificationsResponse,
     OfficerJustificationDetailsResponse,
@@ -22,13 +20,13 @@ import {
 import {OfficerJustificationAPIResponse} from "../../../../../types/response-types";
 import {dateToString} from "../../../../../utils/date-handler";
 
-export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerJustificationsHistoryResponse>) {
     // * Make sure the requesting account has permission to check this info
     // If the requesting account isn't the target officer, check if the requesting account has the "activity" intent
     if (res.locals.targetOfficer!.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-        res.status(403).json(ensureAPIResponseType<RequestError>({
+        res.status(403).json({
             message: "Não tem permissão para aceder a esta informação"
-        }));
+        });
         return
     }
 
@@ -37,29 +35,29 @@ export async function getOfficerJustificationsHistoryController(req: express.Req
 
     // Return the result, depending on success
     if (!result.result) {
-        res.status(result.status).json(ensureAPIResponseType<RequestError>({
+        res.status(result.status).json({
             message: result.message,
-        }));
+        });
     }
 
-    res.status(result.status).json(ensureAPIResponseType<OfficerJustificationsHistoryResponse>({
+    res.status(result.status).json({
         message: result.message,
         data: result.data!
-    }));
+    });
 }
 
-export async function getOfficerJustificationDetailsController(req: express.Request, res: OfficerJustificationAPIResponse) {
+export async function getOfficerJustificationDetailsController(req: express.Request, res: OfficerJustificationAPIResponse<OfficerJustificationDetailsResponse>) {
     // * Make sure the requesting account has permission to check this info
     // If the requesting account isn't the target officer, check if the requesting account has the "activity" intent
     if (res.locals.targetOfficer!.nif !== res.locals.loggedOfficer.nif && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-        res.status(403).json(ensureAPIResponseType<RequestError>({
+        res.status(403).json({
             message: "Não tem permissão para aceder a esta informação"
-        }));
+        });
         return
     }
 
     // Return the justification data from the locals
-    res.status(200).json(ensureAPIResponseType<OfficerJustificationDetailsResponse>({
+    res.status(200).json({
         message: "Operação concluída com sucesso",
         data: {
             id: res.locals.justification.id,
@@ -71,16 +69,16 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
             managed_by: res.locals.justification.managed_by,
             timestamp: res.locals.justification.timestamp.getTime()
         }
-    }));
+    });
 }
 
 export async function createOfficerJustificationController(req: express.Request, res: OfficerInfoAPIResponse) {
     // * If the logged officer is not the target officer, then the logged officer must have the "activity" intent
     if (res.locals.loggedOfficer.nif !== res.locals.targetOfficer!.nif) {
         if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
-            res.status(403).json(ensureAPIResponseType<RequestError>({
+            res.status(403).json({
                 message: "Não tens permissão para realizar esta ação"
-            }));
+            });
             return;
         }
     }
@@ -93,26 +91,26 @@ export async function createOfficerJustificationController(req: express.Request,
     let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, type, description, start, end === null ? undefined: end);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }
 
-export async function getOfficerActiveJustificationsController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function getOfficerActiveJustificationsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerActiveJustificationsResponse>) {
     // Call the service to get the data
     let result = await officerActive(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result, depending on success
     if (!result.result) {
-        res.status(result.status).json(ensureAPIResponseType<RequestError>({
+        res.status(result.status).json({
             message: result.message,
-        }));
+        });
     }
 
-    res.status(result.status).json(ensureAPIResponseType<OfficerActiveJustificationsResponse>({
+    res.status(result.status).json({
         message: result.message,
         data: result.data!
-    }));
+    });
 }
 
 export async function manageOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
@@ -123,9 +121,9 @@ export async function manageOfficerJustificationController(req: express.Request,
     let result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, approved, res.locals.loggedOfficer.nif);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }
 
 export async function changeOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
@@ -133,9 +131,7 @@ export async function changeOfficerJustificationController(req: express.Request,
     let result = await officerJustificationChangeDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, req.body as ChangeOfficerJustificationBodyType);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
-        message: result.message
-    }));
+    res.status(result.status).json({message: result.message});
 }
 
 export async function deleteOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
@@ -143,7 +139,7 @@ export async function deleteOfficerJustificationController(req: express.Request,
     let result = await officerJustificationDelete(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }

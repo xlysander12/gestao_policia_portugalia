@@ -2,25 +2,23 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {getOfficerLastShift, updateOfficerLastShift} from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {dateToString} from "../../../../../utils/date-handler";
-import {ensureAPIResponseType} from "../../../../../utils/request-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMaxNonWorkingDays} from "../../../../../utils/config-handler";
 
-export async function getLastShiftController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function getLastShiftController(req: express.Request, res: OfficerInfoAPIResponse<OfficerLastShiftResponse>) {
     // Call the service to get the last shift of the officer
     const result = await getOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // * Return the result of the service
     // If the result is negative, return an error
     if (!result.result) {
-        return res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message}));
+        return res.status(result.status).json({message: result.message});
     }
 
     // If the result is positive, return the last shift as a date string
-    return res.status(result.status).json(ensureAPIResponseType<OfficerLastShiftResponse>({
+    return res.status(result.status).json({
         message: result.message,
         meta: {
            passed_max_days: Date.now() > result.data!.getTime() + getForceMaxNonWorkingDays(req.header(FORCE_HEADER)!) * 24 * 60 * 60 * 1000
@@ -28,7 +26,7 @@ export async function getLastShiftController(req: express.Request, res: OfficerI
         data: {
             last_shift: dateToString(result.data!, false)
         }
-    }));
+    });
 }
 
 export async function updateLastShiftController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -37,5 +35,5 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     // Call the service to update the last shift
     const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, new Date(Date.parse(last_shift)));
 
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message!}));
+    res.status(result.status).json({message: result.message!});
 }

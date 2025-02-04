@@ -1,7 +1,5 @@
 import express from "express";
 import {APIResponse} from "../types";
-import {ensureAPIResponseType} from "../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
 import {queryDB} from "../utils/db-connector";
 import {FORCE_HEADER} from "../utils/constants";
 import {logToConsole} from "../utils/logger";
@@ -29,9 +27,9 @@ async function errorHandlerMiddleware(err: Error, req: express.Request, res: API
     // This error was triggered by a constraint violation while inserting some data in the database
     // If this is the case, return 400 as it was user error
     if (err.message && err.message.includes("CONSTRAINT")) {
-        return res.status(400).json(ensureAPIResponseType<RequestError>({
+        return res.status(400).json({
             message: "Informações fornecidas inválidas",
-        }));
+        });
     }
 
     // Defining variable that holds the route
@@ -44,9 +42,9 @@ async function errorHandlerMiddleware(err: Error, req: express.Request, res: API
     // If the force header is not present, return 500 without any code
     if (!force) {
         logToConsole(`${route} - ${err.stack}`, "error");
-        return res.status(500).json(ensureAPIResponseType<RequestError>({
+        return res.status(500).json({
             message: "Erro interno do servidor",
-        }));
+        });
     }
 
     // Get a unique code
@@ -57,11 +55,11 @@ async function errorHandlerMiddleware(err: Error, req: express.Request, res: API
 
     logToConsole(`${route} - Error Code: ${code}`, "error", true);
 
-    res.status(500).json(ensureAPIResponseType<RequestError>({
+    res.status(500).json({
         message: "Erro interno do servidor",
         code: code,
         details: process.env.PS_IS_PRODUCTION !== "true" ? err.stack: undefined
-    }));
+    });
 }
 
 export default errorHandlerMiddleware;

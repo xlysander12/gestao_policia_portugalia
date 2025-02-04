@@ -6,7 +6,6 @@ import {
     ValidateTokenRequestBodyType
 } from "@portalseguranca/api-types/account/input";
 import {FORCE_HEADER} from "../../../utils/constants";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index";
 import {
     AccountInfoResponse, LoginResponse,
     UserForcesResponse,
@@ -24,9 +23,8 @@ import {
 } from "../services";
 import {getAccountForces} from "../services";
 import {AccountInfoAPIResponse} from "../../../types/response-types";
-import {ensureAPIResponseType} from "../../../utils/request-handler";
 
-export async function validateTokenController (req: express.Request, res: APIResponse): Promise<void> {
+export async function validateTokenController (req: express.Request, res: APIResponse<ValidateTokenResponse>): Promise<void> {
     let {intents} = req.body as ValidateTokenRequestBodyType;
 
     // Call the service
@@ -34,44 +32,44 @@ export async function validateTokenController (req: express.Request, res: APIRes
 
     // Check the result of the service
     if (!isTokenValid.result) { // The result was negative, user doesn't have requested intents
-        res.status(isTokenValid.status).json(ensureAPIResponseType<RequestError>({message: isTokenValid.message!}));
+        res.status(isTokenValid.status).json({message: isTokenValid.message!});
         return
     }
 
     // The result was positive, user has requested intents
-    res.status(isTokenValid.status).json(ensureAPIResponseType<ValidateTokenResponse>({message: isTokenValid.message!, data: res.locals.loggedOfficer.nif}));
+    res.status(isTokenValid.status).json({message: isTokenValid.message!, data: res.locals.loggedOfficer.nif});
 
 }
 
-export async function getUserAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse): Promise<void> {
+export async function getUserAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse<AccountInfoResponse>): Promise<void> {
     let userDetails = await getUserDetails(res.locals.loggedOfficer.nif, res.locals.targetAccount, req.header(FORCE_HEADER)!);
 
     if (!userDetails.result) {
-        res.status(userDetails.status).json(ensureAPIResponseType<RequestError>({message: userDetails.message}));
+        res.status(userDetails.status).json({message: userDetails.message});
         return;
     }
 
-    res.status(userDetails.status).json(ensureAPIResponseType<AccountInfoResponse>({
+    res.status(userDetails.status).json({
         message: userDetails.message,
         data: userDetails.data!
-    }));
+    });
 }
 
-export async function getAccountForcesController(req: express.Request, res: APIResponse) {
+export async function getAccountForcesController(req: express.Request, res: APIResponse<UserForcesResponse>) {
     let {nif} = req.params;
 
     // Call the service
     let serviceResult = await getAccountForces(res.locals.loggedOfficer.nif, Number(nif));
 
     if (!serviceResult.result) {
-        res.status(serviceResult.status).json(ensureAPIResponseType<RequestError>({message: serviceResult.message}));
+        res.status(serviceResult.status).json({message: serviceResult.message});
         return;
     }
 
-    res.status(serviceResult.status).json(ensureAPIResponseType<UserForcesResponse>({message: serviceResult.message, data: {forces: serviceResult.data!}}));
+    res.status(serviceResult.status).json({message: serviceResult.message, data: {forces: serviceResult.data!}});
 }
 
-export async function loginUserController(req: express.Request, res: APIResponse) {
+export async function loginUserController(req: express.Request, res: APIResponse<LoginResponse>) {
     const {nif, password, persistent} = req.body as LoginRequestBodyType;
 
     // Login the user and get the token
@@ -79,7 +77,7 @@ export async function loginUserController(req: express.Request, res: APIResponse
 
     // If the result of the service was negative, return an error
     if (!loginData.result) {
-        res.status(loginData.status).json(ensureAPIResponseType<RequestError>({message: loginData.message}));
+        res.status(loginData.status).json({message: loginData.message});
         return;
     }
 
@@ -98,13 +96,13 @@ export async function loginUserController(req: express.Request, res: APIResponse
     res.cookie("sessionToken", loginData.data?.token, cookieOptions);
 
     // Send the token to the user
-    res.status(200).json(ensureAPIResponseType<LoginResponse>({
+    res.status(200).json({
         message: "Operação bem sucedida",
         data: {
             token: loginData.data!.token,
             forces: loginData.data!.forces
         }
-    }));
+    });
 }
 
 export async function logoutUserController(req: express.Request, res: APIResponse) {
@@ -115,7 +113,7 @@ export async function logoutUserController(req: express.Request, res: APIRespons
     res.clearCookie("sessionToken");
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
+    res.status(result.status).json({message: result.message});
 }
 
 export async function changeUserPasswordController(req: express.Request, res: APIResponse) {
@@ -123,7 +121,7 @@ export async function changeUserPasswordController(req: express.Request, res: AP
 
     const serviceResult = await changeUserPassword(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies["sessionToken"] || req.header("Authorization"));
 
-    res.status(serviceResult.status).json(ensureAPIResponseType<RequestError>({message: serviceResult.message}));
+    res.status(serviceResult.status).json({message: serviceResult.message});
 }
 
 export async function createAccountController(req: express.Request, res: APIResponse) {
@@ -133,7 +131,7 @@ export async function createAccountController(req: express.Request, res: APIResp
     let serviceResult = await createAccount(Number(nif), req.header(FORCE_HEADER)!);
 
     // Return the result of the service
-    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
+    res.status(serviceResult.status).json({message: serviceResult.message});
 }
 
 export async function changeAccountDetailsController(req: express.Request, res: APIResponse) {
@@ -146,7 +144,7 @@ export async function changeAccountDetailsController(req: express.Request, res: 
 
         // Check if the service was successful
         if (!suspendedService.result) {
-            res.status(suspendedService.status).json(ensureAPIResponseType<RequestError>({message: suspendedService.message}));
+            res.status(suspendedService.status).json({message: suspendedService.message});
             return;
         }
     }
@@ -158,12 +156,12 @@ export async function changeAccountDetailsController(req: express.Request, res: 
 
         // Check if the service was successful
         if (!intentsService.result) {
-            res.status(intentsService.status).json(ensureAPIResponseType<RequestError>({message: intentsService.message}));
+            res.status(intentsService.status).json({message: intentsService.message});
             return;
         }
     }
 
-    res.status(200).json(ensureAPIResponseType<RequestSuccess>({message: "Account information updated successfully"}));
+    res.status(200).json({message: "Account information updated successfully"});
 }
 
 export async function deleteAccountController(req: express.Request, res: AccountInfoAPIResponse) {
@@ -171,7 +169,7 @@ export async function deleteAccountController(req: express.Request, res: Account
     let serviceResult = await deleteUser(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!);
 
     // Return the result of the service
-    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
+    res.status(serviceResult.status).json({message: serviceResult.message});
 }
 
 export async function resetPasswordController(_req: express.Request, res: AccountInfoAPIResponse) {
@@ -179,5 +177,5 @@ export async function resetPasswordController(_req: express.Request, res: Accoun
     let serviceResult = await resetUserPassword(res.locals.targetAccount);
 
     // Return the result of the service
-    res.status(serviceResult.status).json(ensureAPIResponseType<RequestSuccess>({message: serviceResult.message}));
+    res.status(serviceResult.status).json({message: serviceResult.message});
 }

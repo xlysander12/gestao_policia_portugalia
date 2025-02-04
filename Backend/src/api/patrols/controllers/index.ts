@@ -3,14 +3,13 @@ import {APIResponse, DefaultReturn} from "../../../types";
 import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
-import {ensureAPIResponseType} from "../../../utils/request-handler";
 import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
+import {RequestError} from "@portalseguranca/api-types";
 import {PatrolInfoAPIResponse} from "../../../types/response-types";
 import {dateToString} from "../../../utils/date-handler";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 
-export async function listPatrolsController(req: express.Request, res: APIResponse) {
+export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse | RequestError>) {
     // *  Call the service to get the patrols
     let result: DefaultReturn<{
         patrols: MinifiedPatrolData[],
@@ -26,25 +25,25 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
 
     // Return the result of the service
     if (!result.result) {
-        res.status(result.status).json(ensureAPIResponseType<RequestError>({
+        res.status(result.status).json({
             message: result.message
-        }));
+        });
         return;
     }
 
-    res.status(result.status).json(ensureAPIResponseType<PatrolHistoryResponse>({
+    res.status(result.status).json({
         meta: {
-            pages: result.data!.pages
+            pages: result.data!.pages,
         },
         message: result.message,
         data: result.data!.patrols
-    }));
+    });
 }
 
-export async function getPatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
+export async function getPatrolController(req: express.Request, res: PatrolInfoAPIResponse<PatrolInfoResponse>) {
     const {force, ...patrolData} = res.locals.patrol;
 
-    res.status(200).json(ensureAPIResponseType<PatrolInfoResponse>({
+    res.status(200).json({
         message: "Operação bem sucedida",
         data: {
             ...patrolData,
@@ -52,7 +51,7 @@ export async function getPatrolController(req: express.Request, res: PatrolInfoA
             start: dateToString(res.locals.patrol.start),
             end: res.locals.patrol.end !== null ? dateToString(res.locals.patrol.end): null
         }
-    }));
+    });
 }
 
 export async function createPatrolController(req: express.Request, res: APIResponse) {
@@ -62,9 +61,9 @@ export async function createPatrolController(req: express.Request, res: APIRespo
     const result = await patrolCreate(req.header(FORCE_HEADER)!, body, res.locals.loggedOfficer.nif);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }
 
 export async function editPatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
@@ -75,9 +74,9 @@ export async function editPatrolController(req: express.Request, res: PatrolInfo
     const result = await patrolEdit(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.patrol, body);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }
 
 export async function deletePatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
@@ -85,7 +84,7 @@ export async function deletePatrolController(req: express.Request, res: PatrolIn
     const result = await patrolDelete(res.locals.patrol.force, res.locals.patrol.id);
 
     // Return the result
-    res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({
+    res.status(result.status).json({
         message: result.message
-    }));
+    });
 }

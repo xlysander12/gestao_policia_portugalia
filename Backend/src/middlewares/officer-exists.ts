@@ -4,8 +4,6 @@ import {InnerOfficerData, OfficerInfoAPIResponse} from "../types";
 import {getOfficerData} from "../api/officers/repository";
 import {isQueryParamPresent} from "../utils/filters";
 import {getForcePatrolForces} from "../utils/config-handler";
-import {ensureAPIResponseType} from "../utils/request-handler";
-import { RequestError } from "@portalseguranca/api-types";
 
 
 async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, next: NextFunction) {
@@ -64,9 +62,9 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
         return;
     }
 
-    res.status(404).json(ensureAPIResponseType<RequestError>({
+    res.status(404).json({
         message: "Não foi encontrado nenhum efetivo com o NIF fornecido."
-    }));
+    });
     return;
 }
 

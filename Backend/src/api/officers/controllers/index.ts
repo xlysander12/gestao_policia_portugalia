@@ -5,35 +5,33 @@ import {FORCE_HEADER} from "../../../utils/constants";
 import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
-import {ensureAPIResponseType} from "../../../utils/request-handler";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {userHasIntents} from "../../accounts/repository";
 import {PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 
-export async function getOfficersListController(req: express.Request, res: APIResponse) {
+export async function getOfficersListController(req: express.Request, res: APIResponse<OfficerListResponse>) {
     // Call the service
     let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     // Check if the result is valid
     if (!result.result) {
-        return res.status(result.status).json(ensureAPIResponseType<RequestError>({
+        return res.status(result.status).json({
             message: result.message!
-        }));
+        });
     }
 
     // Return the result
-    return res.status(result.status).json(ensureAPIResponseType<OfficerListResponse>({
+    return res.status(result.status).json({
         message: result.message,
         data: result.data!
-    }));
+    });
 
 }
 
-export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerInfoGetResponse>) {
     const {isFormer, isSameForce, ...officerData} = res.locals.targetOfficer!;
 
-    res.status(200).json(ensureAPIResponseType<OfficerInfoGetResponse>({
+    res.status(200).json({
         message: "Operação bem sucedida",
         meta: {
             former: res.locals.targetOfficer!.isFormer,
@@ -51,7 +49,7 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
                 entry_date: dateToString(res.locals.targetOfficer!.entry_date, false),
                 promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null
             }
-    }));
+    });
 }
 
 export async function addOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -71,7 +69,7 @@ export async function addOfficerController(req: express.Request, res: OfficerInf
     );
 
     // Return the result
-    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
+    return res.status(result.status).json({message: result.message});
 }
 
 export async function restoreOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -79,7 +77,7 @@ export async function restoreOfficerController(req: express.Request, res: Office
     let result = await restoreOfficer(res.locals.targetOfficer!, req.header(FORCE_HEADER)!);
 
     // Return the result
-    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
+    return res.status(result.status).json({message: result.message});
 }
 
 export async function alterOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -90,7 +88,7 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
     let result = await alterOfficer(res.locals.targetOfficer!.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer!, changes, res.locals.loggedOfficer);
 
     // Return the result
-    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
+    return res.status(result.status).json({message: result.message});
 }
 
 export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -100,20 +98,20 @@ export async function deleteOfficerController(req: express.Request, res: Officer
     let result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, res.locals.loggedOfficer, reason);
 
     // Return the result
-    return res.status(result.status).json(ensureAPIResponseType<RequestSuccess>({message: result.message}));
+    return res.status(result.status).json({message: result.message});
 
 }
 
-export async function getOfficerCurrentPatrolController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function getOfficerCurrentPatrolController(req: express.Request, res: OfficerInfoAPIResponse<PatrolInfoResponse>) {
     // Call the service
     let result = await officerPatrol(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result
     if (!result.result) {
-        return res.status(result.status).json(ensureAPIResponseType<RequestError>({message: result.message}));
+        return res.status(result.status).json({message: result.message});
     }
 
-    return res.status(result.status).json(ensureAPIResponseType<PatrolInfoResponse>({
+    return res.status(result.status).json({
         message: result.message,
         data: {
             ...result.data!,
@@ -121,5 +119,5 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
             start: dateToString(result.data!.start),
             end: result.data!.end !== null ? dateToString(result.data!.end): null
         }
-    }));
+    });
 }
