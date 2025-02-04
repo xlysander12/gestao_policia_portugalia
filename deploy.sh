@@ -24,6 +24,9 @@ npm ci
 
 # Build Backend
 npm run build
+
+# Move out of Backend
+cd ..
 echo "Backend built successfully"
 if [[ $SKIP_INTERACTION == false ]]; then
   read -p "Press enter to continue"
