@@ -8,9 +8,10 @@ import {Bounce, ToastContainer} from "react-toastify";
 import Login from "./pages/Login/login.tsx";
 import PrivateRoute from "./components/PrivateRoute/private-route.tsx";
 import OfficerInfo from "./pages/OfficerInfo/officerinfo.tsx";
-import {ForceDataContext, ForceDataContextType} from "./force-data-context.ts";
+import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
     UtilIntentsResponse,
     UtilPatentsResponse,
@@ -23,68 +24,96 @@ import {createTheme, ThemeProvider} from "@mui/material";
 import defaultThemeData from "./theme.ts";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
+import { useImmer } from 'use-immer';
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
     const [force, setForce] = useState<string>(localStorage.getItem("force") || "");
-    const [forceData, setForceData] = useState<ForceDataContextType>(useContext(ForceDataContext));
+    const [forceData, setForceData] = useImmer<ForcesDataContext>(useContext(ForcesDataContext));
 
     const handleForceChange = (newForce: string) => {
         localStorage.setItem("force", newForce);
         setForce(newForce);
     }
 
+    const fetchPatrolForces = async () => {
+        const response = await make_request("/util/patrol-forces", "GET");
+        return (await response.json() as UtilForcePatrolForcesResponse).data;
+    }
+
+    const fetchForceData = async (forceName: string) => {
+        // Creating a temp variable to store the force data
+        let forceTempData: ForceData = {
+            patents: [],
+            statuses: [],
+            intents: [],
+            inactivity_types: [],
+            patrol_types: [],
+            special_units: [],
+            special_unit_roles: []
+        }
+
+        // Fetching the patents
+        const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});
+        forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
+
+        // Fetching the statuses
+        const statusesResponse = await make_request("/util/statuses", "GET", {force: forceName});
+        forceTempData.statuses = ((await statusesResponse.json()) as UtilStatusesResponse).data;
+
+        // Fetching the intents
+        const intentsResponse = await make_request("/util/intents", "GET", {force: forceName});
+        forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+
+        // Fetching the inactivity types
+        const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET", {force: forceName});
+        forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
+
+        // Fetching the patrol types
+        const patrolTypesResponse = await make_request("/util/patrol-types", "GET", {force: forceName});
+        forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
+
+        // Fetching the special units
+        const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
+        const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
+
+        // Store the special units in the temp object
+        forceTempData.special_units = specialUnitsJson.data.units;
+
+        // Store the special units roles in the temp object
+        forceTempData.special_unit_roles = specialUnitsJson.data.roles;
+
+
+        // Return the force's data
+        return forceTempData;
+    }
+
     useEffect(() => {
-        async function fetchForceData() {
-            // Creating a local variable to store the force data
-            let forceTempData: ForceDataContextType = {
-                patents: [],
-                statuses: [],
-                intents: [],
-                inactivity_types: [],
-                patrol_types: [],
-                special_units: [],
-                special_unit_roles: []
+        async function execute() {
+            // Get all forces current force can patrol with
+            const patrolForces = await fetchPatrolForces();
+
+            // To the list of forces, add the current force, if not already present
+            if (!patrolForces.includes(force)) {
+                patrolForces.push(force);
             }
 
-            // Fetching the patents
-            const patentsResponse = await make_request("/util/patents", "GET");
-            forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
+            // For each force, fetch it's data and put it on the state
+            for (const forceName of patrolForces) {
+                // Get the force's data
+                const forceData = await fetchForceData(forceName);
 
-            // Fetching the statuses
-            const statusesResponse = await make_request("/util/statuses", "GET");
-            forceTempData.statuses = ((await statusesResponse.json()) as UtilStatusesResponse).data;
+                setForceData(draft => {
+                    draft[forceName] = forceData;
+                });
+            }
 
-            // Fetching the intents
-            const intentsResponse = await make_request("/util/intents", "GET");
-            forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
-
-            // Fetching the inactivity types
-            const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET");
-            forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
-
-            // Fetching the patrol types
-            const patrolTypesResponse = await make_request("/util/patrol-types", "GET");
-            forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
-
-            // Fetching the special units
-            const specialUnitsResponse = await make_request("/util/special-units", "GET");
-            const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
-
-            // Store the special units in the temp object
-            forceTempData.special_units = specialUnitsJson.data.units;
-
-            // Store the special units roles in the temp object
-            forceTempData.special_unit_roles = specialUnitsJson.data.roles;
-
-
-            // Update the state
-            setForceData(forceTempData);
+            // After fetching all forces' data, set the canLoad to true
             setCanLoad(true);
         }
 
         if (localStorage.getItem("force")) {
-            fetchForceData();
+            execute();
         } else {
             setCanLoad(true);
         }
@@ -144,9 +173,9 @@ function App() {
 
     return (
         <ThemeProvider theme={defaultTheme}>
-            <ForceDataContext.Provider value={forceData}>
+            <ForcesDataContext.Provider value={forceData}>
                 <RouterProvider router={router} />
-            </ForceDataContext.Provider>
+            </ForcesDataContext.Provider>
 
             <ToastContainer
                 position={"top-right"}

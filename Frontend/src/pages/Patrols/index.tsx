@@ -2,18 +2,19 @@ import style from "./patrols.module.css";
 import ScreenSplit, {LoadingHalfScreen} from "../../components/ScreenSplit/screen-split.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {make_request} from "../../utils/requests.ts";
 import { RequestError } from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
 import InformationCard from "../../components/InformationCard";
 import {DefaultPagination, DefaultTypography} from "../../components/DefaultComponents";
-import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
+import {getObjectFromId} from "../../forces-data-context.ts";
 import {getTimeDelta} from "../../utils/misc.ts";
 import moment from "moment";
 import {Skeleton} from "@mui/material";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {useForceData} from "../../hooks";
 
 type PatrolCardProps = {
     patrolInfo: MinifiedPatrolData
@@ -21,7 +22,7 @@ type PatrolCardProps = {
 }
 function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     // Get the force data from context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [officers, setOfficers] = useState<MinifiedOfficerData[]>([]);

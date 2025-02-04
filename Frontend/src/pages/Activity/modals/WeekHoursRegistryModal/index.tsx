@@ -12,12 +12,13 @@ import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.ts";
+import {getObjectFromId} from "../../../../forces-data-context.ts";
 import style from "./index.module.css";
 import {Divider, Typography} from "@mui/material";
 import {DefaultButton, DefaultTextField, DefaultTypography} from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
+import {useForceData} from "../../../../hooks";
 
 function toHoursAndMinutes(totalMinutes: number) {
     const hours = Math.floor(totalMinutes / 60);
@@ -38,7 +39,7 @@ type WeekHoursRegistryModalProps = {
 }
 function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = false}: WeekHoursRegistryModalProps) {
     // Get the force data from context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     // Get the logged user info from context
     const loggedUser = useContext(LoggedUserContext);

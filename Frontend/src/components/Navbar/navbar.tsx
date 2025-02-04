@@ -3,7 +3,7 @@ import style from "./navbar.module.css";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
-import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context";
+import {getObjectFromId} from "../../forces-data-context.ts";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
@@ -13,6 +13,7 @@ import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal/modal.tsx";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
+import {useForceData} from "../../hooks";
 
 type SubPathProps = {
     path?: string,
@@ -74,7 +75,7 @@ type NavbarProps = {
 }
 function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Get the patents of the force where the user is logged in from context
-    const forcePatents = useContext<ForceDataContextType>(ForceDataContext).patents;
+    const [forceData] = useForceData();
 
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
@@ -99,7 +100,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Set the full name of the officer
     let fullName = "";
     if (!isLoginPage) {
-        fullName = `${getObjectFromId(loggedUser.info.professional.patent, forcePatents)!.name} ${loggedUser.info.personal.name}`;
+        fullName = `${getObjectFromId(loggedUser.info.professional.patent, forceData.patents)!.name} ${loggedUser.info.personal.name}`;
     }
 
     // Create the array of elements for the pathsdiv

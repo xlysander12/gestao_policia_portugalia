@@ -1,11 +1,12 @@
-import {ReactElement, useEffect, useState, FormEvent, useContext} from "react";
+import {ReactElement, useEffect, useState, FormEvent} from "react";
 import style from "./officer-list.module.css";
 import Loader from "../Loader/loader";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
-import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
+import {getObjectFromId} from "../../forces-data-context.ts";
+import {useForceData} from "../../hooks";
 
 type OfficerCardProps = {
     name: string,
@@ -17,7 +18,7 @@ type OfficerCardProps = {
 
 function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps): ReactElement {
     // Get the force's data from context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     const handleDivClick = () => {
         if (disabled)
@@ -54,7 +55,7 @@ type OfficerListProps = {
 
 function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     // Get the force's data from Context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     // Initialize state
     const [officers, setOfficers] = useState<MinifiedOfficerData[] | []>([]);

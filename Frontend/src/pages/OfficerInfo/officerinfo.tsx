@@ -10,7 +10,7 @@ import {
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {useParams} from "react-router-dom";
-import {ForceDataContext, ForceDataContextType, getObjectFromId} from "../../force-data-context.ts";
+import {getObjectFromId} from "../../forces-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
@@ -26,6 +26,7 @@ import {ActivityPanel} from "./activity-panel.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
 import { RequestError } from "@portalseguranca/api-types/index.ts";
+import {useForceData} from "../../hooks";
 
 
 type InformationPairProps = {
@@ -119,7 +120,7 @@ function OfficerInfo() {
     const [editMode, setEditMode] = useState<boolean>(false);
 
     // Get all of the force's constant data
-    const forceData = useContext<ForceDataContextType>(ForceDataContext);
+    const [forceData] = useForceData();
 
     // State variable that holds the officer's info
     const [officerNif, setOfficerNif] = useState<number>((nif ? Number(nif): false) || loggedUser.info.personal.nif);

@@ -3,14 +3,14 @@
 // It will be a wrapper around the fetch API, making it easier to use
 import {BASE_API_URL} from "./constants";
 
-type MakeRequestOptions<Body> = {
-    body?: Body | null,
-    force?: string,
-    useAuth?: boolean,
-    useBaseAPIURL?: boolean,
-    redirectToLoginOn401?: boolean
-    reloadOn500?: boolean
-}
+type MakeRequestOptions<Body> = Partial<{
+    body: Body | null,
+    force: string,
+    useAuth: boolean,
+    useBaseAPIURL: boolean,
+    redirectToLoginOn401: boolean
+    reloadOn500: boolean
+}>
 // ! 'useAuth' option is deprecated, and such, has been deleted
 export async function make_request<BodyType>(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
                                    {

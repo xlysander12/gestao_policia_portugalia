@@ -7,7 +7,7 @@ import {
     StatusData
 } from "@portalseguranca/api-types/util/output";
 
-export type ForceDataContextType = {
+export type ForceData = {
     patents: PatentData[],
     statuses: StatusData[],
     intents: IntentData[],
@@ -16,12 +16,13 @@ export type ForceDataContextType = {
     special_units: SpecialUnitData[],
     special_unit_roles: SpecialUnitRoleData[]
 }
-export const ForceDataContext = createContext<ForceDataContextType>({patents: [], statuses: [], intents: [], inactivity_types: [], patrol_types: [], special_units: [], special_unit_roles: []});
 
-type HasId = {
-    id: number
+export type ForcesDataContext = {
+    [force: string]: ForceData
 }
-export function getObjectFromId<T extends HasId>(id: number, array: T[]): T | null {
+export const ForcesDataContext = createContext<ForcesDataContext>({});
+
+export function getObjectFromId<T extends {id: number}>(id: number, array: T[]): T | null {
     for (const object of array) {
         if (object.id === id) {
             return object;

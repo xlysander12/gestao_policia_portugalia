@@ -1,5 +1,4 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
-import {ForceDataContext, ForceDataContextType} from "../../../force-data-context.ts";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
 import Loader from "../../../components/Loader/loader.tsx";
@@ -15,6 +14,7 @@ import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts"
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
+import {useForceData} from "../../../hooks";
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -25,7 +25,7 @@ type AccountInformationModalProps = {
 
 function AccountInformationModal({open, onClose, officerNif, officerFullName}: AccountInformationModalProps) {
     // Getting the force's data from the context
-    const forceData = useContext<ForceDataContextType>(ForceDataContext);
+    const [forceData] = useForceData();
 
     // Getting the logged user data from the context
     const loggedUserData = useContext<LoggedUserContextType>(LoggedUserContext);

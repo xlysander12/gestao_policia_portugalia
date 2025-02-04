@@ -25,6 +25,6 @@
   },
   "include": [
     "src",
-    "src/force-data-context.ts"
+      "src/forces-data-context.ts"
   ]
 }

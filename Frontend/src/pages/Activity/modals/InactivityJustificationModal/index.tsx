@@ -8,7 +8,7 @@ import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Mo
 import {make_request} from "../../../../utils/requests.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";
-import {ForceDataContext, getObjectFromId} from "../../../../force-data-context.ts";
+import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
@@ -26,6 +26,7 @@ import {
 } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
+import {useForceData} from "../../../../hooks";
 
 const justificationDataDefault: OfficerJustification = {
     id: 0,
@@ -47,7 +48,7 @@ type InactivityJustificationModalProps = {
 }
 function InactivityJustificationModal({open, onClose, officerNif, justificationId, newEntry = false}: InactivityJustificationModalProps) {
     // Get the force data from context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     // Get the logged user from context
     const loggedUser = useContext(LoggedUserContext);

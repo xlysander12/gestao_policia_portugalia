@@ -12,7 +12,8 @@ import {
 import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
 import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
-import {ForceDataContext, getObjectFromId} from "../../force-data-context.ts";
+import {getObjectFromId} from "../../forces-data-context.ts";
+import {useForceData} from "../../hooks";
 
 type LastShiftPairProps = {
     officer: number
@@ -209,7 +210,7 @@ type ActiveJustificationPairProps = {
 }
 const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
     // Get force data from context
-    const forceData = useContext(ForceDataContext);
+    const [forceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);

@@ -7,18 +7,15 @@ import {
     TableHead,
     TableRow
 } from "@mui/material";
-import React, {useContext} from "react";
 import {DefaultButton} from "../../components/DefaultComponents";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import {
-    ForceDataContext,
-    ForceDataContextType, getObjectFromId
-} from "../../force-data-context.ts";
+import {getObjectFromId} from "../../forces-data-context.ts";
 import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {useImmer} from "use-immer";
 import Gate from "../../components/Gate/gate.tsx";
 import {SpecialUnitData, SpecialUnitRoleData} from "@portalseguranca/api-types/util/output";
+import {useForceData} from "../../hooks";
 
 const TableSelectStyle = {
     "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
@@ -133,7 +130,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
     }
 
     // Getting the special forces and their roles from the force data context
-    const forceData: ForceDataContextType = useContext(ForceDataContext);
+    const [forceData] = useForceData();
     const specialUnits = forceData.special_units;
     const specialUnitsRoles = forceData.special_unit_roles;
 
@@ -218,7 +215,7 @@ type SpecialUnitsTableProps = {
 }
 const SpecialUnitsTable = ({editMode, officerSpecialUnits, onChange, onRemove, onAdd}: SpecialUnitsTableProps) => {
     // Getting the special forces and their roles from the force data context
-    const forceData: ForceDataContextType = useContext(ForceDataContext);
+    const [forceData] = useForceData();
     const specialUnits = forceData.special_units;
     const specialUnitsRoles = forceData.special_unit_roles;
 
