@@ -22,14 +22,18 @@ type PatrolCardProps = {
 }
 function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     // Get the force data from context
-    const [forceData] = useForceData();
+    const [, getForceData] = useForceData();
 
+    // Set states
     const [loading, setLoading] = useState<boolean>(true);
-    const [officers, setOfficers] = useState<MinifiedOfficerData[]>([]);
+    const [officers, setOfficers] = useState<(MinifiedOfficerData & {force: string})[] >([]);
     const [addEtc, setAddEtc] = useState<boolean>(false);
 
-    async function getOfficersDetails(): Promise<MinifiedOfficerData[]> {
-        let temp: MinifiedOfficerData[] = [];
+    // Getting the patrol force from the id
+    const patrolForce = patrolInfo.id.match(/([a-z]+)(\d+)$/)![1];
+
+    async function getOfficersDetails(): Promise<(MinifiedOfficerData & {force: string})[]> {
+        let temp: (MinifiedOfficerData & {force: string})[] = [];
         let i = 0;
 
         for (const nif of patrolInfo.officers) {
@@ -53,10 +57,14 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                     callsign: "N/A",
                     patent: 0,
                     status: 0,
+                    force: localStorage.getItem("force")!
                 });
             } else {
                 const officerResponseJson: OfficerInfoGetResponse = await officerResponse.json();
-                temp.push(officerResponseJson.data);
+                temp.push({
+                    ...officerResponseJson.data,
+                    force: officerResponseJson.meta.force
+                });
             }
         }
 
@@ -86,7 +94,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                         Patrulha #{patrolInfo.id.toUpperCase()} - {patrolInfo.canceled ? "Cancelada": (patrolInfo.end ? "Terminada": "A decorrer...")}
                     </DefaultTypography>
 
-                    <DefaultTypography color={"gray"}>Tipo: {getObjectFromId(patrolInfo.type, forceData.patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, forceData.special_units)?.name}`: ""}</DefaultTypography>
+                    <DefaultTypography color={"gray"}>Tipo: {getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
                     <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? getTimeDelta(new Date(patrolInfo.start), new Date(patrolInfo.end)): "N/A"}</DefaultTypography>
                 </div>
                 <div className={style.patrolCardMiddle}>
@@ -98,7 +106,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
 
                     <Gate show={!loading}>
                         {officers.map((officer, index) => (
-                            <DefaultTypography key={`officer#${index}`} color={"gray"} fontSize={"small"}>[{officer.callsign}] {getObjectFromId(officer.patent, forceData.patents)?.name} {officer.name}</DefaultTypography>
+                            <DefaultTypography key={`officer#${index}`} color={"gray"} fontSize={"small"}>[{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force).patents)?.name} {officer.name}</DefaultTypography>
                         ))}
                         <Gate show={addEtc}>
                             <DefaultTypography color={"gray"} fontSize={"small"}>...</DefaultTypography>
