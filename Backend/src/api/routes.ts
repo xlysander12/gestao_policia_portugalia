@@ -252,6 +252,16 @@ const utilRoutes: routesType = {
                 requiresForce: true
             }
         }
+    },
+
+    // Route to get the forces that can patrol with given force
+    "/util/patrol-forces$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
     }
 }
 

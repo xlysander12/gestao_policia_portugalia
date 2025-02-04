@@ -15,6 +15,7 @@ import {
     SpecialUnitRoleData,
     StatusData
 } from "@portalseguranca/api-types/util/output";
+import {getForcePatrolForces} from "../../../utils/config-handler";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -95,5 +96,14 @@ export async function forcePatrolTypes(force: string): Promise<DefaultReturn<Pat
         status: 200,
         message: "Operação concluída com sucesso",
         data: types
+    }
+}
+
+export async function forcePatrolForces(force: string): Promise<DefaultReturn<string[]>> {
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: getForcePatrolForces(force)
     }
 }

@@ -2,7 +2,7 @@ import express from 'express';
 import {
     getInactivityTypesController,
     getIntentsController,
-    getPatentsController, getPatrolTypesController,
+    getPatentsController, getPatrolForcesController, getPatrolTypesController,
     getSpecialUnitsController,
     getStatusesController
 } from "./controllers";
@@ -22,6 +22,8 @@ app.get("/intents", getIntentsController);
 app.get("/inactivity-types", getInactivityTypesController);
 
 app.get("/patrol-types", getPatrolTypesController);
+
+app.get("/patrol-forces", getPatrolForcesController);
 
 logToConsole("Util routes loaded successfully", "info");
 

@@ -68,3 +68,7 @@ export interface UtilInactivityTypesResponse extends RequestSuccess {
 export interface UtilPatrolTypesResponse extends RequestSuccess {
     data: PatrolTypeData[]
 }
+
+export interface UtilForcePatrolForcesResponse extends RequestSuccess {
+    data: string[]
+}

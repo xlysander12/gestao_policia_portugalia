@@ -3,7 +3,7 @@ import {FORCE_HEADER} from "../../../utils/constants";
 import {
     forceInactivityTypes,
     forceIntents,
-    forcePatents,
+    forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits,
     forceStatuses
@@ -13,7 +13,8 @@ import {
     UtilIntentsResponse,
     UtilPatentsResponse, UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
-    UtilStatusesResponse
+    UtilStatusesResponse,
+    UtilForcePatrolForcesResponse
 } from "@portalseguranca/api-types/util/output";
 import {ExpressResponse} from "../../../types/response-types";
 
@@ -68,6 +69,14 @@ export async function getInactivityTypesController(req: express.Request, res: Ex
 export async function getPatrolTypesController(req: express.Request, res: ExpressResponse<UtilPatrolTypesResponse>) {
     // Call the service to get the types
     const result = await forcePatrolTypes(req.header(FORCE_HEADER)!);
+
+    // Send the list to the user
+    res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getPatrolForcesController(req: express.Request, res: ExpressResponse<UtilForcePatrolForcesResponse>) {
+    // Call the service to get the types
+    const result = await forcePatrolForces(req.header(FORCE_HEADER)!);
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});
