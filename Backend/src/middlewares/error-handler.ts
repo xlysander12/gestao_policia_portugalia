@@ -3,6 +3,11 @@ import {APIResponse} from "../types";
 import {queryDB} from "../utils/db-connector";
 import {FORCE_HEADER} from "../utils/constants";
 import {logToConsole} from "../utils/logger";
+import {QueryError} from "mysql2";
+
+function isQueryError(err: Error): err is QueryError {
+    return err && typeof err === "object" && "errno" in err;
+}
 
 async function getErrorCode(force: string): Promise<string> {
     // Generate a random code composed of 6 characters
@@ -23,13 +28,22 @@ async function getErrorCode(force: string): Promise<string> {
     return result;
 }
 
-async function errorHandlerMiddleware(err: Error, req: express.Request, res: APIResponse, _next: express.NextFunction) {
-    // This error was triggered by a constraint violation while inserting some data in the database
-    // If this is the case, return 400 as it was user error
-    if (err.message && err.message.includes("CONSTRAINT")) {
-        return res.status(400).json({
-            message: "Informações fornecidas inválidas",
-        });
+async function errorHandlerMiddleware(err: Error | QueryError, req: express.Request, res: APIResponse, _next: express.NextFunction) {
+    // Check if the error was triggered in a mysql query
+    if (isQueryError(err)) {
+        // This error was triggered by a constraint violation while inserting some data in the database
+        if (err.errno === 4025) {
+            return res.status(400).json({
+                message: "Corpo do pedido inválido",
+            });
+        }
+
+        // This error was triggered by an invalid number in column while inserting some data in the database
+        if (err.errno === 1264) {
+            return res.status(400).json({
+                message: "Corpo do pedido inválido",
+            });
+        }
     }
 
     // Defining variable that holds the route
