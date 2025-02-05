@@ -23,7 +23,7 @@ async function getErrorCode(force: string): Promise<string> {
     return result;
 }
 
-async function errorHandlerMiddleware(err: Error, req: express.Request, res: APIResponse) {
+async function errorHandlerMiddleware(err: Error, req: express.Request, res: APIResponse, _next: express.NextFunction) {
     // This error was triggered by a constraint violation while inserting some data in the database
     // If this is the case, return 400 as it was user error
     if (err.message && err.message.includes("CONSTRAINT")) {
