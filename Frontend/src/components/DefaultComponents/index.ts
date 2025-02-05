@@ -4,3 +4,4 @@ export {default as DefaultOutlinedTextField} from "./DefaultOutlinedTextField.ts
 export {default as DefaultSelect} from "./DefaultSelect.tsx";
 export {default as DefaultTypography} from "./DefaultTypography.tsx";
 export {default as DefaultPagination} from "./DefaultPagination.tsx";
+export {default as DefaultDatePicker} from "./DefaultDatePicker.tsx";

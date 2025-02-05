@@ -25,6 +25,8 @@ import defaultThemeData from "./theme.ts";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
 import { useImmer } from 'use-immer';
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -175,23 +177,25 @@ function App() {
     }
 
     return (
-        <ThemeProvider theme={defaultTheme}>
-            <ForcesDataContext.Provider value={forceData}>
-                <RouterProvider router={router} />
-            </ForcesDataContext.Provider>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+            <ThemeProvider theme={defaultTheme}>
+                <ForcesDataContext.Provider value={forceData}>
+                    <RouterProvider router={router} />
+                </ForcesDataContext.Provider>
 
-            <ToastContainer
-                position={"top-right"}
-                autoClose={5000}
-                hideProgressBar={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                pauseOnHover
-                theme={"dark"}
-                transition={Bounce}
-            />
-        </ThemeProvider>
+                <ToastContainer
+                    position={"top-right"}
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    pauseOnHover
+                    theme={"dark"}
+                    transition={Bounce}
+                />
+            </ThemeProvider>
+        </LocalizationProvider>
       )
 }
 

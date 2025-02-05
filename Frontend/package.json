@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.16.6",
     "@mui/material": "^5.16.4",
+    "@mui/x-date-pickers": "^7.25.0",
     "@portalseguranca/api-types": "file:../API-Types/src",
     "@react-buddy/ide-toolbox": "^2.4.0",
     "@react-buddy/palette-mui": "^5.0.1",

@@ -14,9 +14,8 @@ import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts"
 import style from "./index.module.css";
 import {Checkbox, Divider, FormControlLabel, MenuItem, Tooltip} from "@mui/material";
 import {
-    DefaultButton, DefaultOutlinedTextField,
+    DefaultButton, DefaultDatePicker, DefaultOutlinedTextField,
     DefaultSelect,
-    DefaultTextField,
     DefaultTypography
 } from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
@@ -27,12 +26,19 @@ import {
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
 import {useForceData} from "../../../../hooks";
+import moment, {Moment} from "moment";
 
-const justificationDataDefault: OfficerJustification = {
+type InnerJustificationData = Omit<OfficerJustification, "start" | "end"> & {
+    start: Moment,
+    end: Moment | null
+}
+
+
+const justificationDataDefault: InnerJustificationData = {
     id: 0,
     type: 0,
-    start: new Date().toISOString().split("T")[0],
-    end: new Date().toISOString().split("T")[0],
+    start: moment(new Date()),
+    end: moment(new Date()),
     timestamp: new Date().getTime(),
     status: "pending",
     managed_by: 0,
@@ -66,7 +72,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
 
     // Set the state with the data of the justification
-    const [justificationData, setJustificationData] = useImmer<OfficerJustification>(justificationDataDefault);
+    const [justificationData, setJustificationData] = useImmer<InnerJustificationData>(justificationDataDefault);
     const [justificationManagedBy, setJustificationManagedBy] = useState<string | null>(null);
 
     // Everytime the modal is opened, set the justification data to the default
@@ -95,7 +101,11 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             }
 
             // Set the justification data
-            setJustificationData((data as OfficerJustificationDetailsResponse).data);
+            setJustificationData({
+            ...(data as OfficerJustificationDetailsResponse).data,
+                start: moment((data as OfficerJustificationDetailsResponse).data.start),
+                end: (data as OfficerJustificationDetailsResponse).data.end ? moment((data as OfficerJustificationDetailsResponse).data.end) : null
+            });
 
             // Fetch the managed by name
             if ((data as OfficerJustificationDetailsResponse).data.managed_by) {
@@ -154,8 +164,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start,
-                end: justificationData?.end,
+                start: justificationData?.start.toISOString().split("T")[0],
+                end: justificationData?.end ? justificationData?.end.toISOString().split("T")[0] : null,
                 description: justificationData?.description.trim()
             }
         });
@@ -202,8 +212,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<AddOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications`, "POST", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start,
-                end: justificationData?.end,
+                start: justificationData?.start.toISOString().split("T")[0],
+                end: justificationData?.end ? justificationData?.end.toISOString().split("T")[0] : null,
                 description: justificationData?.description.trim()
             }
         });
@@ -332,11 +342,11 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                 <DefaultTypography
                                     sx={{marginBottom: "10px"}}
                                 >
-                                    {new Date(justificationData?.timestamp).toLocaleString()}
+                                    {moment(justificationData?.timestamp).format("dddd, DD/MM/YYYY, HH:mm")}
                                 </DefaultTypography>
-                            </Gate>
 
-                            <Divider flexItem sx={{marginBottom: "5px"}}/>
+                                <Divider flexItem sx={{marginBottom: "5px"}}/>
+                            </Gate>
 
                             {/* Duration */}
                             <div className={style.justificationDurationRowDiv}>
@@ -349,16 +359,16 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     >
                                         Data de Início:
                                     </DefaultTypography>
-                                    <DefaultTextField
+                                    <DefaultDatePicker
                                         disabled={!editMode && !newEntry}
                                         textWhenDisabled
-                                        type={"date"}
-                                        value={justificationData?.start}
-                                        onChange={(e) => {
+                                        value={moment(justificationData?.start)}
+                                        onChange={(date) => {
                                             setJustificationData((draft) => {
-                                                draft!.start = e.target.value;
+                                                draft!.start = date;
                                             });
                                         }}
+                                        sx={{width: "150px"}}
                                     />
                                 </div>
 
@@ -373,16 +383,16 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         >
                                             Data de Fim:
                                         </DefaultTypography>
-                                        <DefaultTextField
+                                        <DefaultDatePicker
                                             disabled={!editMode && !newEntry}
                                             textWhenDisabled
-                                            type={"date"}
                                             value={justificationData?.end}
-                                            onChange={(e) => {
+                                            onChange={(date) => {
                                                 setJustificationData((draft) => {
-                                                    draft!.end = e.target.value;
+                                                    draft!.end = date;
                                                 });
                                             }}
+                                            sx={{width: "150px"}}
                                         />
                                     </Gate>
                                 </div>
@@ -394,7 +404,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         checked={justificationData?.end === null}
                                         onChange={(e) => {
                                             setJustificationData((draft) => {
-                                                draft!.end = e.target.checked ? null : new Date().toISOString().split("T")[0];
+                                                draft!.end = e.target.checked ? null : moment(new Date());
                                             });
                                         }}
                                         disabled={!editMode && !newEntry}
