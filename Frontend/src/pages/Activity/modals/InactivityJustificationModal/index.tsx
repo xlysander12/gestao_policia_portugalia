@@ -320,19 +320,21 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
 
-                            {/* Submission date */}
-                            <DefaultTypography
-                                color={"var(--portalseguranca-color-accent)"}
-                                fontSize={"medium"}
-                                fontWeight={"bold"}
-                            >
-                                Data de Submissão:
-                            </DefaultTypography>
-                            <DefaultTypography
-                                sx={{marginBottom: "10px"}}
-                            >
-                                {new Date(justificationData?.timestamp).toLocaleString()}
-                            </DefaultTypography>
+                            <Gate show={!newEntry}>
+                                {/* Submission date */}
+                                <DefaultTypography
+                                    color={"var(--portalseguranca-color-accent)"}
+                                    fontSize={"medium"}
+                                    fontWeight={"bold"}
+                                >
+                                    Data de Submissão:
+                                </DefaultTypography>
+                                <DefaultTypography
+                                    sx={{marginBottom: "10px"}}
+                                >
+                                    {new Date(justificationData?.timestamp).toLocaleString()}
+                                </DefaultTypography>
+                            </Gate>
 
                             <Divider flexItem sx={{marginBottom: "5px"}}/>
 
