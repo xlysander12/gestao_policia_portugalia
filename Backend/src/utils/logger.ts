@@ -135,6 +135,13 @@ export async function logRequestToFile(res: APIResponse) {
     // Add the line with the Logged User, if applicable
     builder += `Logged User: ${res.locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? res.locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
 
+    // Add the headers of the request to the log
+    builder += "Headers:\n";
+    for (const [key, value] of Object.entries(res.req.headers)) {
+        if (key === "cookie") continue; // Skip the cookie header
+        builder += `- ${key}: ${value}\n`;
+    }
+
     // Add a line with the request body, if applicable
     if (res.locals.routeDetails.body !== undefined) { // Make sure this route is supposed to have a body
         // Add a blank line
