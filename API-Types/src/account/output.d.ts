@@ -4,13 +4,15 @@ export interface ValidateTokenResponse extends RequestSuccess {
     data: number;
 }
 
+export interface AccountInfo {
+    defaultPassword: boolean,
+    suspended: boolean,
+    lastUsed: Date | null,
+    intents: {[key: string]: boolean}
+}
+
 export interface AccountInfoResponse extends RequestSuccess {
-    data: {
-        passwordChanged: boolean,
-        suspended: boolean,
-        lastUsed: string | null,
-        intents: {[key: string]: boolean}
-    }
+    data: Omit<AccountInfo, "lastUsed"> & {lastUsed: string | null}
 }
 
 export interface LoginResponse extends RequestSuccess {

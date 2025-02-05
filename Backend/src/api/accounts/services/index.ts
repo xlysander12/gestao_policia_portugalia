@@ -13,6 +13,7 @@ import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 import {InnerAccountData} from "../../../types/inner-types";
 import {dateToString} from "../../../utils/date-handler";
 import {getOfficerData} from "../../officers/repository";
+import { AccountInfo } from "@portalseguranca/api-types/account/output";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -26,15 +27,7 @@ export async function validateToken(user: number, force: string, intents: string
     return {result: true, status: 200, message: "Operação bem sucedida"};
 }
 
-type UserAccountDetails = {
-    passwordChanged: boolean,
-    suspended: boolean,
-    lastUsed: string | null,
-    intents: {
-        [key: string]: boolean
-    }
-}
-export async function getUserDetails(requestingNif: number, requestedAccount: InnerAccountData, force: string): Promise<DefaultReturn<UserAccountDetails>> {
+export async function getUserDetails(requestingNif: number, requestedAccount: InnerAccountData, force: string): Promise<DefaultReturn<AccountInfo>> {
     // Check if the requesting user is the user itself
     if (requestingNif !== requestedAccount.nif) {
         // If it's not the user itself, check if the user has the "accounts" intent
@@ -50,9 +43,9 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
         status: 200,
         message: "Operação bem sucedida",
         data: {
-            passwordChanged: requestedAccount.password !== null,
+            defaultPassword: requestedAccount.password === null,
             suspended: requestedAccount.suspended,
-            lastUsed: requestedAccount.last_interaction ? dateToString(requestedAccount.last_interaction): null,
+            lastUsed: requestedAccount.last_interaction,
             intents: requestedAccount.intents
         }
     }
