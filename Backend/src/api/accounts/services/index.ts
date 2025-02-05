@@ -29,7 +29,7 @@ export async function validateToken(user: number, force: string, intents: string
 type UserAccountDetails = {
     passwordChanged: boolean,
     suspended: boolean,
-    lastUsed: string,
+    lastUsed: string | null,
     intents: {
         [key: string]: boolean
     }
@@ -52,7 +52,7 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
         data: {
             passwordChanged: requestedAccount.password !== null,
             suspended: requestedAccount.suspended,
-            lastUsed: dateToString(requestedAccount.last_interaction),
+            lastUsed: requestedAccount.last_interaction ? dateToString(requestedAccount.last_interaction): null,
             intents: requestedAccount.intents
         }
     }

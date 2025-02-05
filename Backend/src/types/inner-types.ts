@@ -12,7 +12,7 @@ export interface InnerAccountData {
     nif: number,
     password: string,
     suspended: boolean,
-    last_interaction: Date,
+    last_interaction: Date | null,
     intents: {
         [key: string]: boolean
     }

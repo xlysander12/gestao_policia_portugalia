@@ -8,7 +8,7 @@ export interface AccountInfoResponse extends RequestSuccess {
     data: {
         passwordChanged: boolean,
         suspended: boolean,
-        lastUsed: string,
+        lastUsed: string | null,
         intents: {[key: string]: boolean}
     }
 }
