@@ -8,7 +8,7 @@ import {DefaultButton} from "../../../components/DefaultComponents";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import {AccountInfoResponse} from "@portalseguranca/api-types/account/output";
+import {AccountInfo, AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
@@ -39,10 +39,10 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         intentsObject[intent.name] = false;
     }
 
-    const [accountInfo, setAccountInfo] = useImmer({
+    const [accountInfo, setAccountInfo] = useImmer<AccountInfo>({
         defaultPassword: false,
         suspended: false,
-        lastUsed: new Date(),
+        lastUsed: null,
         intents: intentsObject
     });
 
@@ -84,9 +84,9 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             // Convert the response to JSON and set the account info state
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
-                draft.defaultPassword = !accountInfoJson.data.passwordChanged;
+                draft.defaultPassword = accountInfoJson.data.defaultPassword;
                 draft.suspended = accountInfoJson.data.suspended;
-                draft.lastUsed = new Date(Date.parse(accountInfoJson.data.lastUsed));
+                draft.lastUsed = accountInfoJson.data.lastUsed ? new Date(Date.parse(accountInfoJson.data.lastUsed)): null;
                 draft.intents = accountInfoJson.data.intents;
             });
 
@@ -156,7 +156,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     }
 
     let lastUsedString;
-    if (isNaN(accountInfo.lastUsed.getDate())) {
+    if (accountInfo.lastUsed === null) {
         lastUsedString = "Nunca utilizada";
     } else {
         lastUsedString = `${accountInfo.lastUsed.getDate().toString().padStart(2, "0")}/${(accountInfo.lastUsed.getMonth() + 1).toString().padStart(2, "0")}/${accountInfo.lastUsed.getFullYear()} @ ${accountInfo.lastUsed.getHours().toString().padStart(2, "0")}:${accountInfo.lastUsed.getMinutes().toString().padStart(2, "0")}`;
