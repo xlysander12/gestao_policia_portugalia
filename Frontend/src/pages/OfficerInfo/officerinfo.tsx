@@ -235,11 +235,11 @@ function OfficerInfo() {
         // Check if the response is ok
         if (!updateRequest.ok) {
             toast.error(((await updateRequest.json()) as RequestError).message);
-            return;
+        } else {
+            toast("Informações atualizadas com sucesso!", {type: "success"});
         }
 
-        // After updating the data, we can show a notification and reload the info of the edit officer
-        toast("Informações atualizadas com sucesso!", {type: "success"});
+        // After updating the data, or handling the error, we can reload the info of the edited officer
         await fetchOfficerInfo();
     }
 
