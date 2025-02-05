@@ -38,8 +38,8 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
             });
         }
 
-        // This error was triggered by an invalid number in column while inserting some data in the database
-        if (err.errno === 1264) {
+        // This error was triggered by an invalid number or string in column while inserting some data in the database
+        if (err.errno === 1264 || err.errno === 1406) {
             return res.status(400).json({
                 message: "Corpo do pedido inválido",
             });
