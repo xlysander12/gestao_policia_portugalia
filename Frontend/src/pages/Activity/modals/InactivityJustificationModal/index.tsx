@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {FormEvent, useContext, useEffect, useState} from "react";
 import {
     OfficerJustification,
     OfficerJustificationDetailsResponse
@@ -29,7 +29,7 @@ import {useForceData} from "../../../../hooks";
 import moment, {Moment} from "moment";
 
 type InnerJustificationData = Omit<OfficerJustification, "start" | "end"> & {
-    start: Moment,
+    start: Moment | null,
     end: Moment | null
 }
 
@@ -153,7 +153,10 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }
 
     // Function to handle the submission of the changes
-    async function handleSaveChanges() {
+    async function handleSaveChanges(event: FormEvent) {
+        // Prevent the default form submission
+        event.preventDefault();
+
         // Set the loading to true
         setLoading(true);
 
@@ -164,8 +167,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start.toISOString().split("T")[0],
-                end: justificationData?.end ? justificationData?.end.toISOString().split("T")[0] : null,
+                start: justificationData?.start!.format("YYYY-MM-DD"),
+                end: justificationData?.end ? justificationData?.end.format("YYYY-MM-DD") : null,
                 description: justificationData?.description.trim()
             }
         });
@@ -204,7 +207,10 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }
 
     // Function to handle the creation of a justification
-    async function handleCreate() {
+    async function handleCreate(event: FormEvent) {
+        // Prevent the default form submission
+        event.preventDefault();
+
         // Set the loading to true
         setLoading(true);
 
@@ -212,8 +218,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<AddOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications`, "POST", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start.toISOString().split("T")[0],
-                end: justificationData?.end ? justificationData?.end.toISOString().split("T")[0] : null,
+                start: justificationData?.start!.format("YYYY-MM-DD"),
+                end: justificationData?.end ? justificationData?.end.format("YYYY-MM-DD") : null,
                 description: justificationData?.description.trim()
             }
         });
@@ -240,293 +246,302 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                 </Gate>
 
                 <Gate show={!loading}>
-                    <ModalSection title={"Detalhes"}>
-                        <div className={style.justificationDetailsOuterDiv}>
-                            {/* Only show the status option if it's not a new entry*/}
-                            <Gate show={!newEntry}>
-                                {/* Status */}
-                                <DefaultTypography
-                                    color={"var(--portalseguranca-color-accent)"}
-                                    fontSize={"medium"}
-                                    fontWeight={"bold"}
-                                >Estado:
-                                </DefaultTypography>
-                                <DefaultTypography
-                                    color={justificationData?.status === "pending" ? "#efc032" : justificationData?.status === "approved" ? "#00ff00" : "#ff0000"}
-                                    sx={{marginBottom: "10px"}}
-                                >
-                                    {justificationData?.status === "pending" ? "Pendente" : justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"}
-                                </DefaultTypography>
-
-                                <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                                <Gate show={justificationData?.status !== "pending"}>
+                    <form onSubmit={newEntry ? handleCreate: handleSaveChanges}>
+                        <ModalSection title={"Detalhes"}>
+                            <div className={style.justificationDetailsOuterDiv}>
+                                {/* Only show the status option if it's not a new entry*/}
+                                <Gate show={!newEntry}>
+                                    {/* Status */}
                                     <DefaultTypography
                                         color={"var(--portalseguranca-color-accent)"}
                                         fontSize={"medium"}
                                         fontWeight={"bold"}
-                                    >
-                                        {justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"} por:
+                                    >Estado:
                                     </DefaultTypography>
                                     <DefaultTypography
+                                        color={justificationData?.status === "pending" ? "#efc032" : justificationData?.status === "approved" ? "#00ff00" : "#ff0000"}
                                         sx={{marginBottom: "10px"}}
                                     >
-                                        {justificationManagedBy ? justificationManagedBy : "N/A"}
+                                        {justificationData?.status === "pending" ? "Pendente" : justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"}
                                     </DefaultTypography>
 
                                     <Divider flexItem sx={{marginBottom: "5px"}}/>
-                                </Gate>
-                            </Gate>
-                            {/* Type */}
-                            <DefaultTypography
-                                color={"var(--portalseguranca-color-accent)"}
-                                fontSize={"medium"}
-                                fontWeight={"bold"}
-                            >
-                                Tipo de Inatividade:
-                            </DefaultTypography>
-                            <div className={style.justificationDurationRowDiv}>
-                                <DefaultSelect
-                                    fullWidth={false}
-                                    disabled={!editMode && !newEntry}
-                                    sameTextColorWhenDisabled
-                                    value={justificationData?.type}
-                                    onChange={(e) => {
-                                        setJustificationData((draft) => {
-                                            draft!.type = e.target.value as number;
-                                        });
-                                    }}
-                                    sx={{minWidth: "152px", textAlign: "start", marginBottom: "10px"}}
-                                >
-                                    {forceData.inactivity_types.map((type) => {
-                                        return (
-                                            <MenuItem
-                                                key={`modalInactivityType${type.id}`}
-                                                value={type.id}
-                                            >
-                                                {type.name}
-                                            </MenuItem>
-                                        )
-                                    })};
-                                </DefaultSelect>
 
-                                <Tooltip
-                                    title={getObjectFromId(justificationData.type, forceData.inactivity_types)?.description}
-                                    arrow
-                                    describeChild
-                                    placement={"right"}
-                                    componentsProps={{
-                                        tooltip: {
-                                            sx: {
-                                                whiteSpace: "pre-line",
-                                                fontSize: "14px"
-                                            }
-                                        }
-                                    }}
-                                >
-                                    <HelpIcon />
-                                </Tooltip>
-                            </div>
-
-                            <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                            <Gate show={!newEntry}>
-                                {/* Submission date */}
-                                <DefaultTypography
-                                    color={"var(--portalseguranca-color-accent)"}
-                                    fontSize={"medium"}
-                                    fontWeight={"bold"}
-                                >
-                                    Data de Submissão:
-                                </DefaultTypography>
-                                <DefaultTypography
-                                    sx={{marginBottom: "10px"}}
-                                >
-                                    {moment(justificationData?.timestamp).format("dddd, DD/MM/YYYY, HH:mm")}
-                                </DefaultTypography>
-
-                                <Divider flexItem sx={{marginBottom: "5px"}}/>
-                            </Gate>
-
-                            {/* Duration */}
-                            <div className={style.justificationDurationRowDiv}>
-                                {/* Start Date */}
-                                <div className={style.justificationDetailsDurationDiv}>
-                                    <DefaultTypography
-                                        color={"var(--portalseguranca-color-accent)"}
-                                        fontSize={"medium"}
-                                        fontWeight={"bold"}
-                                    >
-                                        Data de Início:
-                                    </DefaultTypography>
-                                    <DefaultDatePicker
-                                        disabled={!editMode && !newEntry}
-                                        textWhenDisabled
-                                        value={moment(justificationData?.start)}
-                                        onChange={(date) => {
-                                            setJustificationData((draft) => {
-                                                draft!.start = date;
-                                            });
-                                        }}
-                                        sx={{width: "150px"}}
-                                    />
-                                </div>
-
-                                {/* End Date */}
-                                <div className={style.justificationDetailsDurationDiv}>
-                                    <Gate show={justificationData?.end !== null}>
+                                    <Gate show={justificationData?.status !== "pending"}>
                                         <DefaultTypography
                                             color={"var(--portalseguranca-color-accent)"}
                                             fontSize={"medium"}
                                             fontWeight={"bold"}
-                                            sx={{marginRight: "38px"}}
                                         >
-                                            Data de Fim:
+                                            {justificationData?.status === "approved" ? "Aprovada" : "Rejeitada"} por:
+                                        </DefaultTypography>
+                                        <DefaultTypography
+                                            sx={{marginBottom: "10px"}}
+                                        >
+                                            {justificationManagedBy ? justificationManagedBy : "N/A"}
+                                        </DefaultTypography>
+
+                                        <Divider flexItem sx={{marginBottom: "5px"}}/>
+                                    </Gate>
+                                </Gate>
+                                {/* Type */}
+                                <DefaultTypography
+                                    color={"var(--portalseguranca-color-accent)"}
+                                    fontSize={"medium"}
+                                    fontWeight={"bold"}
+                                >
+                                    Tipo de Inatividade:
+                                </DefaultTypography>
+                                <div className={style.justificationDurationRowDiv}>
+                                    <DefaultSelect
+                                        fullWidth={false}
+                                        disabled={!editMode && !newEntry}
+                                        sameTextColorWhenDisabled
+                                        value={justificationData?.type}
+                                        onChange={(e) => {
+                                            setJustificationData((draft) => {
+                                                draft!.type = e.target.value as number;
+                                            });
+                                        }}
+                                        sx={{minWidth: "152px", textAlign: "start", marginBottom: "10px"}}
+                                    >
+                                        {forceData.inactivity_types.map((type) => {
+                                            return (
+                                                <MenuItem
+                                                    key={`modalInactivityType${type.id}`}
+                                                    value={type.id}
+                                                >
+                                                    {type.name}
+                                                </MenuItem>
+                                            )
+                                        })};
+                                    </DefaultSelect>
+
+                                    <Tooltip
+                                        title={getObjectFromId(justificationData.type, forceData.inactivity_types)?.description}
+                                        arrow
+                                        describeChild
+                                        placement={"right"}
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    whiteSpace: "pre-line",
+                                                    fontSize: "14px"
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        <HelpIcon />
+                                    </Tooltip>
+                                </div>
+
+                                <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                <Gate show={!newEntry}>
+                                    {/* Submission date */}
+                                    <DefaultTypography
+                                        color={"var(--portalseguranca-color-accent)"}
+                                        fontSize={"medium"}
+                                        fontWeight={"bold"}
+                                    >
+                                        Data de Submissão:
+                                    </DefaultTypography>
+                                    <DefaultTypography
+                                        sx={{marginBottom: "10px"}}
+                                    >
+                                        {moment(justificationData?.timestamp).format("dddd, DD/MM/YYYY, HH:mm")}
+                                    </DefaultTypography>
+
+                                    <Divider flexItem sx={{marginBottom: "5px"}}/>
+                                </Gate>
+
+                                {/* Duration */}
+                                <div className={style.justificationDurationRowDiv}>
+                                    {/* Start Date */}
+                                    <div className={style.justificationDetailsDurationDiv}>
+                                        <DefaultTypography
+                                            color={"var(--portalseguranca-color-accent)"}
+                                            fontSize={"medium"}
+                                            fontWeight={"bold"}
+                                        >
+                                            Data de Início:
                                         </DefaultTypography>
                                         <DefaultDatePicker
                                             disabled={!editMode && !newEntry}
                                             textWhenDisabled
-                                            value={justificationData?.end}
+                                            value={moment(justificationData?.start)}
                                             onChange={(date) => {
                                                 setJustificationData((draft) => {
-                                                    draft!.end = date;
+                                                    draft!.start = date;
                                                 });
                                             }}
                                             sx={{width: "150px"}}
-                                        />
-                                    </Gate>
-                                </div>
-                            </div>
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={justificationData?.end === null}
-                                        onChange={(e) => {
-                                            setJustificationData((draft) => {
-                                                draft!.end = e.target.checked ? null : moment(new Date());
-                                            });
-                                        }}
-                                        disabled={!editMode && !newEntry}
-                                        sx={{
-                                            "&.MuiCheckbox-root.Mui-disabled": {
-                                                color: "var(--portalseguranca-color-accent)"
-                                            }
-                                        }}
-                                    />
-                                }
-                                label={"Inatividade Indeterminada"}
-                                sx={{
-                                    marginRight: "4px", color: "var(--portalseguranca-color-text-light)",
-                                    "& .MuiFormControlLabel-label.Mui-disabled": {
-                                        color: "var(--portalseguranca-color-text-light)"
-                                    }
-                                }}
-                            />
-
-                            <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                            {/* Description */}
-                            <DefaultTypography
-                                color={"var(--portalseguranca-color-accent)"}
-                                fontSize={"medium"}
-                                fontWeight={"bold"}
-                            >
-                                Descrição:
-                            </DefaultTypography>
-                            <DefaultOutlinedTextField
-                                disabled={!editMode && !newEntry}
-                                textWhenDisabled
-                                multiline
-                                value={justificationData?.description}
-                                onChange={(e) => {
-                                    setJustificationData((draft) => {
-                                        draft!.description = e.target.value;
-                                    });
-                                }}
-                                sx={{width: "100%", marginBottom: "10px"}}
-                            />
-                        </div>
-                    </ModalSection>
-
-                    <Gate
-                        show={loggedUser.intents["activity"] || (justificationData.status === "pending") || newEntry}>
-                        <ModalSection title={"Ações"}>
-                            <div className={style.justificationActionsDiv}>
-                                {/* Show the regular management buttons when it's not a new entry */}
-                                <Gate show={!newEntry}>
-                                    <Gate show={editMode}>
-                                        {/*Save Changes Button*/}
-                                        <DefaultButton
-                                            buttonColor={"lightgreen"}
-                                            darkTextOnHover
-                                            onClick={handleSaveChanges}
-                                            sx={{flex: 1}}
-                                        >
-                                            Guardar Alterações
-                                        </DefaultButton>
-
-                                        {/*Cancel Button*/}
-                                        <DefaultButton
-                                            buttonColor={"red"}
-                                            onClick={() => {
-                                                setEditMode(false);
-                                                setNeedsReload(true)
+                                            slotProps={{
+                                                textField: {
+                                                    required: true,
+                                                    error: justificationData.start === null || !justificationData.start.isValid()
+                                                }
                                             }}
-                                            sx={{flex: 1}}
-                                        >
-                                            Cancelar
-                                        </DefaultButton>
-                                    </Gate>
+                                        />
+                                    </div>
 
-                                    {/*Other Buttons can't appear if editmode is on*/}
-                                    <Gate show={!editMode}>
-                                        {/*Aprove or Deny buttons must only appear if the logged user has the activity intent
-                            and the justification is pending*/}
-                                        <Gate
-                                            show={loggedUser.intents["activity"] && justificationData?.status === "pending"}>
+                                    {/* End Date */}
+                                    <div className={style.justificationDetailsDurationDiv}>
+                                        <Gate show={justificationData?.end !== null}>
+                                            <DefaultTypography
+                                                color={"var(--portalseguranca-color-accent)"}
+                                                fontSize={"medium"}
+                                                fontWeight={"bold"}
+                                                sx={{marginRight: "38px"}}
+                                            >
+                                                Data de Fim:
+                                            </DefaultTypography>
+                                            <DefaultDatePicker
+                                                disabled={!editMode && !newEntry}
+                                                textWhenDisabled
+                                                value={justificationData?.end}
+                                                onChange={(date) => {
+                                                    setJustificationData((draft) => {
+                                                        draft!.end = date;
+                                                    });
+                                                }}
+                                                sx={{width: "150px"}}
+                                            />
+                                        </Gate>
+                                    </div>
+                                </div>
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={justificationData?.end === null}
+                                            onChange={(e) => {
+                                                setJustificationData((draft) => {
+                                                    draft!.end = e.target.checked ? null : moment(new Date());
+                                                });
+                                            }}
+                                            disabled={!editMode && !newEntry}
+                                            sx={{
+                                                "&.MuiCheckbox-root.Mui-disabled": {
+                                                    color: "var(--portalseguranca-color-accent)"
+                                                }
+                                            }}
+                                        />
+                                    }
+                                    label={"Inatividade Indeterminada"}
+                                    sx={{
+                                        marginRight: "4px", color: "var(--portalseguranca-color-text-light)",
+                                        "& .MuiFormControlLabel-label.Mui-disabled": {
+                                            color: "var(--portalseguranca-color-text-light)"
+                                        }
+                                    }}
+                                />
+
+                                <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                {/* Description */}
+                                <DefaultTypography
+                                    color={"var(--portalseguranca-color-accent)"}
+                                    fontSize={"medium"}
+                                    fontWeight={"bold"}
+                                >
+                                    Descrição:
+                                </DefaultTypography>
+                                <DefaultOutlinedTextField
+                                    disabled={!editMode && !newEntry}
+                                    required
+                                    textWhenDisabled
+                                    multiline
+                                    value={justificationData?.description}
+                                    onChange={(e) => {
+                                        setJustificationData((draft) => {
+                                            draft!.description = e.target.value;
+                                        });
+                                    }}
+                                    sx={{width: "100%", marginBottom: "10px"}}
+                                />
+                            </div>
+                        </ModalSection>
+
+                        <Gate
+                            show={loggedUser.intents["activity"] || (justificationData.status === "pending") || newEntry}>
+                            <ModalSection title={"Ações"}>
+                                <div className={style.justificationActionsDiv}>
+                                    {/* Show the regular management buttons when it's not a new entry */}
+                                    <Gate show={!newEntry}>
+                                        <Gate show={editMode}>
+                                            {/*Save Changes Button*/}
                                             <DefaultButton
                                                 buttonColor={"lightgreen"}
                                                 darkTextOnHover
-                                                onClick={() => handleApproveOrReject(true)}
+                                                type={"submit"}
                                                 sx={{flex: 1}}
                                             >
-                                                Aprovar
+                                                Guardar Alterações
                                             </DefaultButton>
 
+                                            {/*Cancel Button*/}
                                             <DefaultButton
                                                 buttonColor={"red"}
-                                                onClick={() => handleApproveOrReject(false)}
+                                                onClick={() => {
+                                                    setEditMode(false);
+                                                    setNeedsReload(true)
+                                                }}
                                                 sx={{flex: 1}}
                                             >
-                                                Rejeitar
+                                                Cancelar
                                             </DefaultButton>
                                         </Gate>
 
-                                        <Gate
-                                            show={justificationData?.status === "pending" || loggedUser.intents["activity"]}>
-                                            <DefaultButton onClick={() => setEditMode(true)}
-                                                           sx={{flex: 1}}>Editar</DefaultButton>
-                                            <DefaultButton buttonColor={"red"}
-                                                           onClick={() => setDeleteDialogOpen(true)}
-                                                           sx={{flex: 1}}>Apagar</DefaultButton>
+                                        {/*Other Buttons can't appear if editmode is on*/}
+                                        <Gate show={!editMode}>
+                                            {/*Aprove or Deny buttons must only appear if the logged user has the activity intent
+                                and the justification is pending*/}
+                                            <Gate
+                                                show={loggedUser.intents["activity"] && justificationData?.status === "pending"}>
+                                                <DefaultButton
+                                                    buttonColor={"lightgreen"}
+                                                    darkTextOnHover
+                                                    onClick={() => handleApproveOrReject(true)}
+                                                    sx={{flex: 1}}
+                                                >
+                                                    Aprovar
+                                                </DefaultButton>
+
+                                                <DefaultButton
+                                                    buttonColor={"red"}
+                                                    onClick={() => handleApproveOrReject(false)}
+                                                    sx={{flex: 1}}
+                                                >
+                                                    Rejeitar
+                                                </DefaultButton>
+                                            </Gate>
+
+                                            <Gate
+                                                show={justificationData?.status === "pending" || loggedUser.intents["activity"]}>
+                                                <DefaultButton onClick={() => setEditMode(true)}
+                                                               sx={{flex: 1}}>Editar</DefaultButton>
+                                                <DefaultButton buttonColor={"red"}
+                                                               onClick={() => setDeleteDialogOpen(true)}
+                                                               sx={{flex: 1}}>Apagar</DefaultButton>
+                                            </Gate>
                                         </Gate>
                                     </Gate>
-                                </Gate>
 
-                                <Gate show={newEntry}>
-                                    <DefaultButton
-                                        buttonColor={"lightgreen"}
-                                        darkTextOnHover
-                                        onClick={handleCreate}
-                                        sx={{flex: 1}}
-                                    >
-                                        Criar Justificação
-                                    </DefaultButton>
-                                </Gate>
-                            </div>
-                        </ModalSection>
-                    </Gate>
+                                    <Gate show={newEntry}>
+                                        <DefaultButton
+                                            buttonColor={"lightgreen"}
+                                            darkTextOnHover
+                                            type={"submit"}
+                                            sx={{flex: 1}}
+                                        >
+                                            Criar Justificação
+                                        </DefaultButton>
+                                    </Gate>
+                                </div>
+                            </ModalSection>
+                        </Gate>
+                    </form>
                 </Gate>
             </Modal>
 
