@@ -11,7 +11,6 @@ import {DefaultReturn} from "../../../types";
 import {compare, hash} from "bcrypt";
 import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 import {InnerAccountData} from "../../../types/inner-types";
-import {dateToString} from "../../../utils/date-handler";
 import {getOfficerData} from "../../officers/repository";
 import { AccountInfo } from "@portalseguranca/api-types/account/output";
 

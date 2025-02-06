@@ -10,6 +10,6 @@ export async function fetchLastShift(force: string, nif: number): Promise<Date |
     return result[0].last_shift;
 }
 
-export async function updateLastShift(force: string, nif: number, last_shift: Date) {
+export async function updateLastShift(force: string, nif: number, last_shift: Date | null) {
     return await queryDB(force, `INSERT INTO officer_last_shift (officer, last_shift) VALUES (?, ?) ON DUPLICATE KEY UPDATE last_shift = ?`, [nif, last_shift, last_shift]);
 }
