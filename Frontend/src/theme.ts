@@ -17,7 +17,7 @@ const themeOptions: ThemeOptions = {
             disabled: 'rgba(208,199,211,0.5)',
             primary: '#d0c7d3',
         },
-    },
+    }
 };
 
 export default themeOptions;
