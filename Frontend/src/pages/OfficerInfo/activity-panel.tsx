@@ -283,7 +283,7 @@ const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
                 </Gate>
             </div>
 
-            <InactivityJustificationModal open={isModalOpen} onClose={() => setModalOpen(false)} officerNif={officer} justificationId={activeJustification!.id!}/>
+            <InactivityJustificationModal open={isModalOpen} onClose={() => setModalOpen(false)} officerNif={officer} justificationId={activeJustification ? activeJustification.id: -1}/>
         </>
     )
 }
