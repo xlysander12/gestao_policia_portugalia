@@ -4,6 +4,7 @@
 # Store arguments
 SKIP_INTERACTION=false
 AUTO_START=false
+UPDATE=false
 
 # Go through all arguments
 for arg in "$@"
@@ -12,8 +13,20 @@ do
     SKIP_INTERACTION=true
   elif [[ $arg == "-start" ]]; then
     AUTO_START=true
+  elif [[ $arg == "-update" ]]; then
+    UPDATE=true
   fi
 done
+
+# Check if the user wants to update the project
+if [[ $UPDATE == true ]]; then
+  echo "Updating project..."
+  git pull || exit
+  echo "Project updated"
+  if [[ $SKIP_INTERACTION == false ]]; then
+    read -p "Press enter to continue"
+  fi
+fi
 
 # Start working in the Backend
 # ! Backend already builds the API Types
