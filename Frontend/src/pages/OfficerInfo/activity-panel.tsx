@@ -119,6 +119,11 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             disabled={!editMode}
                             value={moment(lastShift)}
                             onChange={(date) => setLastShift(date ? date: moment(null))}
+                            slotProps={{
+                                field: {
+                                    clearable: true
+                                }
+                            }}
                         />
                     </Gate>
 
