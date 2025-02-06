@@ -20,9 +20,9 @@ import {
 } from "../../components/DefaultComponents";
 import {OfficerData, OfficerInfoGetResponse, OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
-import SpecialUnitsTable from "./special-units-table.tsx";
+import SpecialUnitsTable from "./SpecialUnitsTable.tsx";
 import Gate from "../../components/Gate/gate.tsx";
-import {ActivityPanel} from "./activity-panel.tsx";
+import {ActivityPanel} from "./ActivityPanel.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
 import { RequestError } from "@portalseguranca/api-types/index.ts";
@@ -42,8 +42,6 @@ type InformationPairProps = {
     children?: ReactNode | ReactNode[]
 }
 const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
-
-
     // If it's a select, return a select input
     if (isSelect) {
         return (
@@ -106,7 +104,6 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
     );
 
 }
-
 
 
 function OfficerInfo() {

@@ -3,11 +3,11 @@ import './App.css'
 import "react-toastify/dist/ReactToastify.css";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
-import Dashboard from "./pages/Dashboard/dashboard.tsx";
+import Dashboard from "./pages/Dashboard";
 import {Bounce, ToastContainer} from "react-toastify";
-import Login from "./pages/Login/login.tsx";
+import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute/private-route.tsx";
-import OfficerInfo from "./pages/OfficerInfo/officerinfo.tsx";
+import OfficerInfo from "./pages/OfficerInfo";
 import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {

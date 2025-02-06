@@ -5,6 +5,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
+    'plugin:react/recommended'
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
@@ -22,5 +23,9 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
 
     "@typescript-eslint/no-explicit-any": "off",
+
+    "react/react-in-jsx-scope": "off",
+
+    "react/jsx-pascal-case": "warn"
   },
 }

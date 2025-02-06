@@ -1,0 +1,30 @@
+.patrolCardMain {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.patrolCardLeft {
+    display: flex;
+    flex-direction: column;
+    flex: 1.5 0 0;
+}
+
+.patrolCardMiddle {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    height: 100%;
+    max-height: 100%;
+}
+
+.patrolCardRight {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    flex: 0.5 1 0;
+    height: 100%;
+}
