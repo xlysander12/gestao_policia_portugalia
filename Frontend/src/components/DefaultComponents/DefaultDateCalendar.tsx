@@ -1,12 +1,8 @@
-import {DateCalendar, DateCalendarProps} from "@mui/x-date-pickers";
+import {DateCalendar, DateCalendarProps, PickersLayout} from "@mui/x-date-pickers";
 import {styled} from "@mui/system";
 import {Moment} from "moment";
 
-type DefaultDateCalendarProps = DateCalendarProps<Moment>;
-
-const DefaultDateCalendarStyle = styled(DateCalendar, {
-    shouldForwardProp: (_prop) => true
-})<DefaultDateCalendarProps>(({}) => ({
+const styles = {
     "& .MuiDayCalendar-weekDayLabel": {
         color: "var(--portalseguranca-color-accent)"
     },
@@ -22,7 +18,16 @@ const DefaultDateCalendarStyle = styled(DateCalendar, {
     "& .MuiPickersCalendarHeader-label": {
         textTransform: "capitalize"
     }
-}));
+}
+
+export const DefaultPickersLayout = styled(PickersLayout)(styles);
+
+
+type DefaultDateCalendarProps = DateCalendarProps<Moment>;
+
+const DefaultDateCalendarStyle = styled(DateCalendar, {
+    shouldForwardProp: (_prop) => true
+})<DefaultDateCalendarProps>(({}) => (styles));
 
 const DefaultDateCalendar = (props: DefaultDateCalendarProps) => {
     return (

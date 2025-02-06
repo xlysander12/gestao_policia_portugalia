@@ -1,6 +1,10 @@
 import React, {useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
-import {DefaultButton, DefaultTextField, DefaultTypography} from "../../components/DefaultComponents";
+import {
+    DefaultButton,
+    DefaultDatePicker,
+    DefaultTypography
+} from "../../components/DefaultComponents";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import Gate from "../../components/Gate/gate.tsx";
 import {Divider, Skeleton} from "@mui/material";
@@ -10,10 +14,11 @@ import {
     OfficerLastShiftResponse, OfficerSpecificHoursResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
-import {padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
+import {toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData} from "../../hooks";
+import moment, {Moment} from "moment";
 
 type LastShiftPairProps = {
     officer: number
@@ -25,7 +30,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
 
-    const [lastShift, setLastShift] = useState<Date | null>(null);
+    const [lastShift, setLastShift] = useState<Moment>(moment(null));
     const [maxDaysPassed, setMaxDaysPassed] = useState<boolean>(false);
 
 
@@ -35,7 +40,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         setEditMode(false);
 
         // Clear current data
-        setLastShift(null);
+        setLastShift(moment(null));
 
         // Fetch the API the last shift date
         let response = await make_request(`/officers/${officer}/activity/last-shift`, "GET");
@@ -47,7 +52,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
         const responseJson: OfficerLastShiftResponse = await response.json();
 
-        setLastShift(new Date(responseJson.data.last_shift));
+        setLastShift(moment(responseJson.data.last_shift));
         setMaxDaysPassed(responseJson.meta.passed_max_days);
 
         // Set loading to false
@@ -103,18 +108,17 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                                 }
                             }}
                         >
-                            {lastShift !== null ? `${padToTwoDigits(lastShift.getDate())}/${padToTwoDigits(lastShift.getMonth() + 1)}/${lastShift.getFullYear()}`: "N/A"}
+                            {lastShift.isValid() ? lastShift.format("DD/MM/YYYY"): "N/A"}
                         </DefaultTypography>
                     </Gate>
 
                     <Gate show={editMode}>
-                        <DefaultTextField
-                            required
+                        <DefaultDatePicker
                             textWhenDisabled
+                            disableFuture
                             disabled={!editMode}
-                            type={"date"}
-                            value={lastShift !== null ? lastShift.toISOString().split("T")[0]: ""}
-                            onChange={(event) => setLastShift(new Date(event.target.value))}
+                            value={moment(lastShift)}
+                            onChange={(date) => setLastShift(date ? date: moment(null))}
                         />
                     </Gate>
 

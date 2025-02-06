@@ -1,9 +1,10 @@
 import {DatePicker, DatePickerProps} from "@mui/x-date-pickers";
 import {styled} from "@mui/material/styles";
-import {DefaultDateCalendar, DefaultTextField} from "./index.ts";
+import {DefaultTextField} from "./index.ts";
 import {Moment} from "moment";
+import {DefaultPickersLayout} from "./DefaultDateCalendar.tsx";
 
-type DefaultDatePickerProps = Partial<DatePickerProps<Moment, any>> & { textWhenDisabled?: boolean };
+type DefaultDatePickerProps = DatePickerProps<Moment, any> & { textWhenDisabled?: boolean };
 
 const DefaultDatePickerStyle = styled(DatePicker, {
     shouldForwardProp: (prop) => prop !== "textWhenDisabled"
@@ -24,9 +25,10 @@ const DefaultDatePicker = (props: DefaultDatePickerProps) => {
         <DefaultDatePickerStyle
             {...props}
             slots={{
+                ...props.slots,
                 textField: DefaultTextField,
                 // @ts-ignore
-                layout: DefaultDateCalendar
+                layout: DefaultPickersLayout
             }}
         />
     );

@@ -14,7 +14,7 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
-    DefaultButton,
+    DefaultButton, DefaultDatePicker,
     DefaultSelect,
     DefaultTextField
 } from "../../components/DefaultComponents";
@@ -27,6 +27,7 @@ import ManagementBar from "../../components/ManagementBar";
 import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
 import { RequestError } from "@portalseguranca/api-types/index.ts";
 import {useForceData} from "../../hooks";
+import moment, {Moment} from "moment";
 
 
 type InformationPairProps = {
@@ -42,42 +43,65 @@ type InformationPairProps = {
 }
 const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
 
-    // If it's not a select, return a basic input
-    if (!isSelect) {
+
+    // If it's a select, return a select input
+    if (isSelect) {
         return (
             <div className={style.informationPairDiv}>
                 <label>{label}</label>
-                <DefaultTextField
+                <DefaultSelect
                     fullWidth
-                    required
+                    sameTextColorWhenDisabled
+                    disabled={!editMode}
+                    value={value}
+                    onChange={onChangeCallback}
+                >
+                    {children}
+                </DefaultSelect>
+            </div>
+        )
+    }
+
+    // If it is a date picker, return a date picker
+    if (type === "date") {
+        return (
+            <div className={style.informationPairDiv}>
+                <label>{label}</label>
+                <DefaultDatePicker
+                    disableFuture
                     textWhenDisabled
                     disabled={!editMode}
-                    type={type}
-                    error={(pattern !== undefined) && !(pattern.test(String(value)))}
-                    value={value === null ? "": value}
+                    value={value === null ? null: moment(value)}
                     onChange={onChangeCallback}
-                    inputProps={{
-                        step: step,
-                        pattern: pattern !== undefined ? pattern.source: undefined
+                    slotProps={{
+                        textField: {
+                            fullWidth: true,
+                            required: true,
+                        }
                     }}
                 />
             </div>
         );
     }
 
-    // If it's a select, return a select input
+    // If it's not a select, return a basic input
     return (
         <div className={style.informationPairDiv}>
             <label>{label}</label>
-            <DefaultSelect
+            <DefaultTextField
                 fullWidth
-                sameTextColorWhenDisabled
+                required
+                textWhenDisabled
                 disabled={!editMode}
-                value={value}
+                type={type}
+                error={(pattern !== undefined) && !(pattern.test(String(value)))}
+                value={value === null ? "": value}
                 onChange={onChangeCallback}
-            >
-                {children}
-            </DefaultSelect>
+                inputProps={{
+                    step: step,
+                    pattern: pattern !== undefined ? pattern.source: undefined
+                }}
+            />
         </div>
     );
 
@@ -521,8 +545,8 @@ function OfficerInfo() {
                                         value={officerInfo.professional.entry_date}
                                         type={"date"}
                                         editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.professional.entry_date = event.target.value
+                                        onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
+                                            draft.professional.entry_date = date.toISOString().split("T")[0]
                                         })}
                                     />
                                     <Divider/>
