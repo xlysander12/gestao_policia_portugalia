@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ReactNode, useContext, useEffect, useState} from "react";
+import React, {ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
 import OfficerList from "../../components/OfficerList/officer-list";
 import Loader from "../../components/Loader/loader";
@@ -135,7 +135,7 @@ function OfficerInfo() {
 
     // Get the nif from the URL params
     // ! This might not be present
-    let {nif} = useParams();
+    const {nif} = useParams();
 
     // State that controls the loading state of the page
     const [loading, setLoading] = useState<boolean>(true);
@@ -173,7 +173,7 @@ function OfficerInfo() {
     const [isFireModalOpen, setFireModalOpen] = useState<boolean>(false);
 
     // Variable that dictates whether the logged user can edit the current officer.
-    let canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
+    const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
 
     async function fetchOfficerInfo() {
         // First, we need to set the loading state to true
@@ -224,7 +224,7 @@ function OfficerInfo() {
         setLoading(false);
     }
 
-    async function updateOfficerInfo(event: SubmitEvent) {
+    async function updateOfficerInfo(event: FormEvent) {
         // Prevent the form from submitting and therefore reloading the page
         event.preventDefault();
 
@@ -389,8 +389,7 @@ function OfficerInfo() {
                             </Gate>
                         </div>
                     </ManagementBar>
-
-                    {/*@ts-ignore*/}
+                    
                     <form id={"information-form"} onSubmit={updateOfficerInfo}>
                         {/*Loader Div*/}
                         <Gate show={loading}>

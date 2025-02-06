@@ -43,7 +43,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         setLastShift(moment(null));
 
         // Fetch the API the last shift date
-        let response = await make_request(`/officers/${officer}/activity/last-shift`, "GET");
+        const response = await make_request(`/officers/${officer}/activity/last-shift`, "GET");
 
         if (response.status === 404) {
             setLoading(false);
@@ -163,7 +163,7 @@ const LastWeekHoursPair = ({officer}: LastWeekHoursPairProps) => {
         setLastHours(null);
 
         // Fetch the API the last week hours
-        let response = await make_request(`/officers/${officer}/activity/hours/last`, "GET");
+        const response = await make_request(`/officers/${officer}/activity/hours/last`, "GET");
 
         // If response is 404, there are no registry of this officer
         if (response.status === 404) {
@@ -233,7 +233,7 @@ const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
         setActiveJustification(null);
 
         // Fetch the API the last week hours
-        let response = await make_request(`/officers/${officer}/activity/justifications/active`, "GET");
+        const response = await make_request(`/officers/${officer}/activity/justifications/active`, "GET");
 
         const responseJson: OfficerActiveJustificationsResponse = await response.json();
 
@@ -283,7 +283,7 @@ const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
                 </Gate>
             </div>
 
-            <InactivityJustificationModal open={isModalOpen} onClose={() => setModalOpen(false)} officerNif={officer} justificationId={activeJustification?.id!}/>
+            <InactivityJustificationModal open={isModalOpen} onClose={() => setModalOpen(false)} officerNif={officer} justificationId={activeJustification!.id!}/>
         </>
     )
 }
