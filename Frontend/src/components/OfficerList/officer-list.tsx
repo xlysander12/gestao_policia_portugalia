@@ -78,7 +78,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         }
 
         // Get the response as JSON
-        let responseJSON: OfficerListResponse = await response.json();
+        const responseJSON: OfficerListResponse = await response.json();
 
         // Update the state with the new officers
         setOfficers(responseJSON.data);
@@ -106,7 +106,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     }
 
     // Build the officers' cards
-    let officersCards = [];
+    const officersCards = [];
 
     for (let i = 0; i < officers.length; i++) {
         officersCards.push(

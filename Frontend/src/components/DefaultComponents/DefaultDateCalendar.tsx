@@ -27,7 +27,7 @@ type DefaultDateCalendarProps = DateCalendarProps<Moment>;
 
 const DefaultDateCalendarStyle = styled(DateCalendar, {
     shouldForwardProp: (_prop) => true
-})<DefaultDateCalendarProps>(({}) => (styles));
+})<DefaultDateCalendarProps>(() => (styles));
 
 const DefaultDateCalendar = (props: DefaultDateCalendarProps) => {
     return (

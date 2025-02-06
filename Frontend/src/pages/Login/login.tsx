@@ -27,7 +27,7 @@ function Login() {
         setLoading(true);
 
         // Check if the credentials are correct
-        let loginResponse = await make_request<LoginRequestBodyType>("/accounts/login", "POST", {
+        const loginResponse = await make_request<LoginRequestBodyType>("/accounts/login", "POST", {
             body: {
                 nif: Number(nif),
                 password: password,
@@ -37,7 +37,7 @@ function Login() {
         });
 
         // Get the data from the response
-        let loginJson = await loginResponse.json();
+        const loginJson = await loginResponse.json();
 
         // If the request didn't return a 200 code, the login was unsuccessful
         if (!loginResponse.ok) {

@@ -1,4 +1,4 @@
-import React, {ReactElement} from "react";
+import React, {FormEvent, ReactElement} from "react";
 import {useImmer} from "use-immer";
 import {useNavigate} from "react-router-dom";
 import {make_request} from "../../../utils/requests.ts";
@@ -38,7 +38,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
     // Navigate hook
     const navigate = useNavigate();
 
-    const recruitMember = async (event: SubmitEvent) => {
+    const recruitMember = async (event: FormEvent) => {
         event.preventDefault();
 
         // Make the request to recruit the new member
@@ -123,7 +123,6 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
     return (
         <>
             <Modal width={"37%"} open={open} onClose={onClose} title={"Recrutar novo efetivo"}>
-                {/*@ts-ignore*/}
                 <form onSubmit={recruitMember}>
                     <ModalSection title={"Informações Pessoais"}>
                         <div className={modalsStyle.formDiv}>
@@ -214,11 +213,11 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                                 type={"text"}
                                 onChange={(event) => setOfficerInfo(draft => {draft.steam = event.target.value})}
                                 sx={{margin: "10px 0 0 0"}}
-                                error={officerInfo.steam !== "" && !(/^steam:[0-9]{9}$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
+                                error={officerInfo.steam !== "" && !(/^steam:([0-9]|[a-z])+$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
                                 required
                                 inputProps={{
                                     name: "officerSteam",
-                                    pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)"
+                                    pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?://steamcommunity.com/id/.+$)"
                                 }}
                             />
 

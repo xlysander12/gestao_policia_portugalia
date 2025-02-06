@@ -135,7 +135,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
     const specialUnitsRoles = forceData.special_unit_roles;
 
     // Array that will hold all special units the officer isn't a part of
-    let availableSpecialUnits: SpecialUnitData[] = [];
+    const availableSpecialUnits: SpecialUnitData[] = [];
     for (const unit of specialUnits) {
         let isPartOf = false;
         for (const officerUnit of officerSpecialUnits) {

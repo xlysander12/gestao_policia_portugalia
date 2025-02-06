@@ -45,7 +45,7 @@ function App() {
 
     const fetchForceData = async (forceName: string) => {
         // Creating a temp variable to store the force data
-        let forceTempData: ForceData = {
+        const forceTempData: ForceData = {
             patents: [],
             statuses: [],
             intents: [],

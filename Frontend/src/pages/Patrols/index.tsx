@@ -33,7 +33,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     const patrolForce = patrolInfo.id.match(/([a-z]+)(\d+)$/)![1];
 
     async function getOfficersDetails(): Promise<(MinifiedOfficerData & {force: string})[]> {
-        let temp: (MinifiedOfficerData & {force: string})[] = [];
+        const temp: (MinifiedOfficerData & {force: string})[] = [];
         let i = 0;
 
         for (const nif of patrolInfo.officers) {

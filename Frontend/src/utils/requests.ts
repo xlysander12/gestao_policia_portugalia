@@ -31,7 +31,7 @@ export async function make_request<BodyType>(url: string, method: ("GET" | "POST
     }
 
     // Next, make the actual request
-    let response = await fetch(url, {
+    const response = await fetch(url, {
         method: method,
         headers: {
             'Content-Type': 'application/json',

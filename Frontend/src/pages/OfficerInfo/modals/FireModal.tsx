@@ -4,7 +4,7 @@ import {toast} from "react-toastify";
 import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultOutlinedTextField} from "../../../components/DefaultComponents";
-import React from "react";
+import React, {FormEvent} from "react";
 import {FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Gate from "../../../components/Gate/gate.tsx";
 import {DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
@@ -25,7 +25,7 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
     // Initialize the variable that contains the officer's fire reason
     let fireReason: string = "";
 
-    const fireOfficer = async (event: SubmitEvent) => {
+    const fireOfficer = async (event: FormEvent) => {
         // Prevent the form from submitting and therefore reloading the page
         event.preventDefault();
 
@@ -55,7 +55,6 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
             onClose={onClose}
             title={`Despedir ${officerFullName}`}
         >
-            {/*@ts-ignore*/}
             <form onSubmit={fireOfficer}>
                 <div className={modalsStyle.formDiv}>
                     {/*Text area to input the firing reason*/}

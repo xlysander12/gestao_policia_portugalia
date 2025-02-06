@@ -78,8 +78,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         // Make the request to create the entry
         const response = await make_request<AddOfficerHoursBodyType>(`/officers/${officer}/activity/hours`, "POST", {
             body: {
-                week_start: entryData.week_start?.format("YYYY-MM-DD")!,
-                week_end: entryData.week_end?.format("YYYY-MM-DD")!,
+                week_start: entryData.week_start!.format("YYYY-MM-DD")!,
+                week_end: entryData.week_end!.format("YYYY-MM-DD")!,
                 minutes: entryData.minutes
             }
         });
@@ -309,7 +309,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                     <DefaultTypography
                                         color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
                                     >
-                                        ({toHoursAndMinutes(entryData?.minutes!)})
+                                        ({toHoursAndMinutes(entryData!.minutes!)})
                                     </DefaultTypography>
                                 </div>
 
@@ -352,6 +352,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                             buttonColor={"lightgreen"}
                                             sx={{flex: 1}}
                                             type={"submit"}
+                                            disabled={entryData.week_start === null || !entryData.week_start.isValid() || (entryData.week_end !== null && !entryData.week_end.isValid())}
                                         >
                                             Adicionar Registo
                                         </DefaultButton>

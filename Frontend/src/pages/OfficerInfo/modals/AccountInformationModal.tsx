@@ -34,8 +34,8 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     // Initialize the state that contains the officer's account information
     // // Create an object with all intents and set them to false
-    let intentsObject: {[key: string]: boolean} = {};
-    for (let intent of forceData.intents) {
+    const intentsObject: {[key: string]: boolean} = {};
+    for (const intent of forceData.intents) {
         intentsObject[intent.name] = false;
     }
 
@@ -118,7 +118,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         // Set the loading state to true
         setLoading(true);
 
-        let response = await make_request(`/accounts/${officerNif}`, "POST");
+        const response = await make_request(`/accounts/${officerNif}`, "POST");
         if (!response.ok) {
             return toast(`Erro ao ativar a conta:\n${((await response.json()) as RequestSuccess).message}`, {type: "error"});
         }
@@ -135,7 +135,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         setLoading(true);
 
         // Make the request to change the suspended state
-        let response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
+        const response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
             body: {
                 suspended: suspend
             }
@@ -294,7 +294,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                     onDeny={() => setDeleteConfirmationOpen(false)}
                     title={"Apagar conta"} text={`Tens a certeza que desejas apagar a conta de ${officerFullName}?`}
                     onConfirm={async () => {
-                        let response = await make_request(`/accounts/${officerNif}`, "DELETE");
+                        const response = await make_request(`/accounts/${officerNif}`, "DELETE");
                         if (!response.ok) {
                             return toast(`Erro ao apagar a conta:\n${((await response.json()) as RequestError).message}`, {type: "error"});
                         }
@@ -323,7 +323,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         setLoading(true);
 
                         // Make the request to reset the password
-                        let response = await make_request(`/accounts/${officerNif}/resetpassword`, "POST");
+                        const response = await make_request(`/accounts/${officerNif}/resetpassword`, "POST");
                         if (!response.ok) {
                             return toast(`Erro ao redefinir a palavra-passe:\n${((await response.json()) as RequestError).message}`, {type: "error"});
                         }

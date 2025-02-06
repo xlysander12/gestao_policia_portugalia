@@ -139,7 +139,7 @@ function Activity() {
 
     // Get the officer's nif from the URL params
     // ! This might not be present
-    let {nif} = useParams();
+    const {nif} = useParams();
 
     // Set the loading state
     const [loading, setLoading] = useState<boolean>(true);
@@ -170,7 +170,7 @@ function Activity() {
             setLoading(true);
 
             // Create a variable to store the officer's data
-            let officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = [];
+            const officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = [];
 
             // * Fetch the officer's hours
             const hoursResponse = await make_request(`/officers/${currentOfficer}/activity/hours`, "GET");
@@ -191,7 +191,7 @@ function Activity() {
             }
 
             // Make a secondary array with the justifications to change the managed_by value
-            let justificationsManagedBy: (Omit<OfficerMinifiedJustification, "managed_by"> & {managed_by: string})[] = [];
+            const justificationsManagedBy: (Omit<OfficerMinifiedJustification, "managed_by"> & {managed_by: string})[] = [];
 
             // ? This thing might be a huge performance hit.
             // ? If the officer has a lot of justifications, this will make a lot of requests and the whole page won't load until all of them are done

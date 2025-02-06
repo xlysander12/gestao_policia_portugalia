@@ -104,10 +104,10 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     }
 
     // Create the array of elements for the pathsdiv
-    let paths = [];
+    const paths = [];
 
     // Get the current path minus the base url
-    let currentPath = location.pathname.replace(`${BASE_URL}`, "").replace("/", "").split("/")[0];
+    const currentPath = location.pathname.replace(`${BASE_URL}`, "").replace("/", "").split("/")[0];
 
     // First thing that needs to be done is to add the main title to the navbar
     paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === ""}/>);
