@@ -4,14 +4,11 @@ import {ForceData, ForcesDataContext} from "../forces-data-context.ts";
 type ForceDataGetter = (forceName: string) => ForceData;
 
 export function useForceData(): [ForceData, ForceDataGetter] {
-    // First, check if there is a force in the local storage
-    const force = localStorage.getItem("force");
-    if (!force) {
-        throw new Error("No force found in local storage");
-    }
-
     // Get the forces' data from context
     const forcesData = useContext(ForcesDataContext);
+
+    // First, check if there is a force in the local storage
+    const force = localStorage.getItem("force");
 
     // Create function to get the force's data from name
     function getForceData(forceName: string) {
@@ -20,6 +17,10 @@ export function useForceData(): [ForceData, ForceDataGetter] {
         }
 
         return forcesData[forceName];
+    }
+
+    if (!force) {
+        return [forcesData["default"], getForceData];
     }
 
     return [getForceData(force), getForceData];
