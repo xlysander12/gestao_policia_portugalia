@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {FormEvent, useContext, useEffect, useState} from "react";
 import {
     OfficerHoursResponse,
     OfficerSpecificHoursResponse,
@@ -15,20 +15,22 @@ import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import style from "./index.module.css";
 import {Divider, Typography} from "@mui/material";
-import {DefaultButton, DefaultTextField, DefaultTypography} from "../../../../components/DefaultComponents";
+import {
+    DefaultButton,
+    DefaultDatePicker,
+    DefaultTextField,
+    DefaultTypography
+} from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {useForceData} from "../../../../hooks";
+import moment, {Moment} from "moment";
+import {toHoursAndMinutes} from "../../../../utils/misc.ts";
 
-function toHoursAndMinutes(totalMinutes: number) {
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;  return `${padToTwoDigits(hours)}:${padToTwoDigits(minutes)}`;
+type InnerOfficerHoursType = Omit<OfficerSpecificHoursType, "week_start" | "week_end"> & {
+    week_start: Moment | null,
+    week_end: Moment | null
 }
-
-function padToTwoDigits(num: number) {
-    return num.toString().padStart(2, '0');
-}
-
 
 type WeekHoursRegistryModalProps = {
     open: boolean,
@@ -48,10 +50,10 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
     const [loading, setLoading] = useState<boolean>(true);
 
     // Set the state that holds the registry data
-    const [entryData, setEntryData] = useImmer<OfficerSpecificHoursType>({
+    const [entryData, setEntryData] = useImmer<InnerOfficerHoursType>({
         id: 0,
-        week_start: "",
-        week_end: "",
+        week_start: null,
+        week_end: null,
         minutes: 0,
         submitted_by: 0
     });
@@ -66,17 +68,20 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState<boolean>(false);
 
     // Function to handle the creation of an entry
-    async function handleCreate() {
+    async function handleCreate(event: FormEvent) {
+        // Prevent page from reloading
+        event.preventDefault();
+
         // Set the loading to true
         setLoading(true);
 
         // Make the request to create the entry
-        const response = await make_request(`/officers/${officer}/activity/hours`, "POST", {
+        const response = await make_request<AddOfficerHoursBodyType>(`/officers/${officer}/activity/hours`, "POST", {
             body: {
-                week_start: entryData.week_start,
-                week_end: entryData.week_end,
+                week_start: entryData.week_start?.format("YYYY-MM-DD")!,
+                week_end: entryData.week_end?.format("YYYY-MM-DD")!,
                 minutes: entryData.minutes
-            } as AddOfficerHoursBodyType
+            }
         });
         const data: RequestSuccess = await response.json();
 
@@ -129,7 +134,11 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             }
 
             // Set the registry data
-            setEntryData((data as OfficerSpecificHoursResponse).data);
+            setEntryData({
+                ...(data as OfficerSpecificHoursResponse).data,
+                week_start: moment((data as OfficerSpecificHoursResponse).data.week_start),
+                week_end: moment((data as OfficerSpecificHoursResponse).data.week_end)
+            });
             setDidMinimumHours((data as OfficerSpecificHoursResponse).meta.min_hours);
 
             // Get the name and patent of the officer that submitted the registry
@@ -158,8 +167,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             if (!newEntry) {
                 setEntryData({
                     id:  0,
-                    week_start: "",
-                    week_end: "",
+                    week_start: null,
+                    week_end: null,
                     minutes: 0,
                     submitted_by: 0
                 });
@@ -191,8 +200,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
 
             // Set the registry data with default values
             setEntryData((draft) => {
-                draft.week_start = mostRecentEntry.week_end;
-                draft.week_end = weekEnd.toISOString().split("T")[0];
+                draft.week_start = moment(mostRecentEntry.week_end);
+                draft.week_end = moment(weekEnd);
             });
 
             // Set the loading state to false
@@ -217,130 +226,140 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                 </Gate>
 
                 <Gate show={!loading}>
-                    <ModalSection title={"Detalhes"}>
-                        <div className={style.hoursDetailsMainDiv}>
-                            <div className={style.hoursDetailsWeekRangeDiv}>
-                                <div>
-                                    <Typography
-                                        color={"var(--portalseguranca-color-accent)"}
-                                        fontSize={"medium"}
-                                        fontWeight={"bold"}
-                                    >
-                                        Início da semana:
-                                    </Typography>
-                                    <DefaultTextField
-                                        disabled={!newEntry}
-                                        textWhenDisabled
-                                        type={"date"}
-                                        value={entryData?.week_start}
-                                        onChange={(e) => setEntryData((draft) => {
-                                            draft.week_start = e.target.value;
-                                        })}
-                                    />
+                    <form onSubmit={handleCreate}>
+                        <ModalSection title={"Detalhes"}>
+                            <div className={style.hoursDetailsMainDiv}>
+                                <div className={style.hoursDetailsWeekRangeDiv}>
+                                    <div>
+                                        <Typography
+                                            color={"var(--portalseguranca-color-accent)"}
+                                            fontSize={"medium"}
+                                            fontWeight={"bold"}
+                                        >
+                                            Início da semana:
+                                        </Typography>
+                                        <DefaultDatePicker
+                                            disabled={!newEntry}
+                                            textWhenDisabled
+                                            disableFuture
+                                            value={entryData?.week_start}
+                                            onChange={(date) => setEntryData((draft) => {
+                                                draft.week_start = date;
+                                            })}
+                                            sx={{width: "150px"}}
+                                            slotProps={{
+                                                textField: {
+                                                    required: true,
+                                                    error: entryData.week_start === null || !entryData.week_start.isValid()
+                                                }
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Typography
+                                            color={"var(--portalseguranca-color-accent)"}
+                                            fontSize={"medium"}
+                                            fontWeight={"bold"}
+                                        >
+                                            Fim da semana:
+                                        </Typography>
+                                        <DefaultDatePicker
+                                            disabled={!newEntry}
+                                            disableFuture
+                                            textWhenDisabled
+                                            value={entryData?.week_end}
+                                            onChange={(date) => setEntryData((draft) => {
+                                                draft.week_end = date;
+                                            })}
+                                            sx={{width: "150px"}}
+                                            slotProps={{
+                                                textField: {
+                                                    required: true,
+                                                    error: entryData.week_end === null || !entryData.week_end.isValid()
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <Typography
-                                        color={"var(--portalseguranca-color-accent)"}
-                                        fontSize={"medium"}
-                                        fontWeight={"bold"}
-                                    >
-                                        Fim da semana:
-                                    </Typography>
-                                    <DefaultTextField
-                                        disabled={!newEntry}
-                                        textWhenDisabled
-                                        type={"date"}
-                                        value={entryData?.week_end}
-                                        onChange={(e) => setEntryData((draft) => {
-                                            draft.week_end = e.target.value;
-                                        })}
-                                    />
-                                </div>
-                            </div>
+                                <Divider flexItem sx={{marginBottom: "5px"}}/>
 
-                            <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                            <Typography
-                                color={"var(--portalseguranca-color-accent)"}
-                                fontSize={"medium"}
-                                fontWeight={"bold"}
-                            >
-                                Minutos (Horas):
-                            </Typography>
-                            <div className={style.hoursDetailsMinutesDiv}>
-                                <DefaultTextField
-                                    disabled={!newEntry}
-                                    textWhenDisabled
-                                    type={"number"}
-                                    value={entryData?.minutes}
-                                    onChange={(e) => setEntryData((draft) => {
-                                        draft.minutes = parseInt(e.target.value);
-                                    })}
-                                    sx={{width: "55px"}}
-                                    inputProps={{
-                                        min: 0
-                                    }}
-                                />
-                                <DefaultTypography
-                                    color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
-                                >
-                                    ({toHoursAndMinutes(entryData?.minutes!)})
-                                </DefaultTypography>
-                            </div>
-
-                            <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                            <Gate show={!newEntry}>
                                 <Typography
                                     color={"var(--portalseguranca-color-accent)"}
                                     fontSize={"medium"}
                                     fontWeight={"bold"}
                                 >
-                                    Submetido por:
+                                    Minutos (Horas):
                                 </Typography>
-                                <Typography
-                                    color={"var(--portalseguranca-color-text-light)"}
-                                >
-                                    {submittedBy}
-                                </Typography>
-                            </Gate>
-                        </div>
-                    </ModalSection>
-
-                    <Gate show={loggedUser.intents["activity"]}>
-                        <ModalSection title={"Ações"}>
-                            <Gate show={!newEntry}>
-                                <div className={style.hoursActionsMainDiv}>
-                                    <DefaultButton
-                                        buttonColor={"red"}
-                                        sx={{flex: 1}}
-                                        onClick={() => setDeleteConfirmationOpen(true)}
-                                    >
-                                        Apagar Registo
-                                    </DefaultButton>
-                                </div>
-                            </Gate>
-
-                            <Gate show={newEntry}>
-                                <div className={style.hoursActionsMainDiv}>
-                                    <DefaultButton
-                                        buttonColor={"lightgreen"}
-                                        sx={{flex: 1}}
-                                        onClick={() => {
-                                            if (!newEntry) {
-                                                setDeleteConfirmationOpen(true)
-                                            } else {
-                                                handleCreate();
-                                            }
+                                <div className={style.hoursDetailsMinutesDiv}>
+                                    <DefaultTextField
+                                        disabled={!newEntry}
+                                        textWhenDisabled
+                                        type={"number"}
+                                        value={entryData?.minutes}
+                                        onChange={(e) => setEntryData((draft) => {
+                                            draft.minutes = parseInt(e.target.value);
+                                        })}
+                                        sx={{width: "55px"}}
+                                        inputProps={{
+                                            min: 0
                                         }}
+                                    />
+                                    <DefaultTypography
+                                        color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
                                     >
-                                        {newEntry ? "Adicionar": "Apagar"} Registo
-                                    </DefaultButton>
+                                        ({toHoursAndMinutes(entryData?.minutes!)})
+                                    </DefaultTypography>
                                 </div>
-                            </Gate>
+
+                                <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                <Gate show={!newEntry}>
+                                    <Typography
+                                        color={"var(--portalseguranca-color-accent)"}
+                                        fontSize={"medium"}
+                                        fontWeight={"bold"}
+                                    >
+                                        Submetido por:
+                                    </Typography>
+                                    <Typography
+                                        color={"var(--portalseguranca-color-text-light)"}
+                                    >
+                                        {submittedBy}
+                                    </Typography>
+                                </Gate>
+                            </div>
                         </ModalSection>
-                    </Gate>
+
+                        <Gate show={loggedUser.intents["activity"]}>
+                            <ModalSection title={"Ações"}>
+                                <Gate show={!newEntry}>
+                                    <div className={style.hoursActionsMainDiv}>
+                                        <DefaultButton
+                                            buttonColor={"red"}
+                                            sx={{flex: 1}}
+                                            onClick={() => setDeleteConfirmationOpen(true)}
+                                        >
+                                            Apagar Registo
+                                        </DefaultButton>
+                                    </div>
+                                </Gate>
+
+                                <Gate show={newEntry}>
+                                    <div className={style.hoursActionsMainDiv}>
+                                        <DefaultButton
+                                            buttonColor={"lightgreen"}
+                                            sx={{flex: 1}}
+                                            type={"submit"}
+                                        >
+                                            Adicionar Registo
+                                        </DefaultButton>
+                                    </div>
+                                </Gate>
+                            </ModalSection>
+                        </Gate>
+                    </form>
                 </Gate>
             </Modal>
 
