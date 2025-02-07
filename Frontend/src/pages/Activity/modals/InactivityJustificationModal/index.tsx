@@ -4,7 +4,7 @@ import {
     OfficerJustificationDetailsResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {toast} from "react-toastify";
-import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {make_request} from "../../../../utils/requests.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";

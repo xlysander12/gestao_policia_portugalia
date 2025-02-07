@@ -10,7 +10,7 @@ import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
-import {ConfirmationDialog} from "../Modal/modal.tsx";
+import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
 import {useForceData} from "../../hooks";

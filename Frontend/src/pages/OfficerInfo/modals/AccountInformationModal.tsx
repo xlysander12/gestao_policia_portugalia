@@ -5,7 +5,7 @@ import Loader from "../../../components/Loader/loader.tsx";
 import modalsStyle from "./officerinfomodals.module.css";
 import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
-import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import {AccountInfo, AccountInfoResponse} from "@portalseguranca/api-types/account/output";

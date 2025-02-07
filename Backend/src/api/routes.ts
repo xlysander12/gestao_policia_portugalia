@@ -585,7 +585,7 @@ const routes: routesType = {
 // ! Make sure there are no routes that require a token but don't require a force.
 // ! If there are, throw an error and stop the server from starting
 for (const route of Object.keys(routes)) {
-    for (let method of Object.keys(routes[route].methods)) {
+    for (const method of Object.keys(routes[route].methods)) {
         if (routes[route].methods[method as methodType]!.requiresToken && !routes[route].methods[method as methodType]!.requiresForce) {
             throw new Error(`Route '${route}' requires a token but doesn't require a force`);
         }

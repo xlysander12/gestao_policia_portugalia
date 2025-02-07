@@ -7,7 +7,7 @@ import {
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
-import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import Gate from "../../../../components/Gate/gate.tsx";
 import Loader from "../../../../components/Loader/loader.tsx";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";

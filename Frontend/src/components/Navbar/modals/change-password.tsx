@@ -1,4 +1,4 @@
-import {ConfirmationDialog, Modal, ModalSection} from "../../Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../Modal";
 import {useState} from "react";
 
 import style from "./change-password.module.css";

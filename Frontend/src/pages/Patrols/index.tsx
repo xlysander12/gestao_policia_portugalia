@@ -9,6 +9,7 @@ import {toast} from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
 import {DefaultPagination} from "../../components/DefaultComponents";
 import PatrolCard from "./components/PatrolCard";
+import PatrolInfoModal from "./modals/PatrolInfoModal";
 
 function Patrols() {
     const [loading, setLoadig] = useState<boolean>(true);
@@ -16,6 +17,9 @@ function Patrols() {
 
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(10);
+
+    const [selectedPatrol, setSelectedPatrol] = useState<string | null>(null);
+    const [patrolInfoModalOpen, setPatrolInfoModalOpen] = useState<boolean>(false);
 
     async function fetchPatrols(): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
         // TODO: This has to implement the filters that are going to be used when the search function is done
@@ -37,8 +41,8 @@ function Patrols() {
     }
 
     async function handleChangeViewedPatrol(id: string) {
-        console.log(id);
-
+        setSelectedPatrol(id);
+        setPatrolInfoModalOpen(true);
     }
 
     useEffect(() => {
@@ -97,6 +101,8 @@ function Patrols() {
                     </div>
                 </div>
             </ScreenSplit>
+
+            <PatrolInfoModal open={patrolInfoModalOpen} onClose={() => setPatrolInfoModalOpen(false)} id={selectedPatrol} />
         </>
     )
 }

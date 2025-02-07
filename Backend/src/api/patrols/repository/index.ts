@@ -60,7 +60,7 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
     return {
         id: splitPatrolId(patrol.id)[1],
         type: patrol.type,
-        unit: patrol.unit,
+        unit: patrol.special_unit,
         officers: JSON.parse(patrol.officers),
         start: patrol.start,
         end: patrol.end,

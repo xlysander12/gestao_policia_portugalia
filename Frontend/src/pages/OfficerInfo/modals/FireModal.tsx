@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import {make_request} from "../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {Modal, ModalSection} from "../../../components/Modal/modal.tsx";
+import {Modal, ModalSection} from "../../../components/Modal";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultOutlinedTextField} from "../../../components/DefaultComponents";
 import React, {FormEvent} from "react";

@@ -3,7 +3,7 @@ import {useImmer} from "use-immer";
 import {useNavigate} from "react-router-dom";
 import {make_request} from "../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal/modal.tsx";
+import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultTextField} from "../../../components/DefaultComponents";
 import {Checkbox, FormControlLabel} from "@mui/material";

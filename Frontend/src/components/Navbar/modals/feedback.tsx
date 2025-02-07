@@ -1,5 +1,5 @@
 import Gate from "../../Gate/gate";
-import {Modal, ModalSection} from "../../Modal/modal";
+import {Modal, ModalSection} from "../../Modal";
 
 import style from "./feedback.module.css";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTextField, DefaultTypography} from "../../DefaultComponents";
