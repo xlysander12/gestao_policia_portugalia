@@ -45,6 +45,9 @@ export async function getPatrolController(req: express.Request, res: PatrolInfoA
 
     res.status(200).json({
         message: "Operação bem sucedida",
+        meta: {
+            editable: res.locals.patrol.editable!
+        },
         data: {
             ...patrolData,
             id: `${res.locals.patrol.force}${res.locals.patrol.id}`,

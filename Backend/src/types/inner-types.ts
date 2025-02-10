@@ -34,5 +34,6 @@ export interface InnerPatrolData extends Omit<PatrolData, "id" | "start" | "end"
     id: number
     start: Date
     end: Date | null
-    force: string
+    force: string,
+    editable?: boolean
 }

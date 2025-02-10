@@ -22,5 +22,8 @@ export interface PatrolData extends MinifiedPatrolData {
 }
 
 export interface PatrolInfoResponse extends RequestSuccess {
+    meta: {
+        editable: boolean
+    }
     data: PatrolData
 }
