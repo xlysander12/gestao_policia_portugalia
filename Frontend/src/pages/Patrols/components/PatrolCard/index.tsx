@@ -8,7 +8,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {getTimeDelta} from "../../../../utils/misc.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
-import moment from "moment/moment";
+import moment from "moment";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 
@@ -90,7 +90,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                         Patrulha #{patrolInfo.id.toUpperCase()} - {patrolInfo.canceled ? "Cancelada": (patrolInfo.end ? "Terminada": "A decorrer...")}
                     </DefaultTypography>
 
-                    <DefaultTypography color={"gray"}>Tipo: {getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
+                    <DefaultTypography color={"gray"}>{getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
                     <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? getTimeDelta(new Date(patrolInfo.start), new Date(patrolInfo.end)): "N/A"}</DefaultTypography>
                 </div>
                 <div className={style.patrolCardMiddle}>
@@ -110,7 +110,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                     </Gate>
                 </div>
                 <div className={style.patrolCardRight}>
-                    <DefaultTypography fontSize={"small"} color={"gray"}>{moment(new Date(patrolInfo.start)).calendar()}</DefaultTypography>
+                    <DefaultTypography fontSize={"small"} color={"gray"}>{moment(patrolInfo.start).calendar()}</DefaultTypography>
                 </div>
             </div>
         </InformationCard>
