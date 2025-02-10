@@ -27,7 +27,6 @@ const DefaultDatePicker = (props: DefaultDatePickerProps) => {
             slots={{
                 ...props.slots,
                 textField: DefaultTextField,
-                // @ts-expect-error - The type of layout is not being recognized, this was copied from docs example
                 layout: DefaultPickersLayout
             }}
         />

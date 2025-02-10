@@ -1,4 +1,4 @@
-import {DateCalendar, DateCalendarProps, PickersLayout} from "@mui/x-date-pickers";
+import {DateCalendar, DateCalendarProps, PickersLayoutRoot} from "@mui/x-date-pickers";
 import {styled} from "@mui/system";
 import {Moment} from "moment";
 
@@ -20,8 +20,17 @@ const styles = {
     }
 }
 
-export const DefaultPickersLayout = styled(PickersLayout)(styles);
+export const DefaultPickersLayoutStyle = styled(PickersLayoutRoot)(styles);
 
+export const DefaultPickersLayout = (props: any) => {
+    return (
+        <DefaultPickersLayoutStyle
+            {...props}
+        >
+            {props.children}
+        </DefaultPickersLayoutStyle>
+    )
+}
 
 type DefaultDateCalendarProps = DateCalendarProps<Moment>;
 
