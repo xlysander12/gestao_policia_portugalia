@@ -11,6 +11,7 @@ import {
 import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import style from "./private-route.module.css";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -115,7 +116,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     return (
         <LoggedUserContext.Provider value={loggedUser}>
                 <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
-                <div style={{height: "cacl(100vh - calc(4rem + 16px))"}}>
+                <div className={style.contentDiv}>
                     {element}
                 </div>
         </LoggedUserContext.Provider>
