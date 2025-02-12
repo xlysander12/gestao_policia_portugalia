@@ -1,7 +1,7 @@
 import express from "express";
 import {APIResponse, DefaultReturn} from "../../../types";
 import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory} from "../services";
-import {FORCE_HEADER} from "../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import {RequestError} from "@portalseguranca/api-types";
@@ -40,7 +40,7 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     });
 }
 
-export async function getPatrolController(req: express.Request, res: PatrolInfoAPIResponse<PatrolInfoResponse>) {
+export async function getPatrolController(_req: express.Request, res: PatrolInfoAPIResponse<PatrolInfoResponse>) {
     const {force, ...patrolData} = res.locals.patrol;
 
     res.status(200).json({
@@ -67,6 +67,13 @@ export async function createPatrolController(req: express.Request, res: APIRespo
     res.status(result.status).json({
         message: result.message
     });
+
+    // Broadcast to socket
+    if (result.result) {
+        res.locals.ws.emit(UPDATE_EVENTS.PATROL, {
+            type: "create"
+        });
+    }
 }
 
 export async function editPatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
@@ -80,9 +87,17 @@ export async function editPatrolController(req: express.Request, res: PatrolInfo
     res.status(result.status).json({
         message: result.message
     });
+
+    // Broadcast to socket
+    if (result.result) {
+        res.locals.ws.emit(UPDATE_EVENTS.PATROL, {
+            type: "edit",
+            id: `${res.locals.patrol.force}${res.locals.patrol.id}`
+        });
+    }
 }
 
-export async function deletePatrolController(req: express.Request, res: PatrolInfoAPIResponse) {
+export async function deletePatrolController(_req: express.Request, res: PatrolInfoAPIResponse) {
     // Call the service to delete the patrol
     const result = await patrolDelete(res.locals.patrol.force, res.locals.patrol.id);
 
@@ -90,4 +105,12 @@ export async function deletePatrolController(req: express.Request, res: PatrolIn
     res.status(result.status).json({
         message: result.message
     });
+
+    // Broadcast to socket
+    if (result.result) {
+        res.locals.ws.emit(UPDATE_EVENTS.PATROL, {
+            type: "delete",
+            id: `${res.locals.patrol.force}${res.locals.patrol.id}`
+        });
+    }
 }

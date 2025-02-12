@@ -1,7 +1,7 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
 import {alterOfficer, deleteOfficer, hireOfficer, listOfficers, officerPatrol, restoreOfficer} from "../services";
-import {FORCE_HEADER} from "../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../utils/constants";
 import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
@@ -69,7 +69,7 @@ export async function addOfficerController(req: express.Request, res: OfficerInf
     );
 
     // Return the result
-    return res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message});
 }
 
 export async function restoreOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -77,7 +77,7 @@ export async function restoreOfficerController(req: express.Request, res: Office
     let result = await restoreOfficer(res.locals.targetOfficer!, req.header(FORCE_HEADER)!);
 
     // Return the result
-    return res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message});
 }
 
 export async function alterOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -89,13 +89,6 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
 
     // Return the result
     res.status(result.status).json({message: result.message});
-
-    // If the result was successful, broadcast a message to the socket
-    if (result.result) {
-        res.locals.ws.emit("officerinfo", {
-            nif: res.locals.targetOfficer!.nif
-        });
-    }
 }
 
 export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
@@ -105,7 +98,14 @@ export async function deleteOfficerController(req: express.Request, res: Officer
     let result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, res.locals.loggedOfficer, reason);
 
     // Return the result
-    return res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message});
+
+    // Broadcast to socket
+    if (result.result) {
+        res.locals.ws.in(req.header(FORCE_HEADER)!).emit(UPDATE_EVENTS.OFFICER, {
+            nif: res.locals.targetOfficer!.nif
+        });
+    }
 
 }
 

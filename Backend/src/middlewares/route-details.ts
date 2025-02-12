@@ -1,7 +1,8 @@
 import {Request, NextFunction} from "express";
 import {APIResponse} from "../types";
 import routes, {methodType} from "../api/routes";
-import { RequestError } from "@portalseguranca/api-types/index";
+import { RequestError } from "@portalseguranca/api-types";
+import {FORCE_HEADER} from "../utils/constants";
 
 function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFunction) {
     // Check if the requested route is present in the routes object
@@ -25,8 +26,20 @@ function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFun
         return res.status(405).json(<RequestError>{message: "Método não permitido"});
     }
 
-    // Since the method is present, store the values in locals and proceed to the next middleware
+    // Since the method is present, store the values in locals
     res.locals.routeDetails = route.methods[method];
+
+    // Check if there is a broadcast key in the route object
+    if (res.locals.routeDetails.broadcast) {
+        // If there is, create an event handler to broadcast the message to the clients when the response is sent
+        res.on("finish", () => {
+            if (res.locals.ws && req.header(FORCE_HEADER) && res.statusCode < 400) {
+                res.locals.ws.to(req.header(FORCE_HEADER)!).emit(res.locals.routeDetails.broadcast!.event, res.locals.routeDetails.broadcast!.body(req, res));
+            }
+        });
+    }
+
+
     next();
 }
 

@@ -1,7 +1,7 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
 import {getOfficerLastShift, updateOfficerLastShift} from "../services";
-import {FORCE_HEADER} from "../../../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../utils/constants";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {dateToString} from "../../../../../utils/date-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
@@ -36,4 +36,12 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, last_shift ? new Date(last_shift): null);
 
     res.status(result.status).json({message: result.message!});
+
+    // Broadcast to socket
+    if (result.result) {
+        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
+            nif: res.locals.targetOfficer!.nif,
+            type: "last_shift"
+        });
+    }
 }

@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../index";
+import {RequestSuccess, SocketResponse} from "../index";
 export interface MinifiedOfficerData {
     name: string,
     patent: number,
@@ -33,4 +33,24 @@ export interface OfficerInfoGetResponse extends RequestSuccess {
         force: string
     }
     data: OfficerData | MinifiedOfficerData
+}
+
+export interface OfficerAddSocket extends SocketResponse {
+    type: "addition"
+    nif: number
+}
+
+export interface OfficerUpdateSocket extends SocketResponse {
+    type: "update"
+    nif: number
+}
+
+export interface OfficerRestoreSocket extends SocketResponse {
+    type: "restore"
+    nif: number
+}
+
+export interface OfficerDeleteSocket extends SocketResponse {
+    type: "delete"
+    nif: number
 }

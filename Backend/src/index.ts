@@ -14,6 +14,7 @@ config({path: join(__dirname, "..", ".env")});
 // Load routes
 import endpoint from "./main";
 import {ExpressResponse} from "./types/response-types";
+import setupSocketEvents from "./utils/websocket-handler";
 
 // Create the app
 const app = express();
@@ -25,15 +26,16 @@ const httpServer = http.createServer(app);
 httpServer.setTimeout(30 * 1000);
 
 // Initialize the socket
-const ws = new Server(httpServer);
-
-ws.on("connection", (socket) => {
-    logToConsole(`Socket connected: ${socket.id}`, "info");
-
-    socket.on("disconnect", () => {
-        logToConsole(`Socket disconnected: ${socket.id}`, "info");
-    });
+const ws = new Server(httpServer, {
+    path: "/portugalia/portalseguranca/ws",
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+    }
 });
+
+// Configure the websocket
+setupSocketEvents(ws);
 
 // * Most basic Middleware
 // Cors

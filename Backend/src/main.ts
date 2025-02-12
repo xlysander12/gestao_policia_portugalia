@@ -69,7 +69,7 @@ app.use("/db", async (req, res, next) => {
 }, express.static(join(__dirname, "..", "..", "Database")), serveIndex(join(__dirname, "..", "..", "Database"), {icons: true, view: "details"}));
 
 // React Build
-app.get(/\/.*/, (req, res) => {
+app.get(/\/.*/, (_req, res) => {
     res.sendFile(join(__dirname, "..", "..", "Frontend", "dist", "index.html"));
 });
 

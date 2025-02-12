@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../../index";
+import {RequestSuccess, SocketResponse} from "../../index";
 
 export interface OfficerLastShiftResponse extends RequestSuccess {
     meta: {
@@ -7,6 +7,11 @@ export interface OfficerLastShiftResponse extends RequestSuccess {
     data: {
         last_shift: string
     }
+}
+
+export interface OfficerLastShiftSocket extends SocketResponse {
+    type: "last_shift"
+    nif: number
 }
 
 interface OfficerSpecificHoursType {
@@ -54,4 +59,38 @@ export type OfficerJustification = OfficerMinifiedJustification & {
 }
 export interface OfficerJustificationDetailsResponse extends RequestSuccess {
     data: OfficerJustification
+}
+
+export interface OfficerAddHoursSocket extends SocketResponse {
+    type: "add_hours"
+    nif: number
+}
+
+export interface OfficerDeleteHoursSocket extends SocketResponse {
+    type: "delete_hours"
+    nif: number
+    id: number
+}
+
+export interface OfficerAddJustificationSocket extends SocketResponse {
+    type: "add_justification"
+    nif: number
+}
+
+export interface OfficerManageJustificationSocket extends SocketResponse {
+    type: "manage_justification"
+    nif: number
+    id: number
+}
+
+export interface OfficerUpdateJustificationSocket extends SocketResponse {
+    type: "update_justification",
+    nif: number,
+    id: number
+}
+
+export interface OfficerDeleteJustificationSocket extends SocketResponse {
+    type: "delete_justification",
+    nif: number,
+    id: number
 }

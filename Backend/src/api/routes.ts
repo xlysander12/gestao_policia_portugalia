@@ -17,10 +17,15 @@ import {
     ManageOfficerJustificationBody,
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
-
+import {OfficerAddSocket, OfficerUpdateSocket, OfficerRestoreSocket, OfficerDeleteSocket} from "@portalseguranca/api-types/officers/output";
+import {OfficerLastShiftSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
+import express from "express";
+import {OfficerInfoAPIResponse} from "../types";
+import {UPDATE_EVENTS} from "../utils/constants";
+import {OfficerJustificationAPIResponse} from "../types/response-types";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -47,7 +52,11 @@ export type routeMethodType = {
     body?: {
         type: RuntypeBase
     }
-    notes?: string
+    notes?: string,
+    broadcast?: {
+        event: string,
+        body: (req: express.Request, res: any) => any
+    }
 }
 
 export type routeType = {
@@ -310,7 +319,16 @@ const officersRoutes: routesType = {
                 body: {
                     type: CreateOfficerRequestBody
                 },
-                notes: "add_officer"
+                notes: "add_officer",
+                broadcast: {
+                    event: UPDATE_EVENTS.OFFICER,
+                    body: (req: express.Request): OfficerAddSocket => {
+                        return {
+                            type: "addition",
+                            nif: parseInt(req.params.nif)
+                        }
+                    }
+                }
             },
 
             // Route to update an officer's information
@@ -320,6 +338,15 @@ const officersRoutes: routesType = {
                 intents: ["officers"],
                 body: {
                     type: UpdateOfficerRequestBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.OFFICER,
+                    body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
+                        return {
+                            type: "update",
+                            nif: res.locals.targetOfficer!.nif
+                        }
+                    }
                 }
             },
 
@@ -330,6 +357,15 @@ const officersRoutes: routesType = {
                 intents: ["officers"],
                 body: {
                     type: DeleteOfficerRequestBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.OFFICER,
+                    body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerDeleteSocket => {
+                        return {
+                            type: "delete",
+                            nif: res.locals.targetOfficer!.nif
+                        }
+                    }
                 }
             }
 
@@ -343,7 +379,16 @@ const officersRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 intents: ["officers"],
-                notes: "restore_officer"
+                notes: "restore_officer",
+                broadcast: {
+                    event: UPDATE_EVENTS.OFFICER,
+                    body: (req: express.Request): OfficerRestoreSocket => {
+                        return {
+                            type: "restore",
+                            nif: parseInt(req.params.nif)
+                        }
+                    }
+                }
             }
         }
     },
@@ -372,6 +417,15 @@ const activityRoutes: routesType = {
                 intents: ["activity"],
                 body: {
                     type: UpdateOfficerLastShiftBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerLastShiftSocket => {
+                        return {
+                            type: "last_shift",
+                            nif: res.locals.targetOfficer!.nif
+                        }
+                    }
                 }
             }
         }
@@ -402,6 +456,15 @@ const activityRoutes: routesType = {
                 intents: ["activity"],
                 body: {
                     type: AddOfficerHoursBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (_req, res: OfficerInfoAPIResponse): OfficerAddHoursSocket => {
+                        return {
+                            type: "add_hours",
+                            nif: res.locals.targetOfficer!.nif,
+                        }
+                    }
                 }
             }
         }
@@ -423,7 +486,17 @@ const activityRoutes: routesType = {
             DELETE: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["activity"]
+                intents: ["activity"],
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (req, res: OfficerInfoAPIResponse): OfficerDeleteHoursSocket => {
+                        return {
+                            type: "delete_hours",
+                            nif: res.locals.targetOfficer!.nif,
+                            id: parseInt(req.params.id)
+                        }
+                    }
+                }
             }
         }
     },
@@ -460,6 +533,15 @@ const activityRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: AddOfficerJustificationBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (_req, res: OfficerInfoAPIResponse): OfficerAddJustificationSocket => {
+                        return {
+                            type: "add_justification",
+                            nif: res.locals.targetOfficer!.nif
+                        }
+                    }
                 }
             }
         }
@@ -484,6 +566,16 @@ const activityRoutes: routesType = {
                 intents: ["activity"],
                 body: {
                     type: ManageOfficerJustificationBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (req, res: OfficerJustificationAPIResponse): OfficerManageJustificationSocket => {
+                        return {
+                            type: "manage_justification",
+                            nif: res.locals.targetOfficer!.nif,
+                            id: res.locals.justification.id
+                        }
+                    }
                 }
             },
             PATCH: {
@@ -491,11 +583,31 @@ const activityRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: ChangeOfficerJustificationBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (req, res: OfficerJustificationAPIResponse): OfficerUpdateJustificationSocket => {
+                        return {
+                            type: "update_justification",
+                            nif: res.locals.targetOfficer!.nif,
+                            id: res.locals.justification.id
+                        }
+                    }
                 }
             },
             DELETE: {
                 requiresToken: true,
-                requiresForce: true
+                requiresForce: true,
+                broadcast: {
+                    event: UPDATE_EVENTS.ACTIVITY,
+                    body: (req, res: OfficerJustificationAPIResponse): OfficerDeleteJustificationSocket => {
+                        return {
+                            type: "delete_justification",
+                            nif: res.locals.targetOfficer!.nif,
+                            id: res.locals.justification.id
+                        }
+                    }
+                }
             }
         }
     }
