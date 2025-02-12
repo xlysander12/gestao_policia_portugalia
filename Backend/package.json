@@ -37,7 +37,8 @@
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",
     "runtypes": "^6.7.0",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

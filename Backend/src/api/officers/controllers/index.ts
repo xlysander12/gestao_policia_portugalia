@@ -88,7 +88,14 @@ export async function alterOfficerController(req: express.Request, res: OfficerI
     let result = await alterOfficer(res.locals.targetOfficer!.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer!, changes, res.locals.loggedOfficer);
 
     // Return the result
-    return res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message});
+
+    // If the result was successful, broadcast a message to the socket
+    if (result.result) {
+        res.locals.ws.emit("officerinfo", {
+            nif: res.locals.targetOfficer!.nif
+        });
+    }
 }
 
 export async function deleteOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
