@@ -4,7 +4,10 @@ import {DefaultTextField} from "./index.ts";
 import {Moment} from "moment";
 import {DefaultPickersLayout} from "./DefaultDateCalendar.tsx";
 
-type DefaultDatePickerProps = DatePickerProps<Moment, any> & { textWhenDisabled?: boolean };
+type DefaultDatePickerProps = DatePickerProps<Moment, any> & {
+    textWhenDisabled?: boolean
+    clearable?: boolean
+};
 
 const DefaultDatePickerStyle = styled(DatePicker, {
     shouldForwardProp: (prop) => prop !== "textWhenDisabled"
@@ -28,6 +31,12 @@ const DefaultDatePicker = (props: DefaultDatePickerProps) => {
                 ...props.slots,
                 textField: DefaultTextField,
                 layout: DefaultPickersLayout
+            }}
+            slotProps={{
+                ...props.slotProps,
+                field: {
+                    clearable: props.clearable
+                }
             }}
         />
     );

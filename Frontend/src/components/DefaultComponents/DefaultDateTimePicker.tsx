@@ -4,7 +4,10 @@ import {styled} from "@mui/system";
 import {DefaultTextField} from "./index.ts";
 import {DefaultPickersLayout} from "./DefaultDateCalendar.tsx";
 
-type DefaultDateTimePickerProps = DateTimePickerProps<Moment, any> & { textWhenDisabled?: boolean };
+type DefaultDateTimePickerProps = DateTimePickerProps<Moment, any> & {
+    textWhenDisabled?: boolean
+    clearable?: boolean
+};
 
 const DefaultDateTimePickerStyle = styled(DateTimePicker, {
     shouldForwardProp: (prop) => prop !== "textWhenDisabled"
@@ -28,6 +31,12 @@ const DefaultDateTimePicker = (props: DefaultDateTimePickerProps) => {
               ...props.slots,
               textField: DefaultTextField,
               layout: DefaultPickersLayout
+          }}
+          slotProps={{
+              ...props.slotProps,
+              field: {
+                  clearable: props.clearable
+              }
           }}
       />
     );
