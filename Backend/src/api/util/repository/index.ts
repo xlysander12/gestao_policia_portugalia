@@ -134,7 +134,8 @@ export async function getForcePatrolTypes(force: string): Promise<PatrolTypeData
     for (const type of types) {
         typesList.push({
             id: type.id,
-            name: type.name
+            name: type.name,
+            isSpecial: Number(type.special) === 1
         })
     }
 

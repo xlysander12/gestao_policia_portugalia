@@ -40,6 +40,7 @@ export interface InactivityTypeData {
 export interface PatrolTypeData {
     id: number
     name: string
+    isSpecial: boolean
 }
 
 export interface UtilPatentsResponse extends RequestSuccess {
