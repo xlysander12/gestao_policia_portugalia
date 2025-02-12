@@ -10,6 +10,7 @@ import Gate from "../../components/Gate/gate.tsx";
 import {DefaultPagination} from "../../components/DefaultComponents";
 import PatrolCard from "./components/PatrolCard";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
+import PatrolCreator from "../../components/PatrolCreator";
 
 function Patrols() {
     const [loading, setLoadig] = useState<boolean>(true);
@@ -64,41 +65,37 @@ function Patrols() {
 
     return (
         <>
-            <ScreenSplit leftSideComponent={<></>} leftSidePercentage={30}>
-                <div
-                    style={{
-                        height: "100%",
-                        width: "100%"
-                    }}
-                >
-                    <ManagementBar>
-                        <div className={style.paginationDiv}>
-                            <DefaultPagination
-                                variant={"outlined"}
-                                size={"large"}
-                                showFirstButton
-                                count={totalPages}
-                                page={page}
-                                onChange={(_e, value) => setPage(value)}
-                            />
-                        </div>
-                    </ManagementBar>
-
-                    <div className={style.patrolsList}>
-                        <Gate show={loading}>
-                            <LoadingHalfScreen />
-                        </Gate>
-
-                        <Gate show={!loading}>
-                            {patrols.map((patrol) => (
-                                <PatrolCard
-                                    key={`patrol#${patrol.id}`}
-                                    patrolInfo={patrol}
-                                    callback={handleChangeViewedPatrol}
-                                />
-                            ))}
-                        </Gate>
+            <ScreenSplit
+                leftSideComponent={<PatrolCreator />}
+                leftSidePercentage={30}
+            >
+                <ManagementBar>
+                    <div className={style.paginationDiv}>
+                        <DefaultPagination
+                            variant={"outlined"}
+                            size={"large"}
+                            showFirstButton
+                            count={totalPages}
+                            page={page}
+                            onChange={(_e, value) => setPage(value)}
+                        />
                     </div>
+                </ManagementBar>
+
+                <div className={style.patrolsList}>
+                    <Gate show={loading}>
+                        <LoadingHalfScreen />
+                    </Gate>
+
+                    <Gate show={!loading}>
+                        {patrols.map((patrol) => (
+                            <PatrolCard
+                                key={`patrol#${patrol.id}`}
+                                patrolInfo={patrol}
+                                callback={handleChangeViewedPatrol}
+                            />
+                        ))}
+                    </Gate>
                 </div>
             </ScreenSplit>
 
