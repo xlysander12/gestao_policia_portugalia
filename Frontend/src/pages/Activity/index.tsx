@@ -1,6 +1,6 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import OfficerList from "../../components/OfficerList/officer-list.tsx";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useMemo, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import style from "./activity.module.css";
 import ManagementBar from "../../components/ManagementBar";
@@ -22,7 +22,8 @@ import {useParams} from "react-router-dom";
 import moment from "moment"
 import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
+import { SocketResponse } from "@portalseguranca/api-types";
 
 
 type ActivityHoursCardProps = {
@@ -71,7 +72,6 @@ type ActivityJustificationCardProps = {
     onClick: (id: number) => void
 }
 function ActivityJustificationCard({type, start, end, status, managed_by, timestamp, onClick}: ActivityJustificationCardProps) {
-
     // Get the force data from context
     const [forceData] = useForceData();
 
@@ -163,39 +163,121 @@ function Activity() {
     const [currentHourId, setCurrentHourId] = useState<number>(0);
     const [currentJustificationId, setCurrentJustificationId] = useState<number>(0);
 
-    // Everytime the currentOfficer changes, we will fetch the data from the API
-    useEffect(() => {
-        const execute = async () => {
-            // Set the loading state to true
+    // Memoized variable to store the view officer's data
+    const currentOfficerName = useMemo(async () => {
+        const officerDataResponse = await make_request(`/officers/${currentOfficer}`, "GET");
+        const officerDataResponseData = await officerDataResponse.json();
+        if (!officerDataResponse.ok) {
+            toast(officerDataResponseData.message, {type: "error"});
+        }
+
+        return {
+            patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents)!.name,
+            name: officerDataResponseData.data.name
+        }
+    }, [currentOfficer]);
+
+    // Function to fetch the Officer's hours registry
+    const fetchHours = async () => {
+        const response = await make_request(`/officers/${currentOfficer}/activity/hours`, "GET");
+        const responseJson: OfficerHoursResponse = await response.json();
+        if (!response.ok) { // Make sure the request was successful
+            toast(responseJson.message, {type: "error"});
+            return;
+        }
+
+        return responseJson.data;
+    }
+
+    // Function to fetch the Officer's Justifications
+    const fetchJustifications = async () => {
+        const response = await make_request(`/officers/${currentOfficer}/activity/justifications`, "GET");
+        const responseJson: OfficerJustificationsHistoryResponse = await response.json();
+        if (!response.ok) { // Make sure the request was successful
+            toast(responseJson.message, {type: "error"});
+            return;
+        }
+
+        return responseJson.data;
+    }
+
+    // Function to sort the history
+    const sortHistory = (history: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[]) => {
+        // * If it's a justification with no end date, it will be placed at the start
+        return history.sort((a, b) => {
+            if ("end" in a && "end" in b) { // * Both entries are justifications
+                if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
+                    return Date.parse(b.start) - Date.parse(a.start);
+                } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
+                    return -1;
+                } else if (a.end !== null && b.end === null) { // If A has an end date and B doesn't, B must go last
+                    return 1;
+                } else { // If both have an end date, sort by end date
+                    return Date.parse(b.end!) - Date.parse(a.end!);
+                }
+            }
+
+            if ("end" in a && !("end" in b)) { // * A is a justification and B is an hours entry
+                if (a.end === null) { // If A doesn't have an end date, it must go last
+                    return -1;
+                } else { // A has an end date, compare it with the week_end of B
+                    return Date.parse(b.week_end) - Date.parse(a.end!);
+                }
+            }
+
+            if (!("end" in a) && "end" in b) { // * A is an hours entry and B is a justification
+                if (b.end === null) { // If B doesn't have an end date, it must go last
+                    return 1;
+                } else { // B has an end date, compare it with the week_end of A
+                    return Date.parse(b.end!) - Date.parse(a.week_end);
+                }
+            }
+
+            // * The remaining case is, both entries are hours entries.
+            // In that case, compare the week_end of both entries
+            return Date.parse((b as OfficerSpecificHoursType).week_end) - Date.parse((a as OfficerSpecificHoursType).week_end);
+        });
+    }
+
+    // Function to fetch the officer's activity
+    const fetchActivity = async (showLoading: boolean = true, fetchHoursRegistry: boolean = true, fetchJustificationsHistory: boolean = true) => {
+        // Set the loading state to true
+        if (showLoading) {
             setLoading(true);
+        }
 
-            // Create a variable to store the officer's data
-            const officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = [];
+        // Create a variable to store the officer's data
+        let officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = officerHistory;
 
-            // * Fetch the officer's hours
-            const hoursResponse = await make_request(`/officers/${currentOfficer}/activity/hours`, "GET");
-            const hoursResponseData: OfficerHoursResponse = await hoursResponse.json();
-            if (!hoursResponse.ok) { // Make sure the request was successful
-                toast(hoursResponseData.message, {type: "error"});
+        // * If one type of activity is being fetched, we must clear the officer's data relative to that type
+        // If we're fetching the hours registry, we must clear all existing hours registry
+        if (fetchHoursRegistry) {
+            officerData = officerData.filter(entry => !("minutes" in entry));
+        }
+
+        // If we're fetching the justifications, we must clear all existing justifications
+        if (fetchJustificationsHistory) {
+            officerData = officerData.filter(entry => "minutes" in entry);
+        }
+
+        // * Fetch the officer's hours
+        if (fetchHoursRegistry) {
+            officerData.push(...(await fetchHours()) as OfficerSpecificHoursType[]);
+        }
+
+        // * Fetch the officer's justifications
+        if (fetchJustificationsHistory) {
+            const justifications = await fetchJustifications();
+            if (!justifications) {
                 return;
             }
 
-            officerData.push(...hoursResponseData.data);
-
-            // * Fetch the officer's justifications
-            const justificationsResponse = await make_request(`/officers/${currentOfficer}/activity/justifications`, "GET");
-            const justificationsResponseData: OfficerJustificationsHistoryResponse = await justificationsResponse.json();
-            if (!justificationsResponse.ok) { // Make sure the request was successful
-                toast(justificationsResponseData.message, {type: "error"});
-                return;
-            }
-
-            // Make a secondary array with the justifications to change the managed_by value
+            // * Make a secondary array with the justifications to change the managed_by value
             const justificationsManagedBy: (Omit<OfficerMinifiedJustification, "managed_by"> & {managed_by: string})[] = [];
 
             // ? This thing might be a huge performance hit.
             // ? If the officer has a lot of justifications, this will make a lot of requests and the whole page won't load until all of them are done
-            for (const justification of justificationsResponseData.data) {
+            for (const justification of justifications) {
                 if (justification.status === "pending") {
                     justificationsManagedBy.push({
                         ...justification,
@@ -212,64 +294,38 @@ function Activity() {
             }
 
             officerData.push(...justificationsManagedBy);
-
-            // * Update the state with the officer's data
-            setOfficerHistory(officerData);
-
-            // Sort all entries by end date from the most recent to the most old
-            // If it's a justification with no end date, it will be placed at the start
-            officerData.sort((a, b) => {
-                if ("end" in a && "end" in b) { // * Both entries are justifications
-                    if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
-                        return Date.parse(b.start) - Date.parse(a.start);
-                    } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
-                        return -1;
-                    } else if (a.end !== null && b.end === null) { // If A has an end date and B doesn't, B must go last
-                        return 1;
-                    } else { // If both have an end date, sort by end date
-                        return Date.parse(b.end!) - Date.parse(a.end!);
-                    }
-                }
-
-                if ("end" in a && !("end" in b)) { // * A is a justification and B is an hours entry
-                    if (a.end === null) { // If A doesn't have an end date, it must go last
-                        return -1;
-                    } else { // A has an end date, compare it with the week_end of B
-                        return Date.parse(b.week_end) - Date.parse(a.end!);
-                    }
-                }
-
-                if (!("end" in a) && "end" in b) { // * A is an hours entry and B is a justification
-                    if (b.end === null) { // If B doesn't have an end date, it must go last
-                        return 1;
-                    } else { // B has an end date, compare it with the week_end of A
-                        return Date.parse(b.end!) - Date.parse(a.week_end);
-                    }
-                }
-
-                // * The remaining case is, both entries are hours entries.
-                // In that case, compare the week_end of both entries
-                return Date.parse((b as OfficerSpecificHoursType).week_end) - Date.parse((a as OfficerSpecificHoursType).week_end);
-            });
-
-            // Fetch the officer's patent and name
-            const officerDataResponse = await make_request(`/officers/${currentOfficer}`, "GET");
-            const officerDataResponseData = await officerDataResponse.json();
-            if (!officerDataResponse.ok) {
-                toast(officerDataResponseData.message, {type: "error"});
-            }
-
-            setCurrentOfficerPatentAndName({
-                patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents)!.name,
-                name: officerDataResponseData.data.name
-            });
-
-            // Set the loading state to false
-            setLoading(false);
         }
 
-        execute();
+        // Sort all entries
+        officerData = sortHistory(officerData);
+
+        // * Update the state with the officer's data
+        setOfficerHistory(officerData);
+
+        // Fetch the officer's patent and name
+        setCurrentOfficerPatentAndName(await currentOfficerName);
+
+        // Set the loading state to false
+        if (showLoading) {
+            setLoading(false);
+        }
+    }
+
+    // Everytime the currentOfficer changes, we will fetch the data from the API
+    useEffect(() => {
+        fetchActivity();
     }, [currentOfficer]);
+
+    // Handle socket updates
+    useWebSocketEvent("activity", async (data: SocketResponse) => {
+        if (data.type.includes("hours")) {
+            return await fetchActivity(false, true, false);
+        }
+
+        if (data.type.includes("justification")) {
+            return await fetchActivity(false, false, true);
+        }
+    });
 
     return (
         <>

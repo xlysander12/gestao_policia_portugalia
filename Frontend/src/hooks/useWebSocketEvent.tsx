@@ -12,14 +12,11 @@ function useWebSocketEvent<DataType>(event_name: string, callback: (data: DataTy
         // If the socket doesn't exist, return
         if (!socket || !socket.connected) return;
 
-        console.log("Adding event listener for", event_name);
-
         // Apply the callback to the event
         socket.on(event_name, stableCallback);
 
         return () => {
             if (socket) {
-                console.log("Removing event listener for", event_name);
                 socket.off(event_name, stableCallback);
             }
         }
