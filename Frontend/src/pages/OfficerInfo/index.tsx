@@ -18,15 +18,20 @@ import {
     DefaultSelect,
     DefaultTextField
 } from "../../components/DefaultComponents";
-import {OfficerData, OfficerInfoGetResponse, OfficerUnit} from "@portalseguranca/api-types/officers/output";
+import {
+    OfficerData, OfficerDeleteSocket,
+    OfficerInfoGetResponse,
+    OfficerUnit,
+    OfficerUpdateSocket
+} from "@portalseguranca/api-types/officers/output";
 import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
 import SpecialUnitsTable from "./SpecialUnitsTable.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./ActivityPanel.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
-import { RequestError } from "@portalseguranca/api-types/index.ts";
-import {useForceData} from "../../hooks";
+import {RequestError, SocketResponse} from "@portalseguranca/api-types/index.ts";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 
 
@@ -169,12 +174,51 @@ function OfficerInfo() {
     const [isRecruitModalOpen, setRecruitModalOpen] = useState<boolean>(false);
     const [isFireModalOpen, setFireModalOpen] = useState<boolean>(false);
 
+    // Handle updates from socket
+    useWebSocketEvent<SocketResponse>("officers", async (data) => {
+        // If this is a new officer being added or restored, no need to do anything
+        if (data.type === "addtion" || data.type === "restore") return;
+
+        // If it is an officer being updated, update the type
+        if (data.type === "update") {
+            const typedData: OfficerUpdateSocket = data as OfficerUpdateSocket;
+
+            // Check if the nif is the same as the officer being viewed
+            if (typedData.nif !== officerNif) return;
+
+            // If the officer is being edited, don't update
+            if (editMode) return;
+
+            // Fetch the officer's info again
+            await fetchOfficerInfo(false);
+
+            return;
+        }
+
+        // If it is an officer being deleted, update the type
+        if (data.type === "delete") {
+            const typedData = data as OfficerDeleteSocket;
+
+            // Check if the nif is the same as the officer being viewed
+            if (typedData.nif !== officerNif) return;
+
+            // Show a toast, warning the the current officer has been fired
+            toast.warning("O efetivo que estava a visualizar foi despedido.");
+
+            // Set the officer's nif to the logged user's nif
+            setOfficerNif(loggedUser.info.personal.nif);
+        }
+
+    })
+
     // Variable that dictates whether the logged user can edit the current officer.
     const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
 
-    async function fetchOfficerInfo() {
+    async function fetchOfficerInfo(showloading: boolean = true) {
         // First, we need to set the loading state to true
-        setLoading(true);
+        if (showloading) {
+            setLoading(true);
+        }
 
         // Then, disable edit mode
         setEditMode(false);
@@ -218,7 +262,9 @@ function OfficerInfo() {
         });
 
         // After fetching the data, we can set the loading state to false
-        setLoading(false);
+        if (showloading) {
+            setLoading(false);
+        }
     }
 
     async function updateOfficerInfo(event: FormEvent) {

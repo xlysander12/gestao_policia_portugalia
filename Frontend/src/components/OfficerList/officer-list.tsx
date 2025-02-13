@@ -6,7 +6,7 @@ import {DefaultButton, DefaultOutlinedTextField} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
 import {getObjectFromId} from "../../forces-data-context.ts";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 
 type OfficerCardProps = {
     name: string,
@@ -62,10 +62,17 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
     const [searchString, setSearchString] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // WebSocket connection
+    useWebSocketEvent("officers", () => {
+        search(searchString, false);
+    });
+
     // Function to fetch the backend and get the officers depending on the search query
-    const search = async (query?: string) => {
+    const search = async (query?: string, showLoading: boolean = true) => {
         // Set the loading state to true
-        setLoading(true);
+        if (showLoading) {
+            setLoading(true);
+        }
 
         // Send the request to the API to get the results from the search
         const response = await make_request(`/officers${query ? `?search=${query}`: ""}`, "GET");
@@ -84,7 +91,9 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         setOfficers(responseJSON.data);
 
         // Set the loading state to false
-        setLoading(false);
+        if (showLoading) {
+            setLoading(false);
+        }
     }
 
     // On component mount, do an initial search with an empty string

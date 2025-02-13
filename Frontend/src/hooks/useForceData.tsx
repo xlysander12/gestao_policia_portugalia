@@ -3,7 +3,7 @@ import {ForceData, ForcesDataContext} from "../forces-data-context.ts";
 
 type ForceDataGetter = (forceName: string) => ForceData;
 
-export function useForceData(): [ForceData, ForceDataGetter] {
+function useForceData(): [ForceData, ForceDataGetter] {
     // Get the forces' data from context
     const forcesData = useContext(ForcesDataContext);
 

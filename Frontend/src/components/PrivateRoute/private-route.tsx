@@ -12,6 +12,8 @@ import Loader from "../Loader/loader.tsx";
 import {toast} from "react-toastify";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import style from "./private-route.module.css";
+import {io, Socket} from "socket.io-client";
+import {WebsocketContext} from "./websocket-context.ts";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -23,6 +25,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     // Initialize state
     const [authorized, setAuthorized] = useState<boolean>(false);
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
+    const [socket, setSocket] = useState<Socket | null>(null);
 
     // Initialize navigate hook
     const navigate = useNavigate();
@@ -107,6 +110,30 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     }, [isLoginPage, element]);
 
+    // Create the websocket connection when not in the login page
+    useEffect(() => {
+        let newSocket: Socket | null = null;
+
+        if (!isLoginPage) {
+            newSocket = io({
+                path: "/portugalia/portalseguranca/ws",
+                transports: ["websocket"],
+                auth: {
+                    force: localStorage.getItem("force")
+                },
+                withCredentials: true
+            });
+
+            setSocket(newSocket);
+        }
+
+        return () => {
+            if (newSocket && newSocket.connected) {
+                newSocket.disconnect();
+            }
+        }
+    }, [isLoginPage]);
+
     if (!authorized && !isLoginPage) {
         return (
             <Loader fullPage/>
@@ -114,12 +141,14 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     }
 
     return (
-        <LoggedUserContext.Provider value={loggedUser}>
+        <WebsocketContext.Provider value={socket}>
+            <LoggedUserContext.Provider value={loggedUser}>
                 <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
                 <div className={style.contentDiv}>
                     {element}
                 </div>
-        </LoggedUserContext.Provider>
+            </LoggedUserContext.Provider>
+        </WebsocketContext.Provider>
     );
 }
 

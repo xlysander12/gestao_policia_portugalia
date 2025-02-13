@@ -26,6 +26,7 @@
     "react-router-dom": "^6.25.1",
     "react-toastify": "^10.0.5",
     "reactjs-popup": "^2.0.6",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.12",
     "use-immer": "^0.10.0",
     "vite-bundle-analyzer": "^0.16.3",
