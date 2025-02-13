@@ -48,7 +48,7 @@ function OfficerCard({name, nif, status, callback, disabled}: OfficerCardProps):
 
 
 type OfficerListProps = {
-    callbackFunction: (nif: number) => void,
+    callbackFunction: (officer: MinifiedOfficerData) => void,
     disabled?: boolean
 
 }
@@ -111,7 +111,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
 
     // When an officer is selected, call the callback function with the NIF
     const handleClick = (nif: number) => {
-        callbackFunction(nif);
+        callbackFunction(officers.find((officer) => officer.nif === nif)!);
     }
 
     // Build the officers' cards

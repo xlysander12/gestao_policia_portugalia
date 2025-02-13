@@ -24,6 +24,7 @@ import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import { SocketResponse } from "@portalseguranca/api-types";
+import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 
 
 type ActivityHoursCardProps = {
@@ -145,10 +146,13 @@ function Activity() {
     const [loading, setLoading] = useState<boolean>(true);
 
     // Set the state for the current viewing officer
-    const [currentOfficer, setCurrentOfficer] = useState<number>(nif ? Number.parseInt(nif) : loggedUser.info.personal.nif);
-
-    // Set the state for the current viewing officer's patent and name
-    const [currentOfficerPatentAndName, setCurrentOfficerPatentAndName] = useState<{ patent: string, name: string }>();
+    const [currentOfficer, setCurrentOfficer] = useState<MinifiedOfficerData>({
+        name: loggedUser.info.personal.name,
+        patent: loggedUser.info.professional.patent,
+        callsign: loggedUser.info.professional.callsign,
+        status: loggedUser.info.professional.status,
+        nif: loggedUser.info.personal.nif
+    });
 
     // Set the states with the history of the officer
     const [officerHistory, setOfficerHistory] = useState<(OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[]>([]);
@@ -163,23 +167,9 @@ function Activity() {
     const [currentHourId, setCurrentHourId] = useState<number>(0);
     const [currentJustificationId, setCurrentJustificationId] = useState<number>(0);
 
-    // Memoized variable to store the view officer's data
-    const currentOfficerName = useMemo(async () => {
-        const officerDataResponse = await make_request(`/officers/${currentOfficer}`, "GET");
-        const officerDataResponseData = await officerDataResponse.json();
-        if (!officerDataResponse.ok) {
-            toast(officerDataResponseData.message, {type: "error"});
-        }
-
-        return {
-            patent: getObjectFromId(officerDataResponseData.data.patent, forceData.patents)!.name,
-            name: officerDataResponseData.data.name
-        }
-    }, [currentOfficer]);
-
     // Function to fetch the Officer's hours registry
     const fetchHours = async () => {
-        const response = await make_request(`/officers/${currentOfficer}/activity/hours`, "GET");
+        const response = await make_request(`/officers/${currentOfficer.nif}/activity/hours`, "GET");
         const responseJson: OfficerHoursResponse = await response.json();
         if (!response.ok) { // Make sure the request was successful
             toast(responseJson.message, {type: "error"});
@@ -191,7 +181,7 @@ function Activity() {
 
     // Function to fetch the Officer's Justifications
     const fetchJustifications = async () => {
-        const response = await make_request(`/officers/${currentOfficer}/activity/justifications`, "GET");
+        const response = await make_request(`/officers/${currentOfficer.nif}/activity/justifications`, "GET");
         const responseJson: OfficerJustificationsHistoryResponse = await response.json();
         if (!response.ok) { // Make sure the request was successful
             toast(responseJson.message, {type: "error"});
@@ -302,9 +292,6 @@ function Activity() {
         // * Update the state with the officer's data
         setOfficerHistory(officerData);
 
-        // Fetch the officer's patent and name
-        setCurrentOfficerPatentAndName(await currentOfficerName);
-
         // Set the loading state to false
         if (showLoading) {
             setLoading(false);
@@ -314,7 +301,7 @@ function Activity() {
     // Everytime the currentOfficer changes, we will fetch the data from the API
     useEffect(() => {
         fetchActivity();
-    }, [currentOfficer]);
+    }, [currentOfficer.nif]);
 
     // Handle socket updates
     useWebSocketEvent("activity", async (data: SocketResponse) => {
@@ -349,13 +336,7 @@ function Activity() {
                         <div className={style.managementBarMainDiv}>
                             <div className={style.managementBarLeftDiv}>
                                 <div className={style.managementBarCurrentEditingDiv}>
-                                    <Gate show={loading}>
-                                        <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
-                                    </Gate>
-
-                                    <Gate show={!loading}>
-                                        <Typography color={"white"} fontSize={"larger"}>{currentOfficerPatentAndName?.patent} {currentOfficerPatentAndName?.name}</Typography>
-                                    </Gate>
+                                    <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
                                 </div>
                             </div>
 
@@ -370,7 +351,7 @@ function Activity() {
                                 </Gate>
 
                                 {/*The option to add a justification entry must only be present if the logged user is the same as the current officer or the logged officer has the activity intent*/}
-                                <Gate show={loggedUser.info.personal.nif === currentOfficer || loggedUser.intents["activity"]}>
+                                <Gate show={loggedUser.info.personal.nif === currentOfficer.nif || loggedUser.intents["activity"]}>
                                     <DefaultButton
                                         onClick={() => setNewJustificationModalOpen(true)}
                                     >
@@ -439,7 +420,7 @@ function Activity() {
                     setJustificationModalOpen(false);
                     setNewJustificationModalOpen(false);
                 }}
-                officerNif={currentOfficer}
+                officerNif={currentOfficer.nif}
                 justificationId={currentJustificationId}
                 newEntry={newJustificationModalOpen}
             />
@@ -450,7 +431,7 @@ function Activity() {
                     setHoursModalOpen(false);
                     setNewHoursModalOpen(false);
                 }}
-                officer={currentOfficer}
+                officer={currentOfficer.nif}
                 entryId={currentHourId}
                 newEntry={newHoursModalOpen}
             />

@@ -19,6 +19,7 @@ import {
     DefaultTextField
 } from "../../components/DefaultComponents";
 import {
+    MinifiedOfficerData,
     OfficerData, OfficerDeleteSocket,
     OfficerInfoGetResponse,
     OfficerUnit,
@@ -313,12 +314,12 @@ function OfficerInfo() {
     // Whenever the nif in state changes, we need to fetch the officer's info
     useEffect(() => {fetchOfficerInfo()}, [officerNif]);
 
-    function officerListCallback(nif: number) {
+    function officerListCallback(officer: MinifiedOfficerData) {
         // Make sure we don't change officer's while editing
         setEditMode(false);
 
         // Change the nif in state so useEffect can handle the info fetching
-        setOfficerNif(nif);
+        setOfficerNif(officer.nif);
     }
 
     function handleSpecialUnitEdit(specialUnit: OfficerUnit) {
