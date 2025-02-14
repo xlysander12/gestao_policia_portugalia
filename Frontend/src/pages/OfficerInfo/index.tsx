@@ -355,272 +355,270 @@ function OfficerInfo() {
                 leftSidePercentage={30}
                 leftSideComponent={<OfficerList callbackFunction={officerListCallback} disabled={loading}/>}
             >
-                {/*Div where content's will be*/}
-                <div className={style.officerInfoInnerDiv}>
-                    {/*Div that holds the buttons to alter the officer's info*/}
-                    <ManagementBar>
-                        {/*Buttons that lie on the left side of the bar*/}
-                        <div className={style.officerInfoAlterbarLeft}>
-                            <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent > officerInfo.professional.patent}>
-                                <DefaultButton
-                                    onClick={() => setAccountModalOpen(true)}
-                                >
-                                    Gerir Conta
-                                </DefaultButton>
-                            </Gate>
+                {/*Div that holds the buttons to alter the officer's info*/}
+                <ManagementBar>
+                    {/*Buttons that lie on the left side of the bar*/}
+                    <div className={style.officerInfoAlterbarLeft}>
+                        <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent > officerInfo.professional.patent}>
                             <DefaultButton
-                                hidden={editMode || !loggedUser.intents.officers}
+                                onClick={() => setAccountModalOpen(true)}
                             >
-                                Importar do HUB
+                                Gerir Conta
                             </DefaultButton>
-                        </div>
+                        </Gate>
+                        <DefaultButton
+                            hidden={editMode || !loggedUser.intents.officers}
+                        >
+                            Importar do HUB
+                        </DefaultButton>
+                    </div>
 
-                        {/*Buttons that lie on the right side of the bar*/}
-                        <div className={style.officerInfoAlterbarRight}>
-                            <Gate show={editMode}>
-                                <DefaultButton
-                                    type={"submit"}
-                                    form={"information-form"}
-                                    sx={{flex: 1}}
-                                >
-                                    Guardar
-                                </DefaultButton>
-                            </Gate>
-
-                            <Gate show={!editMode && loggedUser.intents.officers}>
-                                <DefaultButton
-                                    darkTextOnHover
-                                    buttonColor={"lightgreen"}
-                                    sx={{flex: 1}}
-                                    onClick={() => setRecruitModalOpen(true)}
-                                >
-                                    Contratar
-                                </DefaultButton>
-                            </Gate>
-
-                            <Gate show={!editMode && canEdit}>
-                                <DefaultButton
-                                    buttonColor={"cyan"}
-                                    darkTextOnHover
-                                    sx={{flex: 1}}
-                                    onClick={() => setEditMode(true)}
-                                >
-                                    Editar
-                                </DefaultButton>
-                            </Gate>
-
-                            <Gate show={!editMode && canEdit}>
-                                <DefaultButton
-                                    buttonColor={"red"}
-                                    sx={{flex: 1}}
-                                    onClick={() => setFireModalOpen(true)}
-                                >
-                                    Despedir
-                                </DefaultButton>
-                            </Gate>
-                        </div>
-                    </ManagementBar>
-                    
-                    <form id={"information-form"} onSubmit={updateOfficerInfo}>
-                        {/*Loader Div*/}
-                        <Gate show={loading}>
-                            <div className={style.officerInfoDetailsDiv} style={{
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                <Loader/>
-                            </div>
+                    {/*Buttons that lie on the right side of the bar*/}
+                    <div className={style.officerInfoAlterbarRight}>
+                        <Gate show={editMode}>
+                            <DefaultButton
+                                type={"submit"}
+                                form={"information-form"}
+                                sx={{flex: 1}}
+                            >
+                                Guardar
+                            </DefaultButton>
                         </Gate>
 
-                        {/*Information div*/}
-                        <div className={style.officerInfoDetailsDiv} style={loading ? {display: "none"} : {}}>
-                            <fieldset>
-                                <legend>Informação Pessoal</legend>
+                        <Gate show={!editMode && loggedUser.intents.officers}>
+                            <DefaultButton
+                                darkTextOnHover
+                                buttonColor={"lightgreen"}
+                                sx={{flex: 1}}
+                                onClick={() => setRecruitModalOpen(true)}
+                            >
+                                Contratar
+                            </DefaultButton>
+                        </Gate>
 
-                                <div className={style.officerInfoInnerFieldsetDiv}>
-                                    {/*Name pair*/}
-                                    {/*Pattern Unit tests: https://regex101.com/r/pdl46q/1*/}
-                                    <InformationPair
-                                        label={"Nome:"}
-                                        value={officerInfo.personal.name}
-                                        pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.name = event.target.value
-                                        })}
-                                    />
-                                    <Divider flexItem/>
+                        <Gate show={!editMode && canEdit}>
+                            <DefaultButton
+                                buttonColor={"cyan"}
+                                darkTextOnHover
+                                sx={{flex: 1}}
+                                onClick={() => setEditMode(true)}
+                            >
+                                Editar
+                            </DefaultButton>
+                        </Gate>
 
-                                    {/*NIF pair*/}
-                                    <InformationPair
-                                        label={"NIF:"}
-                                        value={officerNif}
-                                        editMode={false}
-                                    />
-                                    <Divider flexItem/>
+                        <Gate show={!editMode && canEdit}>
+                            <DefaultButton
+                                buttonColor={"red"}
+                                sx={{flex: 1}}
+                                onClick={() => setFireModalOpen(true)}
+                            >
+                                Despedir
+                            </DefaultButton>
+                        </Gate>
+                    </div>
+                </ManagementBar>
 
-                                    {/*Cellphone pair*/}
-                                    <InformationPair
-                                        label={"Telemóvel:"}
-                                        value={officerInfo.personal.phone}
-                                        pattern={/^[0-9]{9}$/}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.phone = Number(event.target.value)
-                                        })}
-                                    />
-                                    <Divider flexItem/>
-
-                                    {/*IBAN pair*/}
-                                    <InformationPair
-                                        label={"IBAN:"}
-                                        value={officerInfo.personal.iban}
-                                        pattern={/^PT[0-9]{5,8}$/}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.iban = event.target.value
-                                        })}
-                                    />
-                                    <Divider flexItem/>
-
-                                    {/*KMs pair*/}
-                                    <InformationPair
-                                        label={"KMs:"}
-                                        value={officerInfo.personal.kms}
-                                        editMode={editMode}
-                                        type={"number"}
-                                        step={100}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.kms = Number(event.target.value)
-                                        })}
-                                    />
-                                    <Divider flexItem/>
-
-                                    {/*Discord pair*/}
-                                    <InformationPair
-                                        label={"Discord:"}
-                                        value={officerInfo.personal.discord}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.discord = Number(event.target.value)
-                                        })}
-                                    />
-                                    <Divider flexItem/>
-
-                                    {/*Steam pair*/}
-                                    {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
-                                    <InformationPair
-                                        label={"Steam:"}
-                                        value={officerInfo.personal.steam}
-                                        pattern={/(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)/}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.personal.steam = event.target.value
-                                        })}
-                                    />
-                                </div>
-                            </fieldset>
-
-                            <fieldset>
-                                <legend>Informação Profissional</legend>
-
-                                <div className={style.officerInfoInnerFieldsetDiv}>
-                                    {/*Patente pair*/}
-                                    <InformationPair
-                                        label={"Patente:"}
-                                        value={officerInfo.professional.patent}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                           draft.professional.patent = Number(event.target.value)
-                                        })}
-                                        isSelect
-                                    >
-                                        {forceData.patents.map((patent) => {
-                                            return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
-                                        })}
-                                    </InformationPair>
-                                    <Divider/>
-
-                                    {/*CallSign pair*/}
-                                    <InformationPair
-                                        label={"CallSign:"}
-                                        value={officerInfo.professional.callsign}
-                                        pattern={/^[A-Z]+-([0-9]){2}$/}
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.professional.callsign = event.target.value
-                                        })}
-                                    />
-                                    <Divider/>
-
-                                    {/*Status pair*/}
-                                    <InformationPair
-                                        label={"Status:"}
-                                        value={officerInfo.professional.status}
-                                        isSelect
-                                        editMode={editMode}
-                                        onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                            draft.professional.status = Number(event.target.value)
-                                        })}
-                                    >
-                                        {forceData.statuses.map((status: {id: number, name: string}) => {
-                                            return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
-                                        })}
-                                    </InformationPair>
-                                    <Divider/>
-
-                                    {/*Data de Entrada pair*/}
-                                    <InformationPair
-                                        label={"Data de Entrada:"}
-                                        value={officerInfo.professional.entry_date}
-                                        type={"date"}
-                                        editMode={editMode}
-                                        onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
-                                            draft.professional.entry_date = date.toISOString().split("T")[0]
-                                        })}
-                                    />
-                                    <Divider/>
-
-                                    {/*Data de Subida pair*/}
-                                    <InformationPair
-                                        label={"Data de Subida:"}
-                                        value={officerInfo.professional.promotion_date || ""}
-                                        type={"date"}
-                                        editMode={false}
-                                    />
-
-                                    {/*Unidades Especiais*/}
-                                    <Gate show={editMode || officerInfo.professional.special_units.length !== 0}>
-                                        <Divider/>
-
-                                        <div className={style.informationPairDiv}>
-                                            <label>Unidades Especiais:</label>
-                                            <SpecialUnitsTable
-                                                editMode={editMode}
-                                                officerSpecialUnits={officerInfo.professional.special_units}
-                                                onChange={handleSpecialUnitEdit}
-                                                onRemove={handleSpecialUnitRemove}
-                                                onAdd={handleSpecialUnitAdd}
-                                            />
-                                        </div>
-                                    </Gate>
-                                </div>
-                            </fieldset>
-
-                            <ActivityPanel nif={officerNif}/>
-
-                            <fieldset>
-                            <legend>Punições</legend>
-                                <div style={{filter: "blur(5px)"}}>
-                                    <p>Punição Ativa: <span></span>
-                                    </p>
-                                    <p>Histórico: <span></span>
-                                    </p>
-                                </div>
-                            </fieldset>
+                <form id={"information-form"} onSubmit={updateOfficerInfo} className={style.officerInfoDetailsDiv}>
+                    {/*Loader Div*/}
+                    <Gate show={loading}>
+                        <div style={{
+                            display: "flex",
+                            height: "100%",
+                            width: "100%",
+                            justifyContent: "center",
+                            alignItems: "center"
+                        }}>
+                            <Loader/>
                         </div>
-                    </form>
-                </div>
+                    </Gate>
+
+                    {/*Informations*/}
+                    <fieldset>
+                        <legend>Informação Pessoal</legend>
+
+                        <div className={style.officerInfoInnerFieldsetDiv}>
+                            {/*Name pair*/}
+                            {/*Pattern Unit tests: https://regex101.com/r/pdl46q/1*/}
+                            <InformationPair
+                                label={"Nome:"}
+                                value={officerInfo.personal.name}
+                                pattern={/^([a-zA-Z ]|[à-ü ]|[À-Ü ])+$/}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.name = event.target.value
+                                })}
+                            />
+                            <Divider flexItem/>
+
+                            {/*NIF pair*/}
+                            <InformationPair
+                                label={"NIF:"}
+                                value={officerNif}
+                                editMode={false}
+                            />
+                            <Divider flexItem/>
+
+                            {/*Cellphone pair*/}
+                            <InformationPair
+                                label={"Telemóvel:"}
+                                value={officerInfo.personal.phone}
+                                pattern={/^[0-9]{9}$/}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.phone = Number(event.target.value)
+                                })}
+                            />
+                            <Divider flexItem/>
+
+                            {/*IBAN pair*/}
+                            <InformationPair
+                                label={"IBAN:"}
+                                value={officerInfo.personal.iban}
+                                pattern={/^PT[0-9]{5,8}$/}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.iban = event.target.value
+                                })}
+                            />
+                            <Divider flexItem/>
+
+                            {/*KMs pair*/}
+                            <InformationPair
+                                label={"KMs:"}
+                                value={officerInfo.personal.kms}
+                                editMode={editMode}
+                                type={"number"}
+                                step={100}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.kms = Number(event.target.value)
+                                })}
+                            />
+                            <Divider flexItem/>
+
+                            {/*Discord pair*/}
+                            <InformationPair
+                                label={"Discord:"}
+                                value={officerInfo.personal.discord}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.discord = Number(event.target.value)
+                                })}
+                            />
+                            <Divider flexItem/>
+
+                            {/*Steam pair*/}
+                            {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
+                            <InformationPair
+                                label={"Steam:"}
+                                value={officerInfo.personal.steam}
+                                pattern={/(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)/}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.personal.steam = event.target.value
+                                })}
+                            />
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Informação Profissional</legend>
+
+                        <div className={style.officerInfoInnerFieldsetDiv}>
+                            {/*Patente pair*/}
+                            <InformationPair
+                                label={"Patente:"}
+                                value={officerInfo.professional.patent}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                   draft.professional.patent = Number(event.target.value)
+                                })}
+                                isSelect
+                            >
+                                {forceData.patents.map((patent) => {
+                                    return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
+                                })}
+                            </InformationPair>
+                            <Divider/>
+
+                            {/*CallSign pair*/}
+                            <InformationPair
+                                label={"CallSign:"}
+                                value={officerInfo.professional.callsign}
+                                pattern={/^[A-Z]+-([0-9]){2}$/}
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.professional.callsign = event.target.value
+                                })}
+                            />
+                            <Divider/>
+
+                            {/*Status pair*/}
+                            <InformationPair
+                                label={"Status:"}
+                                value={officerInfo.professional.status}
+                                isSelect
+                                editMode={editMode}
+                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
+                                    draft.professional.status = Number(event.target.value)
+                                })}
+                            >
+                                {forceData.statuses.map((status: {id: number, name: string}) => {
+                                    return <MenuItem key={`status${status.id}`} value={status.id}>{status.name}</MenuItem>
+                                })}
+                            </InformationPair>
+                            <Divider/>
+
+                            {/*Data de Entrada pair*/}
+                            <InformationPair
+                                label={"Data de Entrada:"}
+                                value={officerInfo.professional.entry_date}
+                                type={"date"}
+                                editMode={editMode}
+                                onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
+                                    draft.professional.entry_date = date.toISOString().split("T")[0]
+                                })}
+                            />
+                            <Divider/>
+
+                            {/*Data de Subida pair*/}
+                            <InformationPair
+                                label={"Data de Subida:"}
+                                value={officerInfo.professional.promotion_date || ""}
+                                type={"date"}
+                                editMode={false}
+                            />
+
+                            {/*Unidades Especiais*/}
+                            <Gate show={editMode || officerInfo.professional.special_units.length !== 0}>
+                                <Divider/>
+
+                                <div className={style.informationPairDiv}>
+                                    <label>Unidades Especiais:</label>
+                                    <SpecialUnitsTable
+                                        editMode={editMode}
+                                        officerSpecialUnits={officerInfo.professional.special_units}
+                                        onChange={handleSpecialUnitEdit}
+                                        onRemove={handleSpecialUnitRemove}
+                                        onAdd={handleSpecialUnitAdd}
+                                    />
+                                </div>
+                            </Gate>
+                        </div>
+                    </fieldset>
+
+                    <ActivityPanel nif={officerNif}/>
+
+                    <fieldset>
+                    <legend>Punições</legend>
+                        <div style={{filter: "blur(5px)"}}>
+                            <p>Punição Ativa: <span></span>
+                            </p>
+                            <p>Histórico: <span></span>
+                            </p>
+                        </div>
+                    </fieldset>
+                </form>
             </ScreenSplit>
 
             <AccountInformationModal
