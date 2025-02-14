@@ -7,6 +7,7 @@ import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-typ
 import InformationCard from "../InformationCard";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
+import ManagementBar from "../ManagementBar";
 
 type OfficerCardProps = {
     name: string,
@@ -134,7 +135,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
         <div className={style.officerListMainDiv}>
             {/*Barra de pesquisa*/}
             <form onSubmit={handleSearch}>
-                <div className={style.officerListSearchDiv}>
+                <ManagementBar>
                     <DefaultOutlinedTextField
                         size={"small"}
                         value={searchString}
@@ -155,7 +156,7 @@ function OfficerList({callbackFunction, disabled = false}: OfficerListProps) {
                             padding: "5px"
                         }}
                     >Pesquisar</DefaultButton>
-                </div>
+                </ManagementBar>
             </form>
 
             {/*Loader para lista de efetivos*/}
