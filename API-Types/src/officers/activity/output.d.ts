@@ -9,11 +9,6 @@ export interface OfficerLastShiftResponse extends RequestSuccess {
     }
 }
 
-export interface OfficerLastShiftSocket extends SocketResponse {
-    type: "last_shift"
-    nif: number
-}
-
 interface OfficerSpecificHoursType {
     id: number,
     week_start: string,
@@ -61,36 +56,47 @@ export interface OfficerJustificationDetailsResponse extends RequestSuccess {
     data: OfficerJustification
 }
 
-export interface OfficerAddHoursSocket extends SocketResponse {
-    type: "add_hours"
+export interface OfficerActivitySocket extends SocketResponse {
+    type: "hours" | "justification" | "last_shift"
     nif: number
 }
 
-export interface OfficerDeleteHoursSocket extends SocketResponse {
-    type: "delete_hours"
-    nif: number
+export interface OfficerLastShiftSocket extends OfficerActivitySocket {
+    type: "last_shift"
+    action: "update"
+}
+
+export interface OfficerAddHoursSocket extends OfficerActivitySocket {
+    type: "hours"
+    action: "add"
+}
+
+export interface OfficerDeleteHoursSocket extends OfficerActivitySocket {
+    type: "hours"
+    action: "delete"
     id: number
 }
 
-export interface OfficerAddJustificationSocket extends SocketResponse {
-    type: "add_justification"
+export interface OfficerAddJustificationSocket extends OfficerActivitySocket {
+    type: "justification"
+    action: "add"
     nif: number
 }
 
-export interface OfficerManageJustificationSocket extends SocketResponse {
-    type: "manage_justification"
-    nif: number
+export interface OfficerManageJustificationSocket extends OfficerActivitySocket {
+    type: "justification"
+    action: "manage"
     id: number
 }
 
-export interface OfficerUpdateJustificationSocket extends SocketResponse {
-    type: "update_justification",
-    nif: number,
+export interface OfficerUpdateJustificationSocket extends OfficerActivitySocket {
+    type: "justification"
+    action: "update"
     id: number
 }
 
-export interface OfficerDeleteJustificationSocket extends SocketResponse {
-    type: "delete_justification",
-    nif: number,
+export interface OfficerDeleteJustificationSocket extends OfficerActivitySocket {
+    type: "justification"
+    action: "delete",
     id: number
 }

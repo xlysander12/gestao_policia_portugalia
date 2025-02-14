@@ -1,12 +1,13 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import OfficerList from "../../components/OfficerList/officer-list.tsx";
-import {useContext, useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import style from "./activity.module.css";
 import ManagementBar from "../../components/ManagementBar";
 import Gate from "../../components/Gate/gate.tsx";
 import Loader from "../../components/Loader/loader.tsx";
 import {
+    OfficerActivitySocket,
     OfficerHoursResponse, OfficerJustificationsHistoryResponse,
     OfficerMinifiedJustification,
     OfficerSpecificHoursType
@@ -14,7 +15,7 @@ import {
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
-import {Skeleton, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
@@ -23,8 +24,7 @@ import moment from "moment"
 import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
-import { SocketResponse } from "@portalseguranca/api-types";
-import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
+import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 
 
 type ActivityHoursCardProps = {
@@ -140,6 +140,7 @@ function Activity() {
 
     // Get the officer's nif from the URL params
     // ! This might not be present
+    // ! Deactivated for now
     const {nif} = useParams();
 
     // Set the loading state
@@ -304,14 +305,14 @@ function Activity() {
     }, [currentOfficer.nif]);
 
     // Handle socket updates
-    useWebSocketEvent("activity", async (data: SocketResponse) => {
-        if (data.type.includes("hours")) {
-            return await fetchActivity(false, true, false);
-        }
+    useWebSocketEvent<OfficerActivitySocket>("activity", async (data) => {
+        // If another data is being loaded, don't update the data
+        if (loading) return;
 
-        if (data.type.includes("justification")) {
-            return await fetchActivity(false, false, true);
-        }
+        // If the update wasn't for the current officer, don't update the data
+        if (data.nif !== currentOfficer.nif) return;
+
+        return await fetchActivity(false, data.type === "hours", data.type === "justification");
     });
 
     return (

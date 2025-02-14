@@ -324,7 +324,7 @@ const officersRoutes: routesType = {
                     event: UPDATE_EVENTS.OFFICER,
                     body: (req: express.Request): OfficerAddSocket => {
                         return {
-                            type: "addition",
+                            action: "add",
                             nif: parseInt(req.params.nif)
                         }
                     }
@@ -341,9 +341,9 @@ const officersRoutes: routesType = {
                 },
                 broadcast: {
                     event: UPDATE_EVENTS.OFFICER,
-                    body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
+                    body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
                         return {
-                            type: "update",
+                            action: "update",
                             nif: res.locals.targetOfficer!.nif
                         }
                     }
@@ -362,7 +362,7 @@ const officersRoutes: routesType = {
                     event: UPDATE_EVENTS.OFFICER,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerDeleteSocket => {
                         return {
-                            type: "delete",
+                            action: "delete",
                             nif: res.locals.targetOfficer!.nif
                         }
                     }
@@ -384,7 +384,7 @@ const officersRoutes: routesType = {
                     event: UPDATE_EVENTS.OFFICER,
                     body: (req: express.Request): OfficerRestoreSocket => {
                         return {
-                            type: "restore",
+                            action: "restore",
                             nif: parseInt(req.params.nif)
                         }
                     }
@@ -423,6 +423,7 @@ const activityRoutes: routesType = {
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerLastShiftSocket => {
                         return {
                             type: "last_shift",
+                            action: "update",
                             nif: res.locals.targetOfficer!.nif
                         }
                     }
@@ -461,7 +462,8 @@ const activityRoutes: routesType = {
                     event: UPDATE_EVENTS.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddHoursSocket => {
                         return {
-                            type: "add_hours",
+                            type: "hours",
+                            action: "add",
                             nif: res.locals.targetOfficer!.nif,
                         }
                     }
@@ -491,7 +493,8 @@ const activityRoutes: routesType = {
                     event: UPDATE_EVENTS.ACTIVITY,
                     body: (req, res: OfficerInfoAPIResponse): OfficerDeleteHoursSocket => {
                         return {
-                            type: "delete_hours",
+                            type: "hours",
+                            action: "delete",
                             nif: res.locals.targetOfficer!.nif,
                             id: parseInt(req.params.id)
                         }
@@ -538,7 +541,8 @@ const activityRoutes: routesType = {
                     event: UPDATE_EVENTS.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddJustificationSocket => {
                         return {
-                            type: "add_justification",
+                            type: "justification",
+                            action: "add",
                             nif: res.locals.targetOfficer!.nif
                         }
                     }
@@ -569,9 +573,10 @@ const activityRoutes: routesType = {
                 },
                 broadcast: {
                     event: UPDATE_EVENTS.ACTIVITY,
-                    body: (req, res: OfficerJustificationAPIResponse): OfficerManageJustificationSocket => {
+                    body: (_req, res: OfficerJustificationAPIResponse): OfficerManageJustificationSocket => {
                         return {
-                            type: "manage_justification",
+                            type: "justification",
+                            action: "manage",
                             nif: res.locals.targetOfficer!.nif,
                             id: res.locals.justification.id
                         }
@@ -586,9 +591,10 @@ const activityRoutes: routesType = {
                 },
                 broadcast: {
                     event: UPDATE_EVENTS.ACTIVITY,
-                    body: (req, res: OfficerJustificationAPIResponse): OfficerUpdateJustificationSocket => {
+                    body: (_req, res: OfficerJustificationAPIResponse): OfficerUpdateJustificationSocket => {
                         return {
-                            type: "update_justification",
+                            type: "justification",
+                            action: "update",
                             nif: res.locals.targetOfficer!.nif,
                             id: res.locals.justification.id
                         }
@@ -600,9 +606,10 @@ const activityRoutes: routesType = {
                 requiresForce: true,
                 broadcast: {
                     event: UPDATE_EVENTS.ACTIVITY,
-                    body: (req, res: OfficerJustificationAPIResponse): OfficerDeleteJustificationSocket => {
+                    body: (_req, res: OfficerJustificationAPIResponse): OfficerDeleteJustificationSocket => {
                         return {
-                            type: "delete_justification",
+                            type: "justification",
+                            action: "delete",
                             nif: res.locals.targetOfficer!.nif,
                             id: res.locals.justification.id
                         }

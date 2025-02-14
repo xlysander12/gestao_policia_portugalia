@@ -8,5 +8,5 @@ export interface RequestError extends RequestSuccess{
 }
 
 export interface SocketResponse {
-    type: string
+    action: "add" | "delete" | "update" | "restore" | "manage"
 }

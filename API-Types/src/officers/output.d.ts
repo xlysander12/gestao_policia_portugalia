@@ -35,22 +35,22 @@ export interface OfficerInfoGetResponse extends RequestSuccess {
     data: OfficerData | MinifiedOfficerData
 }
 
-export interface OfficerAddSocket extends SocketResponse {
-    type: "addition"
+export interface OfficerSocket extends SocketResponse {
     nif: number
 }
 
-export interface OfficerUpdateSocket extends SocketResponse {
-    type: "update"
-    nif: number
+export interface OfficerAddSocket extends OfficerSocket {
+    action: "add"
 }
 
-export interface OfficerRestoreSocket extends SocketResponse {
-    type: "restore"
-    nif: number
+export interface OfficerUpdateSocket extends OfficerSocket {
+    action: "update"
 }
 
-export interface OfficerDeleteSocket extends SocketResponse {
-    type: "delete"
-    nif: number
+export interface OfficerRestoreSocket extends OfficerSocket {
+    action: "restore"
+}
+
+export interface OfficerDeleteSocket extends OfficerSocket {
+    action: "delete"
 }
