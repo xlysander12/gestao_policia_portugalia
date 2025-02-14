@@ -3,6 +3,7 @@ import {APIResponse} from "../types";
 import routes, {methodType} from "../api/routes";
 import { RequestError } from "@portalseguranca/api-types";
 import {FORCE_HEADER} from "../utils/constants";
+import {getForcePatrolForces} from "../utils/config-handler";
 
 function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFunction) {
     // Check if the requested route is present in the routes object
@@ -34,7 +35,17 @@ function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFun
         // If there is, create an event handler to broadcast the message to the clients when the response is sent
         res.on("finish", () => {
             if (res.locals.ws && req.header(FORCE_HEADER) && res.statusCode < 400) {
-                res.locals.ws.to(req.header(FORCE_HEADER)!).emit(res.locals.routeDetails.broadcast!.event, res.locals.routeDetails.broadcast!.body(req, res));
+                // Build the message body
+                const body = res.locals.routeDetails.broadcast!.body(req, res);
+
+                res.locals.ws.to(req.header(FORCE_HEADER)!).emit(res.locals.routeDetails.broadcast!.event, body);
+
+                // If the patrols flag is set to true, broadcast the message to all patrol forces of the current force
+                if (res.locals.routeDetails.broadcast!.patrol) {
+                    for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!)) {
+                        res.locals.ws.to(force).emit(res.locals.routeDetails.broadcast!.event, body);
+                    }
+                }
             }
         });
     }

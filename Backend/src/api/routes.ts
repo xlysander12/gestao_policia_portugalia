@@ -26,6 +26,7 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../types";
 import {UPDATE_EVENTS} from "../utils/constants";
 import {OfficerJustificationAPIResponse} from "../types/response-types";
+import {SocketResponse} from "@portalseguranca/api-types";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -55,7 +56,8 @@ export type routeMethodType = {
     notes?: string,
     broadcast?: {
         event: string,
-        body: (req: express.Request, res: any) => any
+        body: (req: express.Request, res: any) => SocketResponse,
+        patrol?: boolean
     }
 }
 
