@@ -15,7 +15,7 @@ import {
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
-import {Typography} from "@mui/material";
+import {Skeleton, Typography} from "@mui/material";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
@@ -140,7 +140,6 @@ function Activity() {
 
     // Get the officer's nif from the URL params
     // ! This might not be present
-    // ! Deactivated for now
     const {nif} = useParams();
 
     // Set the loading state
@@ -148,11 +147,11 @@ function Activity() {
 
     // Set the state for the current viewing officer
     const [currentOfficer, setCurrentOfficer] = useState<MinifiedOfficerData>({
-        name: loggedUser.info.personal.name,
-        patent: loggedUser.info.professional.patent,
-        callsign: loggedUser.info.professional.callsign,
-        status: loggedUser.info.professional.status,
-        nif: loggedUser.info.personal.nif
+        name: nif && !isNaN(parseInt(nif)) ? "": loggedUser.info.personal.name,
+        patent: nif && !isNaN(parseInt(nif)) ? 0: loggedUser.info.professional.patent,
+        callsign: nif && !isNaN(parseInt(nif)) ? "": loggedUser.info.professional.callsign,
+        status: nif && !isNaN(parseInt(nif)) ? 0: loggedUser.info.professional.status,
+        nif: nif && !isNaN(parseInt(nif)) ? parseInt(nif): loggedUser.info.personal.nif
     });
 
     // Set the states with the history of the officer
@@ -301,7 +300,26 @@ function Activity() {
 
     // Everytime the currentOfficer changes, we will fetch the data from the API
     useEffect(() => {
-        fetchActivity();
+        const execute = async () => {
+            // Before doing anything, check if the currentOfficer state is fully built
+            if (currentOfficer.name === "") {
+                // Since it's not fully built, we must fetch the officer's data from the nif
+                const officer = await getOfficerFromNif(currentOfficer.nif);
+
+                // Update the state with the officer's data
+                setCurrentOfficer({
+                    name: officer.name,
+                    patent: officer.patent,
+                    callsign: officer.callsign,
+                    status: officer.status,
+                    nif: officer.nif
+                });
+            }
+
+            await fetchActivity();
+        }
+
+        execute();
     }, [currentOfficer.nif]);
 
     // Handle socket updates
@@ -337,7 +355,13 @@ function Activity() {
                         <div className={style.managementBarMainDiv}>
                             <div className={style.managementBarLeftDiv}>
                                 <div className={style.managementBarCurrentEditingDiv}>
-                                    <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
+                                    <Gate show={currentOfficer.name === ""}>
+                                        <Skeleton variant={"text"} animation={"wave"} width={"400px"} height={"29px"}/>
+                                    </Gate>
+
+                                    <Gate show={currentOfficer.name !== ""}>
+                                        <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
+                                    </Gate>
                                 </div>
                             </div>
 

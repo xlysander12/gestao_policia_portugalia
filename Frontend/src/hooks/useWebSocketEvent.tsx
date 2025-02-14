@@ -1,7 +1,8 @@
 import {useCallback, useContext, useEffect} from "react";
 import {WebsocketContext} from "../components/PrivateRoute/websocket-context.ts";
+import { SocketResponse } from "@portalseguranca/api-types";
 
-function useWebSocketEvent<DataType>(event_name: string, callback: (data: DataType) => void): boolean {
+function useWebSocketEvent<DataType extends SocketResponse>(event_name: string, callback: (data: DataType) => void): boolean {
     // Get the socket from context
     const socket = useContext(WebsocketContext);
 
