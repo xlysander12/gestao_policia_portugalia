@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../index";
+import {RequestSuccess, SocketResponse} from "../index";
 
 export interface MinifiedPatrolData {
     id: string
@@ -26,4 +26,22 @@ export interface PatrolInfoResponse extends RequestSuccess {
         editable: boolean
     }
     data: PatrolData
+}
+
+export interface ExistingPatrolSocket extends SocketResponse {
+    id: number,
+    force: string
+}
+
+export interface PatrolAddSocket extends SocketResponse {
+    action: "add"
+    force: string
+}
+
+export interface PatrolUpdateSocket extends ExistingPatrolSocket {
+    action: "update",
+}
+
+export interface PatrolDeleteSocket extends ExistingPatrolSocket {
+    action: "delete"
 }

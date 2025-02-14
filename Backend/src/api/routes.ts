@@ -24,9 +24,10 @@ import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
 import express from "express";
 import {OfficerInfoAPIResponse} from "../types";
-import {UPDATE_EVENTS} from "../utils/constants";
-import {OfficerJustificationAPIResponse} from "../types/response-types";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../utils/constants";
+import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
 import {SocketResponse} from "@portalseguranca/api-types";
+import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -665,6 +666,16 @@ const patrolsRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: CreatePatrolBody
+                },
+                broadcast: {
+                    event: UPDATE_EVENTS.PATROL,
+                    body: (req): PatrolAddSocket => {
+                        return {
+                            action: "add",
+                            force: req.header(FORCE_HEADER)!
+                        }
+                    },
+                    patrol: true
                 }
             }
         }
@@ -680,12 +691,34 @@ const patrolsRoutes: routesType = {
             PATCH: {
                 requiresToken: true,
                 requiresForce: true,
+                broadcast: {
+                    event: UPDATE_EVENTS.PATROL,
+                    body: (_req, res: PatrolInfoAPIResponse): PatrolUpdateSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.patrol.id,
+                            force: res.locals.patrol.force
+                        }
+                    },
+                    patrol: true
+                }
             },
 
             DELETE: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["patrols"]
+                intents: ["patrols"],
+                broadcast: {
+                    event: UPDATE_EVENTS.PATROL,
+                    body: (_req, res: PatrolInfoAPIResponse): PatrolDeleteSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.patrol.id,
+                            force: res.locals.patrol.force
+                        }
+                    },
+                    patrol: true
+                }
             }
         }
     }
