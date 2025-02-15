@@ -6,7 +6,7 @@ import {BASE_URL} from "./utils/constants.ts";
 import Dashboard from "./pages/Dashboard";
 import {Bounce, ToastContainer} from "react-toastify";
 import Login from "./pages/Login";
-import PrivateRoute from "./components/PrivateRoute/private-route.tsx";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 import OfficerInfo from "./pages/OfficerInfo";
 import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";

@@ -62,7 +62,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             const nif = ((await response.json()) as ValidateTokenResponse).data
 
             // * Using the nif, get the user's information and intents
-            const userResponse = await make_request(`/officers/${nif}?raw`, "GET");
+            const userResponse = await make_request(`/officers/${nif}`, "GET");
 
             // Get the data from the response
             const responseJson: OfficerInfoGetResponse = await userResponse.json();
