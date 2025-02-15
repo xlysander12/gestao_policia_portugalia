@@ -52,7 +52,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
         if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
 
-        console.log("Patrol ID: ", id);
+        if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it
 
         // If the patrol gets deleted, close the modal and inform the user
         if (event.action === "delete") {
