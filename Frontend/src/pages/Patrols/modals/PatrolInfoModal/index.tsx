@@ -1,10 +1,10 @@
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
-import {PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
+import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import moment, { Moment } from "moment";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {FormEvent, useEffect, useState} from "react";
+import {FormEvent, useCallback, useEffect, useState} from "react";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {Loader} from "../../../../components/Loader";
 import Gate from "../../../../components/Gate/gate.tsx";
@@ -15,7 +15,7 @@ import {
     DefaultOutlinedTextField,
     DefaultTypography
 } from "../../../../components/DefaultComponents";
-import {useForceData} from "../../../../hooks";
+import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {Divider, List, ListItem, ListItemText} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
@@ -47,6 +47,26 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const [patrolData, setPatrolData] = useImmer<InnerPatrolData | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+
+    // Handle WebSocket events
+    useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
+        if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
+
+        console.log("Patrol ID: ", id);
+
+        // If the patrol gets deleted, close the modal and inform the user
+        if (event.action === "delete") {
+            toast.warning(`A patrulha que estavas a visualizar foi apagada!`);
+
+            handleModalClose();
+        }
+
+        // If the patrol gets updated, fetch the new data
+        if (event.action === "update" && !editMode) { // Can't update the patrol if is being edited
+            // toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
+            setPatrolData(await fetchPatrolData(id!));
+        }
+    }, [id, editMode]));
 
     // Getting the patrol force from the id
     const patrolForce = id === null ? "": id.match(/([a-z]+)(\d+)$/)![1];
@@ -124,10 +144,6 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         toast.success("Patrulha guardada com sucesso!");
         setEditMode(false);
-
-        // Fetch the details of the patrol again
-        setPatrolData(null);
-        setPatrolData(await fetchPatrolData(id!));
     }
 
     const handleDelete = async () => {
