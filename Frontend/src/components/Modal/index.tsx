@@ -40,14 +40,18 @@ const ModalStyle = styled(Popup)<{ width?: string }>`
 `;
 
 type ModalProps = {
-    open: boolean,
-    onClose?: () => void,
-    width?: string,
-    title: string,
+    open: boolean
+    onClose?: () => void
+    width?: string
+    height?: string
+    title: string
+    disableScroll?: boolean
     children: ReactElement | ReactElement[],
 }
 
-export function Modal({open, onClose, width, title, children}: ModalProps): ReactElement {
+export function Modal({open, onClose, width, height, title, disableScroll, children}: ModalProps): ReactElement {
+    if (disableScroll && !height) throw new Error("If disableScroll is true, height must be defined");
+
     return (
         <ModalStyle
             open={open}
@@ -67,7 +71,13 @@ export function Modal({open, onClose, width, title, children}: ModalProps): Reac
             />
 
             {/*Body of the modal*/}
-            <div className={style.content}>
+            <div
+                className={style.content}
+                style={{
+                    height: height ? (disableScroll ? `calc(${height} - 20px)`: height) : "auto",
+                    overflowY: disableScroll ? "hidden" : "auto"
+                }}
+            >
                 {children}
             </div>
 

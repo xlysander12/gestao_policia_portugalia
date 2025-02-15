@@ -16,10 +16,14 @@ function OfficerListModal({open, onClose, callback, patrol}: OfficerListModalPro
             open={open}
             onClose={onClose}
             width={"75%"}
+            height={"80vh"}
+            disableScroll
         >
             <div style={{
+                boxSizing: "border-box",
                 backgroundColor: "var(--portalseguranca-color-background-light)",
-                padding: "10px"
+                padding: "10px",
+                height: "100%"
             }}>
                 <OfficerList patrol={patrol} callbackFunction={callback} />
             </div>
