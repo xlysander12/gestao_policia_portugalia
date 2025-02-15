@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Popup from "reactjs-popup";
-import React, {ReactElement} from "react";
+import React, {ReactElement, useEffect, useRef} from "react";
 import style from "./modal.module.css";
 import {Button, Divider} from "@mui/material";
 import {DefaultTypography} from "../DefaultComponents";
@@ -50,7 +50,42 @@ type ModalProps = {
 }
 
 export function Modal({open, onClose, width, height, title, disableScroll, children}: ModalProps): ReactElement {
-    if (disableScroll && !height) throw new Error("If disableScroll is true, height must be defined");
+    // if (disableScroll && !height) throw new Error("If disableScroll is true, height must be defined");
+
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [contentHeight, setContentHeight] = React.useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        console.log("Effect Triggered");
+
+        const checkHeight = () => {
+            console.log("Checking height");
+            if (!disableScroll) {
+                console.log("Scroll is enabled");
+                setContentHeight(undefined);
+                return;
+            }
+
+            if (contentRef.current) {
+                console.log("Ref is initialized");
+                const element = contentRef.current;
+
+                console.log(element.scrollHeight, element.clientHeight);
+
+                if (element.scrollHeight >= element.clientHeight) {
+                    setContentHeight("80vh");
+                } else {
+                    setContentHeight(undefined);
+                }
+            }
+        }
+
+        checkHeight();
+
+        window.addEventListener("resize", checkHeight);
+
+        return () => window.removeEventListener("resize", checkHeight);
+    }, [children, disableScroll, contentHeight]);
 
     return (
         <ModalStyle
@@ -73,8 +108,9 @@ export function Modal({open, onClose, width, height, title, disableScroll, child
             {/*Body of the modal*/}
             <div
                 className={style.content}
+                ref={contentRef}
                 style={{
-                    height: height ? (disableScroll ? `calc(${height} - 20px)`: height) : "auto",
+                    height: height ? height : (contentHeight || "auto"),
                     overflowY: disableScroll ? "hidden" : "auto"
                 }}
             >

@@ -1,6 +1,9 @@
 import Loader from "./Loader.tsx";
+type FullDivLoaderProps = {
+    size?: string
+}
 
-const FullDivLoader = () => {
+const FullDivLoader = (props: FullDivLoaderProps) => {
     return (
         <div
             style={{
@@ -11,7 +14,7 @@ const FullDivLoader = () => {
                 width: "100%"
             }}
         >
-            <Loader />
+            <Loader {...props}/>
         </div>
     )
 }

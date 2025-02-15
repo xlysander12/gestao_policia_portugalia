@@ -274,11 +274,11 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
                         <ModalSection title={"Membros"}>
                             <div
-                                style={{overflowY: "auto"}}
+                                style={{overflowY: "visible"}}
                             >
                                 <List
                                     dense
-                                    sx={{padding: 0}}
+                                    sx={{padding: 0, overflowY: "auto"}}
                                 >
                                     {patrolData!.officers.map(officer => {
                                         return (
