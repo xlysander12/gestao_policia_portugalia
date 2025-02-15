@@ -6,9 +6,10 @@ type OfficerListModalProps = {
     open: boolean
     onClose: () => void
     callback: (officer: MinifiedOfficerData) => void
+    filter?: (officer: MinifiedOfficerData) => boolean
     patrol?: boolean
 }
-function OfficerListModal({open, onClose, callback, patrol}: OfficerListModalProps) {
+function OfficerListModal({open, onClose, callback, filter, patrol}: OfficerListModalProps) {
 
     return (
         <Modal
@@ -25,7 +26,7 @@ function OfficerListModal({open, onClose, callback, patrol}: OfficerListModalPro
                 padding: "10px",
                 height: "100%"
             }}>
-                <OfficerList patrol={patrol} callbackFunction={callback} />
+                <OfficerList patrol={patrol} filter={filter} callback={callback} />
             </div>
         </Modal>
     );

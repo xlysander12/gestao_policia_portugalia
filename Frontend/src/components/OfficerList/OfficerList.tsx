@@ -11,10 +11,10 @@ import Gate from "../Gate/gate.tsx";
 import {FullDivLoader} from "../Loader";
 
 type OfficerCardProps = {
-    name: string,
-    nif: number,
-    statusColor: string,
-    callback: (nif: number) => void,
+    name: string
+    nif: number
+    statusColor: string
+    callback: (nif: number) => void
     disabled: boolean
 }
 
@@ -43,12 +43,13 @@ function OfficerCard({name, nif, statusColor, callback, disabled}: OfficerCardPr
 
 
 type OfficerListProps = {
-    callbackFunction: (officer: MinifiedOfficerData) => void,
+    callback: (officer: MinifiedOfficerData) => void
+    filter?: (officer: MinifiedOfficerData) => boolean
     disabled?: boolean
     patrol?: boolean
 }
 
-function OfficerList({callbackFunction, disabled = false, patrol = false}: OfficerListProps) {
+function OfficerList({callback, filter = () => true, disabled = false, patrol = false}: OfficerListProps) {
     // Get the force's data from Context
     const [forceData, getForceData] = useForceData();
 
@@ -106,7 +107,7 @@ function OfficerList({callbackFunction, disabled = false, patrol = false}: Offic
 
     // When an officer is selected, call the callback function with the NIF
     const handleClick = (nif: number) => {
-        callbackFunction(officers.find((officer) => officer.nif === nif)!);
+        callback(officers.find((officer) => officer.nif === nif)!);
     }
 
     return(
@@ -151,7 +152,7 @@ function OfficerList({callbackFunction, disabled = false, patrol = false}: Offic
                 </Gate>
 
                 <Gate show={!loading}>
-                    {officers.map((officer) => {
+                    {officers.filter(filter).map((officer) => {
                         let patent;
                         if (patrol) {
                             patent = getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name;
