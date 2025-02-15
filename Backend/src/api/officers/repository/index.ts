@@ -17,10 +17,13 @@ import {
 export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams) {
     const filtersResult = buildFiltersQuery(routeValidFilters, filters);
 
+    // Check if the "patrol" query param is present
+    const isPatrol = isQueryParamPresent("patrol", filters) && filters["patrol"] === "true";
+
     // * Get the data from the database
     let officersListResult;
-    if (isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
-        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersVPatrols ${filtersResult.query}`, filtersResult.values);
+    if (isPatrol) {
+        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif, officerForce FROM officersVPatrols ${filtersResult.query}`, filtersResult.values);
     } else {
         officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
     }
@@ -41,7 +44,8 @@ export async function getOfficersList(force: string, routeValidFilters: RouteFil
             patent: officer.patent,
             callsign: officer.callsign,
             status: hasInactivityJustification ? getForceInactiveStatus(force): officer.status,
-            nif: officer.nif
+            nif: officer.nif,
+            force: isPatrol ? officer.officerForce : undefined
         }
 
         officersList.push(officerData);

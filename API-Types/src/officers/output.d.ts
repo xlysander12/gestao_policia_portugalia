@@ -1,10 +1,11 @@
 import {RequestSuccess, SocketResponse} from "../index";
 export interface MinifiedOfficerData {
-    name: string,
-    patent: number,
-    callsign: string,
-    status: number,
+    name: string
+    patent: number
+    callsign: string
+    status: number
     nif: number
+    force?: string
 }
 
 export interface OfficerUnit {
