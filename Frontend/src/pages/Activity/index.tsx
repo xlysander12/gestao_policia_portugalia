@@ -339,7 +339,7 @@ function Activity() {
                 leftSideComponent={
                     <OfficerList
                         disabled={!loggedUser.intents["activity"] || loading}
-                        callbackFunction={setCurrentOfficer}
+                        callback={setCurrentOfficer}
                     />
                 }
 

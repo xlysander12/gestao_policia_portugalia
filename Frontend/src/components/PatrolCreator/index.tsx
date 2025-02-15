@@ -22,14 +22,10 @@ import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
 import OfficerListModal from "../OfficerList/OfficerListModal.tsx";
 
-type InnerOfficerData = MinifiedOfficerData & {
-    force: string
-}
-
 type InnerNewPatrolType = {
     type: PatrolTypeData
     special_unit: SpecialUnitData
-    officers: InnerOfficerData[]
+    officers: MinifiedOfficerData[]
     start: Moment
     end: Moment | null
     notes: string | null
@@ -64,6 +60,15 @@ function PatrolCreator() {
         end: null,
         notes: null
     });
+
+    const addOfficer = (officer: MinifiedOfficerData) => {
+        setNewPatrolData((draft) => {
+            draft.officers.push(officer);
+        });
+
+        // Close the OfficerList Modal, if open
+        setOfficerListModalOpen(false);
+    }
 
     const createPatrol = async (event: FormEvent) => {
         // Prevent page from realoading
@@ -225,9 +230,9 @@ function PatrolCreator() {
                                     <ListItemText
                                         primary={
                                             <DefaultTypography
-                                                fontSize={"medium"}
+                                                fontSize={"0.9rem"}
                                             >
-                                                [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force).patents)!.name} {officer.name}
+                                                [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} {officer.name}
                                             </DefaultTypography>
                                         }
                                     />
@@ -235,23 +240,23 @@ function PatrolCreator() {
                             );
                         })}
                     </List>
-
-                    <DefaultButton
-                        disabled={loading}
-                        fullWidth
-                        darkTextOnHover
-                        buttonColor={"lightgreen"}
-                        onClick={() => setOfficerListModalOpen(true)}
-                    >
-                        Adicionar Membro
-                    </DefaultButton>
                 </div>
+
+                <DefaultButton
+                    disabled={loading}
+                    fullWidth
+                    darkTextOnHover
+                    buttonColor={"lightgreen"}
+                    onClick={() => setOfficerListModalOpen(true)}
+                >
+                    Adicionar Membro
+                </DefaultButton>
 
                 <div className={style.registerDiv}>
                     <Divider
                         flexItem
                         sx={{
-                            marginBottom: "10px",
+                            margin: "10px 0",
                             borderColor: "var(--portalseguranca-color-accent)",
                         }}
                     />
@@ -268,7 +273,12 @@ function PatrolCreator() {
                 </div>
             </form>
 
-            <OfficerListModal open={officerListModalOpen} onClose={() => setOfficerListModalOpen(false)} callback={(officer) => console.log(officer)} patrol />
+            <OfficerListModal
+                open={officerListModalOpen}
+                onClose={() => setOfficerListModalOpen(false)}
+                callback={addOfficer} patrol
+                filter={(officer) => !newPatrolData.officers.map((off) => off.nif).includes(officer.nif)}
+            />
         </>
     );
 }
