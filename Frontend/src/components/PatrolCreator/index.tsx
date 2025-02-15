@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {make_request} from "../../utils/requests.ts";
 import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
+import OfficerListModal from "../OfficerList/OfficerListModal.tsx";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string
@@ -43,6 +44,9 @@ function PatrolCreator() {
 
     // Loading state
     const [loading, setLoading] = useState(false);
+
+    // Add new officer modal
+    const [officerListModalOpen, setOfficerListModalOpen] = useState<boolean>(false);
 
     // State that holds the patrol information
     const [newPatrolData, setNewPatrolData] = useImmer<InnerNewPatrolType>({
@@ -237,9 +241,7 @@ function PatrolCreator() {
                         fullWidth
                         darkTextOnHover
                         buttonColor={"lightgreen"}
-                        onClick={() => {
-
-                        }}
+                        onClick={() => setOfficerListModalOpen(true)}
                     >
                         Adicionar Membro
                     </DefaultButton>
@@ -265,6 +267,8 @@ function PatrolCreator() {
                     </DefaultButton>
                 </div>
             </form>
+
+            <OfficerListModal open={officerListModalOpen} onClose={() => setOfficerListModalOpen(false)} callback={(officer) => console.log(officer)} patrol />
         </>
     );
 }

@@ -1,5 +1,5 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
-import OfficerList from "../../components/OfficerList/officer-list.tsx";
+import {OfficerList} from "../../components/OfficerList";
 import {useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import style from "./activity.module.css";

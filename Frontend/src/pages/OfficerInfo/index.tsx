@@ -1,7 +1,6 @@
 import React, {ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
-import OfficerList from "../../components/OfficerList/officer-list";
-import Loader from "../../components/Loader/loader";
+import {OfficerList} from "../../components/OfficerList";
 import {Loader} from "../../components/Loader";
 import {make_request} from "../../utils/requests";
 import {

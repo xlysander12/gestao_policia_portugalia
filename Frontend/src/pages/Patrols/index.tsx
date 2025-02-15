@@ -1,5 +1,5 @@
 import style from "./patrols.module.css";
-import ScreenSplit, {LoadingHalfScreen} from "../../components/ScreenSplit/screen-split.tsx";
+import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
 import {useEffect, useState} from "react";
@@ -85,7 +85,7 @@ function Patrols() {
 
                 <div className={style.patrolsList}>
                     <Gate show={loading}>
-                        <LoadingHalfScreen />
+                        <FullDivLoader />
                     </Gate>
 
                     <Gate show={!loading}>

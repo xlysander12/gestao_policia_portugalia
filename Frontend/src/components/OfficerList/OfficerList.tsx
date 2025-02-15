@@ -1,0 +1,186 @@
+import {ReactElement, useEffect, useState, FormEvent} from "react";
+import style from "./officer-list.module.css";
+import {make_request} from "../../utils/requests";
+import {DefaultButton, DefaultOutlinedTextField, DefaultTypography} from "../DefaultComponents";
+import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import InformationCard from "../InformationCard";
+import {getObjectFromId} from "../../forces-data-context.ts";
+import {useForceData, useWebSocketEvent} from "../../hooks";
+import ManagementBar from "../ManagementBar";
+import Gate from "../Gate/gate.tsx";
+import {FullDivLoader} from "../Loader";
+
+type OfficerCardProps = {
+    name: string,
+    nif: number,
+    statusColor: string,
+    callback: (nif: number) => void,
+    disabled: boolean
+}
+
+function OfficerCard({name, nif, statusColor, callback, disabled}: OfficerCardProps): ReactElement {
+    const handleDivClick = () => {
+        if (disabled)
+            return;
+
+        callback(nif);
+    }
+
+    return(
+        <InformationCard
+            disabled={disabled}
+            statusColor={statusColor}
+            callback={handleDivClick}
+        >
+            <div className={style.officerListCardDiv}>
+                <DefaultTypography color={"white"}>{name}</DefaultTypography>
+                <DefaultTypography color={"gray"} fontSize={"1rem"}>(#{nif})</DefaultTypography>
+            </div>
+        </InformationCard>
+    );
+
+}
+
+
+type OfficerListProps = {
+    callbackFunction: (officer: MinifiedOfficerData) => void,
+    disabled?: boolean
+    patrol?: boolean
+}
+
+function OfficerList({callbackFunction, disabled = false, patrol = false}: OfficerListProps) {
+    // Get the force's data from Context
+    const [forceData, getForceData] = useForceData();
+
+    // Initialize state
+    const [officers, setOfficers] = useState<MinifiedOfficerData[] | []>([]);
+    const [searchString, setSearchString] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    // WebSocket connection
+    useWebSocketEvent("officers", () => {
+        search(searchString, false);
+    });
+
+    // Function to fetch the backend and get the officers depending on the search query
+    const search = async (query?: string, showLoading: boolean = true) => {
+        // Set the loading state to true
+        if (showLoading) {
+            setLoading(true);
+        }
+
+        // Send the request to the API to get the results from the search
+        const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET");
+
+        // If the response status is not 200, then there was an error
+        if (response.status !== 200) {
+            const response_json = await response.json();
+            console.log(response_json["message"]);
+            return;
+        }
+
+        // Get the response as JSON
+        const responseJSON: OfficerListResponse = await response.json();
+
+        // Update the state with the new officers
+        setOfficers(responseJSON.data);
+
+        // Set the loading state to false
+        if (showLoading) {
+            setLoading(false);
+        }
+    }
+
+    // On component mount, do an initial search with an empty string
+    useEffect(() => {
+        search();
+    }, []);
+
+
+    // When the search button is pressed, do a search with the given string
+    const handleSearch = async (event: FormEvent) => {
+        event.preventDefault();
+
+        await search(searchString);
+    }
+
+    // When an officer is selected, call the callback function with the NIF
+    const handleClick = (nif: number) => {
+        callbackFunction(officers.find((officer) => officer.nif === nif)!);
+    }
+
+    return(
+        <div className={style.officerListMainDiv}>
+            {/*Barra de pesquisa*/}
+            <form onSubmit={handleSearch}>
+                <ManagementBar>
+                    <div className={style.officerListManagementDiv}>
+                        <DefaultOutlinedTextField
+                            size={"small"}
+                            value={searchString}
+                            type={"text"}
+                            label={"Pesquisar por efetivo"}
+                            alternateColor
+                            disabled={disabled}
+                            onChange={(event) => setSearchString(event.target.value)}
+                            sx={{
+                                width: "70%",
+                                flex: 1
+                            }}
+                        />
+                        <DefaultButton
+                            type={"submit"}
+                            buttonColor={"var(--portalseguranca-color-accent)"}
+                            disabled={disabled}
+                            sx={{
+                                padding: "5px",
+                                flex: 0.2,
+                                minWidth: "fit-content"
+                            }}
+                        >
+                            Pesquisar
+                        </DefaultButton>
+                    </div>
+                </ManagementBar>
+            </form>
+
+            {/*Lista de efetivos*/}
+            <div className={style.officerListListDiv}>
+                <Gate show={loading}>
+                    <FullDivLoader />
+                </Gate>
+
+                <Gate show={!loading}>
+                    {officers.map((officer) => {
+                        let patent;
+                        if (patrol) {
+                            patent = getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name;
+                        } else {
+                            patent = getObjectFromId(officer.patent, forceData.patents)!.name;
+                        }
+
+                        let statusColor;
+                        if (patrol) {
+                            statusColor = getObjectFromId(officer.status, getForceData(officer.force!).statuses)!.color;
+                        } else {
+                            statusColor = getObjectFromId(officer.status, forceData.statuses)!.color;
+                        }
+
+                        return (
+                            <OfficerCard
+                                key={`officerlist#${officer.nif}`}
+                                name={`[${officer.callsign}] ${patent} ${officer.name}`}
+                                nif={officer.nif}
+                                statusColor={statusColor}
+                                callback={handleClick}
+                                disabled={disabled}
+                            />
+                        )
+                    })}
+                </Gate>
+            </div>
+        </div>
+    );
+}
+
+export default OfficerList;
