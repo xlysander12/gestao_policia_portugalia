@@ -39,6 +39,9 @@ export default function setupSocketEvents(ws: Server) {
         // Make the socket join the room with the force name
         socket.join(force);
 
+        // Make the socket join a room with it's token
+        socket.join(token);
+
         next();
     });
 
