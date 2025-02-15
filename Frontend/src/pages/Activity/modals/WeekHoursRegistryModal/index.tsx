@@ -9,7 +9,7 @@ import {toast} from "react-toastify";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import Gate from "../../../../components/Gate/gate.tsx";
-import Loader from "../../../../components/Loader/loader.tsx";
+import {Loader} from "../../../../components/Loader";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {getObjectFromId} from "../../../../forces-data-context.ts";

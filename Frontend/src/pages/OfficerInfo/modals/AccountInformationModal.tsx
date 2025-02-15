@@ -1,7 +1,7 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
-import Loader from "../../../components/Loader/loader.tsx";
+import {Loader} from "../../../components/Loader";
 import modalsStyle from "./officerinfomodals.module.css";
 import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";

@@ -5,7 +5,7 @@ import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-conte
 import style from "./activity.module.css";
 import ManagementBar from "../../components/ManagementBar";
 import Gate from "../../components/Gate/gate.tsx";
-import Loader from "../../components/Loader/loader.tsx";
+import {Loader} from "../../components/Loader";
 import {
     OfficerActivitySocket,
     OfficerHoursResponse, OfficerJustificationsHistoryResponse,

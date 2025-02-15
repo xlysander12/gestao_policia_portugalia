@@ -11,6 +11,7 @@ import {DefaultPagination} from "../../components/DefaultComponents";
 import PatrolCard from "./components/PatrolCard";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
 import PatrolCreator from "../../components/PatrolCreator";
+import {FullDivLoader} from "../../components/Loader";
 
 function Patrols() {
     const [loading, setLoadig] = useState<boolean>(true);

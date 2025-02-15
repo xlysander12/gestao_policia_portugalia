@@ -8,7 +8,7 @@ import {
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
-import Loader from "../Loader/loader.tsx";
+import {Loader} from "../Loader";
 import {toast} from "react-toastify";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import style from "./private-route.module.css";

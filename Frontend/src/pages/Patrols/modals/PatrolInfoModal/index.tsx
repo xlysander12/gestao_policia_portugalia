@@ -6,7 +6,7 @@ import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {FormEvent, useEffect, useState} from "react";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
-import Loader from "../../../../components/Loader/loader.tsx";
+import {Loader} from "../../../../components/Loader";
 import Gate from "../../../../components/Gate/gate.tsx";
 import style from "./patrol-info-modal.module.css"
 import {

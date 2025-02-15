@@ -2,6 +2,7 @@ import React, {ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useStat
 import style from "./officerinfo.module.css";
 import OfficerList from "../../components/OfficerList/officer-list";
 import Loader from "../../components/Loader/loader";
+import {Loader} from "../../components/Loader";
 import {make_request} from "../../utils/requests";
 import {
     Divider,

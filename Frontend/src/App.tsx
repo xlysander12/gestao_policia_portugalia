@@ -19,7 +19,7 @@ import {
     UtilSpecialUnitsResponse,
     UtilStatusesResponse
 } from "@portalseguranca/api-types/util/output";
-import Loader from "./components/Loader/loader.tsx";
+import {Loader} from "./components/Loader";
 import {createTheme, ThemeProvider} from "@mui/material";
 import defaultThemeData from "./theme.ts";
 import Activity from "./pages/Activity";

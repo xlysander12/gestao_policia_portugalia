@@ -7,7 +7,7 @@ import {toast} from "react-toastify";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {make_request} from "../../../../utils/requests.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
-import Loader from "../../../../components/Loader/loader.tsx";
+import {Loader} from "../../../../components/Loader";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
