@@ -12,9 +12,10 @@ import PatrolCard from "./components/PatrolCard";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
 import PatrolCreator from "../../components/PatrolCreator";
 import {FullDivLoader} from "../../components/Loader";
+import {useWebSocketEvent} from "../../hooks";
 
 function Patrols() {
-    const [loading, setLoadig] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
 
     const [page, setPage] = useState<number>(1);
@@ -23,7 +24,22 @@ function Patrols() {
     const [selectedPatrol, setSelectedPatrol] = useState<string | null>(null);
     const [patrolInfoModalOpen, setPatrolInfoModalOpen] = useState<boolean>(false);
 
-    async function fetchPatrols(): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+    // Handle websocket events
+    useWebSocketEvent("patrols", async () => {
+        // * Every time a event happens, the page needs to be refreshed
+        // Fetch the patrols from the API
+        const {patrols, pages} = await fetchPatrols();
+
+        // Set the patrols and set loading to false
+        setPatrols(patrols);
+        setTotalPages(pages);
+    });
+
+    async function fetchPatrols(showLoading?: boolean): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+        if (showLoading) {
+            setLoading(true);
+        }
+
         // TODO: This has to implement the filters that are going to be used when the search function is done
         const result = await make_request(`/patrols?page=${page}`, "GET");
         const patrols: PatrolHistoryResponse | RequestError = await result.json();
@@ -34,6 +50,10 @@ function Patrols() {
                 patrols: [],
                 pages: 0
             };
+        }
+
+        if (showLoading) {
+            setLoading(false);
         }
 
         return {
@@ -49,16 +69,12 @@ function Patrols() {
 
     useEffect(() => {
         const execute = async () => {
-            // Set loading to true
-            setLoadig(true);
-
             // Fetch the patrols from the API
-            const patrols = await fetchPatrols();
+            const {patrols, pages} = await fetchPatrols(true);
 
             // Set the patrols and set loading to false
-            setPatrols(patrols.patrols);
-            setTotalPages(patrols.pages);
-            setLoadig(false);
+            setPatrols(patrols);
+            setTotalPages(pages);
         }
 
         execute();
