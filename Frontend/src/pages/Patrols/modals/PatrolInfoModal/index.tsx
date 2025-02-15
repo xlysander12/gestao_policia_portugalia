@@ -63,8 +63,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         // If the patrol gets updated, fetch the new data
         if (event.action === "update" && !editMode) { // Can't update the patrol if is being edited
-            // toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
             setPatrolData(await fetchPatrolData(id!));
+            toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
         }
     }, [id, editMode]));
 
@@ -144,6 +144,10 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         toast.success("Patrulha guardada com sucesso!");
         setEditMode(false);
+
+        // Fetch the details of the patrol again
+        setPatrolData(null);
+        setPatrolData(await fetchPatrolData(id!));
     }
 
     const handleDelete = async () => {
@@ -247,11 +251,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                             value={patrolData!.end}
                                             onChange={(date) => setPatrolData(draft => {draft!.end = date})}
                                             sx={{width: "190px"}}
-                                            slotProps={{
-                                                field: {
-                                                    clearable: true
-                                                }
-                                            }}
+                                            clearable
                                         />
                                     </div>
                                 </div>
