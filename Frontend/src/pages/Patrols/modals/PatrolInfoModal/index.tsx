@@ -48,11 +48,19 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
 
+    const [justEdited, setJustEdited] = useState<boolean>(false);
+
     // Handle WebSocket events
     useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
         if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
 
         if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it
+
+        // If the patrol was just edited by the user, ignore the event
+        if (justEdited) {
+            setJustEdited(false);
+            return;
+        }
 
         // If the patrol gets deleted, close the modal and inform the user
         if (event.action === "delete") {
@@ -66,7 +74,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             setPatrolData(await fetchPatrolData(id!));
             toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
         }
-    }, [id, editMode]));
+    }, [id, editMode, justEdited]));
 
     // Getting the patrol force from the id
     const patrolForce = id === null ? "": id.match(/([a-z]+)(\d+)$/)![1];
@@ -127,6 +135,9 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         // Prevent the default form submission
         event.preventDefault();
 
+        // Set the justEdited variable to true
+        setJustEdited(true);
+
         const response = await make_request<EditPatrolBody>(`/patrols/${id}`, "PATCH", {
             body: {
                 start: patrolData!.start.format("YYYY-MM-DDTHH:mm:ss"),
@@ -153,6 +164,9 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const handleDelete = async () => {
         // Make sure the confirmation dialog is closed
         setConfirmDelete(false);
+
+        // Set the justEdited variable to true
+        setJustEdited(true);
 
         const response = await make_request(`/patrols/${id}`, "DELETE");
         const responseJson: RequestError = await response.json();
