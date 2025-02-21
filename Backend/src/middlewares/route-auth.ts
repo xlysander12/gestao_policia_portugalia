@@ -45,9 +45,10 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
     }
 
     // Check if this route requires a token
+    const sessionToken: string | undefined = req.header("authorization") || req.cookies["sessionToken"];
     if (res.locals.routeDetails.requiresToken) {
         // Since it requires a token, check if the token is present
-        if (req.header("authorization") === undefined && req.cookies["sessionToken"] === undefined) { // If it requires a token, but it's not present, return 400
+        if (!sessionToken) { // If it requires a token, but it's not present, return 400
             let response: RequestError = {
                 message: "Autenticação inválida"
             }
@@ -57,7 +58,7 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
         }
 
         // Check if the token is valid
-        const tokenValidity = await isTokenValid(req.header("authorization") || req.cookies["sessionToken"], req.header(FORCE_HEADER));
+        const tokenValidity = await isTokenValid(sessionToken, req.header(FORCE_HEADER));
         if (!tokenValidity.valid) { // If the token is not valid, return 400
             let response: RequestError = {
                 message: "Autenticação inválida"
@@ -70,7 +71,7 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
         // * Since the token is valid, update the last time the token was used and the last time the user interacted
         res.locals.loggedOfficer = ((await getOfficerData(tokenValidity.nif!, req.header(FORCE_HEADER)!))! as InnerOfficerData); // Store the user's information in locals
         // Update the last time the token was used
-        updateLastTimeTokenUsed(req.header("authorization") || req.cookies["sessionToken"]).then(); // No need to wait for this to finish
+        updateLastTimeTokenUsed(sessionToken).then(); // No need to wait for this to finish
         // Update the last time the user has interacted
         updateLastTimeUserInteracted(res.locals.loggedOfficer.nif).then(); // No need to wait for this to finish
 
@@ -106,12 +107,12 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
                     // Build the message body
                     const body = res.locals.routeDetails.broadcast!.body(req, res);
 
-                    res.locals.ws.to(req.header(FORCE_HEADER)!).except(res.locals.token).emit(res.locals.routeDetails.broadcast!.event, body);
+                    res.locals.ws.to(req.header(FORCE_HEADER)!).emit(res.locals.routeDetails.broadcast!.event, body);
 
                     // If the patrols flag is set to true, broadcast the message to all patrol forces of the current force
                     if (res.locals.routeDetails.broadcast!.patrol) {
                         for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!)) {
-                            res.locals.ws.to(force).except(res.locals.token).emit(res.locals.routeDetails.broadcast!.event, body);
+                            res.locals.ws.to(force).emit(res.locals.routeDetails.broadcast!.event, body);
                         }
                     }
                 }
