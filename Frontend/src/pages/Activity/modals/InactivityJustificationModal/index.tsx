@@ -1,5 +1,6 @@
-import {FormEvent, useContext, useEffect, useState} from "react";
+import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {
+    OfficerActivitySocket,
     OfficerJustification,
     OfficerJustificationDetailsResponse
 } from "@portalseguranca/api-types/officers/activity/output";
@@ -25,7 +26,7 @@ import {
 } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
-import {useForceData} from "../../../../hooks";
+import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import moment, {Moment} from "moment";
 
 type InnerJustificationData = Omit<OfficerJustification, "start" | "end"> & {
@@ -36,7 +37,7 @@ type InnerJustificationData = Omit<OfficerJustification, "start" | "end"> & {
 
 const justificationDataDefault: InnerJustificationData = {
     id: 0,
-    type: 0,
+    type: 1,
     start: moment(new Date()),
     end: moment(new Date()),
     timestamp: new Date().getTime(),
@@ -74,6 +75,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     // Set the state with the data of the justification
     const [justificationData, setJustificationData] = useImmer<InnerJustificationData>(justificationDataDefault);
     const [justificationManagedBy, setJustificationManagedBy] = useState<string | null>(null);
+
+    const [justEdited, setJustEdited] = useState<boolean>(false);
 
     // Everytime the modal is opened, set the justification data to the default
     useEffect(() => {
@@ -135,6 +138,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         // Set the loading to true
         setLoading(true);
 
+        // Set the justEdited flag to true
+        setJustEdited(true);
+
         // Make the request to change the state of the justification
         const response = await make_request<ManageOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "POST", {
             body: {
@@ -163,6 +169,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         // Set the edit mode to false
         setEditMode(false);
 
+        // Set the justEdited flag to true
+        setJustEdited(true);
+
         // Make the request to change the state of the justification
         const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
@@ -190,6 +199,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
         // Set the loading to true
         setLoading(true);
+
+        // Set the justEdited flag to true
+        setJustEdited(true);
 
         // Make the request to delete the justification
         const response = await make_request(`/officers/${officerNif}/activity/justifications/${justificationId}`, "DELETE");
@@ -235,6 +247,42 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             onClose();
         }
     }
+
+    // Handle websocket events
+    useWebSocketEvent<OfficerActivitySocket>("activity", useCallback(async (data) => {
+        // If the event is not about inactivity justifications, it doesn't matter
+        if (data.type !== "justification") return;
+
+        // If the event is the addition of a justification, it doesn't matter
+        if (data.action === "add") return;
+
+        // If the associated id is not the same as the one of the justification, it doesn't matter
+        if (data.id !== justificationId) return;
+
+        // If the user just edited the current justification, don't update on top of it
+        if (justEdited) {
+            setJustEdited(false);
+            return;
+        }
+
+        if ((data.action === "update" || data.action === "manage") && !editMode) { // If the user is editing the justification, don't update on top of it
+            // Set the need to reload to true to fetch the data again
+            setNeedsReload(true);
+
+            // Show toast with the message
+            toast.warning("A justificação que estavas a visualizar foi alterada!");
+
+            return;
+        }
+
+        if (data.action === "delete") {
+            // Close the modal
+            onClose();
+
+            // Show toast with the message
+            toast.warning("A justificação que estavas a visualizar foi apagada!");
+        }
+    }, [justificationId, justEdited]));
 
     return (
         <>
