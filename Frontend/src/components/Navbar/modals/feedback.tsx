@@ -6,7 +6,7 @@ import {DefaultButton, DefaultOutlinedTextField, DefaultTextField, DefaultTypogr
 import {FormEvent, useEffect, useState} from "react";
 import {Divider} from "@mui/material";
 import {make_request} from "../../../utils/requests.ts";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
 import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 import {toast} from "react-toastify";
 
@@ -39,7 +39,7 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
         });
 
         // Get the data from the response
-        const data: RequestSuccess | RequestError = await response.json();
+        const data: BaseResponse | RequestError = await response.json();
 
         // If the request was successful, close the modal
         if (response.ok) {

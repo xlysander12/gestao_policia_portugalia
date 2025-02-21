@@ -6,7 +6,7 @@ import {
 } from "@portalseguranca/api-types/officers/activity/output";
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
@@ -83,7 +83,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                 minutes: entryData.minutes
             }
         });
-        const data: RequestSuccess = await response.json();
+        const data: BaseResponse = await response.json();
 
         // If the request wasn't successful, show an error message
         if (!response.ok) {

@@ -2,10 +2,10 @@ import express from "express";
 import {routeMethodType} from "../api/routes";
 import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData, InnerPatrolData} from "./inner-types";
 import {ReceivedQueryParams} from "../utils/filters";
-import { RequestError, RequestSuccess } from "@portalseguranca/api-types";
+import { RequestError, BaseResponse } from "@portalseguranca/api-types";
 import {Server} from "socket.io";
 
-export type ExpressResponse<BodyType = {}> = express.Response<BodyType | RequestError | RequestSuccess> & {
+export type ExpressResponse<BodyType = {}> = express.Response<BodyType | RequestError | BaseResponse> & {
     locals: {
         ws: Server
     }

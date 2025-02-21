@@ -9,7 +9,7 @@ import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import { BaseResponse } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
@@ -120,7 +120,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     async function logout() {
         // Call the logout endpoint
         const response = await make_request(`/accounts/logout`, "POST");
-        const responseJson: RequestSuccess = await response.json();
+        const responseJson: BaseResponse = await response.json();
 
         // If the response is not ok, show a toast with the error
         if (!response.ok) {

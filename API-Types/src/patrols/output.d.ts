@@ -1,4 +1,4 @@
-import {RequestSuccess, SocketResponse} from "../index";
+import {BaseResponse, SocketResponse} from "../index";
 
 export interface MinifiedPatrolData {
     id: string
@@ -10,7 +10,7 @@ export interface MinifiedPatrolData {
     canceled: boolean
 }
 
-export interface PatrolHistoryResponse extends RequestSuccess {
+export interface PatrolHistoryResponse extends BaseResponse {
     meta: {
         pages: number
     }
@@ -21,7 +21,7 @@ export interface PatrolData extends MinifiedPatrolData {
     notes: string
 }
 
-export interface PatrolInfoResponse extends RequestSuccess {
+export interface PatrolInfoResponse extends BaseResponse {
     meta: {
         editable: boolean
     }

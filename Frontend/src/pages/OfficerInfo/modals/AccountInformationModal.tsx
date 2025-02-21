@@ -10,7 +10,7 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import {AccountInfo, AccountInfoResponse} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
@@ -120,7 +120,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
         const response = await make_request(`/accounts/${officerNif}`, "POST");
         if (!response.ok) {
-            return toast(`Erro ao ativar a conta:\n${((await response.json()) as RequestSuccess).message}`, {type: "error"});
+            return toast(`Erro ao ativar a conta:\n${((await response.json()) as BaseResponse).message}`, {type: "error"});
         }
         toast("Conta ativada com sucesso", {type: "success"});
         setNeedsRefresh(true);

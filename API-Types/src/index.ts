@@ -1,8 +1,8 @@
-export interface RequestSuccess {
+export interface BaseResponse {
     message: string
 }
 
-export interface RequestError extends RequestSuccess{
+export interface RequestError extends BaseResponse{
     code?: string
     details?: string
 }

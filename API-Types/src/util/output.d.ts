@@ -1,4 +1,4 @@
-import {RequestSuccess} from "../index";
+import {BaseResponse} from "../index";
 
 export interface PatentData {
     id: number,
@@ -43,33 +43,33 @@ export interface PatrolTypeData {
     isSpecial: boolean
 }
 
-export interface UtilPatentsResponse extends RequestSuccess {
+export interface UtilPatentsResponse extends BaseResponse {
     data: PatentData[]
 }
 
-export interface UtilStatusesResponse extends RequestSuccess {
+export interface UtilStatusesResponse extends BaseResponse {
     data: StatusData[]
 }
 
-export interface UtilIntentsResponse extends RequestSuccess {
+export interface UtilIntentsResponse extends BaseResponse {
     data: IntentData[]
 }
 
-export interface UtilSpecialUnitsResponse extends RequestSuccess {
+export interface UtilSpecialUnitsResponse extends BaseResponse {
     data: {
         units: SpecialUnitData[],
         roles: SpecialUnitRoleData[]
     }
 }
 
-export interface UtilInactivityTypesResponse extends RequestSuccess {
+export interface UtilInactivityTypesResponse extends BaseResponse {
     data: InactivityTypeData[]
 }
 
-export interface UtilPatrolTypesResponse extends RequestSuccess {
+export interface UtilPatrolTypesResponse extends BaseResponse {
     data: PatrolTypeData[]
 }
 
-export interface UtilForcePatrolForcesResponse extends RequestSuccess {
+export interface UtilForcePatrolForcesResponse extends BaseResponse {
     data: string[]
 }

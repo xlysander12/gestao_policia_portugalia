@@ -6,7 +6,7 @@ import {DefaultButton, DefaultOutlinedTextField, DefaultTypography} from "../../
 import {Divider} from "@mui/material";
 import { make_request } from "../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import { RequestSuccess } from "@portalseguranca/api-types/index.ts";
+import { BaseResponse } from "@portalseguranca/api-types/index.ts";
 import { ChangePasswordRequestBodyType } from "@portalseguranca/api-types/account/input";
 
 type ChangePasswordModalProps = {
@@ -42,7 +42,7 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                 confirmPassword: repeatPassword
             }
         });
-        const responseJson: RequestSuccess = await response.json();
+        const responseJson: BaseResponse = await response.json();
 
         // Show toast with the response
         toast(responseJson.message, {type: response.ok ? "success" : "error"});

@@ -1,6 +1,6 @@
-import {RequestSuccess, SocketResponse} from "../../index";
+import {BaseResponse, SocketResponse} from "../../index";
 
-export interface OfficerLastShiftResponse extends RequestSuccess {
+export interface OfficerLastShiftResponse extends BaseResponse {
     meta: {
         passed_max_days: boolean
     }
@@ -17,14 +17,14 @@ interface OfficerSpecificHoursType {
     submitted_by: number
 }
 
-export interface OfficerSpecificHoursResponse extends RequestSuccess {
+export interface OfficerSpecificHoursResponse extends BaseResponse {
     meta: {
         min_hours: boolean
     }
     data: OfficerSpecificHoursType
 }
 
-export interface OfficerHoursResponse extends RequestSuccess {
+export interface OfficerHoursResponse extends BaseResponse {
     data: OfficerSpecificHoursType[]
 }
 
@@ -37,7 +37,7 @@ export type OfficerMinifiedJustification = {
     managed_by: number | null,
     timestamp: number
 }
-export interface OfficerJustificationsHistoryResponse extends RequestSuccess {
+export interface OfficerJustificationsHistoryResponse extends BaseResponse {
     data: OfficerMinifiedJustification[]
 }
 
@@ -45,20 +45,21 @@ export type OfficerActiveJustification = {
     id: number,
     type: number
 }
-export interface OfficerActiveJustificationsResponse extends RequestSuccess {
+export interface OfficerActiveJustificationsResponse extends BaseResponse {
     data: OfficerActiveJustification[]
 }
 
 export type OfficerJustification = OfficerMinifiedJustification & {
     description: string
 }
-export interface OfficerJustificationDetailsResponse extends RequestSuccess {
+export interface OfficerJustificationDetailsResponse extends BaseResponse {
     data: OfficerJustification
 }
 
 export interface OfficerActivitySocket extends SocketResponse {
     type: "hours" | "justification" | "last_shift"
     nif: number
+    id?: number
 }
 
 export interface OfficerLastShiftSocket extends OfficerActivitySocket {
@@ -74,29 +75,24 @@ export interface OfficerAddHoursSocket extends OfficerActivitySocket {
 export interface OfficerDeleteHoursSocket extends OfficerActivitySocket {
     type: "hours"
     action: "delete"
-    id: number
 }
 
 export interface OfficerAddJustificationSocket extends OfficerActivitySocket {
     type: "justification"
     action: "add"
-    nif: number
 }
 
 export interface OfficerManageJustificationSocket extends OfficerActivitySocket {
     type: "justification"
     action: "manage"
-    id: number
 }
 
 export interface OfficerUpdateJustificationSocket extends OfficerActivitySocket {
     type: "justification"
     action: "update"
-    id: number
 }
 
 export interface OfficerDeleteJustificationSocket extends OfficerActivitySocket {
     type: "justification"
-    action: "delete",
-    id: number
+    action: "delete"
 }

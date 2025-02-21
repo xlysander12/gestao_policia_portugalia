@@ -10,7 +10,7 @@ import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
 import {Checkbox, Divider, FormControlLabel, MenuItem, Tooltip} from "@mui/material";
 import {
@@ -143,7 +143,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         });
 
         // Parse the response
-        const data: RequestError | RequestSuccess = await response.json();
+        const data: RequestError | BaseResponse = await response.json();
 
         // Show toast with the message
         toast(data.message, {type: response.ok ? "success" : "error"});
@@ -174,7 +174,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         });
 
         // Parse the response
-        const data: RequestError | RequestSuccess = await response.json();
+        const data: BaseResponse = await response.json();
 
         // Show toast with the message
         toast(data.message, {type: response.ok ? "success" : "error"});
@@ -195,7 +195,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request(`/officers/${officerNif}/activity/justifications/${justificationId}`, "DELETE");
 
         // Parse the response
-        const data: RequestError | RequestSuccess = await response.json();
+        const data: RequestError | BaseResponse = await response.json();
 
         // Show toast with the message
         toast(data.message, {type: response.ok ? "success" : "error"});
@@ -225,7 +225,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         });
 
         // Parse the response
-        const data: RequestError | RequestSuccess = await response.json();
+        const data: RequestError | BaseResponse = await response.json();
 
         // Show toast with the message
         toast(data.message, {type: response.ok ? "success" : "error"});

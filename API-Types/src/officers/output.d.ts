@@ -1,4 +1,4 @@
-import {RequestSuccess, SocketResponse} from "../index";
+import {BaseResponse, SocketResponse} from "../index";
 export interface MinifiedOfficerData {
     name: string
     patent: number
@@ -24,11 +24,11 @@ export interface OfficerData extends MinifiedOfficerData {
     special_units: OfficerUnit[]
 }
 
-export interface OfficerListResponse extends RequestSuccess {
+export interface OfficerListResponse extends BaseResponse {
     data: MinifiedOfficerData[]
 }
 
-export interface OfficerInfoGetResponse extends RequestSuccess {
+export interface OfficerInfoGetResponse extends BaseResponse {
     meta: {
         former: boolean
         force: string

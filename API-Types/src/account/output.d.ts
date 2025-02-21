@@ -1,6 +1,6 @@
-import {RequestSuccess} from "../index";
+import {BaseResponse} from "../index";
 
-export interface ValidateTokenResponse extends RequestSuccess {
+export interface ValidateTokenResponse extends BaseResponse {
     data: number;
 }
 
@@ -11,11 +11,11 @@ export interface AccountInfo {
     intents: {[key: string]: boolean}
 }
 
-export interface AccountInfoResponse extends RequestSuccess {
+export interface AccountInfoResponse extends BaseResponse {
     data: Omit<AccountInfo, "lastUsed"> & {lastUsed: string | null}
 }
 
-export interface LoginResponse extends RequestSuccess {
+export interface LoginResponse extends BaseResponse {
     data: {
         token: string,
         forces: string[]
@@ -27,7 +27,7 @@ interface UserForce {
     suspended: boolean
 }
 
-export interface UserForcesResponse extends RequestSuccess {
+export interface UserForcesResponse extends BaseResponse {
     data: {
         forces: UserForce[]
     }

@@ -20,7 +20,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {Divider, List, ListItem, ListItemText} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
-import {RequestError, RequestSuccess} from "@portalseguranca/api-types";
+import {RequestError, BaseResponse} from "@portalseguranca/api-types";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string
@@ -146,7 +146,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             }
         });
 
-        const responseJson: RequestSuccess = await response.json();
+        const responseJson: BaseResponse = await response.json();
 
         if (!response.ok) {
             toast.error(responseJson.message);
