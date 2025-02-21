@@ -8,6 +8,7 @@ import {getOfficerData} from "../../officers/repository";
 import {getForceInactiveStatus, getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
+import {getForcePatrolTypes} from "../../util/repository";
 
 export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<{
     patrols: MinifiedPatrolData[],
@@ -26,6 +27,31 @@ export async function patrolsHistory(force: string, validFilters: RouteFilterTyp
 }
 
 export async function patrolCreate(force: string, patrolData: CreatePatrolBody, requestingOfficer: number): Promise<DefaultReturn<void>> {
+    // * Make sure that, if the patrol type requires a special unit, it is present
+    // Fetch the patrol types from the force
+    const patrolTypes = await getForcePatrolTypes(force);
+
+    // Compare the patrol type with the ones from the force
+    const patrolType = patrolTypes.find(type => type.id === patrolData.type);
+
+    // If the patrol type returns undefined, return an error
+    if (!patrolType) {
+        return {
+            result: false,
+            status: 400,
+            message: "Tipo de patrulha inválido"
+        }
+    }
+
+    // If the patrol type requires a special unit and it is not present, return an error
+    if (patrolType.isSpecial && !patrolData.special_unit) {
+        return {
+            result: false,
+            status: 400,
+            message: "Unidade especial obrigatória"
+        }
+    }
+
     // * If the current officer is not in the list of officers, add it
     if (!patrolData.officers.includes(requestingOfficer)) {
         patrolData.officers.push(requestingOfficer);
