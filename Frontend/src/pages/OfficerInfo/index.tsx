@@ -162,10 +162,10 @@ function OfficerInfo() {
         professional: {
             callsign: "",
             entry_date: "",
-            patent: 0,
+            patent: forceData.patents[0].id,
             promotion_date: "",
             special_units: [],
-            status: 0
+            status: forceData.statuses[0].id
         }
     })
 
