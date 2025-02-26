@@ -15,17 +15,18 @@ export async function getOfficersListController(req: express.Request, res: APIRe
 
     // Check if the result is valid
     if (!result.result) {
-        return res.status(result.status).json({
+        res.status(result.status).json({
             message: result.message!
         });
+        return;
     }
 
     // Return the result
-    return res.status(result.status).json({
+    res.status(result.status).json({
         message: result.message,
         data: result.data!
     });
-
+    return;
 }
 
 export async function getOfficerDetailsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerInfoGetResponse>) {
@@ -115,10 +116,11 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
 
     // Return the result
     if (!result.result) {
-        return res.status(result.status).json({message: result.message});
+        res.status(result.status).json({message: result.message});
+        return;
     }
 
-    return res.status(result.status).json({
+    res.status(result.status).json({
         message: result.message,
         data: {
             ...result.data!,

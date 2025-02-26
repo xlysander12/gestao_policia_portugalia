@@ -33,16 +33,18 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
     if (isQueryError(err)) {
         // This error was triggered by a constraint violation while inserting some data in the database
         if (err.errno === 4025) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Corpo do pedido inválido",
             });
+            return;
         }
 
         // This error was triggered by an invalid number or string in column while inserting some data in the database
         if (err.errno === 1264 || err.errno === 1406) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Corpo do pedido inválido",
             });
+            return;
         }
     }
 
@@ -56,9 +58,10 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
     // If the force header is not present, return 500 without any code
     if (!force) {
         logToConsole(`${route} - ${err.stack}`, "error");
-        return res.status(500).json({
+        res.status(500).json({
             message: "Erro interno do servidor",
         });
+        return;
     }
 
     // Get a unique code

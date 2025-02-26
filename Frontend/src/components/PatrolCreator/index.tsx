@@ -274,10 +274,20 @@ function PatrolCreator() {
             </form>
 
             <OfficerListModal
+                patrol
                 open={officerListModalOpen}
                 onClose={() => setOfficerListModalOpen(false)}
-                callback={addOfficer} patrol
-                filter={(officer) => !newPatrolData.officers.map((off) => off.nif).includes(officer.nif)}
+                callback={addOfficer}
+                filter={(officer) => {
+                    if (newPatrolData.officers.map((off) => off.nif).includes(officer.nif)) {
+                        return false;
+                    }
+
+                    // Checking if the officer has a status that prevents from doing patrols
+                    const officerStatus = getObjectFromId(officer.status, forceData.statuses)!;
+
+                    return officerStatus.canPatrol;
+                }}
             />
         </>
     );

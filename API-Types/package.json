@@ -18,9 +18,9 @@
   },
   "homepage": "https://github.com/xlysander12/gestao_policia_portugalia#readme",
   "dependencies": {
-    "@types/node": "^20.14.11",
+    "@types/node": "^22.13.5",
     "runtypes": "^6.7.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "rimraf": "^6.0.1"

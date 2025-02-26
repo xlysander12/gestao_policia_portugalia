@@ -10,7 +10,8 @@ function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFun
 
     // If the route is not present, assume this route doesn't exist and return 404
     if (routeIndex === -1) {
-        return res.status(404).json(<RequestError>{message: "Rota não encontrada"});
+        res.status(404).json(<RequestError>{message: "Rota não encontrada"});
+        return;
     }
 
     // Get the route object
@@ -22,7 +23,8 @@ function getRouteDetailsMiddleware(req: Request, res: APIResponse, next: NextFun
 
     // If the method is not present, assume this method isn't valid for this route
     if (route.methods[method] === undefined) {
-        return res.status(405).json(<RequestError>{message: "Método não permitido"});
+        res.status(405).json(<RequestError>{message: "Método não permitido"});
+        return;
     }
 
     // Since the method is present, store the values in locals

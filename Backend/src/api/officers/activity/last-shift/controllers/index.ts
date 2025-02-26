@@ -14,11 +14,12 @@ export async function getLastShiftController(req: express.Request, res: OfficerI
     // * Return the result of the service
     // If the result is negative, return an error
     if (!result.result) {
-        return res.status(result.status).json({message: result.message});
+        res.status(result.status).json({message: result.message});
+        return;
     }
 
     // If the result is positive, return the last shift as a date string
-    return res.status(result.status).json({
+    res.status(result.status).json({
         message: result.message,
         meta: {
            passed_max_days: Date.now() > result.data!.getTime() + getForceMaxNonWorkingDays(req.header(FORCE_HEADER)!) * 24 * 60 * 60 * 1000
