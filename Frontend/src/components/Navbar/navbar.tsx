@@ -225,7 +225,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 setAccountMenuOpen(true);
                                 setAccountMenuAnchor(event.currentTarget);
                             }}>
-                                <DefaultTypography fontSize={"20px"}>{fullName}</DefaultTypography>
+                                <DefaultTypography fontSize={"20px"} color={"white"}>{fullName}</DefaultTypography>
                                 <DefaultTypography
                                     fontSize={"smaller"}
                                     color={status.color}
