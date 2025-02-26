@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
@@ -9,12 +9,17 @@ import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import { BaseResponse } from "@portalseguranca/api-types/index.ts";
+import {BaseResponse, SocketResponse} from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
+import {
+    ExistingPatrolSocket,
+    PatrolData,
+    PatrolInfoResponse
+} from "@portalseguranca/api-types/patrols/output";
 
 type SubPathProps = {
     path?: string,
@@ -98,9 +103,17 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Set the state of the feedback modal
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
 
+    // Set the state with the status of the officer
+    const [officerPatrol, setOfficerPatrol] = useState<PatrolData | null>(null);
+
     // Set the full name of the officer
     const fullName = isLoginPage ? "":
         `${getObjectFromId(loggedUser.info.professional.patent, forceData.patents)!.name} ${loggedUser.info.personal.name}`;
+
+    const status = {
+        color: officerPatrol ? "lightBlue": getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.color,
+        name: officerPatrol ? "Em Patrulha": getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.name
+    }
 
     // Create the array of elements for the pathsdiv
     const paths = [];
@@ -114,6 +127,26 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // If we're in a path different than the main one, add the main path to the paths array
     if (currentPath !== "") {
         paths.push(<SubPath key={`navbarPath${currentPath}`} name={currentPath[0].toUpperCase() + currentPath.slice(1)}/>);
+    }
+
+    async function getOfficerPatrol(): Promise<PatrolData | null> {
+        // Make request to the backend to check if the officer is on patrol
+        const response = await make_request(`/officers/${loggedUser.info.personal.nif}/patrol`, "GET");
+
+        const responseJson: PatrolInfoResponse = await response.json();
+
+        // If the response is 404, the officer is not on patrol
+        if (response.status === 404) {
+            return null;
+        }
+
+        // If the response is not ok, show a toast with the error
+        if (!response.ok) {
+            toast(responseJson.message, {type: "error"});
+            return null;
+        }
+
+        return responseJson.data;
     }
 
     async function logout() {
@@ -134,6 +167,39 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
         // Redirect to the login page
         navigate("/login");
     }
+
+    // Whenever an event with the name "patrols" is received, run the callback to ensure the information is up to date
+    useWebSocketEvent("patrols", async (data: SocketResponse) => {
+        // If a patrol is added, check if the logged user is in any patrol
+        if (data.action === "add") {
+            setOfficerPatrol(await getOfficerPatrol());
+        }
+
+        const existingPatrol = data as ExistingPatrolSocket;
+        const patrolFullId = `${existingPatrol.force}${existingPatrol.id}`;
+
+        // If a patrol is deleted, check if it is the one the logged user is in
+        if (data.action === "delete") {
+            if (officerPatrol !== null && officerPatrol.id === patrolFullId) {
+                setOfficerPatrol(null);
+            }
+        }
+
+        // If a patrol is updated, make sure the logged user hasn't been removed, or the patrol has ended
+        if (data.action === "update") {
+            if (officerPatrol !== null && officerPatrol.id === patrolFullId) {
+                setOfficerPatrol(await getOfficerPatrol());
+            }
+        }
+    });
+
+    useEffect(() => {
+        const exec = async () => {
+            setOfficerPatrol(await getOfficerPatrol());
+        }
+
+        exec();
+    }, []);
 
     return (
         <>
@@ -164,7 +230,12 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 setAccountMenuAnchor(event.currentTarget);
                             }}>
                                 <DefaultTypography fontSize={"20px"}>{fullName}</DefaultTypography>
-                                <DefaultTypography fontSize={"smaller"} color={getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.color}>{getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.name}</DefaultTypography>
+                                <DefaultTypography
+                                    fontSize={"smaller"}
+                                    color={status.color}
+                                >
+                                    {status.name}
+                                </DefaultTypography>
                             </div>
 
                             <ForceSelectStyle
