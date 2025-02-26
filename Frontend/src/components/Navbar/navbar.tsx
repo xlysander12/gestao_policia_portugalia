@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext, useReducer, useState} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
@@ -13,7 +13,9 @@ import { BaseResponse } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
+import {DefaultTypography} from "../DefaultComponents";
+import { OfficerSocket } from "@portalseguranca/api-types/officers/output";
 
 type SubPathProps = {
     path?: string,
@@ -80,6 +82,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
 
+    console.log(loggedUser);
+
     // Set other useful hooks
     const location = useLocation();
     const navigate = useNavigate();
@@ -98,10 +102,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
 
     // Set the full name of the officer
-    let fullName = "";
-    if (!isLoginPage) {
-        fullName = `${getObjectFromId(loggedUser.info.professional.patent, forceData.patents)!.name} ${loggedUser.info.personal.name}`;
-    }
+    const fullName = isLoginPage ? "":
+        `${getObjectFromId(loggedUser.info.professional.patent, forceData.patents)!.name} ${loggedUser.info.personal.name}`;
 
     // Create the array of elements for the pathsdiv
     const paths = [];
@@ -164,7 +166,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 setAccountMenuOpen(true);
                                 setAccountMenuAnchor(event.currentTarget);
                             }}>
-                                <p className={style.officerName}>{fullName}</p>
+                                <DefaultTypography fontSize={"20px"}>{fullName}</DefaultTypography>
+                                <DefaultTypography fontSize={"smaller"} color={getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.color}>{getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.name}</DefaultTypography>
                             </div>
 
                             <ForceSelectStyle

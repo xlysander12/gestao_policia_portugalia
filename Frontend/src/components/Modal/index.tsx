@@ -56,12 +56,8 @@ export function Modal({open, onClose, width, height, title, disableScroll, child
     const [contentHeight, setContentHeight] = React.useState<string | undefined>(undefined);
 
     useEffect(() => {
-        console.log("Effect Triggered");
-
         const checkHeight = () => {
-            console.log("Checking height");
             if (!disableScroll) {
-                console.log("Scroll is enabled");
                 setContentHeight(undefined);
                 return;
             }

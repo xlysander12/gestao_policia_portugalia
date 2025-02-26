@@ -1,21 +1,25 @@
 import {useContext, useEffect} from "react";
 import {WebsocketContext} from "../components/PrivateRoute/websocket-context.ts";
 import { SocketResponse } from "@portalseguranca/api-types";
+import { Socket } from "socket.io-client";
 
-function useWebSocketEvent<DataType extends SocketResponse>(event_name: string, callback: (data: DataType) => void): boolean {
+function useWebSocketEvent<DataType extends SocketResponse>(event_name: string, callback: (data: DataType) => void, customSocket?: Socket | null): boolean {
     // Get the socket from context
     const socket = useContext(WebsocketContext);
 
     useEffect(() => {
-        // If the socket doesn't exist, return
-        if (!socket || !socket.connected) return;
+        // If the socket doesn't exist and no custom Socket was passed, return
+        if ((!socket || !socket.connected) && (!customSocket || !customSocket.connected)) return;
+
+        // Getting the will-be-used socket
+        const usingSocket = customSocket || socket;
 
         // Apply the callback to the event
-        socket.on(event_name, callback);
+        usingSocket!.on(event_name, callback);
 
         return () => {
             if (socket) {
-                socket.off(event_name, callback);
+                usingSocket!.off(event_name, callback);
             }
         }
     }, [socket, event_name, callback]);
