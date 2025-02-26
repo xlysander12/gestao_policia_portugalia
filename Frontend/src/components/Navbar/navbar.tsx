@@ -1,4 +1,4 @@
-import {useContext, useReducer, useState} from "react";
+import {useContext, useState} from "react";
 import style from "./navbar.module.css";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
@@ -13,9 +13,8 @@ import { BaseResponse } from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useForceData, useWebSocketEvent} from "../../hooks";
+import {useForceData} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
-import { OfficerSocket } from "@portalseguranca/api-types/officers/output";
 
 type SubPathProps = {
     path?: string,
@@ -81,8 +80,6 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
-
-    console.log(loggedUser);
 
     // Set other useful hooks
     const location = useLocation();

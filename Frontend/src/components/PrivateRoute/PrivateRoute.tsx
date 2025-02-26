@@ -93,25 +93,33 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         return tempLoggedUser;
     }
 
-    const updateValues = async (showLoading = true) => {
+    const updateValues = async (checkAuth = true) => {
         // First, set the authorized state to false, if required
-        if (showLoading) {
+        if (checkAuth) {
             setAuthorized(false);
         }
 
+        let nif = loggedUser.info.personal.nif;
+
         // Checking if the token is valid
-        const {valid, nif} = await checkToken();
+        if (checkAuth) {
+            const result = await checkToken();
 
-        if (!valid) return; // Redirecting to login page is handled by the upper function
+            if (!result.valid) return; // Redirecting to login page is handled by the upper function
 
-        // Since the token is valid, fetch the Logged User's information
+            // Set the nif to the one fetched from the token validation
+            nif = result.nif;
+        }
+
+
+        // Fetch the Logged User's information
         const userInfo = await fetchLoggedUserInfo(nif);
 
         // Set the logged user with the data fetched
-        setLoggedUser(userInfo);
+        setLoggedUser({...userInfo});
 
         // Since the token is valid for the force, redirect the user to the requested page
-        if (showLoading) {
+        if (checkAuth) {
             setAuthorized(true);
         }
     }
@@ -121,7 +129,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         if (data.nif === loggedUser.info.personal.nif) {
             updateValues(false);
         }
-    }, [socket?.id, loggedUser.info.personal.nif]));
+    }, [socket?.id, loggedUser.info.personal.nif]), socket);
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
@@ -132,8 +140,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         }
 
         // Call the function to check the authentication only if we're not in the login page
-        if (!isLoginPage)
+        if (!isLoginPage) {
             updateValues();
+        }
 
     }, [isLoginPage, element]);
 
