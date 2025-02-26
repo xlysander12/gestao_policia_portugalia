@@ -50,7 +50,8 @@ export async function getForceStatuses(force: string): Promise<StatusData[]> {
         statusesList.push({
             id: status.id,
             name: status.name,
-            color: status.color
+            color: status.color,
+            canPatrol: status.can_patrol === 1
         });
     }
 

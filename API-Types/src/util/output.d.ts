@@ -8,9 +8,10 @@ export interface PatentData {
 }
 
 export interface StatusData {
-    id: number,
+    id: number
     name: string
     color: string
+    canPatrol: boolean
 }
 
 export interface IntentData {
