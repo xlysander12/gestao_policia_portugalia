@@ -76,8 +76,6 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     const [justificationData, setJustificationData] = useImmer<InnerJustificationData>(justificationDataDefault);
     const [justificationManagedBy, setJustificationManagedBy] = useState<string | null>(null);
 
-    const [justEdited, setJustEdited] = useState<boolean>(false);
-
     // Everytime the modal is opened, set the justification data to the default
     useEffect(() => {
         if (open) {
@@ -138,9 +136,6 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         // Set the loading to true
         setLoading(true);
 
-        // Set the justEdited flag to true
-        setJustEdited(true);
-
         // Make the request to change the state of the justification
         const response = await make_request<ManageOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "POST", {
             body: {
@@ -169,9 +164,6 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         // Set the edit mode to false
         setEditMode(false);
 
-        // Set the justEdited flag to true
-        setJustEdited(true);
-
         // Make the request to change the state of the justification
         const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
@@ -199,9 +191,6 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
         // Set the loading to true
         setLoading(true);
-
-        // Set the justEdited flag to true
-        setJustEdited(true);
 
         // Make the request to delete the justification
         const response = await make_request(`/officers/${officerNif}/activity/justifications/${justificationId}`, "DELETE");
@@ -260,10 +249,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         if (data.id !== justificationId) return;
 
         // If the user just edited the current justification, don't update on top of it
-        if (justEdited) {
-            setJustEdited(false);
-            return;
-        }
+        if (data.by === loggedUser.info.personal.nif) return;
 
         if ((data.action === "update" || data.action === "manage") && !editMode) { // If the user is editing the justification, don't update on top of it
             // Set the need to reload to true to fetch the data again
@@ -282,7 +268,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             // Show toast with the message
             toast.warning("A justificação que estavas a visualizar foi apagada!");
         }
-    }, [justificationId, justEdited]));
+    }, [justificationId, loggedUser.info.personal.nif]));
 
     return (
         <>

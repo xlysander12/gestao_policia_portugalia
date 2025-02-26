@@ -4,7 +4,7 @@ import moment, { Moment } from "moment";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {FormEvent, useCallback, useEffect, useState} from "react";
+import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {Loader} from "../../../../components/Loader";
 import Gate from "../../../../components/Gate/gate.tsx";
@@ -21,6 +21,7 @@ import {Divider, List, ListItem, ListItemText} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {RequestError, BaseResponse} from "@portalseguranca/api-types";
+import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string
@@ -42,13 +43,13 @@ type PatrolInfoModalProps = {
 }
 
 function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
+    const loggedUser = useContext(LoggedUserContext);
+
     const [, getForceData] = useForceData();
     
     const [patrolData, setPatrolData] = useImmer<InnerPatrolData | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
-
-    const [justEdited, setJustEdited] = useState<boolean>(false);
 
     // Handle WebSocket events
     useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
@@ -57,10 +58,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it
 
         // If the patrol was just edited by the user, ignore the event
-        if (justEdited) {
-            setJustEdited(false);
-            return;
-        }
+        if (event.by === loggedUser.info.personal.nif) return;
 
         // If the patrol gets deleted, close the modal and inform the user
         if (event.action === "delete") {
@@ -74,7 +72,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             setPatrolData(await fetchPatrolData(id!));
             toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
         }
-    }, [id, editMode, justEdited]));
+    }, [id, editMode]));
 
     // Getting the patrol force from the id
     const patrolForce = id === null ? "": id.match(/([a-z]+)(\d+)$/)![1];
@@ -135,9 +133,6 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         // Prevent the default form submission
         event.preventDefault();
 
-        // Set the justEdited variable to true
-        setJustEdited(true);
-
         const response = await make_request<EditPatrolBody>(`/patrols/${id}`, "PATCH", {
             body: {
                 start: patrolData!.start.format("YYYY-MM-DDTHH:mm:ss"),
@@ -164,9 +159,6 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const handleDelete = async () => {
         // Make sure the confirmation dialog is closed
         setConfirmDelete(false);
-
-        // Set the justEdited variable to true
-        setJustEdited(true);
 
         const response = await make_request(`/patrols/${id}`, "DELETE");
         const responseJson: RequestError = await response.json();
