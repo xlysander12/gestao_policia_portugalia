@@ -1,9 +1,10 @@
 import {createContext} from "react";
 import {UserForce} from "@portalseguranca/api-types/account/output";
+import {PatentData, SpecialUnitData, SpecialUnitRoleData, StatusData} from "@portalseguranca/api-types/util/output";
 
 export type OfficerSpecialUnitType = {
-    id: number,
-    role: number
+    unit: SpecialUnitData,
+    role: SpecialUnitRoleData
 }
 
 export type LoggedUserContextType = {
@@ -18,9 +19,9 @@ export type LoggedUserContextType = {
             steam: string
         },
         professional: {
-            patent: number,
+            patent: PatentData,
             callsign: string,
-            status: number,
+            status: StatusData,
             entry_date: string,
             promotion_date: string | null,
             special_units: OfficerSpecialUnitType[]
@@ -42,9 +43,19 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
             steam: ""
         },
         professional: {
-            patent: 0,
+            patent: {
+                id: 0,
+                name: "",
+                max_evaluation: 0,
+                leading_char: ""
+            },
             callsign: "",
-            status: 0,
+            status: {
+                id: 0,
+                name: "",
+                color: "",
+                canPatrol: false
+            },
             entry_date: "",
             promotion_date: "",
             special_units: []

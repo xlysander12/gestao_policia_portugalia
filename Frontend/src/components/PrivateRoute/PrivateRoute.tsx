@@ -14,7 +14,8 @@ import {OfficerData, OfficerInfoGetResponse, OfficerSocket} from "@portalseguran
 import style from "./private-route.module.css";
 import {io, Socket} from "socket.io-client";
 import {WebsocketContext} from "./websocket-context.ts";
-import {useWebSocketEvent} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
+import {getObjectFromId} from "../../forces-data-context.ts";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -30,6 +31,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // Initialize navigate hook
     const navigate = useNavigate();
+
+    // Get the force's data from Context
+    const [forceData] = useForceData();
 
     const checkToken = async (): Promise<{valid: boolean, nif: number}> => {
         // Check if there is a force in the local storage. If there isn't, return to login
@@ -73,12 +77,17 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         tempLoggedUser.info.personal.discord = userData.discord;
         tempLoggedUser.info.personal.steam = userData.steam;
 
-        tempLoggedUser.info.professional.patent = userData.patent as number;
+        tempLoggedUser.info.professional.patent = getObjectFromId(userData.patent as number, forceData.patents)!;
         tempLoggedUser.info.professional.callsign = userData.callsign;
-        tempLoggedUser.info.professional.status = userData.status as number;
+        tempLoggedUser.info.professional.status = getObjectFromId(userData.status as number, forceData.statuses)!;
         tempLoggedUser.info.professional.entry_date = userData.entry_date;
         tempLoggedUser.info.professional.promotion_date = userData.promotion_date;
-        tempLoggedUser.info.professional.special_units = userData.special_units;
+        tempLoggedUser.info.professional.special_units = userData.special_units.map((unit) => {
+            return {
+                unit: getObjectFromId(unit.id as number, forceData.special_units)!,
+                role: getObjectFromId(unit.role as number, forceData.special_unit_roles)!
+            };
+        });
 
         // Fetch the user's intents
         const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");

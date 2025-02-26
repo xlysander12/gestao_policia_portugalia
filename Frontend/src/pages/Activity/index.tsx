@@ -148,9 +148,9 @@ function Activity() {
     // Set the state for the current viewing officer
     const [currentOfficer, setCurrentOfficer] = useState<MinifiedOfficerData>({
         name: nif && !isNaN(parseInt(nif)) ? "": loggedUser.info.personal.name,
-        patent: nif && !isNaN(parseInt(nif)) ? 0: loggedUser.info.professional.patent,
+        patent: nif && !isNaN(parseInt(nif)) ? forceData.patents[0].id: loggedUser.info.professional.patent.id,
         callsign: nif && !isNaN(parseInt(nif)) ? "": loggedUser.info.professional.callsign,
-        status: nif && !isNaN(parseInt(nif)) ? 0: loggedUser.info.professional.status,
+        status: nif && !isNaN(parseInt(nif)) ? 0: loggedUser.info.professional.status.id,
         nif: nif && !isNaN(parseInt(nif)) ? parseInt(nif): loggedUser.info.personal.nif
     });
 

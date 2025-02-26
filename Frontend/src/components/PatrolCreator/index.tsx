@@ -50,9 +50,9 @@ function PatrolCreator() {
         special_unit: forceData.special_units[0],
         officers: [{
             name: loggedUser.info.personal.name,
-            patent: loggedUser.info.professional.patent,
+            patent: loggedUser.info.professional.patent.id,
             callsign: loggedUser.info.professional.callsign,
-            status: loggedUser.info.professional.status,
+            status: loggedUser.info.professional.status.id,
             nif: loggedUser.info.personal.nif,
             force: localStorage.getItem("force")!
         }],

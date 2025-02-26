@@ -200,7 +200,7 @@ function OfficerInfo() {
     })
 
     // Variable that dictates whether the logged user can edit the current officer.
-    const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent > officerInfo.professional.patent;
+    const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent.id > officerInfo.professional.patent;
 
     async function fetchOfficerInfo(showloading: boolean = true) {
         // First, we need to set the loading state to true
@@ -359,7 +359,7 @@ function OfficerInfo() {
                 <ManagementBar>
                     {/*Buttons that lie on the left side of the bar*/}
                     <div className={style.officerInfoAlterbarLeft}>
-                        <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent > officerInfo.professional.patent}>
+                        <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent.id > officerInfo.professional.patent}>
                             <DefaultButton
                                 onClick={() => setAccountModalOpen(true)}
                             >
@@ -536,7 +536,7 @@ function OfficerInfo() {
                                 isSelect
                             >
                                 {forceData.patents.map((patent) => {
-                                    return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent}>{patent.name}</MenuItem>
+                                    return <MenuItem key={`patent${patent.id}`} value={patent.id} disabled={patent.id > loggedUser.info.professional.patent.id}>{patent.name}</MenuItem>
                                 })}
                             </InformationPair>
                             <Divider/>

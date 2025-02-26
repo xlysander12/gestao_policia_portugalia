@@ -3,7 +3,6 @@ import style from "./navbar.module.css";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {BASE_URL} from "../../utils/constants";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
@@ -13,7 +12,7 @@ import {BaseResponse, SocketResponse} from "@portalseguranca/api-types/index.ts"
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useForceData, useWebSocketEvent} from "../../hooks";
+import {useWebSocketEvent} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
 import {
     ExistingPatrolSocket,
@@ -80,9 +79,6 @@ type NavbarProps = {
     handleForceChange: (newForce: string) => void
 }
 function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
-    // Get the patents of the force where the user is logged in from context
-    const [forceData] = useForceData();
-
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
 
@@ -108,11 +104,11 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     // Set the full name of the officer
     const fullName = isLoginPage ? "":
-        `${getObjectFromId(loggedUser.info.professional.patent, forceData.patents)!.name} ${loggedUser.info.personal.name}`;
+        `${loggedUser.info.professional.patent.name} ${loggedUser.info.personal.name}`;
 
     const status = {
-        color: officerPatrol ? "lightBlue": getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.color,
-        name: officerPatrol ? "Em Patrulha": getObjectFromId(loggedUser.info.professional.status, forceData.statuses)!.name
+        color: officerPatrol ? "lightBlue": loggedUser.info.professional.status.color,
+        name: officerPatrol ? "Em Patrulha": loggedUser.info.professional.status.name
     }
 
     // Create the array of elements for the pathsdiv
