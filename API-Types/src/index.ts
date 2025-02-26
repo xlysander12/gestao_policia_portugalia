@@ -9,4 +9,5 @@ export interface RequestError extends BaseResponse{
 
 export interface SocketResponse {
     action: "add" | "delete" | "update" | "restore" | "manage"
+    by: number
 }

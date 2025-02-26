@@ -23,7 +23,7 @@ import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-typ
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
 import express from "express";
-import {OfficerInfoAPIResponse} from "../types";
+import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER, UPDATE_EVENTS} from "../utils/constants";
 import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
 import {SocketResponse} from "@portalseguranca/api-types";
@@ -325,10 +325,11 @@ const officersRoutes: routesType = {
                 notes: "add_officer",
                 broadcast: {
                     event: UPDATE_EVENTS.OFFICER,
-                    body: (req: express.Request): OfficerAddSocket => {
+                    body: (req: express.Request, res: APIResponse): OfficerAddSocket => {
                         return {
                             action: "add",
-                            nif: parseInt(req.params.nif)
+                            nif: parseInt(req.params.nif),
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -347,7 +348,8 @@ const officersRoutes: routesType = {
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
                         return {
                             action: "update",
-                            nif: res.locals.targetOfficer!.nif
+                            nif: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -366,7 +368,8 @@ const officersRoutes: routesType = {
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerDeleteSocket => {
                         return {
                             action: "delete",
-                            nif: res.locals.targetOfficer!.nif
+                            nif: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -385,10 +388,11 @@ const officersRoutes: routesType = {
                 notes: "restore_officer",
                 broadcast: {
                     event: UPDATE_EVENTS.OFFICER,
-                    body: (req: express.Request): OfficerRestoreSocket => {
+                    body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerRestoreSocket => {
                         return {
                             action: "restore",
-                            nif: parseInt(req.params.nif)
+                            nif: parseInt(req.params.nif),
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -427,7 +431,8 @@ const activityRoutes: routesType = {
                         return {
                             type: "last_shift",
                             action: "update",
-                            nif: res.locals.targetOfficer!.nif
+                            nif: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -468,6 +473,7 @@ const activityRoutes: routesType = {
                             type: "hours",
                             action: "add",
                             nif: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -499,7 +505,8 @@ const activityRoutes: routesType = {
                             type: "hours",
                             action: "delete",
                             nif: res.locals.targetOfficer!.nif,
-                            id: parseInt(req.params.id)
+                            id: parseInt(req.params.id),
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -546,7 +553,8 @@ const activityRoutes: routesType = {
                         return {
                             type: "justification",
                             action: "add",
-                            nif: res.locals.targetOfficer!.nif
+                            nif: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -581,7 +589,8 @@ const activityRoutes: routesType = {
                             type: "justification",
                             action: "manage",
                             nif: res.locals.targetOfficer!.nif,
-                            id: res.locals.justification.id
+                            id: res.locals.justification.id,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -599,7 +608,8 @@ const activityRoutes: routesType = {
                             type: "justification",
                             action: "update",
                             nif: res.locals.targetOfficer!.nif,
-                            id: res.locals.justification.id
+                            id: res.locals.justification.id,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -614,7 +624,8 @@ const activityRoutes: routesType = {
                             type: "justification",
                             action: "delete",
                             nif: res.locals.targetOfficer!.nif,
-                            id: res.locals.justification.id
+                            id: res.locals.justification.id,
+                            by: res.locals.loggedOfficer.nif
                         }
                     }
                 }
@@ -669,10 +680,11 @@ const patrolsRoutes: routesType = {
                 },
                 broadcast: {
                     event: UPDATE_EVENTS.PATROL,
-                    body: (req): PatrolAddSocket => {
+                    body: (req, res: APIResponse): PatrolAddSocket => {
                         return {
                             action: "add",
-                            force: req.header(FORCE_HEADER)!
+                            force: req.header(FORCE_HEADER)!,
+                            by: res.locals.loggedOfficer.nif
                         }
                     },
                     patrol: true
@@ -697,7 +709,8 @@ const patrolsRoutes: routesType = {
                         return {
                             action: "update",
                             id: res.locals.patrol.id,
-                            force: res.locals.patrol.force
+                            force: res.locals.patrol.force,
+                            by: res.locals.loggedOfficer.nif
                         }
                     },
                     patrol: true
@@ -714,7 +727,8 @@ const patrolsRoutes: routesType = {
                         return {
                             action: "delete",
                             id: res.locals.patrol.id,
-                            force: res.locals.patrol.force
+                            force: res.locals.patrol.force,
+                            by: res.locals.loggedOfficer.nif
                         }
                     },
                     patrol: true
