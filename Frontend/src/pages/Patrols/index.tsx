@@ -13,9 +13,11 @@ import PatrolInfoModal from "./modals/PatrolInfoModal";
 import PatrolCreator from "../../components/PatrolCreator";
 import {FullDivLoader} from "../../components/Loader";
 import {useForceData, useWebSocketEvent} from "../../hooks";
+import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import {getObjectFromId} from "../../forces-data-context.ts";
 
 function Patrols() {
-    const [forceData] = useForceData();
+    const [, getForceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
@@ -99,6 +101,7 @@ function Patrols() {
                     <div className={style.searchDiv}>
                         <DefaultSearch
                             fullWidth
+                            // limitTags={2}
                             callback={async (options) => {
                                 const {patrols, pages} = await fetchPatrols(true, options);
 
@@ -109,7 +112,22 @@ function Patrols() {
                                 {label: "Depois de", key: "after", type: "date"},
                                 {label: "Antes de", key: "before", type: "date"},
                                 {label: "Em curso", key: "active", type: "boolean"},
-                                {label: "Patente", key: "patent", type: "option", options: forceData.patents.map(patent => ({label: patent.name, key: String(patent.id)}))},
+                                {label: "Efetivo", key: "officers", type: "asyncOption",
+                                    optionsFunc: async (signal) => {
+                                        const officers = await make_request("/officers?patrol=true", "GET", {signal: signal});
+                                        const officersData: OfficerListResponse | RequestError = await officers.json();
+
+                                        if (!officers.ok) {
+                                            toast.error(officersData.message);
+                                            return [];
+                                        }
+
+                                        return (officersData as OfficerListResponse).data.map((officer: MinifiedOfficerData) => ({
+                                            label: `[${officer.callsign}] ${getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} ${officer.name}`,
+                                            key: String(officer.nif)
+                                        }));
+                                    }
+                                },
                             ]}
                         />
                     </div>

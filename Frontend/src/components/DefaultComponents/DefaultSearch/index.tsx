@@ -1,38 +1,10 @@
-import {Autocomplete, AutocompleteProps, Popover} from "@mui/material";
-import {DefaultDateCalendar, DefaultOutlinedTextField} from "./index.ts";
+import {Autocomplete, Popover} from "@mui/material";
+import {DefaultDateCalendar, DefaultOutlinedTextField} from "../index.ts";
 import {useEffect, useRef, useState} from "react";
 import {styled} from "@mui/system";
 import {useImmer} from "use-immer";
 import {Moment} from "moment";
-
-type DefaultSearchBaseOption = {
-    label: string
-    key: string
-}
-
-type DefaultSearchStandaloneOption = DefaultSearchBaseOption & {
-    type: "standalone"
-}
-
-type DefaultSearchStringDateOption = DefaultSearchBaseOption & {
-    type: "text" | "date"
-}
-
-type DefaultSearchBooleanOption = DefaultSearchBaseOption & {
-    type: "boolean"
-}
-
-type DefaultSearchOptionsOption = DefaultSearchBaseOption & {
-    type: "option"
-    options: DefaultSearchBaseOption[]
-}
-
-type DefaultSearchOption = DefaultSearchStandaloneOption | DefaultSearchStringDateOption | DefaultSearchBooleanOption | DefaultSearchOptionsOption
-
-type DefaultSearchProps = Omit<AutocompleteProps<any, any, any, any>, "renderInput" | "multiple" | "options"> & {
-    options: DefaultSearchOption[]
-    callback: (options: {key: string, value: any}[]) => void
-}
+import {DefaultSearchOption, DefaultSearchProps} from "./types";
 
 const StyledDefaultSearch = styled(Autocomplete, {
     shouldForwardProp: (propName) => propName !== "type"
@@ -47,6 +19,8 @@ const StyledDefaultSearch = styled(Autocomplete, {
     "& .MuiAutocomplete-tag": {
         backgroundColor: "var(--portalseguranca-color-background-dark)",
         borderRadius: "5px",
+        // fontSize: "1.05rem",
+        color: "var(--portalseguranca-color-text-light)"
     }
 }));
 
@@ -59,6 +33,8 @@ function DefaultSearch(props: DefaultSearchProps) {
     const calendarAnchorRef = useRef<HTMLElement | null>(null);
 
     const [toCallCallback, setToCallCallback] = useState<boolean>(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     const booleanOptions: DefaultSearchOption[] = [
         {label: "Sim", type: "standalone", key: "true"},
@@ -89,6 +65,9 @@ function DefaultSearch(props: DefaultSearchProps) {
     }
 
     const handleOptionCancel = () => {
+        // Make sure the options aren't loading
+        setLoading(false);
+
         // Set the options to the default ones
         setOptions(props.options);
 
@@ -146,7 +125,7 @@ function DefaultSearch(props: DefaultSearchProps) {
             });
         }
 
-        else if (currentOption.type === "option") {
+        else if (currentOption.type === "option" || currentOption.type === "asyncOption") {
             // Return the options to normal
             setOptions(props.options);
 
@@ -184,12 +163,40 @@ function DefaultSearch(props: DefaultSearchProps) {
         setToCallCallback(true);
     }
 
+    // Trigger the callback when an option's addition is complete
     useEffect(() => {
         if (toCallCallback) {
             triggerCallback();
             setToCallCallback(false);
         }
     }, [currentValue]);
+
+    // Call the async function when the current option needs it
+    useEffect(() => {
+        if (currentOption?.type === "asyncOption") {
+            const controller = new AbortController();
+            const signal = controller.signal;
+
+            setLoading(true);
+            currentOption.optionsFunc(signal).then((options) => {
+                setOptions(options.map(option => ({
+                    ...option,
+                    type: "standalone"
+                })));
+
+                setLoading(false);
+            }).catch(error => {
+                if (error.name === "AbortError") return;
+
+                console.error(error);
+            });
+
+            return () => {
+                setLoading(false);
+                controller.abort();
+            }
+        }
+    }, [currentOption?.type]);
 
     return (
         <>
@@ -201,11 +208,27 @@ function DefaultSearch(props: DefaultSearchProps) {
                     return (
                         <DefaultOutlinedTextField
                             alternateColor
+                            // slotProps={{
+                            //     input: {
+                            //         ...params.InputProps,
+                            //         endAdornment: (
+                            //             <>
+                            //                 <Gate show={loading}>
+                            //                     <Loader size={"20px"} />
+                            //                 </Gate>
+                            //                 {params.InputProps.endAdornment}
+                            //             </>
+                            //         )
+                            //     }
+                            // }}
                             {...params}
                         />
                     );
                 }}
                 value={buildComponentValue()}
+                loading={loading}
+                loadingText={"A carregar..."}
+                noOptionsText={"Sem opções"}
                 onChange={(event, value, reason, details) => {
                     console.log(event);
                     console.log(value);
@@ -254,6 +277,11 @@ function DefaultSearch(props: DefaultSearchProps) {
                                     type: "standalone"
                                 })));
                             }
+
+                            else if (newOption.type === "asyncOption") {
+                                // Remove all options so they can be populated by the async function
+                                setOptions([]);
+                            }
                         } else { // Just entered a value for an option
                             handleOptionComplete(details!.option);
                         }
@@ -280,6 +308,15 @@ function DefaultSearch(props: DefaultSearchProps) {
                     }
                 }}
                 ref={calendarAnchorRef}
+                slotProps={{
+                    popper: {
+                        sx: {
+                            "& .MuiAutocomplete-noOptions, & .MuiAutocomplete-loading": {
+                                color: "var(--portalseguranca-color-text-light)"
+                            }
+                        }
+                    }
+                }}
                 {...props}
 
                 options={options}
