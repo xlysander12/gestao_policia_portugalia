@@ -10,6 +10,7 @@ type MakeRequestOptions<Body> = Partial<{
     useBaseAPIURL: boolean,
     redirectToLoginOn401: boolean
     reloadOn500: boolean
+    signal: AbortSignal | null
 }>
 // ! 'useAuth' option is deprecated, and such, has been deleted
 export async function make_request<BodyType>(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
@@ -18,7 +19,8 @@ export async function make_request<BodyType>(url: string, method: ("GET" | "POST
                                        force = <string>localStorage.getItem("force"),
                                        useBaseAPIURL = true,
                                        redirectToLoginOn401 = true,
-                                       reloadOn500 = true
+                                       reloadOn500 = true,
+                                       signal = null
                                    }: MakeRequestOptions<BodyType> = {}) {
     // First, make sure the URL starts with a slash
     if (!url.startsWith('/')) {
@@ -37,7 +39,8 @@ export async function make_request<BodyType>(url: string, method: ("GET" | "POST
             'Content-Type': 'application/json',
             'X-Portalseguranca-Force': force
         },
-        body: method === "GET" || body === null ? undefined: JSON.stringify(body)
+        body: method === "GET" || body === null ? undefined: JSON.stringify(body),
+        signal: signal ? signal : null,
     });
 
     // If the response status is 401, redirect to the login page
