@@ -7,14 +7,16 @@ import {make_request} from "../../utils/requests.ts";
 import { RequestError } from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
-import {DefaultPagination} from "../../components/DefaultComponents";
+import {DefaultPagination, DefaultSearch} from "../../components/DefaultComponents";
 import PatrolCard from "./components/PatrolCard";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
 import PatrolCreator from "../../components/PatrolCreator";
 import {FullDivLoader} from "../../components/Loader";
-import {useWebSocketEvent} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 
 function Patrols() {
+    const [forceData] = useForceData();
+
     const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
 
@@ -35,13 +37,20 @@ function Patrols() {
         setTotalPages(pages);
     });
 
-    async function fetchPatrols(showLoading?: boolean): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+    async function fetchPatrols(showLoading?: boolean, filters?: {key: string, value: string}[]): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
         if (showLoading) {
             setLoading(true);
         }
 
-        // TODO: This has to implement the filters that are going to be used when the search function is done
-        const result = await make_request(`/patrols?page=${page}`, "GET");
+        let requestURL = `/patrols?page=${page}`;
+
+        if (filters) {
+            for (const filter of filters) {
+                requestURL += `&${filter.key}=${encodeURIComponent(filter.value)}`;
+            }
+        }
+
+        const result = await make_request(requestURL, "GET");
         const patrols: PatrolHistoryResponse | RequestError = await result.json();
 
         if (!result.ok) {
@@ -87,6 +96,24 @@ function Patrols() {
                 leftSidePercentage={30}
             >
                 <ManagementBar>
+                    <div className={style.searchDiv}>
+                        <DefaultSearch
+                            fullWidth
+                            callback={async (options) => {
+                                const {patrols, pages} = await fetchPatrols(true, options);
+
+                                setPatrols(patrols);
+                                setTotalPages(pages);
+                            }}
+                            options={[
+                                {label: "Depois de", key: "after", type: "date"},
+                                {label: "Antes de", key: "before", type: "date"},
+                                {label: "Em curso", key: "active", type: "boolean"},
+                                {label: "Patente", key: "patent", type: "option", options: forceData.patents.map(patent => ({label: patent.name, key: String(patent.id)}))},
+                            ]}
+                        />
+                    </div>
+
                     <div className={style.paginationDiv}>
                         <DefaultPagination
                             variant={"outlined"}
