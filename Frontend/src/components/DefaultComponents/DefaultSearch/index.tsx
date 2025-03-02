@@ -144,6 +144,15 @@ function DefaultSearch(props: DefaultSearchProps) {
     }
 
     const handleOptionDelete = (optionFullText: string) => {
+        // Find in wich index the option is
+        const index = currentValue.findIndex((item) => item.label === optionFullText.split(":")[0]);
+
+        // If "currentOption" isn't null and the index is the last one, cancel the option
+        if (currentOption !== null && index === currentValue.length - 1) {
+            handleOptionCancel();
+            return;
+        }
+
         // Set the options to the default ones
         setOptions(props.options);
 
@@ -151,8 +160,6 @@ function DefaultSearch(props: DefaultSearchProps) {
         setCurrentOption(null);
 
         // * Remove the option from the current value
-        // Find in wich index the option is
-        const index = currentValue.findIndex((item) => item.label === optionFullText.split(":")[0]);
 
         // Remove the index from the current value
         setCurrentValue((draft) => {
