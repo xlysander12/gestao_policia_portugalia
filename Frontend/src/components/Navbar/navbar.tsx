@@ -194,8 +194,10 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
             setOfficerPatrol(await getOfficerPatrol());
         }
 
-        exec();
-    }, []);
+        if (!isLoginPage) {
+            exec();
+        }
+    }, [isLoginPage]);
 
     return (
         <>
