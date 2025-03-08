@@ -17,11 +17,12 @@ import {
 } from "../../../../components/DefaultComponents";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
-import {Divider, List, ListItem, ListItemText} from "@mui/material";
+import {Divider} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {RequestError, BaseResponse} from "@portalseguranca/api-types";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
+import OfficerList from "../../../../components/OfficerList";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string
@@ -50,6 +51,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const [patrolData, setPatrolData] = useImmer<InnerPatrolData | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Handle WebSocket events
     useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
@@ -133,9 +135,13 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         // Prevent the default form submission
         event.preventDefault();
 
+        // Set the loading flag to true
+        setLoading(true);
+
         const response = await make_request<EditPatrolBody>(`/patrols/${id}`, "PATCH", {
             body: {
                 start: patrolData!.start.format("YYYY-MM-DDTHH:mm:ss"),
+                officers: patrolData!.officers.map(officer => officer.nif),
                 end: patrolData!.end ? patrolData!.end.format("YYYY-MM-DDTHH:mm:ss"): null,
                 notes: patrolData!.notes === "" ? null: patrolData!.notes
             }
@@ -152,6 +158,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         setEditMode(false);
 
         // Fetch the details of the patrol again
+        setLoading(false);
         setPatrolData(null);
         setPatrolData(await fetchPatrolData(id!));
     }
@@ -239,8 +246,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                     <div className={style.soloDateDiv}>
                                         <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Início:</DefaultTypography>
                                         <DefaultDateTimePicker
-                                            disabled={!editMode}
-                                            textWhenDisabled
+                                            disabled={!editMode || loading}
+                                            textWhenDisabled={!loading}
                                             disableFuture
                                             value={patrolData!.start}
                                             onChange={(date) => setPatrolData(draft => {draft!.start = date!})}
@@ -251,8 +258,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                     <div className={style.soloDateDiv}>
                                         <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Fim:</DefaultTypography>
                                         <DefaultDateTimePicker
-                                            disabled={!editMode}
-                                            textWhenDisabled
+                                            disabled={!editMode || loading}
+                                            textWhenDisabled={!loading}
                                             disableFuture
                                             value={patrolData!.end}
                                             onChange={(date) => setPatrolData(draft => {draft!.end = date})}
@@ -267,11 +274,11 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Observações:</DefaultTypography>
 
                                 <DefaultOutlinedTextField
-                                    disabled={!editMode}
+                                    disabled={!editMode || loading}
                                     fullWidth
-                                    textWhenDisabled
+                                    textWhenDisabled={!loading}
                                     placeholder={"Sem observações"}
-                                    value={patrolData!.notes}
+                                    value={patrolData!.notes ? patrolData!.notes: ""}
                                     onChange={(e) => setPatrolData(draft => {draft!.notes = e.target.value})}
                                     multiline
                                 />
@@ -282,27 +289,16 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                             <div
                                 style={{overflowY: "visible"}}
                             >
-                                <List
-                                    dense
-                                    sx={{padding: 0, overflowY: "auto"}}
-                                >
-                                    {patrolData!.officers.map(officer => {
-                                        return (
-                                            <ListItem
-                                                key={`patrolOffice#${officer.nif}`}
-                                                sx={{
-                                                    padding: "4px 0px"
-                                                }}
-                                            >
-                                                <ListItemText
-                                                    sx={{color: "var(--portalseguranca-color-text-light)", margin: 0}}
-                                                >
-                                                    [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force).patents)!.name} {officer.name}
-                                                </ListItemText>
-                                            </ListItem>
-                                        );
-                                    })}
-                                </List>
+                                <OfficerList
+                                    startingOfficers={patrolData.officers}
+                                    changeCallback={(officers) => {
+                                        setPatrolData(draft => {
+                                            draft!.officers = officers as InnerOfficerData[];
+                                        });
+                                    }}
+                                    invisibleDisabled={!editMode}
+                                    disabled={loading}
+                                />
                             </div>
                         </ModalSection>
 

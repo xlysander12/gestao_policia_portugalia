@@ -7,7 +7,7 @@ import {
     DefaultTypography
 } from "../DefaultComponents";
 import style from "./patrol-creator.module.css";
-import {Divider, IconButton, List, ListItem, ListItemText, MenuItem} from "@mui/material";
+import {Divider, MenuItem} from "@mui/material";
 import {useForceData} from "../../hooks";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
@@ -16,11 +16,10 @@ import {useImmer} from "use-immer";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {FormEvent, useContext, useState} from "react";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {make_request} from "../../utils/requests.ts";
 import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
-import OfficerListModal from "../OfficerList/OfficerListModal.tsx";
+import OfficerList from "../OfficerList";
 
 type InnerNewPatrolType = {
     type: PatrolTypeData
@@ -33,16 +32,13 @@ type InnerNewPatrolType = {
 
 function PatrolCreator() {
     // Get the force data from hook
-    const [forceData, getForceData] = useForceData();
+    const [forceData] = useForceData();
 
     // Get the logged officer from context
     const loggedUser = useContext(LoggedUserContext);
 
     // Loading state
     const [loading, setLoading] = useState(false);
-
-    // Add new officer modal
-    const [officerListModalOpen, setOfficerListModalOpen] = useState<boolean>(false);
 
     // State that holds the patrol information
     const [newPatrolData, setNewPatrolData] = useImmer<InnerNewPatrolType>({
@@ -60,15 +56,6 @@ function PatrolCreator() {
         end: null,
         notes: null
     });
-
-    const addOfficer = (officer: MinifiedOfficerData) => {
-        setNewPatrolData((draft) => {
-            draft.officers.push(officer);
-        });
-
-        // Close the OfficerList Modal, if open
-        setOfficerListModalOpen(false);
-    }
 
     const createPatrol = async (event: FormEvent) => {
         // Prevent page from realoading
@@ -202,55 +189,17 @@ function PatrolCreator() {
                 <Divider flexItem sx={{margin: "5px 0 10px 0"}} />
 
                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Membros:</DefaultTypography>
-                <div className={style.membersDiv}>
-                    <List
-                        dense
-                    >
-                        {newPatrolData.officers.map((officer) => {
-                            return (
-                                <ListItem
-                                    key={`patrolOfficer#${officer.nif}`}
-                                    secondaryAction={
-                                        <IconButton
-                                            disabled={officer.nif === loggedUser.info.personal.nif || loading}
-                                            onClick={() => {
-                                                setNewPatrolData((draft) => {
-                                                    draft.officers = draft.officers.filter((off) => off.nif !== officer.nif);
-                                                });
-                                            }}
-                                            sx={{
-                                                color: "red", // TODO: Ask if it looks better white or red
-                                                marginRight: "-10px"
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    }
-                                >
-                                    <ListItemText
-                                        primary={
-                                            <DefaultTypography
-                                                fontSize={"0.9rem"}
-                                            >
-                                                [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} {officer.name}
-                                            </DefaultTypography>
-                                        }
-                                    />
-                                </ListItem>
-                            );
-                        })}
-                    </List>
-                </div>
 
-                <DefaultButton
+                <OfficerList
                     disabled={loading}
-                    fullWidth
-                    darkTextOnHover
-                    buttonColor={"lightgreen"}
-                    onClick={() => setOfficerListModalOpen(true)}
-                >
-                    Adicionar Membro
-                </DefaultButton>
+                    startingOfficers={newPatrolData.officers}
+                    changeCallback={(officers) => {
+                        console.log("Callback triggered");
+                        setNewPatrolData((draft) => {
+                            draft.officers = officers
+                        });
+                    }}
+                />
 
                 <div className={style.registerDiv}>
                     <Divider
@@ -272,23 +221,6 @@ function PatrolCreator() {
                     </DefaultButton>
                 </div>
             </form>
-
-            <OfficerListModal
-                patrol
-                open={officerListModalOpen}
-                onClose={() => setOfficerListModalOpen(false)}
-                callback={addOfficer}
-                filter={(officer) => {
-                    if (newPatrolData.officers.map((off) => off.nif).includes(officer.nif)) {
-                        return false;
-                    }
-
-                    // Checking if the officer has a status that prevents from doing patrols
-                    const officerStatus = getObjectFromId(officer.status, forceData.statuses)!;
-
-                    return officerStatus.canPatrol;
-                }}
-            />
         </>
     );
 }
