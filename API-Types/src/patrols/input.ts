@@ -39,6 +39,7 @@ export const EditPatrolBody = rt.Partial({
     end: rt.Union(rt.String.withConstraint((string) => {
         return !isNaN(Date.parse(string));
     }), rt.Null),
+    officers: rt.Array(rt.Number),
     notes: rt.Union(rt.String, rt.Null)
 });
 export type EditPatrolBody = rt.Static<typeof EditPatrolBody>;

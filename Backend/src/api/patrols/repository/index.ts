@@ -5,6 +5,7 @@ import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {dateToString} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
+import {RowDataPacket} from "mysql2/promise";
 
 function splitPatrolId(id: string): [string, number] {
     const idMatch = id.match(/([a-z]+)(\d+)$/);
@@ -70,13 +71,41 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
     };
 }
 
-export async function isOfficerInPatrol(force: string, officerNif: number): Promise<boolean> {
-    const result = await queryDB(force, `SELECT *
+export async function isOfficerInPatrol(force: string, officerNif: number, start?: Date, end?: Date | null, patrolId?: string): Promise<boolean> {
+    if ((start && end === undefined) || (start === undefined && end)) {
+        throw new Error("Both start and end must be provided");
+    }
+
+    let result: RowDataPacket[];
+
+    // Alter the query depending if the start and end are provided
+    if (!start && !end) {
+        result = await queryDB(force, `SELECT *
                                          FROM patrolsV
                                          WHERE officers LIKE ?
                                            AND end IS NULL`, [`%${officerNif}%`]);
+    } else {
+        result = await queryDB(force, `SELECT *
+                                         FROM patrolsV
+                                         WHERE officers LIKE ?
+                                           AND start <= ?
+                                           AND end >= ?`, [`%${officerNif}%`, end, start]);
+    }
 
-    return result.length !== 0;
+    // If no patrols were found, the officer is not in a patrol
+    if (result.length === 0) {
+        return false;
+    }
+
+    // If the length is 1, check if the patrol is the same as the one being edited
+    if (result.length === 1 && patrolId) {
+        return !(result[0].id === patrolId);
+    }
+
+
+    // Since the officer is in a patrol, return true
+    return true;
+
 }
 
 export async function getOfficerPatrol(force: string, officerNif: number): Promise<InnerPatrolData | null> {
@@ -114,8 +143,11 @@ export async function editPatrol(force: string, id: number, changes: EditPatrolB
     let updateQuery = `UPDATE patrols SET ${Object.keys(changes).reduce((acc, field) => {
         acc += `${field} = ?, `;
 
-        params.push(changes[field as keyof EditPatrolBody] as string);
-
+        if (field === "officers") {
+            params.push(JSON.stringify(changes[field as keyof EditPatrolBody]));
+        } else {
+            params.push(changes[field as keyof EditPatrolBody] as string);
+        }
         return acc;
     }, "").slice(0, -2)} WHERE id = ?`;
 
