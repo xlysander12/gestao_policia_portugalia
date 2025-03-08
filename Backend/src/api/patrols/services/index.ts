@@ -19,7 +19,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     let officerData: InnerOfficerData | null = null;
     let officerForce: string = force;
 
-    for (const patrolForce of [...getForcePatrolForces(force), force]) {
+    for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
         const tempResult = await getOfficerData(officerNif, patrolForce);
 
         if (tempResult !== null) {
