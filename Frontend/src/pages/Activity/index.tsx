@@ -1,5 +1,5 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
-import {OfficerList} from "../../components/OfficerList";
+import {OfficerPicker} from "../../components/OfficerPicker";
 import {useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import style from "./activity.module.css";
@@ -337,7 +337,7 @@ function Activity() {
         <>
             <ScreenSplit
                 leftSideComponent={
-                    <OfficerList
+                    <OfficerPicker
                         disabled={!loggedUser.intents["activity"] || loading}
                         callback={setCurrentOfficer}
                     />

@@ -1,6 +1,6 @@
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 import {Modal} from "../Modal";
-import {OfficerList} from "./index";
+import {OfficerPicker} from "./index";
 
 type OfficerListModalProps = {
     open: boolean
@@ -9,7 +9,7 @@ type OfficerListModalProps = {
     filter?: (officer: MinifiedOfficerData) => boolean
     patrol?: boolean
 }
-function OfficerListModal({open, onClose, callback, filter, patrol}: OfficerListModalProps) {
+function OfficerPickerModal({open, onClose, callback, filter, patrol}: OfficerListModalProps) {
 
     return (
         <Modal
@@ -26,10 +26,10 @@ function OfficerListModal({open, onClose, callback, filter, patrol}: OfficerList
                 padding: "10px",
                 height: "100%"
             }}>
-                <OfficerList patrol={patrol} filter={filter} callback={callback} />
+                <OfficerPicker patrol={patrol} filter={filter} callback={callback} />
             </div>
         </Modal>
     );
 }
 
-export default OfficerListModal;
+export default OfficerPickerModal;

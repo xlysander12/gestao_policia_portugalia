@@ -1,6 +1,6 @@
 import React, {ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
-import {OfficerList} from "../../components/OfficerList";
+import {OfficerPicker} from "../../components/OfficerPicker";
 import {Loader} from "../../components/Loader";
 import {make_request} from "../../utils/requests";
 import {
@@ -353,7 +353,7 @@ function OfficerInfo() {
             {/*Div that splits the screen*/}
             <ScreenSplit
                 leftSidePercentage={30}
-                leftSideComponent={<OfficerList callback={officerListCallback} disabled={loading}/>}
+                leftSideComponent={<OfficerPicker callback={officerListCallback} disabled={loading}/>}
             >
                 {/*Div that holds the buttons to alter the officer's info*/}
                 <ManagementBar>

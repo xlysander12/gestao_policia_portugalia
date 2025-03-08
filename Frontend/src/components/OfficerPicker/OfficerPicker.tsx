@@ -1,5 +1,5 @@
 import {ReactElement, useEffect, useState, FormEvent} from "react";
-import style from "./officer-list.module.css";
+import style from "./officer-picker.module.css";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTypography} from "../DefaultComponents";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
@@ -49,7 +49,7 @@ type OfficerListProps = {
     patrol?: boolean
 }
 
-function OfficerList({callback, filter = () => true, disabled = false, patrol = false}: OfficerListProps) {
+function OfficerPicker({callback, filter = () => true, disabled = false, patrol = false}: OfficerListProps) {
     // Get the force's data from Context
     const [forceData, getForceData] = useForceData();
 
@@ -184,4 +184,4 @@ function OfficerList({callback, filter = () => true, disabled = false, patrol = 
     );
 }
 
-export default OfficerList;
+export default OfficerPicker;
