@@ -15,8 +15,13 @@ import {FullDivLoader} from "../../components/Loader";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {getObjectFromId} from "../../forces-data-context.ts";
+import {useParams} from "react-router-dom";
 
 function Patrols() {
+    // Get the patrol id from the URL
+    // ! This might not be present
+    const {patrolId} = useParams();
+
     const [, getForceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
@@ -78,6 +83,7 @@ function Patrols() {
         setPatrolInfoModalOpen(true);
     }
 
+    // Every time the page changes, fetch the patrols of that page
     useEffect(() => {
         const execute = async () => {
             // Fetch the patrols from the API
@@ -90,6 +96,14 @@ function Patrols() {
 
         execute();
     }, [page]);
+
+    // When the page loads, verify if there's a patrol id in the URL
+    useEffect(() => {
+        if (patrolId) {
+            setSelectedPatrol(patrolId);
+            setPatrolInfoModalOpen(true);
+        }
+    }, []);
 
     return (
         <>

@@ -162,7 +162,16 @@ function App() {
             },
             {
                 path: "/patrulhas",
-                element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                children: [
+                    {
+                        path: "",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                    },
+                    {
+                        path: ":patrolId",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                    }
+                ]
             }
         ], {
             basename: BASE_URL

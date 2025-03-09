@@ -77,7 +77,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     }, [id, editMode]));
 
     // Getting the patrol force from the id
-    const patrolForce = id === null ? "": id.match(/([a-z]+)(\d+)$/)![1];
+    const patrolForce = id ? id.match(/([a-z]+)(\d+)$/)![1]: "";
     
     const fetchPatrolData = async (id: string): Promise<InnerPatrolData | null> => {
         // Fetch the patrol data
