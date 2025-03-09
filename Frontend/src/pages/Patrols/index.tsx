@@ -11,11 +11,11 @@ import {DefaultPagination, DefaultSearch} from "../../components/DefaultComponen
 import PatrolCard from "./components/PatrolCard";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
 import PatrolCreator from "../../components/PatrolCreator";
-import {FullDivLoader} from "../../components/Loader";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useParams} from "react-router-dom";
+import {Loader} from "../../components/Loader";
 
 function Patrols() {
     // Get the patrol id from the URL
@@ -160,7 +160,7 @@ function Patrols() {
 
                 <div className={style.patrolsList}>
                     <Gate show={loading}>
-                        <FullDivLoader />
+                        <Loader fullDiv />
                     </Gate>
 
                     <Gate show={!loading}>
