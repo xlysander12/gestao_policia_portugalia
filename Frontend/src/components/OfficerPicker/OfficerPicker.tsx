@@ -8,7 +8,7 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import ManagementBar from "../ManagementBar";
 import Gate from "../Gate/gate.tsx";
-import {FullDivLoader} from "../Loader";
+import {Loader} from "../Loader";
 
 type OfficerCardProps = {
     name: string
@@ -148,7 +148,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
             {/*Lista de efetivos*/}
             <div className={style.officerListListDiv}>
                 <Gate show={loading}>
-                    <FullDivLoader />
+                    <Loader fullDiv />
                 </Gate>
 
                 <Gate show={!loading}>
