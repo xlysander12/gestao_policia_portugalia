@@ -3,7 +3,15 @@
 // It will be a wrapper around the fetch API, making it easier to use
 import {BASE_API_URL} from "./constants";
 
-type MakeRequestOptions<Body> = Partial<{
+export enum RequestMethod {
+    GET = "GET",
+    POST= "POST",
+    PATCH = "PATCH",
+    PUT = "PUT",
+    DELETE = "DELETE"
+}
+
+export type MakeRequestOptions<Body> = Partial<{
     body: Body | null,
     force: string,
     useAuth: boolean,
@@ -13,7 +21,7 @@ type MakeRequestOptions<Body> = Partial<{
     signal: AbortSignal | null
 }>
 // ! 'useAuth' option is deprecated, and such, has been deleted
-export async function make_request<BodyType>(url: string, method: ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
+export async function make_request<BodyType>(url: string, method: RequestMethod | ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
                                    {
                                        body = null,
                                        force = <string>localStorage.getItem("force"),
