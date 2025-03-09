@@ -81,7 +81,7 @@ function ActivityJustificationCard({type, start, end, status, managed_by, timest
 
     return (
         <InformationCard
-            statusColor={statusColor}
+            statusColor={end && end.getTime() < Date.now() ? "gray": statusColor}
             callback={onClick}
         >
             <div style={{display: "flex", flexDirection: "row", width: "100%"}}>
