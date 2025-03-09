@@ -9,6 +9,32 @@ import {getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
+import {sortOfficers} from "../../officers/services";
+
+export async function sortPatrolOfficers(force: string, officers: number[]) {
+    // Get the details of all officers of the patrol
+    const officersData = await Promise.all(officers.map(async officerNif => {
+        let officerData = null;
+
+        // Loop through all forces to get the officer data
+        for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
+            const tempResult = await getOfficerData(officerNif, patrolForce);
+
+            if (tempResult !== null) {
+                officerData = tempResult;
+                break;
+            }
+        }
+
+        return officerData!;
+    }));
+
+    // Sort officers
+    const sortedOfficers = sortOfficers(officersData);
+
+    // Replace the officers in the patrol with the sorted ones
+    return sortedOfficers.map(officer => officer.nif);
+}
 
 async function canOfficerBeInPatrol(force: string, officerNif: number, patrolStart: Date, patrolEnd: Date | null, patrolId?: string): Promise<[boolean, string]> {
     if (await isOfficerInPatrol(force, officerNif, patrolStart, patrolEnd, patrolId)) {
@@ -49,6 +75,12 @@ export async function patrolsHistory(force: string, validFilters: RouteFilterTyp
 }>> {
     // Fetch the patrols from the repository
     const result = await listPatrols(force, validFilters, receivedFilters, page, entriesPerPage);
+
+    // Ensure all officers are ordered by their rank and callsign
+    for (const patrol of result.patrols) {
+        patrol.officers = await sortPatrolOfficers(force, patrol.officers);
+    }
+
 
     // Return the list
     return {
@@ -104,7 +136,14 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     }
 
     // Since all officers exist, create the patrol
-    await createPatrol(force, patrolData.type, patrolData.special_unit || null, patrolData.officers, patrolData.start, patrolData.end || null, patrolData.notes || null);
+    await createPatrol(force,
+        patrolData.type,
+        patrolData.special_unit || null,
+        patrolData.officers,
+        patrolData.start,
+        patrolData.end || null,
+        patrolData.notes || null
+    );
 
     // If everything went well, return success
     return {

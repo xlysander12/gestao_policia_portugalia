@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, DefaultReturn} from "../../../types";
-import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory} from "../services";
+import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory, sortPatrolOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
@@ -40,8 +40,11 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     });
 }
 
-export async function getPatrolController(_req: express.Request, res: PatrolInfoAPIResponse<PatrolInfoResponse>) {
+export async function getPatrolController(req: express.Request, res: PatrolInfoAPIResponse<PatrolInfoResponse>) {
     const {force, ...patrolData} = res.locals.patrol;
+
+    // Ensure the list of officers is sorted
+    patrolData.officers = await sortPatrolOfficers(req.header(FORCE_HEADER)!, patrolData.officers);
 
     res.status(200).json({
         message: "Operação bem sucedida",

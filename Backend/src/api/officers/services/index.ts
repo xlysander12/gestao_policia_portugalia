@@ -1,10 +1,12 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {RouteFilterType} from "../../routes";
 import {
-    addOfficer, eraseOfficer,
+    addOfficer,
+    eraseOfficer,
     fireOfficer,
     getNextAvailableCallsign,
-    getOfficersList, reHireOfficer,
+    getOfficersList,
+    reHireOfficer,
     updateOfficer
 } from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
@@ -15,6 +17,21 @@ import {ReceivedQueryParams} from "../../../utils/filters";
 import {PatentData} from "@portalseguranca/api-types/util/output";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {getOfficerPatrol} from "../../patrols/repository";
+
+export function sortOfficers(officers: InnerOfficerData[]): InnerOfficerData[] {
+    // Sort the officers by patent from highest to lowest and, if the patent is the same, by callsign from lowest to highest
+    return officers.sort((a, b) => {
+        if (a.patent === b.patent) {
+            // If the patents are the same, strip all non-numerical characters from the callsigns and compare them as numbers
+            let aCallsign = a.callsign.replace(/\D-/g, '');
+            let bCallsign = b.callsign.replace(/\D-/g, '');
+
+            return parseInt(aCallsign) - parseInt(bCallsign);
+        }
+
+        return b.patent - a.patent;
+    });
+}
 
 export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
