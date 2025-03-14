@@ -237,6 +237,12 @@ const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
 
         const responseJson: OfficerActiveJustificationsResponse = await response.json();
 
+        // If the response is 404, the officer doesn't exist, probably a former officer
+        if (response.status === 404) {
+            setLoading(false);
+            return;
+        }
+
         // If there are no justifications, set loading to false and return
         if (responseJson.data.length === 0) {
             setLoading(false);

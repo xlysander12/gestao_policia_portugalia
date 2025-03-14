@@ -16,7 +16,7 @@ import {useImmer} from "use-immer";
 import {
     DefaultButton, DefaultDatePicker,
     DefaultSelect,
-    DefaultTextField
+    DefaultTextField, DefaultTypography
 } from "../../components/DefaultComponents";
 import {
     MinifiedOfficerData,
@@ -128,8 +128,10 @@ function OfficerInfo() {
             status: number,
             entry_date: string,
             promotion_date: string | null,
-            special_units: OfficerUnit[]
-        }
+            special_units: OfficerUnit[],
+            fire_reason?: string
+        },
+        former: boolean
     }
 
     // Variable that will hold the logged user information from context
@@ -166,8 +168,9 @@ function OfficerInfo() {
             promotion_date: "",
             special_units: [],
             status: forceData.statuses[0].id
-        }
-    })
+        },
+        former: false
+    });
 
     // State variables for the different modals
     const [isAccountModalOpen, setAccountModalOpen] = useState<boolean>(false);
@@ -231,22 +234,24 @@ function OfficerInfo() {
 
         // Apply the data to the officerInfo object
         setOfficerInfo({
-               personal: {
-                   name: data.name,
-                   phone: data.phone,
-                   iban: data.iban,
-                   kms: data.kms,
-                   discord: data.discord,
-                   steam: data.steam
-               },
-               professional: {
-                   patent: data.patent,
-                   callsign: data.callsign,
-                   entry_date: data.entry_date,
-                   promotion_date: data.promotion_date,
-                   status: data.status,
-                   special_units: data.special_units
-               }
+            personal: {
+                name: data.name,
+                phone: data.phone,
+                iban: data.iban,
+                kms: data.kms,
+                discord: data.discord,
+                steam: data.steam
+           },
+           professional: {
+               patent: data.patent,
+               callsign: data.callsign,
+               entry_date: data.entry_date,
+               promotion_date: data.promotion_date,
+               status: data.status,
+               special_units: data.special_units,
+               fire_reason: data.fire_reason
+           },
+           former: responseJson.meta.former
         });
 
         // After fetching the data, we can set the loading state to false
@@ -371,6 +376,10 @@ function OfficerInfo() {
                         >
                             Importar do HUB
                         </DefaultButton>
+
+                        <Gate show={officerInfo.former}>
+                            <DefaultTypography color={"red"}>Estás a ver um antigo efetivo</DefaultTypography>
+                        </Gate>
                     </div>
 
                     {/*Buttons that lie on the right side of the bar*/}
@@ -396,7 +405,7 @@ function OfficerInfo() {
                             </DefaultButton>
                         </Gate>
 
-                        <Gate show={!editMode && canEdit}>
+                        <Gate show={!editMode && canEdit && !officerInfo.former}>
                             <DefaultButton
                                 buttonColor={"cyan"}
                                 darkTextOnHover
@@ -407,7 +416,7 @@ function OfficerInfo() {
                             </DefaultButton>
                         </Gate>
 
-                        <Gate show={!editMode && canEdit}>
+                        <Gate show={!editMode && canEdit && !officerInfo.former}>
                             <DefaultButton
                                 buttonColor={"red"}
                                 sx={{flex: 1}}
@@ -603,6 +612,16 @@ function OfficerInfo() {
                                         onAdd={handleSpecialUnitAdd}
                                     />
                                 </div>
+                            </Gate>
+
+                            <Divider/>
+
+                            <Gate show={officerInfo.former}>
+                                <InformationPair
+                                    label={"Motivo Despedimento:"}
+                                    value={officerInfo.professional.fire_reason || ""}
+                                    editMode={false}
+                                />
                             </Gate>
                         </div>
                     </fieldset>

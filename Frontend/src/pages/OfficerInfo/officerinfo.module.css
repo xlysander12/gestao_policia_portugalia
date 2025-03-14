@@ -33,6 +33,7 @@
     flex-direction: row;
     gap: 15px;
     justify-content: flex-start;
+    align-items: center;
 }
 
 .officerInfoAlterbarRight {
