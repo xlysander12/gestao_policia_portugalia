@@ -1,11 +1,12 @@
 import {OfficerData} from "@portalseguranca/api-types/officers/output";
 import {PatrolData} from "@portalseguranca/api-types/patrols/output";
 
-export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "promotion_date"> {
+export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "promotion_date" | "fire_reason"> {
     entry_date: Date,
     promotion_date: Date | null
     isFormer: boolean
     force: string
+    fire_reason: string | null
 }
 
 export interface InnerAccountData {

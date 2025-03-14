@@ -21,7 +21,8 @@ export interface OfficerData extends MinifiedOfficerData {
     steam: string,
     entry_date: string,
     promotion_date: string | null,
-    special_units: OfficerUnit[]
+    special_units: OfficerUnit[],
+    fire_reason?: string
 }
 
 export interface OfficerListResponse extends BaseResponse {

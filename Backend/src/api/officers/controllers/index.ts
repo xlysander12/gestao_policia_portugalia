@@ -48,7 +48,8 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
             } : {
                 ...officerData!,
                 entry_date: dateToString(res.locals.targetOfficer!.entry_date, false),
-                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null
+                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null,
+                fire_reason: res.locals.targetOfficer!.fire_reason !== null ? res.locals.targetOfficer!.fire_reason : undefined,
             }
     });
 }

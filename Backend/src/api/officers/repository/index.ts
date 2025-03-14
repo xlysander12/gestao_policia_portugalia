@@ -116,7 +116,8 @@ export async function getOfficerData(nif: number, force: string, former: boolean
         steam: officerDataResult[0].steam,
         special_units: await getOfficerUnits(force, nif),
         isFormer: former,
-        force: force
+        force: force,
+        fire_reason: officerDataResult[0].fire_reason
     };
 }
 
