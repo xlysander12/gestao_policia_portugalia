@@ -62,5 +62,6 @@ export const ChangeOfficerJustificationBody = rt.Partial({
         return !isNaN(Date.parse(string));
     }), rt.Null),
     description: rt.String,
+    comment: rt.String
 });
 export type ChangeOfficerJustificationBodyType = rt.Static<typeof ChangeOfficerJustificationBody>;

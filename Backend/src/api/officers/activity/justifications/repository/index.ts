@@ -93,7 +93,7 @@ export async function updateOfficerJustificationStatus(force: string, nif: numbe
 
 export async function updateOfficerJustificationDetails(force: string, nif: number, id: number, changes: ChangeOfficerJustificationBodyType): Promise<void> {
     // * Variable that holds the possible changes and their columns in the database
-    const validFields = [{name: "type", db: "type"}, {name: "start", db: "start_date"}, {name: "end", db: "end_date"}, {name: "description", db: "description"}];
+    const validFields = [{name: "type", db: "type"}, {name: "start", db: "start_date"}, {name: "end", db: "end_date"}, {name: "description", db: "description"}, {name: "comment", db: "comment"}];
 
     // * Build the query and params
     // Initialize the params array and the query string
