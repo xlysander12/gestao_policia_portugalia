@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Full Stack + Browser" type="CompoundRunConfigurationType">
+  <configuration default="false" name="Run Stack + Browser" type="CompoundRunConfigurationType">
     <toRun name="Frontend Debug" type="JavascriptDebugType" />
     <toRun name="Run Backend" type="js.build_tools.npm" />
     <toRun name="Run Frontend" type="js.build_tools.npm" />
