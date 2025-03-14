@@ -28,6 +28,7 @@ import {getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import moment, {Moment} from "moment";
+import JustificationManagementModal from "./JustificationManagementModal.tsx";
 
 type InnerJustificationData = Omit<OfficerJustification, "start" | "end"> & {
     start: Moment | null,
@@ -42,6 +43,7 @@ const justificationDataDefault: InnerJustificationData = {
     end: moment(new Date()),
     timestamp: new Date().getTime(),
     status: "pending",
+    comment: undefined,
     managed_by: 0,
     description: ""
 }
@@ -71,6 +73,10 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
     // Set the state that controls the delete confirmation dialog
     const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+
+    // Set the state values that controls with management information of the justification
+    const [commentDialogOpen, setCommentDialogOpen] = useState<boolean>(false);
+    const [justificationToBeDecision, setJustificationToBeDecision] = useState<boolean | null>(null);
 
     // Set the state with the data of the justification
     const [justificationData, setJustificationData] = useImmer<InnerJustificationData>(justificationDataDefault);
@@ -132,14 +138,15 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }, [justificationId, open, needsReload]);
 
     // Function to handle the approve or reject button
-    async function handleApproveOrReject(approve: boolean) {
+    async function handleApproveOrReject(approve: boolean, comment?: string) {
         // Set the loading to true
         setLoading(true);
 
         // Make the request to change the state of the justification
         const response = await make_request<ManageOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "POST", {
             body: {
-                approved: approve
+                approved: approve,
+                comment: comment
             }
         });
 
@@ -170,7 +177,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                 type: justificationData?.type,
                 start: justificationData?.start!.format("YYYY-MM-DD"),
                 end: justificationData?.end ? justificationData?.end.format("YYYY-MM-DD") : null,
-                description: justificationData?.description.trim()
+                description: justificationData?.description.trim(),
+                comment: justificationData?.comment
             }
         });
 
@@ -494,6 +502,33 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     }}
                                     sx={{width: "100%", marginBottom: "10px"}}
                                 />
+
+                                {/* Management Comment */}
+                                <Gate show={justificationData?.comment !== undefined}>
+
+                                    <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                    <DefaultTypography
+                                        color={"var(--portalseguranca-color-accent)"}
+                                        fontSize={"medium"}
+                                        fontWeight={"bold"}
+                                    >
+                                        Decisão:
+                                    </DefaultTypography>
+                                    <DefaultOutlinedTextField
+                                        disabled={!editMode && !newEntry}
+                                        required
+                                        textWhenDisabled
+                                        multiline
+                                        value={justificationData?.comment}
+                                        onChange={(e) => {
+                                            setJustificationData((draft) => {
+                                                draft!.comment = e.target.value;
+                                            });
+                                        }}
+                                        sx={{width: "100%", marginBottom: "10px"}}
+                                    />
+                                </Gate>
                             </div>
                         </ModalSection>
 
@@ -530,13 +565,16 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         {/*Other Buttons can't appear if editmode is on*/}
                                         <Gate show={!editMode}>
                                             {/*Aprove or Deny buttons must only appear if the logged user has the activity intent
-                                and the justification is pending*/}
+                                                and the justification is pending*/}
                                             <Gate
                                                 show={loggedUser.intents["activity"] && justificationData?.status === "pending"}>
                                                 <DefaultButton
                                                     buttonColor={"lightgreen"}
                                                     darkTextOnHover
-                                                    onClick={() => handleApproveOrReject(true)}
+                                                    onClick={() => {
+                                                        setJustificationToBeDecision(true);
+                                                        setCommentDialogOpen(true);
+                                                    }}
                                                     sx={{flex: 1}}
                                                 >
                                                     Aprovar
@@ -544,7 +582,10 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
                                                 <DefaultButton
                                                     buttonColor={"red"}
-                                                    onClick={() => handleApproveOrReject(false)}
+                                                    onClick={() => {
+                                                        setJustificationToBeDecision(false);
+                                                        setCommentDialogOpen(true);
+                                                    }}
                                                     sx={{flex: 1}}
                                                 >
                                                     Rejeitar
@@ -579,11 +620,22 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                 </Gate>
             </Modal>
 
+            <JustificationManagementModal
+                open={commentDialogOpen}
+                onClose={() => {
+                    setCommentDialogOpen(false);
+                    setJustificationToBeDecision(null);
+                }}
+                approve={!!justificationToBeDecision}
+                callback={(comment) => handleApproveOrReject(!!justificationToBeDecision, comment)}
+            />
+
             <ConfirmationDialog open={deleteDialogOpen} title={"Apagar Justificação"}
                                 text={"Tens a certeza que desejas apagar esta justificação?\n" +
                                     "\n" +
                                     "Esta ação não pode ser revertida!"} onConfirm={handleDeleteJustification}
-                                onDeny={() => setDeleteDialogOpen(false)}/>
+                                onDeny={() => setDeleteDialogOpen(false)}
+            />
         </>
     );
 }
