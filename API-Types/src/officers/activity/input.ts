@@ -48,7 +48,8 @@ export const AddOfficerJustificationBody = rt.Record({
 export type AddOfficerJustificationBodyType = rt.Static<typeof AddOfficerJustificationBody>;
 
 export const ManageOfficerJustificationBody = rt.Record({
-    approved: rt.Boolean
+    approved: rt.Boolean,
+    comment: rt.Optional(rt.String)
 });
 export type ManageOfficerJustificationBodyType = rt.Static<typeof ManageOfficerJustificationBody>;
 

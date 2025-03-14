@@ -56,7 +56,7 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
         return
     }
 
-    // Return the justification data from the locals
+    // * Return the justification data from the locals
     res.status(200).json({
         message: "Operação concluída com sucesso",
         data: {
@@ -66,6 +66,7 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
             end: res.locals.justification.end ? dateToString(res.locals.justification.end, false): null,
             description: res.locals.justification.description,
             status: res.locals.justification.status,
+            comment: res.locals.justification.comment || undefined,
             managed_by: res.locals.justification.managed_by,
             timestamp: res.locals.justification.timestamp.getTime()
         }
@@ -123,10 +124,10 @@ export async function getOfficerActiveJustificationsController(req: express.Requ
 
 export async function manageOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
     // Get the value from the request
-    let {approved} = req.body as ManageOfficerJustificationBodyType;
+    let {approved, comment} = req.body as ManageOfficerJustificationBodyType;
 
     // Call the service to manage the justification
-    let result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, approved, res.locals.loggedOfficer.nif);
+    let result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, approved, comment, res.locals.loggedOfficer.nif);
 
     // Return the result
     res.status(result.status).json({

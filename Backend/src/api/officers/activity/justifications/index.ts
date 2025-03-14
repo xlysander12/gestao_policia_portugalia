@@ -8,7 +8,8 @@ import {
     getOfficerJustificationsHistoryController,
     manageOfficerJustificationController
 } from "./controllers";
-import {isJustificationEditable, justificationExistsMiddleware} from "./middlewares";
+import {officerJustificationExistsMiddle} from "../../../../middlewares";
+import {isJustificationEditable} from "../../../../middlewares/officer-justification-exists";
 
 const app = express.Router();
 
@@ -22,15 +23,15 @@ app.post("/", createOfficerJustificationController);
 app.get("/active", getOfficerActiveJustificationsController);
 
 // Route to get the details of a justification
-app.get("/:id", justificationExistsMiddleware, getOfficerJustificationDetailsController);
+app.get("/:id", officerJustificationExistsMiddle, getOfficerJustificationDetailsController);
 
 // Route to aprove or deny a justification
-app.post("/:id", justificationExistsMiddleware, manageOfficerJustificationController);
+app.post("/:id", officerJustificationExistsMiddle, manageOfficerJustificationController);
 
 // Route to change the details of a justification
-app.patch("/:id", justificationExistsMiddleware, isJustificationEditable, changeOfficerJustificationController);
+app.patch("/:id", officerJustificationExistsMiddle, isJustificationEditable, changeOfficerJustificationController);
 
 // Route to delete a justification
-app.delete("/:id", justificationExistsMiddleware, isJustificationEditable, deleteOfficerJustificationController);
+app.delete("/:id", officerJustificationExistsMiddle, isJustificationEditable, deleteOfficerJustificationController);
 
 export default app;

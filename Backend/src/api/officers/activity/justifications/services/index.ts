@@ -79,7 +79,7 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 }
 
-export async function officerJustificationUpdateStatus(force: string, nif: number, justificationData: InnerOfficerJustificationData, approved: boolean, managed_by: number): Promise<DefaultReturn<void>> {
+export async function officerJustificationUpdateStatus(force: string, nif: number, justificationData: InnerOfficerJustificationData, approved: boolean, comment: string | undefined, managed_by: number): Promise<DefaultReturn<void>> {
     // * Make sure the provided justification is pending
     if (justificationData.status !== "pending") {
         return {
@@ -90,7 +90,7 @@ export async function officerJustificationUpdateStatus(force: string, nif: numbe
     }
 
     // * Call the repository to update the justification status
-    await updateOfficerJustificationStatus(force, nif, justificationData.id, approved, managed_by);
+    await updateOfficerJustificationStatus(force, nif, justificationData.id, approved, comment, managed_by);
 
     // Return the result
     return {

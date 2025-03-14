@@ -20,13 +20,14 @@ export interface InnerAccountData {
 }
 
 export interface InnerOfficerJustificationData {
-    id: number,
-    officer: number,
-    type: number,
-    start: Date,
-    end: Date | null,
-    description: string,
-    status: "pending" | "approved" | "denied",
+    id: number
+    officer: number
+    type: number
+    start: Date
+    end: Date | null
+    description: string
+    status: "pending" | "approved" | "denied"
+    comment: string | null
     managed_by: number | null
     timestamp: Date
 }

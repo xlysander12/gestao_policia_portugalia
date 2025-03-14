@@ -1,11 +1,11 @@
 import express from "express";
-import {getOfficerJustificationDetails} from "../repository";
-import {FORCE_HEADER} from "../../../../../utils/constants";
-import {OfficerJustificationAPIResponse} from "../../../../../types/response-types";
-import {stringToDate} from "../../../../../utils/date-handler";
-import {userHasIntents} from "../../../../accounts/repository";
+import {getOfficerJustificationDetails} from "../api/officers/activity/justifications/repository";
+import {FORCE_HEADER} from "../utils/constants";
+import {OfficerJustificationAPIResponse} from "../types/response-types";
+import {stringToDate} from "../utils/date-handler";
+import {userHasIntents} from "../api/accounts/repository";
 
-export async function justificationExistsMiddleware(req: express.Request, res: OfficerJustificationAPIResponse, next: express.NextFunction) {
+async function justificationExistsMiddleware(req: express.Request, res: OfficerJustificationAPIResponse, next: express.NextFunction) {
     // * Make sure the provided justification id is valid
     let justification = await getOfficerJustificationDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(req.params["id"]));
 
@@ -26,6 +26,7 @@ export async function justificationExistsMiddleware(req: express.Request, res: O
         end: justification.end ? stringToDate(justification.end): null,
         description: justification.description,
         status: justification.status,
+        comment: justification.comment || null,
         managed_by: justification.managed_by,
         timestamp: justification.timestamp
     };
@@ -54,3 +55,5 @@ export async function isJustificationEditable(req: express.Request, res: Officer
 
     next();
 }
+
+export default justificationExistsMiddleware;

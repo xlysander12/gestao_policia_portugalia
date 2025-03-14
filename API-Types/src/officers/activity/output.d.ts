@@ -51,6 +51,7 @@ export interface OfficerActiveJustificationsResponse extends BaseResponse {
 
 export type OfficerJustification = OfficerMinifiedJustification & {
     description: string
+    comment?: string
 }
 export interface OfficerJustificationDetailsResponse extends BaseResponse {
     data: OfficerJustification

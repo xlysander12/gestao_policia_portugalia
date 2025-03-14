@@ -53,6 +53,7 @@ export async function getOfficerJustificationDetails(force: string, nif: number,
         end: result[0].end_date,
         description: result[0].description,
         status: result[0].status,
+        comment: result[0].comment,
         managed_by: result[0].managed_by,
         timestamp: result[0].timestamp
     }
@@ -80,9 +81,14 @@ export async function createOfficerJustification(force: string, nif: number, typ
     await queryDB(force, "INSERT INTO officer_justifications (officer, type, start_date, end_date, description) VALUES (?, ?, ?, ?, ?)", [nif, type, start, end, description]);
 }
 
-export async function updateOfficerJustificationStatus(force: string, nif: number, id: number, approved: boolean, managed_by: number): Promise<void> {
-    // Update the database
-    await queryDB(force, "UPDATE officer_justifications SET status = ?, managed_by = ? WHERE officer = ? AND id = ?", [approved ? "approved": "denied", managed_by, nif, id]);
+export async function updateOfficerJustificationStatus(force: string, nif: number, id: number, approved: boolean, comment: string | undefined, managed_by: number): Promise<void> {
+    // * Update the database
+    // If no comment was passed, don't try to update it in the database
+    if (!comment) {
+        await queryDB(force, "UPDATE officer_justifications SET status = ?, managed_by = ? WHERE officer = ? AND id = ?", [approved ? "approved": "denied", managed_by, nif, id]);
+    } else { // Otherwise, update the comment as well
+        await queryDB(force, "UPDATE officer_justifications SET status = ?, comment = ?, managed_by = ? WHERE officer = ? AND id = ?", [approved ? "approved": "denied", comment, managed_by, nif, id]);
+    }
 }
 
 export async function updateOfficerJustificationDetails(force: string, nif: number, id: number, changes: ChangeOfficerJustificationBodyType): Promise<void> {
