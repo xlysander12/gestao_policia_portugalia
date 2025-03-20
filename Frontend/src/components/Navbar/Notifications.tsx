@@ -1,15 +1,35 @@
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import {Badge, IconButton, Menu, MenuItem} from "@mui/material";
+import {Badge, Divider, IconButton, Menu, MenuItem} from "@mui/material";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {make_request, RequestMethod} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {BaseNotification, UtilNotificationsResponse} from '@portalseguranca/api-types/util/output';
+import {
+    ActivityNotification,
+    BaseNotification,
+    UtilNotificationsResponse
+} from '@portalseguranca/api-types/util/output';
 import {useNavigate} from "react-router-dom";
-import {usePrevious, useWebSocketEvent} from "../../hooks";
+import {useForceData, usePrevious, useWebSocketEvent} from "../../hooks";
 import { LoggedUserContext } from '../PrivateRoute/logged-user-context.ts';
 import useSound from "use-sound";
 import notification_sound1 from "../../assets/notification_sound1.mp3"
 import Gate from "../Gate/gate.tsx";
+import {DefaultTypography} from "../DefaultComponents";
+import {getObjectFromId} from "../../forces-data-context.ts";
+import moment from "moment";
+import { OfficerData } from '@portalseguranca/api-types/officers/output';
+
+type InnerActivityNotification = Omit<ActivityNotification, "officer"> & {
+    officer: OfficerData
+}
+
+function isActivityNotification(notification: BaseNotification): notification is ActivityNotification {
+    return notification.type === "activity";
+}
+
+function isInnerActivityNotification(notification: BaseNotification): notification is InnerActivityNotification {
+    return notification.type === "activity";
+}
 
 function Notifications() {
     // Hook to navigate to the URL of the notification
@@ -17,6 +37,9 @@ function Notifications() {
 
     // Get the data of the logged user from context
     const loggedUser = useContext(LoggedUserContext);
+
+    // Hook to get the force's data
+    const [forceData] = useForceData();
 
     // Hook and state that handles the notification sound
     const [playSound] = useSound(notification_sound1);
@@ -45,10 +68,28 @@ function Notifications() {
 
         const notifications = responseJson.data;
 
+        // Loop through the notifications and get the officer data if it is required
+        for (const notification of notifications) {
+            if (isActivityNotification(notification)) {
+                const officerResponse = await make_request(`/officers/${notification.officer}`, RequestMethod.GET);
+                const officerResponseJson = await officerResponse.json();
+
+                if (!officerResponse.ok) {
+                    toast.error(officerResponseJson.message);
+                    continue;
+                }
+
+                notification.officer = officerResponseJson.data;
+            }
+        }
+
         // Check if any of the notifications are new
+        // Since notifications are objects, we can't compare them directly
         if (!firstRender && previousNotifications !== undefined) {
-            const newNotifications = notifications.filter((notification: BaseNotification) => {
-                return !previousNotifications.includes(notification);
+            const newNotifications = notifications.filter(notification => {
+                return !previousNotifications.some(previousNotification => {
+                    return JSON.stringify(previousNotification) === JSON.stringify(notification);
+                });
             });
 
             if (newNotifications.length > 0) {
@@ -65,6 +106,11 @@ function Notifications() {
 
         // Set the firstRender state to false
         setFirstRender(false);
+    }
+
+    function closeMenu() {
+        setMenuOpen(false);
+        setMenuAnchor(null);
     }
 
     useWebSocketEvent("activity", useCallback(() => {
@@ -103,22 +149,41 @@ function Notifications() {
 
             <Menu
                 open={menuOpen}
-                onClose={() => {
-                    setMenuOpen(false);
-                    setMenuAnchor(null);
-                }}
+                onClose={closeMenu}
                 anchorEl={menuAnchor}
             >
-                {notifications.map((notification: BaseNotification, index) => (
-                    <MenuItem
-                        key={`notification-${index}`}
-                        onClick={() => {
-                            navigate(notification.url);
-                        }}
-                    >
-                        {notification.text}
-                    </MenuItem>
-                ))}
+                {notifications.map((notification: BaseNotification, index) => {
+                    if (isInnerActivityNotification(notification)) {
+                        return (
+                            <div
+                                key={`notification-${index}`}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate(notification.url);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "5px"
+                                        }}
+                                    >
+                                        <DefaultTypography>Pedido de {getObjectFromId(notification.justificationType, forceData.inactivity_types)!.name} Pendente</DefaultTypography>
+                                        <DefaultTypography color={"gray"} fontSize={"small"}>{moment(notification.timestamp).calendar()}</DefaultTypography>
+                                        <DefaultTypography color={"gray"}>{getObjectFromId(notification.officer.patent, forceData.patents)!.name} {notification.officer.name}</DefaultTypography>
+                                    </div>
+                                </MenuItem>
+
+                                <Gate show={index !== notifications.length - 1}>
+                                    <Divider variant={"middle"} sx={{borderColor: "var(--portalseguranca-color-background-light)"}}/>
+                                </Gate>
+                            </div>
+                        );
+                    }
+                })}
 
                 <Gate show={notifications.length === 0}>
                     <MenuItem
