@@ -44,10 +44,16 @@ export interface PatrolTypeData {
     isSpecial: boolean
 }
 
-export interface Notification {
-    text: string
+export interface BaseNotification {
+    type: "activity"
     timestamp: number
     url: string
+}
+
+export interface ActivityNotification extends BaseNotification {
+    type: "activity"
+    justificationType: number
+    officer: number
 }
 
 export interface UtilPatentsResponse extends BaseResponse {
@@ -82,5 +88,5 @@ export interface UtilForcePatrolForcesResponse extends BaseResponse {
 }
 
 export interface UtilNotificationsResponse extends BaseResponse {
-    data: Notification[]
+    data: BaseNotification[]
 }

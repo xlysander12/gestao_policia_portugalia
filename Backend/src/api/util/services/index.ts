@@ -9,11 +9,11 @@ import {
 } from "../repository";
 import {
     InactivityTypeData,
-    IntentData, Notification,
+    IntentData, BaseNotification,
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
-    StatusData
+    StatusData, ActivityNotification
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
@@ -110,9 +110,9 @@ export async function forcePatrolForces(force: string): Promise<DefaultReturn<st
     }
 }
 
-export async function notifications(force: string, nif: number): Promise<DefaultReturn<Notification[]>> {
+export async function notifications(force: string, nif: number): Promise<DefaultReturn<BaseNotification[]>> {
     // Initialize list of Notifications
-    const notifications: Notification[] = []
+    const notifications: BaseNotification[] = []
 
     // If the user has the "activity" intent, search for pending justifications
     if (await userHasIntents(nif, force, "activity")) {
@@ -124,20 +124,15 @@ export async function notifications(force: string, nif: number): Promise<Default
             const stringifiedType = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)?.name;
             if (!stringifiedType) continue;
 
-            // Fetching the information of the Officer the justification belongs to
-            const officer = await getOfficerData(justification.nif, force);
-            if (!officer) continue; // ! If the officer doesn't exist, keep moving
-
-            const stringifiedPatent = ((await getForcePatents(force, officer.patent)) as PatentData | undefined)?.name;
-            if (!stringifiedPatent) continue; // ! If the patent doesn't exist, keep moving
-
-            const stringifiedOfficer = `${stringifiedPatent} ${officer.name}`
-
-            notifications.push({
-                text: `Justificação de ${stringifiedType} pendente de ${stringifiedOfficer}`,
+            const notification: ActivityNotification = {
+                type: "activity",
+                justificationType: justification.type,
                 timestamp: justification.timestamp.getTime(),
-                url: `/atividade/${justification.nif}`
-            });
+                url: `/atividade/${justification.nif}`,
+                officer: justification.nif
+            }
+
+            notifications.push(notification);
         }
     }
 
