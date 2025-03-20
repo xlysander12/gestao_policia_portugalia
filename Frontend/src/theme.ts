@@ -17,6 +17,9 @@ const themeOptions: ThemeOptions = {
             disabled: 'rgba(208,199,211,0.5)',
             primary: '#d0c7d3',
         },
+        action: {
+            hover: "#027c6c"
+        }
     }
 };
 
