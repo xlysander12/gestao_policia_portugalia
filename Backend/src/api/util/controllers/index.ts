@@ -6,7 +6,7 @@ import {
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits,
-    forceStatuses
+    forceStatuses, notifications
 } from "../services";
 import {
     UtilInactivityTypesResponse,
@@ -14,9 +14,9 @@ import {
     UtilPatentsResponse, UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse,
-    UtilForcePatrolForcesResponse
+    UtilForcePatrolForcesResponse, UtilNotificationsResponse
 } from "@portalseguranca/api-types/util/output";
-import {ExpressResponse} from "../../../types/response-types";
+import {APIResponse, ExpressResponse} from "../../../types/response-types";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from
@@ -77,6 +77,14 @@ export async function getPatrolTypesController(req: express.Request, res: Expres
 export async function getPatrolForcesController(req: express.Request, res: ExpressResponse<UtilForcePatrolForcesResponse>) {
     // Call the service to get the types
     const result = await forcePatrolForces(req.header(FORCE_HEADER)!);
+
+    // Send the list to the user
+    res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getNotificationsController(req: express.Request, res: APIResponse<UtilNotificationsResponse>) {
+    // Call the service to get the notifications
+    const result = await notifications(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif);
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});

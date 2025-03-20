@@ -7,6 +7,7 @@ import {
     StatusData
 } from "@portalseguranca/api-types/util/output";
 import {queryDB} from "../../../utils/db-connector";
+import {OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[] | PatentData | null> {
     // Get the list from the database
@@ -141,4 +142,21 @@ export async function getForcePatrolTypes(force: string): Promise<PatrolTypeData
     }
 
     return typesList;
+}
+
+export async function getPendingInactivityJustifications(force: string): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
+    // Fecth all pending justifications
+    const justifications = await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending");
+
+    // @ts-expect-error
+    return justifications.map((row) => ({
+        id: row.id as number,
+        type: row.type as number,
+        start: row.start_date as Date,
+        end: row.end_date as Date | null,
+        status: row.status as string,
+        managed_by: null,
+        timestamp: row.timestamp as Date,
+        nif: row.officer as number
+    }));
 }

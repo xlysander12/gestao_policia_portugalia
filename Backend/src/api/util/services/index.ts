@@ -5,17 +5,19 @@ import {
     getForcePatents, getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
-    getForceStatuses
+    getForceStatuses, getPendingInactivityJustifications
 } from "../repository";
 import {
     InactivityTypeData,
-    IntentData,
+    IntentData, Notification,
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
     StatusData
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
+import {userHasIntents} from "../../accounts/repository";
+import {getOfficerData} from "../../officers/repository";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -105,5 +107,45 @@ export async function forcePatrolForces(force: string): Promise<DefaultReturn<st
         status: 200,
         message: "Operação concluída com sucesso",
         data: getForcePatrolForces(force)
+    }
+}
+
+export async function notifications(force: string, nif: number): Promise<DefaultReturn<Notification[]>> {
+    // Initialize list of Notifications
+    const notifications: Notification[] = []
+
+    // If the user has the "activity" intent, search for pending justifications
+    if (await userHasIntents(nif, force, "activity")) {
+        // Search for pending justifications
+        const pending = await getPendingInactivityJustifications(force);
+
+        for (const justification of pending) {
+            // Getting the type of the justification in string
+            const stringifiedType = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)?.name;
+            if (!stringifiedType) continue;
+
+            // Fetching the information of the Officer the justification belongs to
+            const officer = await getOfficerData(justification.nif, force);
+            if (!officer) continue; // ! If the officer doesn't exist, keep moving
+
+            const stringifiedPatent = ((await getForcePatents(force, officer.patent)) as PatentData | undefined)?.name;
+            if (!stringifiedPatent) continue; // ! If the patent doesn't exist, keep moving
+
+            const stringifiedOfficer = `${stringifiedPatent} ${officer.name}`
+
+            notifications.push({
+                text: `Justificação de ${stringifiedType} pendente de ${stringifiedOfficer}`,
+                timestamp: justification.timestamp.getTime(),
+                url: `/atividade/${justification.nif}`
+            });
+        }
+    }
+
+    // * After all possible notifications have been checking, return them
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: notifications
     }
 }

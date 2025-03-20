@@ -44,6 +44,12 @@ export interface PatrolTypeData {
     isSpecial: boolean
 }
 
+export interface Notification {
+    text: string
+    timestamp: number
+    url: string
+}
+
 export interface UtilPatentsResponse extends BaseResponse {
     data: PatentData[]
 }
@@ -73,4 +79,8 @@ export interface UtilPatrolTypesResponse extends BaseResponse {
 
 export interface UtilForcePatrolForcesResponse extends BaseResponse {
     data: string[]
+}
+
+export interface UtilNotificationsResponse extends BaseResponse {
+    data: Notification[]
 }

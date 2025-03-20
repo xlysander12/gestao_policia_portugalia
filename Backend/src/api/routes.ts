@@ -274,6 +274,16 @@ const utilRoutes: routesType = {
                 requiresForce: true
             }
         }
+    },
+
+    // Route to get all notifications for an user
+    "/util/notifications$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
     }
 }
 
