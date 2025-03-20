@@ -322,6 +322,27 @@ function Activity() {
         execute();
     }, [currentOfficer.nif]);
 
+    // Everytime the nif in the params changes, we will update the currentOfficer state
+    useEffect(() => {
+        if (nif && !isNaN(parseInt(nif))) {
+            setCurrentOfficer({
+                name: "",
+                patent: forceData.patents[0].id,
+                callsign: "",
+                status: 0,
+                nif: parseInt(nif)
+            });
+        } else {
+            setCurrentOfficer({
+                name: loggedUser.info.personal.name,
+                patent: loggedUser.info.professional.patent.id,
+                callsign: loggedUser.info.professional.callsign,
+                status: loggedUser.info.professional.status.id,
+                nif: loggedUser.info.personal.nif
+            });
+        }
+    }, [nif]);
+
     // Handle socket updates
     useWebSocketEvent<OfficerActivitySocket>("activity", async (data) => {
         // If another data is being loaded, don't update the data
