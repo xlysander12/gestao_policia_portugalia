@@ -328,7 +328,7 @@ function OfficerInfo() {
     }
 
     function handleSpecialUnitRemove(specialUnit: OfficerUnit) {
-        // Get the special unit index
+        // Get the special unit index.ts
         const specialUnitIndex = officerInfo.professional.special_units.findIndex((unit: OfficerUnit) => unit.id === specialUnit.id);
 
         // If the special unit is not found, return
@@ -341,7 +341,7 @@ function OfficerInfo() {
     }
 
     function handleSpecialUnitAdd(newUnit: OfficerUnit) {
-        // Get the new unit's index
+        // Get the new unit's index.ts
         const newUnitIndex = officerInfo.professional.special_units.findIndex((unit: OfficerUnit) => unit.id === newUnit.id);
 
         // If the new unit is already in the array, return

@@ -2,7 +2,7 @@ import {ReactElement, useCallback, useContext, useEffect, useState} from "react"
 import {make_request} from "../../utils/requests";
 import {useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
-import Navbar from "../Navbar/navbar";
+import {Navbar} from "../Navbar";
 import {
     AccountInfoResponse,
     UserForcesResponse,

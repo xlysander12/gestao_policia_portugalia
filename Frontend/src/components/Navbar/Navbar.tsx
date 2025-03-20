@@ -19,6 +19,7 @@ import {
     PatrolData,
     PatrolInfoResponse
 } from "@portalseguranca/api-types/patrols/output";
+import Notifications from "./Notifications.tsx";
 
 type SubPathProps = {
     path?: string,
@@ -227,7 +228,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 setAccountMenuOpen(true);
                                 setAccountMenuAnchor(event.currentTarget);
                             }}>
-                                <DefaultTypography fontSize={"20px"} color={"white"}>{fullName}</DefaultTypography>
+                                <DefaultTypography fontSize={"18px"} color={"white"}>{fullName}</DefaultTypography>
                                 <DefaultTypography
                                     fontSize={"smaller"}
                                     color={status.color}
@@ -235,6 +236,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                     {status.name}
                                 </DefaultTypography>
                             </div>
+
+                            <Notifications />
 
                             <ForceSelectStyle
                                 value={localStorage.getItem("force")}
