@@ -17,7 +17,6 @@ import {
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
-import {getOfficerData} from "../../officers/repository";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository

@@ -18,10 +18,19 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
 
         // Loop through all forces to get the officer data
         for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
+            // First, fetch in the active officers of the force
             const tempResult = await getOfficerData(officerNif, patrolForce);
 
             if (tempResult !== null) {
                 officerData = tempResult;
+                break;
+            }
+
+            // If the officer is not active, fetch in the former officers
+            const tempResultFormer = await getOfficerData(officerNif, patrolForce, true);
+
+            if (tempResultFormer !== null) {
+                officerData = tempResultFormer;
                 break;
             }
         }
