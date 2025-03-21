@@ -49,15 +49,14 @@ function Patrols() {
             setLoading(true);
         }
 
-        let requestURL = `/patrols?page=${page}`;
+        let result;
 
         if (filters) {
-            for (const filter of filters) {
-                requestURL += `&${filter.key}=${encodeURIComponent(filter.value)}`;
-            }
+            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters!]});
+        } else {
+            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}]});
         }
 
-        const result = await make_request(requestURL, "GET");
         const patrols: PatrolHistoryResponse | RequestError = await result.json();
 
         if (!result.ok) {

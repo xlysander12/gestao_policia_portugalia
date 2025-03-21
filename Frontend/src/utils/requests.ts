@@ -13,6 +13,7 @@ export enum RequestMethod {
 
 export type MakeRequestOptions<Body> = Partial<{
     body: Body | null,
+    queryParams: {key: string, value: string}[] | null,
     force: string,
     useAuth: boolean,
     useBaseAPIURL: boolean,
@@ -24,6 +25,7 @@ export type MakeRequestOptions<Body> = Partial<{
 export async function make_request<BodyType>(url: string, method: RequestMethod | ("GET" | "POST" | "PATCH" | "PUT" | "DELETE"),
                                    {
                                        body = null,
+                                       queryParams = null,
                                        force = <string>localStorage.getItem("force"),
                                        useBaseAPIURL = true,
                                        redirectToLoginOn401 = true,
@@ -38,6 +40,17 @@ export async function make_request<BodyType>(url: string, method: RequestMethod 
     // If the useBaseAPIURL is true, then add the base URL to the request
     if (useBaseAPIURL) {
         url = BASE_API_URL + url;
+    }
+
+    // If there are query parameters, add them to the URL
+    if (queryParams) {
+        url += "?";
+        for (const param of queryParams) {
+            url += `${param.key}=${param.value}&`;
+        }
+
+        // Remove last "&" from the URL
+        url = url.slice(0, -1);
     }
 
     // Next, make the actual request
