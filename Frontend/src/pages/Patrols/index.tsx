@@ -103,7 +103,7 @@ function Patrols() {
             setSelectedPatrol(patrolId);
             setPatrolInfoModalOpen(true);
         }
-    }, []);
+    }, [patrolId]);
 
     return (
         <>
