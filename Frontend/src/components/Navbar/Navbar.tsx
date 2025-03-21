@@ -220,7 +220,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                             </div>
                         </Gate>
                     </div>
-                )} leftSidePercentage={65}>
+                )} leftSidePercentage={"fit-content"}>
                     {/*Div that holds the user info and force selector*/}
                     <Gate show={!isLoginPage}>
                         <div className={style.rightSide}>
