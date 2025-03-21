@@ -3,3 +3,4 @@ node_modules/
 dist/
 logs/
 config.json
+src/assets/google-creds.json
