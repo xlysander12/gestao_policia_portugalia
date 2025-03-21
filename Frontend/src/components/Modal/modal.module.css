@@ -1,9 +1,13 @@
 .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     box-sizing: border-box;
     width: 100%;
     font-size: 20px;
     color: white;
-    text-align: center;
     padding: 5px 10px;
 }
 

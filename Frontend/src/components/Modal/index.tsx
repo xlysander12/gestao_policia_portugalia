@@ -2,8 +2,11 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {ReactElement, useEffect, useRef} from "react";
 import style from "./modal.module.css";
-import {Button, Divider} from "@mui/material";
+import {Button, Divider, IconButton} from "@mui/material";
 import {DefaultTypography} from "../DefaultComponents";
+import ShareIcon from '@mui/icons-material/Share';
+import Gate from "../Gate/gate";
+import {toast} from "react-toastify";
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
@@ -46,10 +49,11 @@ type ModalProps = {
     height?: string
     title: string
     disableScroll?: boolean
-    children: ReactElement | ReactElement[],
+    url?: string
+    children: ReactElement | ReactElement[]
 }
 
-export function Modal({open, onClose, width, height, title, disableScroll, children}: ModalProps): ReactElement {
+export function Modal({open, onClose, width, height, title, disableScroll, url, children}: ModalProps): ReactElement {
     // if (disableScroll && !height) throw new Error("If disableScroll is true, height must be defined");
 
     const contentRef = useRef<HTMLDivElement>(null);
@@ -92,7 +96,27 @@ export function Modal({open, onClose, width, height, title, disableScroll, child
             nested
         >
             {/*Header of the modal*/}
-            <div className={style.header}>{title}</div>
+            <div className={style.header}>
+                <DefaultTypography color={"white"} fontSize={"20px"}>{title}</DefaultTypography>
+                <Gate show={url !== undefined}>
+                    <IconButton
+                        size={"small"}
+                        onClick={() => {
+                            // When this button is clicked, copy the provided URL to the clipboard
+                            navigator.clipboard.writeText(url!);
+
+                            toast.info("Ligação direta copiada para a área de transferência (CTRL + V)");
+                        }}
+                    >
+                        <ShareIcon
+                            fontSize={"small"}
+                            sx={{
+                                color: "white"
+                            }}
+                        />
+                    </IconButton>
+                </Gate>
+            </div>
 
             <Divider
                 sx={{
