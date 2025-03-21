@@ -4,7 +4,7 @@ name: Fullstack Build
 
 on:
     push:
-        branches: [ "master", "dev" ]
+        branches: [ "dev" ]
     pull_request:
         branches: [ "master" ]
     workflow_dispatch:
