@@ -1,6 +1,6 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
-import {alterOfficer, deleteOfficer, hireOfficer, listOfficers, officerPatrol, restoreOfficer} from "../services";
+import {alterOfficer, deleteOfficer, hireOfficer, importOfficers, listOfficers, officerPatrol, restoreOfficer} from "../services";
 import {FORCE_HEADER, UPDATE_EVENTS} from "../../../utils/constants";
 import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
@@ -130,4 +130,11 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
             end: result.data!.end !== null ? dateToString(result.data!.end): null
         }
     });
+}
+
+export async function importFromSheetsController(req: express.Request, res: APIResponse) {
+    // Call the service
+    let result = await importOfficers(req.header(FORCE_HEADER)!);
+
+    res.send(result);
 }

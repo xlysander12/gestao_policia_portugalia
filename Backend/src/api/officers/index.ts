@@ -5,7 +5,7 @@ import {
     addOfficerController,
     alterOfficerController, deleteOfficerController, getOfficerCurrentPatrolController,
     getOfficerDetailsController,
-    getOfficersListController, restoreOfficerController
+    getOfficersListController, importFromSheetsController, restoreOfficerController
 } from "./controllers";
 import {logToConsole} from "../../utils/logger";
 
@@ -13,6 +13,9 @@ const app = express.Router();
 
 // Route to get a list of all existing officers, following optional filters
 app.get("/", getOfficersListController);
+
+// Route to import officers data from a Google Sheets document
+app.post("/import", importFromSheetsController);
 
 // * From this point, all the routes require the officer to exist
 app.use("/:nif", officerExistsMiddle);

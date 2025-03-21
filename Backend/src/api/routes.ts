@@ -311,6 +311,17 @@ const officersRoutes: routesType = {
         }
     },
 
+    // Route to import officers from google sheets
+    "/officers/import$": {
+        methods: {
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["officers"]
+            }
+        }
+    },
+
     // * Routes about existing officers or to create new officers
     "/officers/\\d+$": {
         methods: {

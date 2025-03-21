@@ -33,6 +33,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^5.0.1",
+    "googleapis": "^148.0.0",
     "mysql2": "^3.6.5",
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",

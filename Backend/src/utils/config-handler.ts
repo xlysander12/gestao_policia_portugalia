@@ -60,3 +60,58 @@ export function getForceMinWeekMinutes(force: string) {
 export function getForcePatrolForces(force: string) {
     return config.forces[force].patrols;
 }
+
+export function getForceHubDetails(force: string) {
+    const forceConfig = config.forces[force];
+
+    if (!forceConfig.hub) {
+        return null;
+    }
+
+    return {
+        id: forceConfig.hub.id,
+        sheet: forceConfig.hub.sheetName
+    };
+}
+
+export function getForceHubPatentRange(force: string, patent: number) {
+    const forceConfig = config.forces[force];
+
+    if (!forceConfig.hub) {
+        return null;
+    }
+
+    return {
+        start: forceConfig.hub.ranges.patents[String(patent)].start - 1,
+        end: forceConfig.hub.ranges.patents[String(patent)].end - 1
+    };
+}
+
+export function getForceHubPropertyPosition(force: string, property: string) {
+    const forceConfig = config.forces[force];
+
+    if (!forceConfig.hub) {
+        return null;
+    }
+
+    return forceConfig.hub.ranges.properties[property] - 1;
+}
+
+export function isRowFromPatent(force: string, row: number): boolean {
+    const forceConfig = config.forces[force];
+
+    if (!forceConfig.hub) {
+        return false;
+    }
+
+    // Loop through all the patents present in the hub configuration in the config file
+    for (const patent in forceConfig.hub!.ranges.patents) {
+        // If the row is in the range of the patent, return true
+        const {start, end} = getForceHubPatentRange(force, parseInt(patent))!;
+        if (row >= start && row <= end) {
+            return true;
+        }
+    }
+
+    return false;
+}

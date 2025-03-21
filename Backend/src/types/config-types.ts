@@ -12,6 +12,18 @@ const DefaultPatentsRt = rt.Record({
     default: rt.Number
 });
 
+const ForceHubRt = rt.Record({
+    id: rt.String,
+    sheetName: rt.String,
+    ranges: rt.Record({
+        patents: rt.Dictionary(rt.Record({
+            start: rt.Number,
+            end: rt.Number
+        }), rt.String.withConstraint((s) => !isNaN(parseInt(s)))),
+        properties: rt.Dictionary(rt.Number, rt.String)
+    }),
+});
+
 const ForceRt = rt.Record({
     name: rt.String,
     acronym: rt.String,
@@ -22,7 +34,8 @@ const ForceRt = rt.Record({
     inactivity_justification_type: rt.Number,
     inactive_status: rt.Number,
     maximum_non_working_days: rt.Number,
-    minimum_week_minutes: rt.Number
+    minimum_week_minutes: rt.Number,
+    hub: rt.Optional(ForceHubRt)
 });
 
 const ForcesRt = rt.Dictionary(ForceRt, rt.String);
