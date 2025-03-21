@@ -679,6 +679,14 @@ const patrolsRoutes: routesType = {
                         valueFunction: (value: string) => {
                             return value.split(",").map((element) => `%${element}%`);
                         }
+                    },
+                    type: {
+                        queryFunction: () => `type = ?`,
+                        valueFunction: (value: number) => value
+                    },
+                    unit: {
+                        queryFunction: () => `special_unit = ?`,
+                        valueFunction: (value: number) => value
                     }
                 }
             },
