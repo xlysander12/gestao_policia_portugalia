@@ -22,7 +22,7 @@ function Patrols() {
     // ! This might not be present
     const {patrolId} = useParams();
 
-    const [, getForceData] = useForceData();
+    const [currentForceData, getForceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
@@ -142,6 +142,16 @@ function Patrols() {
                                         }));
                                     }
                                 },
+                                {label: "Tipo", key: "type", type: "option", options: currentForceData.patrol_types.map(type => ({
+                                        label: type.name,
+                                        key: String(type.id)
+                                    }))
+                                },
+                                {label: "Unidade Especial", key: "unit", type: "option", options: currentForceData.special_units.map(unit => ({
+                                        label: unit.name,
+                                        key: String(unit.id)
+                                    }))
+                                }
                             ]}
                         />
                     </div>
