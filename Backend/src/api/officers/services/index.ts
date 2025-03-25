@@ -164,7 +164,7 @@ export async function officerPatrol(force: string, officerNif: number): Promise<
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: result};
 }
 
-async function convertHubValues(force: string, patent: string, status: string, entry_date: string, phone: string, kms: string, discord: string, nif?: string) {
+async function convertHubValues(force: string, patent: string, status: string, entry_date: string, promotion_date: string, phone: string, kms: string, discord: string, nif?: string) {
     // Convert Patent
     const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent);
 
@@ -175,6 +175,11 @@ async function convertHubValues(force: string, patent: string, status: string, e
     // This date is in the DD/MM/YYYY format
     let entry_date_split = entry_date.split("/");
     const outEntry_date = `${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`;
+
+    // Convert the promotion date
+    // This date is in the DD/MM/YYYY format
+    let promotion_date_split = entry_date.split("/");
+    const outPromotion_date = `${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`;
 
     // Convert the phone number
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
@@ -195,6 +200,7 @@ async function convertHubValues(force: string, patent: string, status: string, e
         patent: outPatent,
         status: outStatus,
         entry_date: outEntry_date,
+        promotion_date: outPromotion_date,
         phone: outPhone,
         kms: outKms,
         discord: outDiscord,
@@ -204,10 +210,11 @@ async function convertHubValues(force: string, patent: string, status: string, e
 
 async function updateOfficerFromHub(force: string, nif: number, row: any[]): Promise<boolean> {
     // * First, convert values to the correct types
-    const {patent, status, entry_date, phone, kms, discord} = await convertHubValues(force,
+    const {patent, status, entry_date, promotion_date, phone, kms, discord} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
         row[getForceHubPropertyPosition(force, "status")!],
         row[getForceHubPropertyPosition(force, "entry_date")!],
+        row[getForceHubPropertyPosition(force, "promotion_date")!],
         row[getForceHubPropertyPosition(force, "phone")!],
         row[getForceHubPropertyPosition(force, "kms")!],
         row[getForceHubPropertyPosition(force, "discord")!]
@@ -219,7 +226,8 @@ async function updateOfficerFromHub(force: string, nif: number, row: any[]): Pro
             patent: patent ? patent.id : undefined,
             callsign: row[getForceHubPropertyPosition(force, "callsign")!],
             status: status ? status.id : undefined,
-            entry_date: entry_date,
+            entry_date,
+            promotion_date,
             phone: phone === "" || isNaN(parseInt(phone)) ? parseInt(phone) : undefined,
             iban: row[getForceHubPropertyPosition(force, "iban")!],
             kms: kms !== "" && !isNaN(parseInt(kms)) ? parseInt(kms) : undefined,
@@ -234,10 +242,11 @@ async function updateOfficerFromHub(force: string, nif: number, row: any[]): Pro
 }
 
 async function addOfficerFromHub(force: string, row: any[]): Promise<[boolean, number]> {
-    const {patent, status, entry_date, phone, kms, discord, nif} = await convertHubValues(force,
+    const {patent, status, entry_date, promotion_date, phone, kms, discord, nif} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
         row[getForceHubPropertyPosition(force, "status")!],
         row[getForceHubPropertyPosition(force, "entry_date")!],
+        row[getForceHubPropertyPosition(force, "promotion_date")!],
         row[getForceHubPropertyPosition(force, "phone")!],
         row[getForceHubPropertyPosition(force, "kms")!],
         row[getForceHubPropertyPosition(force, "discord")!],
@@ -259,9 +268,10 @@ async function addOfficerFromHub(force: string, row: any[]): Promise<[boolean, n
         )
 
         // After adding the officer, update the entry_date and status with the correct value
-        if (entry_date || status) {
+        if (entry_date || promotion_date || status) {
             await updateOfficer(parseInt(nif!), force, {
-                entry_date: entry_date,
+                entry_date,
+                promotion_date,
                 status: status?.id
             }, false);
         }
