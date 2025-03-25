@@ -2,11 +2,10 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {ReactElement, useEffect, useRef} from "react";
 import style from "./modal.module.css";
-import {Button, Divider, IconButton} from "@mui/material";
+import {Button, Divider} from "@mui/material";
 import {DefaultTypography} from "../DefaultComponents";
-import ShareIcon from '@mui/icons-material/Share';
 import Gate from "../Gate/gate";
-import {toast} from "react-toastify";
+import ShareButton from "../ShareButton";
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
@@ -99,22 +98,11 @@ export function Modal({open, onClose, width, height, title, disableScroll, url, 
             <div className={style.header}>
                 <DefaultTypography color={"white"} fontSize={"20px"}>{title}</DefaultTypography>
                 <Gate show={url !== undefined}>
-                    <IconButton
+                    <ShareButton
+                        url={url!}
                         size={"small"}
-                        onClick={() => {
-                            // When this button is clicked, copy the provided URL to the clipboard
-                            navigator.clipboard.writeText(url!);
-
-                            toast.info("Ligação direta copiada para a área de transferência (CTRL + V)");
-                        }}
-                    >
-                        <ShareIcon
-                            fontSize={"small"}
-                            sx={{
-                                color: "white"
-                            }}
-                        />
-                    </IconButton>
+                        color={"white"}
+                    />
                 </Gate>
             </div>
 

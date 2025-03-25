@@ -23,7 +23,6 @@ import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {RequestError, BaseResponse} from "@portalseguranca/api-types";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import OfficerList from "../../../../components/OfficerList";
-import {BASE_URL} from "../../../../utils/constants.ts";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string
@@ -227,7 +226,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                 open={open}
                 title={`Patrulha #${id!.toUpperCase()} - ${patrolData.canceled ? "Cancelada": patrolData.end ? "Terminada": "Em curso..."}`}
                 onClose={handleModalClose}
-                url={`${window.location.origin}${BASE_URL}/patrulhas/${id}`}
+                url={`/patrulhas/${id}`}
             >
                 <form onSubmit={handleSave}>
                     <div className={style.mainDiv}>
