@@ -147,16 +147,14 @@ export async function addOfficer(name: string, patent: number, callsign: string 
 }
 
 export async function updateOfficer(nif: number, force: string, changes: UpdateOfficerRequestBody, isPromotion: boolean) {
-    const validFields = ["name", "patent", "callsign", "status", "entry_date", "phone", "iban", "kms", "discord", "steam"];
+    const validFields = ["name", "patent", "callsign", "status", "entry_date", "promotion_date", "phone", "iban", "kms", "discord", "steam"];
 
     // Build the query string and params depending on the fields that were provided
-    let params: string[] = [];
+    let params: any[] = [];
     let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
-        // @ts-ignore
-        if (changes[field] !== undefined) {
+        if (changes[field as keyof UpdateOfficerRequestBody] !== undefined) {
             acc += `${field} = ?, `;
-            // @ts-ignore
-            params.push(changes[field]);
+            params.push(changes[field as keyof UpdateOfficerRequestBody]);
         }
 
         return acc;

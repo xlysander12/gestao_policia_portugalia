@@ -28,6 +28,7 @@ export const UpdateOfficerRequestBody = Partial({
     callsign: String,
     status: Number,
     entry_date: String,
+    promotion_date: String,
     phone: Number,
     iban: String,
     kms: Number,
