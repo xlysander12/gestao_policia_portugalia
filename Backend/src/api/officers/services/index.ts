@@ -341,10 +341,22 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
                 import_errors.push(officerData.nif);
             }
         } else {
-            const [result, nif] = await addOfficerFromHub(force, row);
+            // Check if the officer is present as a former one
+            const formerOfficerData = await getOfficerData(parseInt(nif), force, true);
 
-            if (!result) {
-                import_errors.push(nif);
+            // If the officer is present as a former one, set his fired flag to false and update the values
+            if (formerOfficerData) {
+                await restoreOfficer(formerOfficerData, force);
+
+                if (!(await updateOfficerFromHub(force, parseInt(nif), row))) {
+                    import_errors.push(formerOfficerData.nif);
+                }
+
+            } else { // If it's not present in the database, add it
+                const [result, nif] = await addOfficerFromHub(force, row);
+                if (!result) {
+                    import_errors.push(nif);
+                }
             }
         }
     }
