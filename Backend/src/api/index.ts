@@ -12,6 +12,7 @@ import {
 } from "../middlewares";
 import {loggerMiddleware} from "../middlewares";
 import {logToConsole} from "../utils/logger";
+import {websocketBroadcastMiddleware} from "../middlewares/websocket-broadcast";
 
 const apiRoutes = express.Router();
 
@@ -27,6 +28,9 @@ apiRoutes.use(assureRouteBasicInfo);
 
 // Middleware to check if the request has all the fields valid
 apiRoutes.use(assureBodyFields);
+
+// Middleware to prepare broadcast events to websocket connection
+apiRoutes.use(websocketBroadcastMiddleware);
 
 // * Import Routes
 // Import util routes

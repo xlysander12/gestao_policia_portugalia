@@ -14,18 +14,22 @@ import {
     getForceInactivityJustificationType
 } from "../../../utils/config-handler";
 
-export async function getOfficersList(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams) {
-    const filtersResult = buildFiltersQuery(routeValidFilters, filters);
+export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams) {
+    if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
+
+    const useFilters = routeValidFilters && filters;
+
+    const filtersResult = useFilters ? buildFiltersQuery(routeValidFilters, filters) : null;
 
     // Check if the "patrol" query param is present
-    const isPatrol = isQueryParamPresent("patrol", filters) && filters["patrol"] === "true";
+    const isPatrol = useFilters ? isQueryParamPresent("patrol", filters) && filters["patrol"] === "true" : false;
 
     // * Get the data from the database
     let officersListResult;
     if (isPatrol) {
-        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif, officerForce FROM officersVPatrols ${filtersResult.query}`, filtersResult.values);
+        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif, officerForce FROM officersVPatrols ${filtersResult ? filtersResult.query: ""}`, filtersResult ? filtersResult.values : []);
     } else {
-        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult.query}`, filtersResult.values);
+        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult ? filtersResult.query : ""}`, filtersResult ? filtersResult.values : []);
     }
 
     // Get the data from all the officer's and store in array
@@ -53,7 +57,7 @@ export async function getOfficersList(force: string, routeValidFilters: RouteFil
 
     // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
     // If so, remove the duplicates nifs
-    if (isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
+    if (useFilters && isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
         officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif)) === index);
     }
 

@@ -2,7 +2,11 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
 import {alterOfficer, deleteOfficer, hireOfficer, importOfficers, listOfficers, officerPatrol, restoreOfficer} from "../services";
 import {FORCE_HEADER, UPDATE_EVENTS} from "../../../utils/constants";
-import {OfficerInfoGetResponse, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import {
+    OfficerImportResponse,
+    OfficerInfoGetResponse,
+    OfficerListResponse
+} from "@portalseguranca/api-types/officers/output";
 import {dateToString} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {isQueryParamPresent} from "../../../utils/filters";
@@ -132,9 +136,17 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
     });
 }
 
-export async function importFromSheetsController(req: express.Request, res: APIResponse) {
+export async function importFromSheetsController(req: express.Request, res: APIResponse<OfficerImportResponse>) {
     // Call the service
     let result = await importOfficers(req.header(FORCE_HEADER)!);
 
-    res.send(result);
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
 }

@@ -204,7 +204,7 @@ async function convertHubValues(force: string, patent: string, status: string, e
     }
 }
 
-async function updateOfficerFromHub(force: string, nif: number, row: any[]) {
+async function updateOfficerFromHub(force: string, nif: number, row: any[]): Promise<boolean> {
     // * First, convert values to the correct types
     const {patent, status, entry_date, phone, kms, discord} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
@@ -215,20 +215,27 @@ async function updateOfficerFromHub(force: string, nif: number, row: any[]) {
         row[getForceHubPropertyPosition(force, "discord")!]
     );
 
-    await updateOfficer(nif, force, {
-        name: row[getForceHubPropertyPosition(force, "name")!],
-        patent: patent ? patent.id : undefined,
-        callsign: row[getForceHubPropertyPosition(force, "callsign")!],
-        status: status ? status.id : undefined,
-        entry_date: entry_date,
-        phone: phone === "" || isNaN(parseInt(phone)) ? parseInt(phone) : undefined,
-        iban: row[getForceHubPropertyPosition(force, "iban")!],
-        kms: kms === "" || isNaN(parseInt(kms)) ? parseInt(kms) : undefined,
-        discord: discord === "" || isNaN(parseInt(discord)) ? parseInt(discord): undefined
-    }, false);
+    try {
+        await updateOfficer(nif, force, {
+            name: row[getForceHubPropertyPosition(force, "name")!],
+            patent: patent ? patent.id : undefined,
+            callsign: row[getForceHubPropertyPosition(force, "callsign")!],
+            status: status ? status.id : undefined,
+            entry_date: entry_date,
+            phone: phone === "" || isNaN(parseInt(phone)) ? parseInt(phone) : undefined,
+            iban: row[getForceHubPropertyPosition(force, "iban")!],
+            kms: kms !== "" && !isNaN(parseInt(kms)) ? parseInt(kms) : undefined,
+            discord: discord === "" || isNaN(parseInt(discord)) ? parseInt(discord): undefined
+        }, false);
+
+        return true;
+    } catch (e) {
+        return false;
+    }
+
 }
 
-async function addOfficerFromHub(force: string, row: any[]) {
+async function addOfficerFromHub(force: string, row: any[]): Promise<[boolean, number]> {
     const {patent, status, entry_date, phone, kms, discord, nif} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
         row[getForceHubPropertyPosition(force, "status")!],
@@ -239,29 +246,47 @@ async function addOfficerFromHub(force: string, row: any[]) {
         row[getForceHubPropertyPosition(force, "nif")!]
     );
 
-    await addOfficer(
-        row[getForceHubPropertyPosition(force, "name")!],
-        patent ? patent.id : getForceDefaultPatents(force).default,
-        row[getForceHubPropertyPosition(force, "callsign")!],
-        phone ? parseInt(phone) : 0,
-        parseInt(nif!),
-        row[getForceHubPropertyPosition(force, "iban")!],
-        kms ? parseInt(kms) : 0,
-        discord ? parseInt(discord) : 0,
-        "steam:0",
-        force
-    )
+    try {
+        await addOfficer(
+            row[getForceHubPropertyPosition(force, "name")!],
+            patent ? patent.id : getForceDefaultPatents(force).default,
+            row[getForceHubPropertyPosition(force, "callsign")!],
+            phone ? parseInt(phone) : 0,
+            parseInt(nif!),
+            row[getForceHubPropertyPosition(force, "iban")!],
+            kms ? parseInt(kms) : 0,
+            discord ? parseInt(discord) : 0,
+            "steam:0",
+            force
+        )
 
-    // After adding the officer, update the entry_date and status with the correct value
-    if (entry_date || status) {
-        await updateOfficer(parseInt(nif!), force, {
-            entry_date: entry_date,
-            status: status?.id
-        }, false);
+        // After adding the officer, update the entry_date and status with the correct value
+        if (entry_date || status) {
+            await updateOfficer(parseInt(nif!), force, {
+                entry_date: entry_date,
+                status: status?.id
+            }, false);
+        }
+
+        return [true, parseInt(nif!)];
+    } catch (e) {
+        return [false, parseInt(nif!)];
     }
 
+
 }
-export async function importOfficers(force: string): Promise<DefaultReturn<void>> {
+
+const importing_forces: {[force: string]: boolean} = {}
+
+export async function importOfficers(force: string): Promise<DefaultReturn<{import_errors: number[], non_present: number[]}>> {
+    // Check if this force is not already importing
+    if (importing_forces[force]) {
+        return {result: false, status: 409, message: "Esta força já está a importar efetivos."};
+    }
+
+    // Set this force as importing
+    importing_forces[force] = true;
+
     // * Get the all data from the Force's HUB on Google Sheets
     // Fecth the spreadsheet id and sheet name from the config file
     if (!getForceHubDetails(force)) { // If there's no HUB information present, this is not supported for this force
@@ -278,10 +303,12 @@ export async function importOfficers(force: string): Promise<DefaultReturn<void>
     }
 
     // * Iterate over every row in the sheet and apply it to the database
+    const import_errors: number[] = []; // Store the nifs of officers that couldn't be imported
+
     for (let index = 0; index < rows.length; index++) {
         const row = rows[index];
 
-        // If the index of the row doesn't match any of the patents, skip it
+        // If the index of the row doesn't match any of the patents' ranges, skip it
         if (!isRowFromPatent(force, index)) {
             continue;
         }
@@ -302,25 +329,42 @@ export async function importOfficers(force: string): Promise<DefaultReturn<void>
 
         // If the officer is already in the database, update it with the values from the row
         if (officerData) {
-            try {
-                await updateOfficerFromHub(force, parseInt(nif), row);
-            } catch (e) {
-                // TODO: Send the error to the client
-                console.error(e);
+            if (!(await updateOfficerFromHub(force, parseInt(nif), row))) {
+                import_errors.push(officerData.nif);
             }
         } else {
-            try {
-                await addOfficerFromHub(force, row);
-            } catch (e) {
-                // TODO: Send the error to the client
-                console.error(e);
+            const [result, nif] = await addOfficerFromHub(force, row);
+
+            if (!result) {
+                import_errors.push(nif);
             }
         }
     }
 
+    // * After all rows from the google sheets are processed, check if there are any officers in the database that are not present in the google sheets
+    // Fetch all officers from the database
+    const officers = await getOfficersList(force);
+
+    // Filter out the officers that are not present in the google sheets
+    const non_present = officers.filter((officer) => !rows.find((row, index) => {
+        if (!isRowFromPatent(force, index)) {
+            return false;
+        }
+
+        let nif = row[getForceHubPropertyPosition(force, "nif")!].replace(/\D/g, '');
+        return officer.nif === parseInt(nif);
+    }));
+
+    // Set the force as not importing anymore
+    importing_forces[force] = false;
+
     return {
         result: true,
         status: 200,
-        message: "Efetivos importados com sucesso."
+        message: "Efetivos importados com sucesso.",
+        data: {
+            import_errors,
+            non_present: non_present.map(officer => officer.nif)
+        }
     }
 }

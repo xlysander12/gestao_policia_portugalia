@@ -17,7 +17,13 @@ import {
     ManageOfficerJustificationBody,
     UpdateOfficerLastShiftBody
 } from "@portalseguranca/api-types/officers/activity/input";
-import {OfficerAddSocket, OfficerUpdateSocket, OfficerRestoreSocket, OfficerDeleteSocket} from "@portalseguranca/api-types/officers/output";
+import {
+    OfficerAddSocket,
+    OfficerUpdateSocket,
+    OfficerRestoreSocket,
+    OfficerDeleteSocket,
+    OfficerImportSocket
+} from "@portalseguranca/api-types/officers/output";
 import {OfficerLastShiftSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
@@ -317,7 +323,17 @@ const officersRoutes: routesType = {
             POST: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["officers"]
+                intents: ["officers"],
+                broadcast: {
+                    event: UPDATE_EVENTS.OFFICER,
+                    body: (_req: express.Request, res: APIResponse): OfficerImportSocket => {
+                        return {
+                            action: "update",
+                            nif: 0,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
     },

@@ -37,6 +37,13 @@ export interface OfficerInfoGetResponse extends BaseResponse {
     data: OfficerData | MinifiedOfficerData
 }
 
+export interface OfficerImportResponse extends BaseResponse {
+    data: {
+        import_errors: number[],
+        non_present: number[]
+    }
+}
+
 export interface OfficerSocket extends SocketResponse {
     nif: number
 }
@@ -55,4 +62,8 @@ export interface OfficerRestoreSocket extends OfficerSocket {
 
 export interface OfficerDeleteSocket extends OfficerSocket {
     action: "delete"
+}
+
+export interface OfficerImportSocket extends OfficerSocket {
+    action: "update"
 }
