@@ -401,9 +401,21 @@ function OfficerInfo() {
                     <div className={style.officerInfoAlterbarRight}>
                         <Gate show={editMode}>
                             <DefaultButton
+                                sx={{flex: 1}}
+                                buttonColor={"red"}
+                                onClick={() => {
+                                    setEditMode(false);
+                                    fetchOfficerInfo(true);
+                                }}
+                            >
+                                Cancelar
+                            </DefaultButton>
+
+                            <DefaultButton
                                 type={"submit"}
                                 form={"information-form"}
                                 sx={{flex: 1}}
+                                buttonColor={"lightgreen"}
                             >
                                 Guardar
                             </DefaultButton>
