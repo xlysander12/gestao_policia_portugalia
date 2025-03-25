@@ -31,7 +31,6 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [reload, setReload] = useState<boolean>(true);
 
     const [lastShift, setLastShift] = useState<Moment>(moment(null));
     const [maxDaysPassed, setMaxDaysPassed] = useState<boolean>(false);
@@ -60,9 +59,6 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
         // Set loading to false
         setLoading(false);
-
-        // Set reload flag to false
-        setReload(false);
     }
 
     async function updateOfficerLastShift() {
@@ -81,8 +77,8 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
     }
 
     useEffect(() => {
-        if (reload) fetchLastShift();
-    }, [officer, reload]);
+        fetchLastShift();
+    }, [officer]);
 
     return (
         <div className={style.informationPairDiv}>
@@ -151,7 +147,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             buttonColor={"red"}
                             onClick={() => {
                                 setEditMode(false);
-                                setReload(true);
+                                fetchLastShift();
                             }}
                         >
                             <CancelIcon fontSize={"small"} />
