@@ -22,7 +22,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
     const loggedUser = useContext(LoggedUserContext);
 
     // Get force data from context
-    const [, getForceData] = useForceData();
+    const [forceData, getForceData] = useForceData();
 
     // Create state that holds all the officers in the list
     const [officers, setOfficers] = useImmer<MinifiedOfficerData[]>(startingOfficers);
@@ -54,6 +54,8 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                     }: {}}
                 >
                     {officers.map((officer) => {
+                        const officerForceData = officer.force ? getForceData(officer.force!) : forceData;
+
                         return (
                             <ListItem
                                 key={`officerListOfficer#${officer.nif}`}
@@ -85,7 +87,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                                         <DefaultTypography
                                             fontSize={"0.9rem"}
                                         >
-                                            [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} {officer.name}
+                                            [{officer.callsign}] {getObjectFromId(officer.patent, officerForceData.patents)!.name} {officer.name}
                                         </DefaultTypography>
                                     }
                                 />
