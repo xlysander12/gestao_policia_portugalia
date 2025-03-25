@@ -4,7 +4,7 @@ import {OfficerPicker} from "../../components/OfficerPicker";
 import {Loader} from "../../components/Loader";
 import {make_request} from "../../utils/requests";
 import {
-    Divider,
+    Divider, IconButton,
     MenuItem
 } from "@mui/material";
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
@@ -33,6 +33,8 @@ import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/in
 import {RequestError} from "@portalseguranca/api-types/index.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
+import ShareIcon from "@mui/icons-material/Share";
+import {BASE_URL} from "../../utils/constants.ts";
 
 
 type InformationPairProps = {
@@ -381,6 +383,18 @@ function OfficerInfo() {
                         <Gate show={officerInfo.former}>
                             <DefaultTypography color={"red"}>Estás a ver um antigo efetivo</DefaultTypography>
                         </Gate>
+
+                        <IconButton
+                            sx={{
+                                color: "var(--portalseguranca-color-accent)"
+                            }}
+                            onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}${BASE_URL}/efetivos/${officerNif}`)
+                                toast("Link copiado para a área de transferência!", {type: "info"})
+                            }}
+                        >
+                            <ShareIcon />
+                        </IconButton>
                     </div>
 
                     {/*Buttons that lie on the right side of the bar*/}
