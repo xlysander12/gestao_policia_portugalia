@@ -26,6 +26,8 @@ module.exports = {
 
     "react/react-in-jsx-scope": "off",
 
-    "react/jsx-pascal-case": "warn"
+    "react/jsx-pascal-case": "warn",
+
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off"
   },
 }

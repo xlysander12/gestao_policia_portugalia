@@ -24,7 +24,7 @@ import {
     OfficerInfoGetResponse, OfficerSocket,
     OfficerUnit
 } from "@portalseguranca/api-types/officers/output";
-import {RecruitModal, FireModal, AccountInformationModal} from "./modals";
+import {RecruitModal, FireModal, AccountInformationModal, ImportOfficersModal} from "./modals";
 import SpecialUnitsTable from "./SpecialUnitsTable.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./ActivityPanel.tsx";
@@ -177,6 +177,7 @@ function OfficerInfo() {
     const [isAccountModalOpen, setAccountModalOpen] = useState<boolean>(false);
     const [isRecruitModalOpen, setRecruitModalOpen] = useState<boolean>(false);
     const [isFireModalOpen, setFireModalOpen] = useState<boolean>(false);
+    const [isImportModalOpen, setImportModalOpen] = useState<boolean>(false);
 
     // Handle updates from socket
     useWebSocketEvent<OfficerSocket>("officers", async (data) => {
@@ -375,6 +376,7 @@ function OfficerInfo() {
                         </Gate>
                         <DefaultButton
                             hidden={editMode || !loggedUser.intents.officers}
+                            onClick={() => setImportModalOpen(true)}
                         >
                             Importar do HUB
                         </DefaultButton>
@@ -676,6 +678,11 @@ function OfficerInfo() {
                 onClose={() => setFireModalOpen(false)}
                 officerFullName={`${getObjectFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
                 officerNif={officerNif}
+            />
+
+            <ImportOfficersModal
+                open={isImportModalOpen}
+                onClose={() => setImportModalOpen(false)}
             />
         </>
     )
