@@ -19,6 +19,8 @@ import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData} from "../../hooks";
 import moment, {Moment} from "moment";
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 type LastShiftPairProps = {
     officer: number
@@ -29,6 +31,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [reload, setReload] = useState<boolean>(true);
 
     const [lastShift, setLastShift] = useState<Moment>(moment(null));
     const [maxDaysPassed, setMaxDaysPassed] = useState<boolean>(false);
@@ -57,6 +60,9 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
         // Set loading to false
         setLoading(false);
+
+        // Set reload flag to false
+        setReload(false);
     }
 
     async function updateOfficerLastShift() {
@@ -75,8 +81,8 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
     }
 
     useEffect(() => {
-        fetchLastShift();
-    }, [officer]);
+        if (reload) fetchLastShift();
+    }, [officer, reload]);
 
     return (
         <div className={style.informationPairDiv}>
@@ -131,12 +137,24 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                         <DefaultButton
                             size={"small"}
                             buttonColor={"lightgreen"}
+                            darkTextOnHover
                             onClick={() => {
                                 // Call the onDateChange function
                                 updateOfficerLastShift();
                             }}
                         >
-                            Guardar
+                            <SaveIcon fontSize={"small"} />
+                        </DefaultButton>
+
+                        <DefaultButton
+                            size={"small"}
+                            buttonColor={"red"}
+                            onClick={() => {
+                                setEditMode(false);
+                                setReload(true);
+                            }}
+                        >
+                            <CancelIcon fontSize={"small"} />
                         </DefaultButton>
                     </Gate>
                 </Gate>
