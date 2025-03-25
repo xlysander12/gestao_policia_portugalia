@@ -618,9 +618,9 @@ function OfficerInfo() {
                                 </div>
                             </Gate>
 
-                            <Divider/>
-
                             <Gate show={officerInfo.former}>
+                                <Divider/>
+
                                 <InformationPair
                                     label={"Motivo Despedimento:"}
                                     value={officerInfo.professional.fire_reason || ""}
