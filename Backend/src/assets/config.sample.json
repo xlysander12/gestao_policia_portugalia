@@ -82,6 +82,10 @@
                             "end": 4
                         }
                     },
+                    "inactive": {
+                        "start": 121,
+                        "end": 400
+                    },
                     "properties": {
                         "name": 2,
                         "patent": 3,

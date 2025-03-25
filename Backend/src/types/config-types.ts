@@ -20,6 +20,10 @@ const ForceHubRt = rt.Record({
             start: rt.Number,
             end: rt.Number
         }), rt.String.withConstraint((s) => !isNaN(parseInt(s)))),
+        inactive: rt.Record({
+            start: rt.Number,
+            end: rt.Number
+        }),
         properties: rt.Dictionary(rt.Number, rt.String)
     }),
 });

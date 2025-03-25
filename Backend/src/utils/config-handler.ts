@@ -97,7 +97,7 @@ export function getForceHubPropertyPosition(force: string, property: string) {
     return forceConfig.hub.ranges.properties[property] - 1;
 }
 
-export function isRowFromPatent(force: string, row: number): boolean {
+export function isHubRowReadable(force: string, row: number): boolean {
     const forceConfig = config.forces[force];
 
     if (!forceConfig.hub) {
@@ -113,5 +113,6 @@ export function isRowFromPatent(force: string, row: number): boolean {
         }
     }
 
-    return false;
+    // If it's not in any of the patents, check if it is in the inactive section
+    return row >= forceConfig.hub!.ranges.inactive.start && row <= forceConfig.hub!.ranges.inactive.end;
 }

@@ -14,7 +14,7 @@ import {
     getForceDefaultPatents,
     getForceHubDetails, getForceHubPropertyPosition,
     getForcePromotionExpression,
-    isRowFromPatent
+    isHubRowReadable
 } from "../../../utils/config-handler";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getForcePatents, getForceStatuses} from "../../util/repository";
@@ -317,7 +317,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         const row = rows[index];
 
         // If the index of the row doesn't match any of the patents' ranges, skip it
-        if (!isRowFromPatent(force, index)) {
+        if (!isHubRowReadable(force, index)) {
             continue;
         }
 
@@ -355,7 +355,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
 
     // Filter out the officers that are not present in the google sheets
     const non_present = officers.filter((officer) => !rows.find((row, index) => {
-        if (!isRowFromPatent(force, index)) {
+        if (!isHubRowReadable(force, index)) {
             return false;
         }
 
