@@ -178,7 +178,7 @@ async function convertHubValues(force: string, patent: string, status: string, e
 
     // Convert the promotion date
     // This date is in the DD/MM/YYYY format
-    let promotion_date_split = entry_date.split("/");
+    let promotion_date_split = promotion_date.split("/");
     const outPromotion_date = `${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`;
 
     // Convert the phone number
