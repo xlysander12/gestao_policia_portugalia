@@ -286,6 +286,7 @@ function OfficerInfo() {
                     callsign: officerInfo.professional.callsign,
                     status: officerInfo.professional.status,
                     entry_date: officerInfo.professional.entry_date,
+                    promotion_date: officerInfo.professional.promotion_date ? officerInfo.professional.promotion_date: undefined,
 
                     // Special Units
                     special_units: officerInfo.professional.special_units
@@ -595,7 +596,10 @@ function OfficerInfo() {
                                 label={"Data de Subida:"}
                                 value={officerInfo.professional.promotion_date || ""}
                                 type={"date"}
-                                editMode={false}
+                                editMode={editMode}
+                                onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
+                                    draft.professional.promotion_date = date.toISOString().split("T")[0]
+                                })}
                             />
 
                             {/*Unidades Especiais*/}
