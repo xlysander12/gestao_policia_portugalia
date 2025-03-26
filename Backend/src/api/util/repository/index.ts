@@ -165,7 +165,7 @@ export async function getEvaluationGrades(force: string): Promise<EvaluationGrad
 
 export async function getEvaluationFields(force: string): Promise<EvaluationField[]> {
     // Get the list from the database
-    const result = await queryDB(force, `SELECT name FROM evaluation_fields`);
+    const result = await queryDB(force, `SELECT * FROM evaluation_fields`);
 
     // Build an array with the fields
     let fieldsList: EvaluationField[] = [];
