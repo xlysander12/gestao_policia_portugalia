@@ -1,5 +1,6 @@
 import {OfficerData} from "@portalseguranca/api-types/officers/output";
 import {PatrolData} from "@portalseguranca/api-types/patrols/output";
+import {Evaluation} from "@portalseguranca/api-types/officers/evaluations/output";
 
 export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "promotion_date" | "fire_reason"> {
     entry_date: Date,
@@ -29,6 +30,10 @@ export interface InnerOfficerJustificationData {
     status: "pending" | "approved" | "denied"
     comment: string | null
     managed_by: number | null
+    timestamp: Date
+}
+
+export interface InnerOfficerEvaluation extends Omit<Evaluation, "timestamp"> {
     timestamp: Date
 }
 

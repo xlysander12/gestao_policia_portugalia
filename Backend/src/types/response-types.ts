@@ -1,6 +1,12 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
-import {InnerAccountData, InnerOfficerData, InnerOfficerJustificationData, InnerPatrolData} from "./inner-types";
+import {
+    InnerAccountData,
+    InnerOfficerData,
+    InnerOfficerEvaluation,
+    InnerOfficerJustificationData,
+    InnerPatrolData
+} from "./inner-types";
 import {ReceivedQueryParams} from "../utils/filters";
 import { RequestError, BaseResponse } from "@portalseguranca/api-types";
 import {Server} from "socket.io";
@@ -34,6 +40,12 @@ export type AccountInfoAPIResponse<BodyType = {}> = APIResponse<BodyType> & {
 export type OfficerJustificationAPIResponse<BodyType = {}> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         justification: InnerOfficerJustificationData
+    }
+}
+
+export type OfficerEvaluationAPIResponse<BodyType = {}> = OfficerInfoAPIResponse<BodyType> & {
+    locals: {
+        evaluation: InnerOfficerEvaluation
     }
 }
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import activityRoutes from './subroutes/activity';
+import evaluationRoutes from './subroutes/evaluations';
 import {officerExistsMiddle} from "../../middlewares";
 import {
     addOfficerController,
@@ -40,6 +41,9 @@ app.get("/:nif/patrol", getOfficerCurrentPatrolController);
 
 // Load the activity routes
 app.use("/:nif/activity", activityRoutes);
+
+// Load the evaluation routes
+app.use("/:nif/evaluations", evaluationRoutes);
 
 logToConsole("Officers routes loaded successfully", "info");
 

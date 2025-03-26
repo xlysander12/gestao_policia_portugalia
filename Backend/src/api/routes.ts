@@ -691,6 +691,28 @@ const activityRoutes: routesType = {
     }
 }
 
+const evaluationsRoutes: routesType = {
+    // Route to get the list of evaluations where the officer is the target
+    "/officers/\\d+/evaluations$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get the details of an evaluation
+    "/officers/\\d+/evaluations/\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    }
+}
+
 const patrolsRoutes: routesType = {
     "/patrols$": {
         methods: {
@@ -811,6 +833,7 @@ const routes: routesType = {
     ...metricsRoutes,
     ...utilRoutes,
     ...activityRoutes,
+    ...evaluationsRoutes,
     ...officersRoutes,
     ...patrolsRoutes
 }
