@@ -1,6 +1,8 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {
+    evaluationFields,
+    evaluationGrades,
     forceInactivityTypes,
     forceIntents,
     forcePatents, forcePatrolForces,
@@ -14,7 +16,7 @@ import {
     UtilPatentsResponse, UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse,
-    UtilForcePatrolForcesResponse, UtilNotificationsResponse
+    UtilForcePatrolForcesResponse, UtilNotificationsResponse, UtilEvaluationGradesResponse, UtilEvaluationFieldsResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
 
@@ -80,6 +82,38 @@ export async function getPatrolForcesController(req: express.Request, res: Expre
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getEvaluationGradesController(req: express.Request, res: ExpressResponse<UtilEvaluationGradesResponse>) {
+    // Call the service
+    const result = await evaluationGrades(req.header(FORCE_HEADER)!);
+
+    // Send the list to the client
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
+}
+
+export async function getEvaluationFieldsController(req: express.Request, res: ExpressResponse<UtilEvaluationFieldsResponse>) {
+    // Call the service
+    const result = await evaluationFields(req.header(FORCE_HEADER)!);
+
+    // Send the list to the client
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
 }
 
 export async function getNotificationsController(req: express.Request, res: APIResponse<UtilNotificationsResponse>) {

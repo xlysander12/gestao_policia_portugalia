@@ -282,6 +282,26 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all the evaluation grades of the force
+    "/util/evaluation-grades$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all the evaluation fields of the force
+    "/util/evaluation-fields$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all notifications for an user
     "/util/notifications$": {
         methods: {

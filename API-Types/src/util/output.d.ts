@@ -87,6 +87,26 @@ export interface UtilForcePatrolForcesResponse extends BaseResponse {
     data: string[]
 }
 
+export interface EvaluationGrade {
+    id: number
+    name: string
+    color: string
+}
+
+export interface UtilEvaluationGradesResponse extends BaseResponse {
+    data: EvaluationGrade[]
+}
+
+export interface EvaluationField {
+    id: number
+    name: string
+    starting_patent: number
+}
+
+export interface UtilEvaluationFieldsResponse extends BaseResponse {
+    data: EvaluationField[]
+}
+
 export interface UtilNotificationsResponse extends BaseResponse {
     data: BaseNotification[]
 }

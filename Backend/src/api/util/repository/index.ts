@@ -1,4 +1,6 @@
 import {
+    EvaluationField,
+    EvaluationGrade,
     InactivityTypeData,
     IntentData,
     PatentData, PatrolTypeData,
@@ -142,6 +144,40 @@ export async function getForcePatrolTypes(force: string): Promise<PatrolTypeData
     }
 
     return typesList;
+}
+
+export async function getEvaluationGrades(force: string): Promise<EvaluationGrade[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM evaluation_grades`);
+
+    // Build an array with the grades
+    let gradesList: EvaluationGrade[] = [];
+    for (const grade of result) {
+        gradesList.push({
+            id: grade.id,
+            name: grade.name,
+            color: grade.color
+        });
+    }
+
+    return gradesList;
+}
+
+export async function getEvaluationFields(force: string): Promise<EvaluationField[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT name FROM evaluation_fields`);
+
+    // Build an array with the fields
+    let fieldsList: EvaluationField[] = [];
+    for (const field of result) {
+        fieldsList.push({
+            id: field.id,
+            name: field.name,
+            starting_patent: field.starting_patent
+        });
+    }
+
+    return fieldsList;
 }
 
 export async function getPendingInactivityJustifications(force: string): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
