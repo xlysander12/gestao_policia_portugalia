@@ -122,7 +122,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
                             type={"text"}
                             label={"Pesquisar por efetivo"}
                             alternateColor
-                            disabled={disabled}
+                            disabled={disabled || loading}
                             onChange={(event) => setSearchString(event.target.value)}
                             sx={{
                                 width: "70%",
@@ -132,7 +132,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
                         <DefaultButton
                             type={"submit"}
                             buttonColor={"var(--portalseguranca-color-accent)"}
-                            disabled={disabled}
+                            disabled={disabled || loading}
                             sx={{
                                 padding: "5px",
                                 flex: 0.2,
