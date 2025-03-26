@@ -193,6 +193,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
             if (patrolData) {
                 setPatrolData(patrolData);
+            } else {
+                handleModalClose();
             }
         }
 
