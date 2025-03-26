@@ -127,53 +127,58 @@ function App() {
     const router = createBrowserRouter(
         [
             {
-                path: "/login",
-                element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
-            },
-            {
-                path: "/",
-                element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
-            },
-            {
-                path: "/efetivos",
+                errorElement: <>Ups</>,
                 children: [
                     {
-                        path: "",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
+                        path: "/login",
+                        element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
                     },
                     {
-                        path: ":nif",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
-                    }
-                ]
-            },
-            {
-                path: "/atividade",
-                children: [
-                    {
-                        path: "",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                        path: "/",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
                     },
                     {
-                        path: ":nif",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                        path: "/efetivos",
+                        children: [
+                            {
+                                path: "",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
+                            },
+                            {
+                                path: ":nif",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<OfficerInfo/>}/>
+                            }
+                        ]
                     },
                     {
-                        path: ":nif/:type/:entry_id",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
-                    }
-                ]
-            },
-            {
-                path: "/patrulhas",
-                children: [
-                    {
-                        path: "",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                        path: "/atividade",
+                        children: [
+                            {
+                                path: "",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                            },
+                            {
+                                path: ":nif",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                            },
+                            {
+                                path: ":nif/:type/:entry_id",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                            }
+                        ]
                     },
                     {
-                        path: ":patrolId",
-                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                        path: "/patrulhas",
+                        children: [
+                            {
+                                path: "",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                            },
+                            {
+                                path: ":patrolId",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                            }
+                        ]
                     }
                 ]
             }
