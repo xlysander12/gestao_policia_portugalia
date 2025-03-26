@@ -157,6 +157,10 @@ function App() {
                     {
                         path: ":nif",
                         element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
+                    },
+                    {
+                        path: ":nif/:type/:entry_id",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Activity/>}/>
                     }
                 ]
             },

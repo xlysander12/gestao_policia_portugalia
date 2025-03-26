@@ -138,9 +138,9 @@ function Activity() {
     // Get the force data from context
     const [forceData] = useForceData();
 
-    // Get the officer's nif from the URL params
+    // Get the officer's nif, entry type and id from the URL params
     // ! This might not be present
-    const {nif} = useParams();
+    const {nif, type, entry_id} = useParams();
 
     // Set the loading state
     const [loading, setLoading] = useState<boolean>(true);
@@ -332,6 +332,21 @@ function Activity() {
                 status: 0,
                 nif: parseInt(nif)
             });
+
+            // Check if the provided type is valid
+            if (type !== "h" && type !== "j") return
+
+            // Check if the provided entry_id is valid
+            if (entry_id && isNaN(parseInt(entry_id))) return
+
+            // Depending on the provided type, open the corresponding modal
+            if (type === "h") {
+                setCurrentHourId(parseInt(entry_id!));
+                setHoursModalOpen(true);
+            } else if (type === "j") {
+                setCurrentJustificationId(parseInt(entry_id!));
+                setJustificationModalOpen(true);
+            }
         } else {
             setCurrentOfficer({
                 name: loggedUser.info.personal.name,
@@ -341,7 +356,7 @@ function Activity() {
                 nif: loggedUser.info.personal.nif
             });
         }
-    }, [nif]);
+    }, [nif, type, entry_id]);
 
     // Handle socket updates
     useWebSocketEvent<OfficerActivitySocket>("activity", async (data) => {

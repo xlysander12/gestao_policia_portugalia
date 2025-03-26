@@ -130,6 +130,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             // If the request wasn't successful, show an error message
             if (!response.ok) {
                 toast(data.message, {type: "error"});
+                onClose();
                 return;
             }
 
@@ -219,6 +220,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                 open={open}
                 onClose={onClose}
                 title={newEntry ? "Novo Registo - Horas Semanais": `Horas semanais #${entryId}`}
+                url={`/atividade/${officer}/h/${entryId}`}
             >
                 {/* Show Loader */}
                 <Gate show={loading}>

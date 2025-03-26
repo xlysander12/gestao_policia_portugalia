@@ -104,6 +104,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             // Handle possible error
             if (!response.ok) {
                 toast(data.message, {type: "error"});
+                onClose();
                 return;
             }
 
@@ -282,7 +283,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         <>
             <Modal open={open} onClose={onClose}
                    title={newEntry ? "Nova Justificação de Inatividade" : `Justificação de Inatividade #${justificationId}`}
-                   width={"55%"}>
+                   width={"55%"}
+                   url={`/atividade/${officerNif}/j/${justificationId}`}
+            >
                 <Gate show={loading}>
                     <Loader size={"100px"}/>
                 </Gate>
