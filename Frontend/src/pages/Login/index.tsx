@@ -52,7 +52,7 @@ function Login() {
         localStorage.setItem("force", loginJson.data.forces[0]);
 
         // Set the flag in localStorage to indicate that the page needs to reload
-        localStorage.setItem("needsReload", "true");
+        sessionStorage.setItem("needsReload", "true");
 
         // Set the last_login nif in the local storage if the remind be checkbox is checked
         if (remember) {
@@ -63,7 +63,13 @@ function Login() {
         // Disable the loading flag
         setLoading(false);
 
-        // Redirect the user to the home page
+        // Redirect the user to the desired page
+        // If there's a redirect query param in the URL, redirect the user to that page
+        if (new URLSearchParams(window.location.search).get("redirect")) {
+            navigate(new URLSearchParams(window.location.search).get("redirect")!);
+            return;
+        }
+
         navigate("/");
     }
 

@@ -1,6 +1,6 @@
 import {ReactElement, useCallback, useContext, useEffect, useState} from "react";
 import {make_request} from "../../utils/requests";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import {Navbar} from "../Navbar";
 import {
@@ -29,8 +29,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
     const [socket, setSocket] = useState<Socket | null>(null);
 
-    // Initialize navigate hook
+    // Initialize navigate and location hooks
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Get the force's data from Context
     const [forceData] = useForceData();
@@ -38,7 +39,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     const checkToken = async (): Promise<{valid: boolean, nif: number}> => {
         // Check if there is a force in the local storage. If there isn't, return to login
         if (!localStorage.getItem("force")) {
-            navigate("/login");
+            navigate("/login?redirect=" + location.pathname);
             return {valid: false, nif: 0};
         }
 
@@ -50,7 +51,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             toast("Sessão inválida. Por favor, faça login novamente.", {
                 type: "error",
             });
-            navigate("/login");
+            navigate("/login?redirect=" + location.pathname);
 
             return {valid: false, nif: 0};
         }
@@ -69,25 +70,32 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         const tempLoggedUser: LoggedUserContextType = loggedUser;
 
         // Fill the temp object with the data from the response
-        tempLoggedUser.info.personal.name = userData.name;
-        tempLoggedUser.info.personal.nif = userData.nif;
-        tempLoggedUser.info.personal.phone = userData.phone;
-        tempLoggedUser.info.personal.iban = userData.iban;
-        tempLoggedUser.info.personal.kms = userData.kms;
-        tempLoggedUser.info.personal.discord = userData.discord;
-        tempLoggedUser.info.personal.steam = userData.steam;
+        tempLoggedUser.info = {
+            personal: {
+                name: userData.name,
+                nif: userData.nif,
+                phone: userData.phone,
+                iban: userData.iban,
+                kms: userData.kms,
+                discord: userData.discord,
+                steam: userData.steam
+            },
 
-        tempLoggedUser.info.professional.patent = getObjectFromId(userData.patent as number, forceData.patents)!;
-        tempLoggedUser.info.professional.callsign = userData.callsign;
-        tempLoggedUser.info.professional.status = getObjectFromId(userData.status as number, forceData.statuses)!;
-        tempLoggedUser.info.professional.entry_date = userData.entry_date;
-        tempLoggedUser.info.professional.promotion_date = userData.promotion_date;
-        tempLoggedUser.info.professional.special_units = userData.special_units.map((unit) => {
-            return {
-                unit: getObjectFromId(unit.id as number, forceData.special_units)!,
-                role: getObjectFromId(unit.role as number, forceData.special_unit_roles)!
-            };
-        });
+            professional: {
+                patent: getObjectFromId(userData.patent as number, forceData.patents)!,
+                callsign: userData.callsign,
+                status: getObjectFromId(userData.status as number, forceData.statuses)!,
+                entry_date: userData.entry_date,
+                promotion_date: userData.promotion_date,
+                special_units: userData.special_units.map((unit) => {
+                    return {
+                        unit: getObjectFromId(unit.id as number, forceData.special_units)!,
+                        role: getObjectFromId(unit.role as number, forceData.special_unit_roles)!
+                    };
+                })
+            }
+        }
+        
 
         // Fetch the user's intents
         const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");
@@ -143,8 +151,8 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
         // Before doing anything, check if the flag "needsReload" is set to true. If it is, reload the page
-        if (localStorage.getItem("needsReload")) {
-            localStorage.removeItem("needsReload");
+        if (sessionStorage.getItem("needsReload")) {
+            sessionStorage.removeItem("needsReload");
             window.location.reload();
         }
 
