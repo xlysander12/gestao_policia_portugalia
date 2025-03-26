@@ -1,7 +1,7 @@
 import express from "express";
-import {OfficerInfoAPIResponse} from "../../../../../types";
+import {OfficerInfoAPIResponse} from "../../../../../../types";
 import {OfficerHoursResponse, OfficerSpecificHoursResponse} from "@portalseguranca/api-types/officers/activity/output";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
 import {
     addOfficerHoursEntry,
     deleteOfficerHoursEntry,
@@ -10,10 +10,10 @@ import {
     officerHoursHistory
 } from "../services";
 import {OfficerHoursEntryType} from "../repository";
-import {dateToString, stringToDate} from "../../../../../utils/date-handler";
+import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
-import {getForceMinWeekMinutes} from "../../../../../utils/config-handler";
-import {requestQueryToReceivedQueryParams} from "../../../../../utils/filters";
+import {getForceMinWeekMinutes} from "../../../../../../utils/config-handler";
+import {requestQueryToReceivedQueryParams} from "../../../../../../utils/filters";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerHoursResponse>) {
     // Call the service to get the hours

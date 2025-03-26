@@ -8,8 +8,8 @@ import {
     getOfficerJustificationsHistoryController,
     manageOfficerJustificationController
 } from "./controllers";
-import {officerJustificationExistsMiddle} from "../../../../middlewares";
-import {isJustificationEditable} from "../../../../middlewares/officer-justification-exists";
+import {officerJustificationExistsMiddle} from "../../../../../middlewares";
+import {isJustificationEditable} from "../../../../../middlewares/officer-justification-exists";
 
 const app = express.Router();
 

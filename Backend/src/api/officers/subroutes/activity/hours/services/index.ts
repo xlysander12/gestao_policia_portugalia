@@ -1,4 +1,4 @@
-import {DefaultReturn, InnerOfficerData} from "../../../../../types";
+import {DefaultReturn, InnerOfficerData} from "../../../../../../types";
 import {
     deleteHoursEntry, ensureNoHoursThisWeek,
     fetchHoursEntry,
@@ -6,8 +6,8 @@ import {
     insertHoursEntry,
     OfficerHoursEntryType
 } from "../repository";
-import {RouteFilterType} from "../../../../routes";
-import {ReceivedQueryParams} from "../../../../../utils/filters";
+import {RouteFilterType} from "../../../../../routes";
+import {ReceivedQueryParams} from "../../../../../../utils/filters";
 
 export async function officerHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<OfficerHoursEntryType[]>> {
     // Get the hours of the Officer from the repository

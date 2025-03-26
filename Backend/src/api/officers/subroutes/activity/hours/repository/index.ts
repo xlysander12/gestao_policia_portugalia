@@ -1,8 +1,8 @@
-import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filters";
-import {queryDB} from "../../../../../utils/db-connector";
+import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../../utils/filters";
+import {queryDB} from "../../../../../../utils/db-connector";
 import {OfficerSpecificHoursType} from "@portalseguranca/api-types/officers/activity/output";
-import {RouteFilterType} from "../../../../routes";
-import {dateToString} from "../../../../../utils/date-handler";
+import {RouteFilterType} from "../../../../../routes";
+import {dateToString} from "../../../../../../utils/date-handler";
 
 export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" | "week_end"> & {
     week_start: Date,

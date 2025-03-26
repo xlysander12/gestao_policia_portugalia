@@ -1,11 +1,11 @@
 import express from "express";
-import {OfficerInfoAPIResponse} from "../../../../../types";
+import {OfficerInfoAPIResponse} from "../../../../../../types";
 import {getOfficerLastShift, updateOfficerLastShift} from "../services";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
-import {dateToString} from "../../../../../utils/date-handler";
+import {dateToString} from "../../../../../../utils/date-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
-import {getForceMaxNonWorkingDays} from "../../../../../utils/config-handler";
+import {getForceMaxNonWorkingDays} from "../../../../../../utils/config-handler";
 
 export async function getLastShiftController(req: express.Request, res: OfficerInfoAPIResponse<OfficerLastShiftResponse>) {
     // Call the service to get the last shift of the officer

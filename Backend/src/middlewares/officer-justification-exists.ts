@@ -1,5 +1,5 @@
 import express from "express";
-import {getOfficerJustificationDetails} from "../api/officers/activity/justifications/repository";
+import {getOfficerJustificationDetails} from "../api/officers/subroutes/activity/justifications/repository";
 import {FORCE_HEADER} from "../utils/constants";
 import {OfficerJustificationAPIResponse} from "../types/response-types";
 import {stringToDate} from "../utils/date-handler";

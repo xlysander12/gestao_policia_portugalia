@@ -3,8 +3,8 @@ import {
     OfficerJustification,
     OfficerMinifiedJustification
 } from "@portalseguranca/api-types/officers/activity/output";
-import {queryDB} from "../../../../../utils/db-connector";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import {queryDB} from "../../../../../../utils/db-connector";
 
 type MinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
     start: Date,

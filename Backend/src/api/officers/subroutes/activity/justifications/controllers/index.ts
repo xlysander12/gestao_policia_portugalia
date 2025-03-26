@@ -1,24 +1,24 @@
 import express from "express";
-import {OfficerInfoAPIResponse} from "../../../../../types";
+import {OfficerInfoAPIResponse} from "../../../../../../types";
 import {
     officerActive,
     officerHistory, officerJustificationChangeDetails,
     officerJustificationCreate, officerJustificationDelete,
     officerJustificationUpdateStatus
 } from "../services";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../utils/constants";
+import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
 import {
     OfficerActiveJustificationsResponse,
     OfficerJustificationDetailsResponse,
     OfficerJustificationsHistoryResponse
 } from "@portalseguranca/api-types/officers/activity/output";
-import {userHasIntents} from "../../../../accounts/repository";
+import {userHasIntents} from "../../../../../accounts/repository";
 import {
     AddOfficerJustificationBodyType, ChangeOfficerJustificationBodyType,
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input";
-import {OfficerJustificationAPIResponse} from "../../../../../types/response-types";
-import {dateToString} from "../../../../../utils/date-handler";
+import {OfficerJustificationAPIResponse} from "../../../../../../types/response-types";
+import {dateToString} from "../../../../../../utils/date-handler";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerJustificationsHistoryResponse>) {
     // * Make sure the requesting account has permission to check this info

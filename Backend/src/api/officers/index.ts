@@ -1,5 +1,5 @@
 import express from 'express';
-import activityRoutes from './activity';
+import activityRoutes from './subroutes/activity';
 import {officerExistsMiddle} from "../../middlewares";
 import {
     addOfficerController,

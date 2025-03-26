@@ -1,4 +1,4 @@
-import {DefaultReturn} from "../../../../../types";
+import {DefaultReturn} from "../../../../../../types";
 import {fetchLastShift, updateLastShift} from "../repository";
 
 export async function getOfficerLastShift(force: string, nif: number): Promise<DefaultReturn<Date | null>> {

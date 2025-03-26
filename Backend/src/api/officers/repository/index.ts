@@ -7,7 +7,7 @@ import {
 } from "@portalseguranca/api-types/officers/output";
 import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
-import {getOfficerActiveJustifications} from "../activity/justifications/repository";
+import {getOfficerActiveJustifications} from "../subroutes/activity/justifications/repository";
 import {
     getForceDefaultPatents,
     getForceInactiveStatus,

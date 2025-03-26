@@ -1,4 +1,4 @@
-import {DefaultReturn} from "../../../../../types";
+import {DefaultReturn} from "../../../../../../types";
 import {
     OfficerActiveJustification,
     OfficerMinifiedJustification
@@ -7,10 +7,10 @@ import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
-import {dateToString, stringToDate} from "../../../../../utils/date-handler";
-import {getForceInactivityTypes} from "../../../../util/repository";
+import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
+import {getForceInactivityTypes} from "../../../../../util/repository";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
-import {InnerOfficerJustificationData} from "../../../../../types/inner-types";
+import {InnerOfficerJustificationData} from "../../../../../../types/inner-types";
 
 export async function officerHistory(force: string, nif: number): Promise<DefaultReturn<OfficerMinifiedJustification[]>> {
     // Call the repository to get the data
