@@ -147,7 +147,7 @@ export async function notifications(force: string, nif: number): Promise<Default
                 type: "activity",
                 justificationType: justification.type,
                 timestamp: justification.timestamp.getTime(),
-                url: `/atividade/${justification.nif}`,
+                url: `/atividade/${justification.nif}/j/${justification.id}`,
                 officer: justification.nif
             }
 

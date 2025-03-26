@@ -180,17 +180,18 @@ export async function getEvaluationFields(force: string): Promise<EvaluationFiel
     return fieldsList;
 }
 
-export async function getPendingInactivityJustifications(force: string): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
+export async function getPendingInactivityJustifications(force: string, include_expired: boolean = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
     // Fecth all pending justifications
-    const justifications = await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending");
+    const justifications = include_expired ?
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending") :
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ? AND end_date > ?", ["pending", new Date()]);
 
-    // @ts-expect-error
     return justifications.map((row) => ({
         id: row.id as number,
         type: row.type as number,
         start: row.start_date as Date,
         end: row.end_date as Date | null,
-        status: row.status as string,
+        status: row.status as "pending",
         managed_by: null,
         timestamp: row.timestamp as Date,
         nif: row.officer as number
