@@ -214,11 +214,10 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             return (
                                 <FormControlLabel
                                     key={`intent-${intent.name}`}
-                                    disabled={loading}
+                                    disabled={loading || !loggedUserData.intents[intent.name]}
                                     control={
                                         <Switch
                                             checked={accountInfo.intents[intent.name]}
-                                            disabled={!loggedUserData.intents[intent.name]}
                                             onChange={async (event) => {
                                                 // Set the loading state to true
                                                 setLoading(true);
