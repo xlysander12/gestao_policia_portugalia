@@ -3,8 +3,8 @@
         "node_modules/**/node_modules"
     ],
     "watch": [
-        "src/*",
-        "../Frontend/src/*"
+        "./",
+        "../Frontend/dist/*"
     ],
     "ext": "js, json"
 }
