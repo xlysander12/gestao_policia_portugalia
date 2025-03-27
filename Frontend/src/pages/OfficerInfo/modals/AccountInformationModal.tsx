@@ -81,6 +81,11 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 return;
             }
 
+            // If the response code is 403, the logged user doesn't have permission to see the account information
+            if (accountInfoResponse.status === 403) {
+                return;
+            }
+
             // Convert the response to JSON and set the account info state
             const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
             setAccountInfo(draft => {
