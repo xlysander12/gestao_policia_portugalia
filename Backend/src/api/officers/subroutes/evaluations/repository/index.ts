@@ -1,12 +1,20 @@
 import {Evaluation, MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
 import {queryDB} from "../../../../../utils/db-connector";
+import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filters";
+import {RouteFilterType} from "../../../../routes";
+import {userHasIntents} from "../../../../accounts/repository";
 
-export async function getEvaluations(force: string, requester: number, target: number, all: boolean = false): Promise<MinifiedEvaluation[]> {
+export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<MinifiedEvaluation[]> {
+    if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
+
+    // Check if the user has the "evaluations" intent
+    const all = await userHasIntents(requester, force, "evaluations");
+
+    // Build the filters query and values
+    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ?" : "target = ? AND author = ?", value: all ? target : [target, requester]});
+
     // Query the database to get the evaluations
-    const result = all ?
-        await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV WHERE target = ?`, [target]) :
-        await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV WHERE target = ? AND author = ?`, [target, requester])
-    ;
+    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
 
 
     const evaluations: MinifiedEvaluation[] = [];

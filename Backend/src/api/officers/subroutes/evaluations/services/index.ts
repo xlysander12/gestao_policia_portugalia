@@ -1,19 +1,17 @@
 import {DefaultReturn} from "../../../../../types";
 import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
-import {userHasIntents} from "../../../../accounts/repository";
 import {getEvaluationData, getEvaluations} from "../repository";
+import {RouteFilterType} from "../../../../routes";
+import {ReceivedQueryParams} from "../../../../../utils/filters";
 
-export async function evaluationsList(force: string, requester: number, target: number): Promise<DefaultReturn<{
+export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
     averages: {
         [field: number]: number
     }
 }>> {
-    // Check if the requester has the evaluations intent
-    const hasEvaluationsIntent = await userHasIntents(requester, force, "evaluations");
-
     // Fetch the evaluations from the repository
-    const evaluations = await getEvaluations(force, requester, target, hasEvaluationsIntent);
+    const evaluations = await getEvaluations(force, requester, target, routeValidFilters, filters);
 
     // * Calculate the averages for each present field of the evaluations
     // Store all grades for each field

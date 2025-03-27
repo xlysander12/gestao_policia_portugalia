@@ -10,7 +10,7 @@ import {OfficerEvaluationAPIResponse} from "../../../../../types/response-types"
 
 export async function getEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<EvaluationsListResponse>) {
     // Call the service
-    const result = await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, res.locals.targetOfficer!.nif);
+    const result = await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     // Send the response
     if (!result.result) {

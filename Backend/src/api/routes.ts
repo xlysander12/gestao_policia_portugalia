@@ -34,6 +34,7 @@ import {FORCE_HEADER, UPDATE_EVENTS} from "../utils/constants";
 import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
 import {SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
+import {ListEvaluationsQueryParams} from "@portalseguranca/api-types/officers/evaluations/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -697,7 +698,31 @@ const evaluationsRoutes: routesType = {
         methods: {
             GET: {
                 requiresToken: true,
-                requiresForce: true
+                requiresForce: true,
+                queryParams: {
+                    type: ListEvaluationsQueryParams
+                },
+                filters: {
+                    after: {
+                        queryFunction: () => `timestamp >= ?`,
+                        valueFunction: (value: string) => value
+                    },
+                    before: {
+                        queryFunction: () => `timestamp <= ?`,
+                        valueFunction: (value: string) => value
+                    },
+                    author: {
+                        queryFunction: () => "author = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    },
+                    withPatrol: {
+                        queryFunction: (receivedParams) => receivedParams["withPatrol"] === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
+                    },
+                    patrol: {
+                        queryFunction: () => "patrol = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    }
+                }
             }
         }
     },

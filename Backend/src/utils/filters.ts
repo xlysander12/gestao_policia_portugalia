@@ -35,15 +35,18 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, queryParams: Rece
             } else {
                 values.push(functionResult);
             }
-        } else {
-            values.push(queryParams[param]);
         }
     }
 
     // Adding the suffix to the query
     if (suffix) {
         subqueries.push(suffix.subquery);
-        values.push(suffix.value);
+
+        // Checking if the value of the suffix is an array or not
+        if (Array.isArray(suffix.value))
+            values.push(...suffix.value);
+        else
+            values.push(suffix.value);
     }
 
     // If there are no subqueries, return an empty string
