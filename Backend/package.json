@@ -11,7 +11,7 @@
     "copy-assets:windows": "copyfiles -u 1 src/assets/**/* dist && copyfiles -u 3 ../API-Types/dist/**/* dist/node_modules/@portalseguranca/api-types",
     "copy-assets:linux": "copyfiles -u 1 'src/assets/**/*' dist && copyfiles -u 3 '../API-Types/dist/**/*' dist/node_modules/@portalseguranca/api-types",
     "build": "npm run build-api-types && npm run clean && npm run compile && npm run copy-assets",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon --config nodemon.dev.json src/index.ts",
     "start": "nodemon dist/index.js",
     "test": "jest --watch"
   },
@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/xlysander12/gestao_policia_portugalia#readme",
   "dependencies": {
+    "@octokit/auth-app": "^7.1.5",
+    "@octokit/core": "^6.1.4",
     "@portalseguranca/api-types": "file:../API-Types/src",
     "bcrypt": "^5.1.1",
     "body-parser": "1.20.3",
