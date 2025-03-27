@@ -1,8 +1,9 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
-import {evaluationsList} from "../services";
+import {authoredEvaluationsList, evaluationsList} from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
 import {
+    AuthoredEvaluationsListResponse,
     EvaluationDetailResponse,
     EvaluationsListResponse
 } from "@portalseguranca/api-types/officers/evaluations/output";
@@ -26,6 +27,24 @@ export async function getEvaluationsListController(req: express.Request, res: Of
           averages: result.data!.averages
         },
         data: result.data!.evaluations
+    });
+}
+
+export async function getAuthoredEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<AuthoredEvaluationsListResponse>) {
+    // Call the service
+    const result = await authoredEvaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
+
+    // Send the response
+    if (!result.result) {
+        res.status(result.status).json({
+            message: result.message
+        });
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
     });
 }
 

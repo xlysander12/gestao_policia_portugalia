@@ -16,7 +16,31 @@ export async function getEvaluations(force: string, requester: number, target: n
     // Query the database to get the evaluations
     const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
 
+    // Return the evaluations
+    const evaluations: MinifiedEvaluation[] = [];
+    for (const row of result) {
+        evaluations.push({
+            id: row.id,
+            target: row.target,
+            author: row.author,
+            timestamp: row.timestamp.getTime(),
+            average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average
+        });
+    }
 
+    return evaluations;
+}
+
+export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<MinifiedEvaluation[]> {
+    if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
+
+    // Build the filters query and values
+    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: "author = ?", value: officer});
+
+    // Query the database to get the evaluations
+    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
+
+    // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
         evaluations.push({

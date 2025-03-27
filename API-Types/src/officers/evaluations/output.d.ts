@@ -25,6 +25,10 @@ export interface EvaluationsListResponse extends BaseResponse {
     data: MinifiedEvaluation[]
 }
 
+export interface AuthoredEvaluationsListResponse extends BaseResponse {
+    data: MinifiedEvaluation[]
+}
+
 export interface EvaluationDetailResponse extends BaseResponse {
     data: Evaluation
 }

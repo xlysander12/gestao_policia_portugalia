@@ -1,8 +1,9 @@
-import {DefaultReturn} from "../../../../../types";
+import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
-import {getEvaluationData, getEvaluations} from "../repository";
+import {getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
 import {RouteFilterType} from "../../../../routes";
 import {ReceivedQueryParams} from "../../../../../utils/filters";
+import {userHasIntents} from "../../../../accounts/repository";
 
 export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
@@ -64,5 +65,27 @@ export async function evaluationsList(force: string, requester: number, target: 
             evaluations,
             averages: averages
         }
+    }
+}
+
+export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedEvaluation[]>> {
+    // If the logged officer isn't the same as the target officer and he doesn't have the "evaluations" intent, return an error
+    if (loggedOfficer.nif !== officer && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tens permissões para aceder a esta informação"
+        }
+    }
+
+    // Fetch the evaluations from the repository
+    const result = await getAuthoredEvaluations(force, officer, routeValidFilters, filters);
+
+    // Return the result
+    return {
+        result: true,
+        status: 200,
+        message: "Operação realizada com sucesso",
+        data: result
     }
 }
