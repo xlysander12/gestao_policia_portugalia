@@ -134,23 +134,28 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
     const specialUnits = forceData.special_units;
     const specialUnitsRoles = forceData.special_unit_roles;
 
-    // Array that will hold all special units the officer isn't a part of
-    const availableSpecialUnits: SpecialUnitData[] = [];
-    for (const unit of specialUnits) {
-        let isPartOf = false;
-        for (const officerUnit of officerSpecialUnits) {
-            if (unit.id === officerUnit.id) {
-                isPartOf = true;
-                break;
+    // Function to return all special units the officer isn't a part of
+    function getAvailableSpecialUnits() {
+        const availableSpecialUnits: SpecialUnitData[] = [];
+        for (const unit of specialUnits) {
+            let isPartOf = false;
+            for (const officerUnit of officerSpecialUnits) {
+                if (unit.id === officerUnit.id) {
+                    isPartOf = true;
+                    break;
+                }
+            }
+            if (!isPartOf) {
+                availableSpecialUnits.push(unit);
             }
         }
-        if (!isPartOf) {
-            availableSpecialUnits.push(unit);
-        }
+
+        return availableSpecialUnits;
     }
 
+
     // Initializing state with the current "adding" special unit
-    const [newUnit, setNewUnit] = useImmer<OfficerUnit>({id: availableSpecialUnits[0].id, role: 0});
+    const [newUnit, setNewUnit] = useImmer<OfficerUnit>({id: getAvailableSpecialUnits()[0].id, role: 0});
 
     return (
         <TableFooter>
@@ -168,7 +173,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                             });
                         }}
                     >
-                        {availableSpecialUnits.map((unit: SpecialUnitData) => {
+                        {getAvailableSpecialUnits().map((unit: SpecialUnitData) => {
                             return (
                                 <MenuItem key={`newUnit${unit.id}`} value={unit.id}>{unit.name}</MenuItem>
                             )
@@ -199,7 +204,21 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
 
                 {/*Button to commit addition*/}
                 <TableCell align={"center"}>
-                    <DefaultButton buttonColor={"lightgreen"} size={"small"} sx={{minWidth: "32px", padding: "3px"}} onClick={() => {onAdd(newUnit)}}><AddIcon fontSize={"small"}/></DefaultButton>
+                    <DefaultButton
+                        buttonColor={"lightgreen"}
+                        size={"small"}
+                        sx={{minWidth: "32px", padding: "3px"}}
+                        onClick={() => {
+                            onAdd(newUnit)
+                            setNewUnit(draft => {
+                                draft.id = getAvailableSpecialUnits().filter((unit) => unit.id !== newUnit.id)[0].id;
+                                draft.role = 0;
+                            });
+                        }}
+                        disabled={newUnit.id === 0 || newUnit.role === 0}
+                    >
+                        <AddIcon fontSize={"small"}/>
+                    </DefaultButton>
                 </TableCell>
             </TableRow>
         </TableFooter>
