@@ -194,14 +194,16 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             }
 
             // Get the most recent entry - The one with biggest week_end
-            const mostRecentEntry = (data as OfficerHoursResponse).data.sort((a: OfficerSpecificHoursType, b: OfficerSpecificHoursType) => new Date(b.week_end).getTime() - new Date(a.week_end).getTime())[0];
+            const mostRecentEntry = response.ok ?
+                (data as OfficerHoursResponse).data.sort((a: OfficerSpecificHoursType, b: OfficerSpecificHoursType) => new Date(b.week_end).getTime() - new Date(a.week_end).getTime())[0] :
+                null;
 
             // Get the date 7 days after the week_end of the most recent entry
-            const weekEnd = new Date(Date.parse(mostRecentEntry.week_end) + 7 * 24 * 60 * 60 * 1000);
+            const weekEnd = new Date((mostRecentEntry ? Date.parse(mostRecentEntry.week_end) : new Date().getTime()) + 7 * 24 * 60 * 60 * 1000);
 
             // Set the registry data with default values
             setEntryData((draft) => {
-                draft.week_start = moment(mostRecentEntry.week_end);
+                draft.week_start = moment(mostRecentEntry ? mostRecentEntry.week_end : new Date().getTime());
                 draft.week_end = moment(weekEnd);
             });
 
