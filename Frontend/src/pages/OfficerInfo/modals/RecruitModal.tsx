@@ -122,7 +122,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
 
     return (
         <>
-            <Modal width={"37%"} open={open} onClose={onClose} title={"Recrutar novo efetivo"}>
+            <Modal width={"37%"} open={open} onClose={onClose} title={"Contratar novo efetivo"}>
                 <form onSubmit={recruitMember}>
                     <ModalSection title={"Informações Pessoais"}>
                         <div className={modalsStyle.formDiv}>
