@@ -71,6 +71,7 @@ export function requestQueryToReceivedQueryParams(query: any): ReceivedQueryPara
 }
 
 export function isQueryParamPresent(name: string, queryParms: ReceivedQueryParams): boolean {
+    if (!queryParms) return false;
     return queryParms.hasOwnProperty(name);
 }
 // let filters = buildFiltersQuery({

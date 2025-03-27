@@ -4,7 +4,7 @@ import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filte
 import {RouteFilterType} from "../../../../routes";
 import {userHasIntents} from "../../../../accounts/repository";
 
-export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<MinifiedEvaluation[]> {
+export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Check if the user has the "evaluations" intent
@@ -14,7 +14,7 @@ export async function getEvaluations(force: string, requester: number, target: n
     const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ?" : "target = ? AND author = ?", value: all ? target : [target, requester]});
 
     // Query the database to get the evaluations
-    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
+    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult.values);
 
     // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];
@@ -31,14 +31,14 @@ export async function getEvaluations(force: string, requester: number, target: n
     return evaluations;
 }
 
-export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<MinifiedEvaluation[]> {
+export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
     const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: "author = ?", value: officer});
 
     // Query the database to get the evaluations
-    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
+    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult.values);
 
     // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];

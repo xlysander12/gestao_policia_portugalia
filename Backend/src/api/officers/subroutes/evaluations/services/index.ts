@@ -5,14 +5,14 @@ import {RouteFilterType} from "../../../../routes";
 import {ReceivedQueryParams} from "../../../../../utils/filters";
 import {userHasIntents} from "../../../../accounts/repository";
 
-export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<{
+export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
     averages: {
         [field: number]: number
     }
 }>> {
     // Fetch the evaluations from the repository
-    const evaluations = await getEvaluations(force, requester, target, routeValidFilters, filters);
+    const evaluations = await getEvaluations(force, requester, target, routeValidFilters, filters, page);
 
     // * Calculate the averages for each present field of the evaluations
     // Store all grades for each field
@@ -68,7 +68,7 @@ export async function evaluationsList(force: string, requester: number, target: 
     }
 }
 
-export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedEvaluation[]>> {
+export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<MinifiedEvaluation[]>> {
     // If the logged officer isn't the same as the target officer and he doesn't have the "evaluations" intent, return an error
     if (loggedOfficer.nif !== officer && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
         return {
@@ -79,7 +79,7 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
     }
 
     // Fetch the evaluations from the repository
-    const result = await getAuthoredEvaluations(force, officer, routeValidFilters, filters);
+    const result = await getAuthoredEvaluations(force, officer, routeValidFilters, filters, page);
 
     // Return the result
     return {
