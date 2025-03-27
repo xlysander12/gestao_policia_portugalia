@@ -17,14 +17,14 @@ export async function websocketBroadcastMiddleware(req: express.Request, res: AP
                 res.locals.ws.to(req.header(FORCE_HEADER)!).emit(res.locals.routeDetails.broadcast!.event, body);
 
                 // Log this broadcast to the console
-                logToConsole(`[${pc.whiteBright("WebSocket")}] [${pc.white(req.header(FORCE_HEADER)!.toUpperCase())}] [${pc.green(res.locals.routeDetails.broadcast!.event)}] ${JSON.stringify(body)}`);
+                logToConsole(`[${pc.whiteBright("WS")}] [${pc.white(req.header(FORCE_HEADER)!.toUpperCase())}] [${pc.green(res.locals.routeDetails.broadcast!.event)}] ${JSON.stringify(body)}`);
 
                 // If the patrols flag is set to true, broadcast the message to all patrol forces of the current force
                 if (res.locals.routeDetails.broadcast!.patrol) {
                     for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!)) {
                         res.locals.ws.to(force).emit(res.locals.routeDetails.broadcast!.event, body);
                         // Log this broadcast to the console
-                        logToConsole(`[${pc.whiteBright("WebSocket")}] [${pc.white(req.header(FORCE_HEADER)!.toUpperCase())}] [${pc.green(res.locals.routeDetails.broadcast!.event)}] ${JSON.stringify(body)}`);
+                        logToConsole(`[${pc.whiteBright("WS")}] [${pc.white(req.header(FORCE_HEADER)!.toUpperCase())}] [${pc.green(res.locals.routeDetails.broadcast!.event)}] ${JSON.stringify(body)}`);
                     }
                 }
             }
