@@ -90,6 +90,10 @@ function App() {
         return forceTempData;
     }
 
+    const handleLogin = () => {
+        setForce(localStorage.getItem("force")!);
+    }
+
     useEffect(() => {
         async function execute() {
             // Make sure the page is loading
@@ -131,7 +135,7 @@ function App() {
                 children: [
                     {
                         path: "/login",
-                        element: <PrivateRoute element={<Login/>} handleForceChange={handleForceChange} isLoginPage/>
+                        element: <PrivateRoute element={<Login onLoginCallback={handleLogin}/>} handleForceChange={handleForceChange} isLoginPage/>
                     },
                     {
                         path: "/",

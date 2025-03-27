@@ -7,7 +7,10 @@ import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { LoginRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 
-function Login() {
+type LoginPageProps = {
+    onLoginCallback: () => void
+}
+function Login({onLoginCallback}: LoginPageProps) {
     // Set the useNavigate hook
     const navigate = useNavigate()
 
@@ -69,6 +72,8 @@ function Login() {
             navigate(new URLSearchParams(window.location.search).get("redirect")!);
             return;
         }
+
+        onLoginCallback();
 
         navigate("/");
     }
