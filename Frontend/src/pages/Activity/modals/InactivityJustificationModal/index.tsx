@@ -1,4 +1,4 @@
-import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
+    import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {
     OfficerActivitySocket,
     OfficerJustification,
@@ -214,6 +214,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         if (response.ok) {
             onClose();
         }
+
+        // Set the loading to false
+        setLoading(false);
     }
 
     // Function to handle the creation of a justification
@@ -244,6 +247,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         if (response.ok) {
             onClose();
         }
+
+        // Set the loading to false
+        setLoading(false);
     }
 
     // Handle websocket events
