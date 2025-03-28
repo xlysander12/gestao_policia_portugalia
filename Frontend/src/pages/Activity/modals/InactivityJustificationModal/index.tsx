@@ -290,7 +290,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             <Modal open={open} onClose={onClose}
                    title={newEntry ? "Nova Justificação de Inatividade" : `Justificação de Inatividade #${justificationId}`}
                    width={"55%"}
-                   url={`/atividade/${officerNif}/j/${justificationId}`}
+                   url={newEntry ? undefined : `/atividade/${officerNif}/j/${justificationId}`}
             >
                 <Gate show={loading}>
                     <Loader size={"100px"}/>
@@ -430,7 +430,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                             slotProps={{
                                                 textField: {
                                                     required: true,
-                                                    error: justificationData.start === null || !justificationData.start.isValid()
+                                                    error: justificationData.start === null || !justificationData.start.isValid() || justificationData.start.isAfter(justificationData.end)
                                                 }
                                             }}
                                         />
@@ -455,6 +455,11 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                                     setJustificationData((draft) => {
                                                         draft!.end = date;
                                                     });
+                                                }}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: justificationData.start !== null && justificationData.start.isAfter(justificationData.end)
+                                                    }
                                                 }}
                                                 sx={{width: "150px"}}
                                             />
@@ -542,7 +547,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                         </ModalSection>
 
                         <Gate
-                            show={loggedUser.intents["activity"] || (justificationData.status === "pending") || newEntry}>
+                            show={loggedUser.intents["activity"] || justificationData.status === "pending" || newEntry}>
                             <ModalSection title={"Ações"}>
                                 <div className={style.justificationActionsDiv}>
                                     {/* Show the regular management buttons when it's not a new entry */}
@@ -615,6 +620,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     <Gate show={newEntry}>
                                         <DefaultButton
                                             buttonColor={"lightgreen"}
+                                            disabled={!justificationData.start || justificationData.start.isAfter(justificationData.end)}
                                             darkTextOnHover
                                             type={"submit"}
                                             sx={{flex: 1}}
