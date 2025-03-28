@@ -68,6 +68,15 @@ export async function officerJustificationCreate(force: string, nif: number, typ
         }
     }
 
+    // Make sure the providaded start date is from before the end date, if this isn't null
+    if (end && stringToDate(start).getTime() > stringToDate(end).getTime()) {
+        return {
+            result: false,
+            status: 400,
+            message: "Data de início não pode ser superior à data de fim"
+        }
+    }
+
     // * Call the repository to create the justification
     await createOfficerJustification(force, nif, type, description, stringToDate(start), end ? stringToDate(end): undefined);
 
