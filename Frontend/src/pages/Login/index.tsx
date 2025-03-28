@@ -54,9 +54,6 @@ function Login({onLoginCallback}: LoginPageProps) {
         // Set the first force in the local storage
         localStorage.setItem("force", loginJson.data.forces[0]);
 
-        // Set the flag in localStorage to indicate that the page needs to reload
-        sessionStorage.setItem("needsReload", "true");
-
         // Set the last_login nif in the local storage if the remind be checkbox is checked
         if (remember) {
             localStorage.setItem("last_login", nif.toString());
@@ -66,16 +63,21 @@ function Login({onLoginCallback}: LoginPageProps) {
         // Disable the loading flag
         setLoading(false);
 
+        // Handle the login logic in the App core
+        onLoginCallback();
+
         // Redirect the user to the desired page
         // If there's a redirect query param in the URL, redirect the user to that page
         if (new URLSearchParams(window.location.search).get("redirect")) {
-            navigate(new URLSearchParams(window.location.search).get("redirect")!);
+            navigate(new URLSearchParams(window.location.search).get("redirect")!, {
+                replace: true
+            });
             return;
         }
 
-        onLoginCallback();
-
-        navigate("/");
+        navigate("/", {
+            replace: true
+        });
     }
 
     return (

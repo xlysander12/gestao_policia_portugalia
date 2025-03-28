@@ -150,12 +150,6 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
-        // Before doing anything, check if the flag "needsReload" is set to true. If it is, reload the page
-        if (sessionStorage.getItem("needsReload")) {
-            sessionStorage.removeItem("needsReload");
-            window.location.reload();
-        }
-
         // Call the function to check the authentication only if we're not in the login page
         if (!isLoginPage) {
             updateValues();

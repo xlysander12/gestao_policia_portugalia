@@ -131,7 +131,7 @@ function App() {
     const router = createBrowserRouter(
         [
             {
-                errorElement: <>Ups</>,
+                // errorElement: <>Ups</>,
                 children: [
                     {
                         path: "/login",
@@ -192,7 +192,7 @@ function App() {
 
 
     const defaultTheme = createTheme(defaultThemeData);
-    if (!canLoad) {
+    if (!canLoad || (force !== "" && forceData[force] === undefined)) {
         return (
             <Loader fullPage/>
         )
