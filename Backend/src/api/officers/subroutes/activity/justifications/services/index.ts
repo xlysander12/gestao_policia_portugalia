@@ -7,7 +7,7 @@ import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
-import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
+import {dateToString, stringToDate, unixToDate} from "../../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../../util/repository";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {InnerOfficerJustificationData} from "../../../../../../types/inner-types";
@@ -53,7 +53,7 @@ export async function officerActive(force: string, nif: number): Promise<Default
     }
 }
 
-export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: string, end?: string): Promise<DefaultReturn<void>> {
+export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: number, end?: number): Promise<DefaultReturn<void>> {
     // * Make sure the provided type is valid
     // Get the types of inactivity
     let inactivityTypes = await getForceInactivityTypes(force);
@@ -69,7 +69,7 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 
     // Make sure the providaded start date is from before the end date, if this isn't null
-    if (end && stringToDate(start).getTime() > stringToDate(end).getTime()) {
+    if (end && start > end) {
         return {
             result: false,
             status: 400,
@@ -78,7 +78,7 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 
     // * Call the repository to create the justification
-    await createOfficerJustification(force, nif, type, description, stringToDate(start), end ? stringToDate(end): undefined);
+    await createOfficerJustification(force, nif, type, description, unixToDate(start), end ? unixToDate(end): undefined);
 
     // Return the result
     return {

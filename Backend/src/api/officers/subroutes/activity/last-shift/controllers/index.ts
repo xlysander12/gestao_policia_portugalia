@@ -1,7 +1,7 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../types";
 import {getOfficerLastShift, updateOfficerLastShift} from "../services";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
+import {FORCE_HEADER} from "../../../../../../utils/constants";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {dateToUnix} from "../../../../../../utils/date-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";

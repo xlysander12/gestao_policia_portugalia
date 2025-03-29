@@ -19,3 +19,7 @@ export function formatDateTime(date: Date): string {
 export function dateToUnix(date: Date): number {
     return Math.floor(date.getTime() / 1000);
 }
+
+export function unixToDate(unix: number) {
+    return new Date(unix * 1000);
+}

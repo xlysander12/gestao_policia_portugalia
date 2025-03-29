@@ -39,12 +39,8 @@ export type AddOfficerHoursBodyType = rt.Static<typeof AddOfficerHoursBody>;
 
 export const AddOfficerJustificationBody = rt.Record({
     type: rt.Number,
-    start: rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
-    }),
-    end: rt.Optional(rt.Union(rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
-    }), rt.Null)),
+    start: rt.Number,
+    end: rt.Optional(rt.Union(rt.Number, rt.Null)),
     description: rt.String
 });
 export type AddOfficerJustificationBodyType = rt.Static<typeof AddOfficerJustificationBody>;
