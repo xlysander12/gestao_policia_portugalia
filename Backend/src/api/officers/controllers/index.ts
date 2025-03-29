@@ -130,8 +130,8 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
         data: {
             ...result.data!,
             id: `${result.data!.force}${result.data!.id}`,
-            start: dateToString(result.data!.start),
-            end: result.data!.end !== null ? dateToString(result.data!.end): null
+            start: dateToUnix(result.data!.start),
+            end: result.data!.end !== null ? dateToUnix(result.data!.end): null
         }
     });
 }

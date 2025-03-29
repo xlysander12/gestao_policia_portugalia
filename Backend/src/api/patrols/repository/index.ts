@@ -132,7 +132,7 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
     };
 }
 
-export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: string, end: string | null, notes: string | null): Promise<void> {
+export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
     // Insert the patrol into the database
     await queryDB(force, `INSERT INTO patrols (type, special_unit, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?)`, [type, specialUnit, JSON.stringify(officers), start, end, notes]);
 }
