@@ -5,7 +5,7 @@ export interface OfficerLastShiftResponse extends BaseResponse {
         passed_max_days: boolean
     }
     data: {
-        last_shift: string
+        last_shift: number
     }
 }
 

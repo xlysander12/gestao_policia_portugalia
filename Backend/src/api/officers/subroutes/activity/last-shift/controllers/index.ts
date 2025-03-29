@@ -3,7 +3,7 @@ import {OfficerInfoAPIResponse} from "../../../../../../types";
 import {getOfficerLastShift, updateOfficerLastShift} from "../services";
 import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
 import {OfficerLastShiftResponse} from "@portalseguranca/api-types/officers/activity/output";
-import {dateToString} from "../../../../../../utils/date-handler";
+import {dateToUnix} from "../../../../../../utils/date-handler";
 import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMaxNonWorkingDays} from "../../../../../../utils/config-handler";
 
@@ -25,7 +25,7 @@ export async function getLastShiftController(req: express.Request, res: OfficerI
            passed_max_days: Date.now() > result.data!.getTime() + getForceMaxNonWorkingDays(req.header(FORCE_HEADER)!) * 24 * 60 * 60 * 1000
         },
         data: {
-            last_shift: dateToString(result.data!, false)
+            last_shift: dateToUnix(result.data!)
         }
     });
 }
@@ -37,12 +37,4 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, last_shift ? new Date(last_shift): null);
 
     res.status(result.status).json({message: result.message!});
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
-            nif: res.locals.targetOfficer!.nif,
-            type: "last_shift"
-        });
-    }
 }
