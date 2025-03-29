@@ -31,8 +31,8 @@ export interface OfficerHoursResponse extends BaseResponse {
 export type OfficerMinifiedJustification = {
     id: number,
     type: number,
-    start: string,
-    end: string | null,
+    start: number,
+    end: number | null,
     status: "pending" | "approved" | "denied",
     managed_by: number | null,
     timestamp: number

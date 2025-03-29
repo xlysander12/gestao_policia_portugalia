@@ -7,7 +7,7 @@ import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
-import {dateToString, stringToDate, unixToDate} from "../../../../../../utils/date-handler";
+import {dateToString, dateToUnix, stringToDate, unixToDate} from "../../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../../util/repository";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {InnerOfficerJustificationData} from "../../../../../../types/inner-types";
@@ -25,11 +25,11 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
             return {
                 id: r.id,
                 type: r.type,
-                start: dateToString(r.start, false),
-                end: r.end ? dateToString(r.end, false): null,
+                start: dateToUnix(r.start),
+                end: r.end ? dateToUnix(r.end): null,
                 status: r.status,
                 managed_by: r.managed_by,
-                timestamp: r.timestamp.getTime()
+                timestamp: dateToUnix(r.timestamp)
             }
         })
     }
