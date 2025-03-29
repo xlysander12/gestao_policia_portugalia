@@ -2,7 +2,7 @@ import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
-import {dateToString} from "../../../utils/date-handler";
+import {dateToString, dateToUnix} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
 import {RowDataPacket} from "mysql2/promise";
@@ -31,8 +31,8 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
             type: patrol.type,
             unit: patrol.special_unit,
             officers: JSON.parse(patrol.officers),
-            start: dateToString(patrol.start),
-            end: patrol.end !== null ? dateToString(patrol.end) : null,
+            start: dateToUnix(patrol.start),
+            end: patrol.end !== null ? dateToUnix(patrol.end) : null,
             canceled: patrol.canceled === 1
         });
     }

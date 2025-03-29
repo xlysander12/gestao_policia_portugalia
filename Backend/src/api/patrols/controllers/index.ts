@@ -6,10 +6,10 @@ import {isQueryParamPresent} from "../../../utils/filters";
 import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import {RequestError} from "@portalseguranca/api-types";
 import {PatrolInfoAPIResponse} from "../../../types/response-types";
-import {dateToString} from "../../../utils/date-handler";
+import {dateToString, dateToUnix} from "../../../utils/date-handler";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 
-export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse | RequestError>) {
+export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse>) {
     // *  Call the service to get the patrols
     let result: DefaultReturn<{
         patrols: MinifiedPatrolData[],
@@ -54,8 +54,8 @@ export async function getPatrolController(req: express.Request, res: PatrolInfoA
         data: {
             ...patrolData,
             id: `${res.locals.patrol.force}${res.locals.patrol.id}`,
-            start: dateToString(res.locals.patrol.start),
-            end: res.locals.patrol.end !== null ? dateToString(res.locals.patrol.end): null
+            start: dateToUnix(res.locals.patrol.start),
+            end: res.locals.patrol.end !== null ? dateToUnix(res.locals.patrol.end): null
         }
     });
 }
