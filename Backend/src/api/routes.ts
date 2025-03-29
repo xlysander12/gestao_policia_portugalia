@@ -586,19 +586,19 @@ const activityRoutes: routesType = {
                 filters: {
                     "type": {
                         queryFunction: () => `type = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value: string) => parseInt(value)
                     },
                     "status": {
                         queryFunction: () => `status = ?`,
                         valueFunction: (value: string) => value
                     },
                     "during": {
-                        queryFunction: () => `start_date <= ? AND end_date >= ?`,
+                        queryFunction: () => `start_date <= FROM_UNIXTIME(?) AND end_date >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
-                    "managed": {
-                        queryFunction: () => `managed = ?`,
-                        valueFunction: (value: number) => value
+                    "managed_by": {
+                        queryFunction: () => `managed_by = ?`,
+                        valueFunction: (value: string) => parseInt(value)
                     }
                 }
             },

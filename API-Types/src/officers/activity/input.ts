@@ -11,14 +11,18 @@ export const ListOfficerHoursQueryParams = rt.Partial({
 export type ListOfficerHoursQueryParams = rt.Static<typeof ListOfficerHoursQueryParams>;
 
 export const ListOfficerJustificationsQueryParams = rt.Partial({
-    type: rt.Number,
+    type: rt.String.withConstraint((string) => {
+        return !isNaN(parseInt(string));
+    }),
     status: rt.String.withConstraint((string) => {
        return ['pending', 'approved', 'denied'].includes(string);
     }),
     during: rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
+        return !isNaN(parseInt(string));
     }),
-    managed: rt.Number
+    managed_by: rt.String.withConstraint((string) => {
+        return !isNaN(parseInt(string));
+    })
 });
 
 export const UpdateOfficerLastShiftBody = rt.Record({
