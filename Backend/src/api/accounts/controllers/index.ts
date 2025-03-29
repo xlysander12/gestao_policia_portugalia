@@ -23,7 +23,7 @@ import {
 } from "../services";
 import {getAccountForces} from "../services";
 import {AccountInfoAPIResponse} from "../../../types/response-types";
-import {dateToString} from "../../../utils/date-handler";
+import {dateToString, dateToUnix} from "../../../utils/date-handler";
 
 export async function validateTokenController (req: express.Request, res: APIResponse<ValidateTokenResponse>): Promise<void> {
     let {intents} = req.body as ValidateTokenRequestBodyType;
@@ -54,7 +54,7 @@ export async function getUserAccountDetailsController(req: express.Request, res:
         message: userDetails.message,
         data: {
             ...userDetails.data!,
-            lastUsed: userDetails.data!.lastUsed ? dateToString(userDetails.data!.lastUsed) : null
+            lastUsed: userDetails.data!.lastUsed ? dateToUnix(userDetails.data!.lastUsed) : null
         }
     });
 }

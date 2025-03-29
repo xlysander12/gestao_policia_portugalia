@@ -12,7 +12,7 @@ export interface AccountInfo {
 }
 
 export interface AccountInfoResponse extends BaseResponse {
-    data: Omit<AccountInfo, "lastUsed"> & {lastUsed: string | null}
+    data: Omit<AccountInfo, "lastUsed"> & {lastUsed: number | null}
 }
 
 export interface LoginResponse extends BaseResponse {
