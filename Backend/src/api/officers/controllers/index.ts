@@ -7,7 +7,7 @@ import {
     OfficerInfoGetResponse,
     OfficerListResponse
 } from "@portalseguranca/api-types/officers/output";
-import {dateToString} from "../../../utils/date-handler";
+import {dateToString, dateToUnix} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {userHasIntents} from "../../accounts/repository";
@@ -51,8 +51,8 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
                 nif: res.locals.targetOfficer!.nif,
             } : {
                 ...officerData!,
-                entry_date: dateToString(res.locals.targetOfficer!.entry_date, false),
-                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToString(res.locals.targetOfficer!.promotion_date, false) : null,
+                entry_date: dateToUnix(res.locals.targetOfficer!.entry_date),
+                promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToUnix(res.locals.targetOfficer!.promotion_date) : null,
                 fire_reason: res.locals.targetOfficer!.fire_reason !== null ? res.locals.targetOfficer!.fire_reason : undefined,
             }
     });

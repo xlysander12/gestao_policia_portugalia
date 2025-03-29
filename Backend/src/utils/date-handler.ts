@@ -15,3 +15,7 @@ export function stringToDate(date: string): Date {
 export function formatDateTime(date: Date): string {
     return date.toISOString().split(".")[0].replace("T", " @ ");
 }
+
+export function dateToUnix(date: Date): number {
+    return Math.floor(date.getTime() / 1000);
+}
