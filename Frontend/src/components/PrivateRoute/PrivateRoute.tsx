@@ -16,6 +16,7 @@ import {io, Socket} from "socket.io-client";
 import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {getObjectFromId} from "../../forces-data-context.ts";
+import moment from "moment";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -85,8 +86,8 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
                 patent: getObjectFromId(userData.patent as number, forceData.patents)!,
                 callsign: userData.callsign,
                 status: getObjectFromId(userData.status as number, forceData.statuses)!,
-                entry_date: userData.entry_date,
-                promotion_date: userData.promotion_date,
+                entry_date: moment.unix(userData.entry_date),
+                promotion_date: userData.promotion_date ? moment.unix(userData.promotion_date) : null,
                 special_units: userData.special_units.map((unit) => {
                     return {
                         unit: getObjectFromId(unit.id as number, forceData.special_units)!,

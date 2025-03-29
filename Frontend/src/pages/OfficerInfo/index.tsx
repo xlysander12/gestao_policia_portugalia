@@ -38,7 +38,7 @@ import ShareButton from "../../components/ShareButton";
 
 type InformationPairProps = {
     label: string,
-    value: string | number,
+    value: string | number | Moment,
     type?: string,
     pattern?: RegExp,
     editMode: boolean,
@@ -75,7 +75,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                     disableFuture
                     textWhenDisabled
                     disabled={!editMode}
-                    value={value === null ? null: moment(value)}
+                    value={value ? value as Moment : null}
                     onChange={onChangeCallback}
                     slotProps={{
                         textField: {
@@ -127,8 +127,8 @@ function OfficerInfo() {
             patent: number,
             callsign: string,
             status: number,
-            entry_date: string,
-            promotion_date: string | null,
+            entry_date: Moment,
+            promotion_date: Moment | null,
             special_units: OfficerUnit[],
             fire_reason?: string
         },
@@ -164,9 +164,9 @@ function OfficerInfo() {
         },
         professional: {
             callsign: "",
-            entry_date: "",
+            entry_date: moment(),
             patent: forceData.patents[0].id,
-            promotion_date: "",
+            promotion_date: moment(),
             special_units: [],
             status: forceData.statuses[0].id
         },
@@ -247,8 +247,8 @@ function OfficerInfo() {
            professional: {
                patent: data.patent,
                callsign: data.callsign,
-               entry_date: data.entry_date,
-               promotion_date: data.promotion_date,
+               entry_date: moment.unix(data.entry_date),
+               promotion_date: data.promotion_date ? moment.unix(data.promotion_date) : null,
                status: data.status,
                special_units: data.special_units,
                fire_reason: data.fire_reason
@@ -287,8 +287,8 @@ function OfficerInfo() {
                     patent: officerInfo.professional.patent,
                     callsign: officerInfo.professional.callsign,
                     status: officerInfo.professional.status,
-                    entry_date: officerInfo.professional.entry_date,
-                    promotion_date: officerInfo.professional.promotion_date ? officerInfo.professional.promotion_date: undefined,
+                    entry_date: officerInfo.professional.entry_date.unix(),
+                    promotion_date: officerInfo.professional.promotion_date ? officerInfo.professional.promotion_date.unix(): undefined,
 
                     // Special Units
                     special_units: officerInfo.professional.special_units
@@ -603,7 +603,7 @@ function OfficerInfo() {
                                 type={"date"}
                                 editMode={editMode}
                                 onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
-                                    draft.professional.entry_date = date.toISOString().split("T")[0]
+                                    draft.professional.entry_date = date
                                 })}
                             />
                             <Divider/>
@@ -615,7 +615,7 @@ function OfficerInfo() {
                                 type={"date"}
                                 editMode={editMode}
                                 onChangeCallback={(date: Moment) => setOfficerInfo(draft => {
-                                    draft.professional.promotion_date = date.toISOString().split("T")[0]
+                                    draft.professional.promotion_date = date
                                 })}
                             />
 

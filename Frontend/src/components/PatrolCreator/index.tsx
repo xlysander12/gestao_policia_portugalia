@@ -69,8 +69,8 @@ function PatrolCreator() {
                 type: newPatrolData.type.id,
                 special_unit: newPatrolData.type.isSpecial ? newPatrolData.special_unit.id: undefined,
                 officers: newPatrolData.officers.map((officer) => officer.nif),
-                start: newPatrolData.start.format("YYYY-MM-DDTHH:mm:ss"),
-                end: newPatrolData.end ? newPatrolData.end.format("YYYY-MM-DDTHH:mm:ss"): undefined,
+                start: newPatrolData.start.unix(),
+                end: newPatrolData.end ? newPatrolData.end.unix(): undefined,
                 notes: newPatrolData.notes ? newPatrolData.notes: undefined
             }
         });

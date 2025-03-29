@@ -20,6 +20,7 @@ import {
     PatrolInfoResponse
 } from "@portalseguranca/api-types/patrols/output";
 import Notifications from "./Notifications.tsx";
+import packageJson from "../../../package.json";
 
 type SubPathProps = {
     path?: string,
@@ -301,6 +302,14 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                     onClick={() => {setAccountMenuOpen(false); setLogoutOpen(true)}}
                 >
                     Terminar Sessão
+                </MenuItem>
+
+                <Divider/>
+
+                <MenuItem
+                    disabled
+                >
+                    <DefaultTypography fontSize={"x-small"} color={"lightgray"}>v{packageJson.version}</DefaultTypography>
                 </MenuItem>
             </Menu>
 

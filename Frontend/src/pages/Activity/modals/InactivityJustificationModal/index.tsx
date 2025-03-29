@@ -176,8 +176,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<ChangeOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications/${justificationId}`, "PATCH", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start!.format("YYYY-MM-DD"),
-                end: justificationData?.end ? justificationData?.end.format("YYYY-MM-DD") : null,
+                start: justificationData?.start!.unix(),
+                end: justificationData?.end ? justificationData?.end.unix() : null,
                 description: justificationData?.description.trim(),
                 comment: justificationData?.comment
             }
@@ -231,8 +231,8 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         const response = await make_request<AddOfficerJustificationBodyType>(`/officers/${officerNif}/activity/justifications`, "POST", {
             body: {
                 type: justificationData?.type,
-                start: justificationData?.start!.format("YYYY-MM-DD"),
-                end: justificationData?.end ? justificationData?.end.format("YYYY-MM-DD") : null,
+                start: justificationData?.start!.unix(),
+                end: justificationData?.end ? justificationData?.end.unix() : null,
                 description: justificationData?.description.trim()
             }
         });

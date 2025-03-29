@@ -20,7 +20,7 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
-import moment from "moment"
+import moment, {Moment} from "moment"
 import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
@@ -28,8 +28,8 @@ import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 
 
 type ActivityHoursCardProps = {
-    week_start: Date,
-    week_end: Date,
+    week_start: Moment,
+    week_end: Moment,
     minutes: number,
     onClick: (id: number) => void
 }
@@ -45,9 +45,9 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
                     color={"gray"}
                 >
                     Semana:
-                    {` ${padToTwoDigits(week_start.getDate())}/${padToTwoDigits(week_start.getMonth() + 1)}/${week_start.getFullYear()}`}
+                    {` ${week_start.format('DD/MM/YYYY')}`}
                     {" > "}
-                    {`${padToTwoDigits(week_end.getDate())}/${padToTwoDigits(week_end.getMonth() + 1)}/${week_end.getFullYear()}`}
+                    {`${week_end.format('DD/MM/YYYY')}`}
                 </Typography>
                 <div style={{
                     display: "flex",
@@ -65,9 +65,9 @@ function ActivityHoursCard({week_start, week_end, minutes, onClick}: ActivityHou
 
 type ActivityJustificationCardProps = {
     type: number
-    start: Date
-    end: Date | null
-    timestamp: Date
+    start: Moment
+    end: Moment | null
+    timestamp: Moment
     status: "pending" | "approved" | "denied"
     managed_by: string
     onClick: (id: number) => void
@@ -81,7 +81,7 @@ function ActivityJustificationCard({type, start, end, status, managed_by, timest
 
     return (
         <InformationCard
-            statusColor={end && (end.getTime() + 24 * 60 * 60 * 1000) < Date.now() ? "gray": statusColor}
+            statusColor={end && end < moment() ? "gray": statusColor}
             callback={onClick}
         >
             <div style={{display: "flex", flexDirection: "row", width: "100%"}}>
@@ -93,16 +93,16 @@ function ActivityJustificationCard({type, start, end, status, managed_by, timest
 
                     <Gate show={end !== null}>
                         <Typography color={"gray"}>
-                            Duração: {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
+                            Duração: {`${start.format('DD/MM/YYYY')}`}
                             {` > `}
-                            {`${end ? `${padToTwoDigits(end!.getDate())}/${padToTwoDigits(end!.getMonth() + 1)}/${end!.getFullYear()}` : ``}`}
+                            {`${end ? `${end.format('DD/MM/YYYY')}` : ``}`}
                         </Typography>
                     </Gate>
 
                     <Gate show={end == null}>
                         <Typography color={"gray"}>
                             Duração: A partir de {" "}
-                            {`${padToTwoDigits(start.getDate())}/${padToTwoDigits(start.getMonth() + 1)}/${start.getFullYear()}`}
+                            {`${padToTwoDigits(start.day())}/${padToTwoDigits(start.month() + 1)}/${start.year()}`}
                         </Typography>
                     </Gate>
 
@@ -197,13 +197,13 @@ function Activity() {
         return history.sort((a, b) => {
             if ("end" in a && "end" in b) { // * Both entries are justifications
                 if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
-                    return Date.parse(b.start) - Date.parse(a.start);
+                    return b.start - a.start;
                 } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
                     return -1;
                 } else if (a.end !== null && b.end === null) { // If A has an end date and B doesn't, B must go last
                     return 1;
                 } else { // If both have an end date, sort by end date
-                    return Date.parse(b.end!) - Date.parse(a.end!);
+                    return b.end! - a.end!;
                 }
             }
 
@@ -211,7 +211,7 @@ function Activity() {
                 if (a.end === null) { // If A doesn't have an end date, it must go last
                     return -1;
                 } else { // A has an end date, compare it with the week_end of B
-                    return Date.parse(b.week_end) - Date.parse(a.end!);
+                    return b.week_end - a.end!;
                 }
             }
 
@@ -219,13 +219,13 @@ function Activity() {
                 if (b.end === null) { // If B doesn't have an end date, it must go last
                     return 1;
                 } else { // B has an end date, compare it with the week_end of A
-                    return Date.parse(b.end!) - Date.parse(a.week_end);
+                    return b.end! - a.week_end;
                 }
             }
 
             // * The remaining case is, both entries are hours entries.
             // In that case, compare the week_end of both entries
-            return Date.parse((b as OfficerSpecificHoursType).week_end) - Date.parse((a as OfficerSpecificHoursType).week_end);
+            return (b as OfficerSpecificHoursType).week_end - (a as OfficerSpecificHoursType).week_end;
         });
     }
 
@@ -448,8 +448,8 @@ function Activity() {
                                             <ActivityHoursCard
                                                 key={`ActivityEntryHours${index}`}
                                                 minutes={entryData.minutes}
-                                                week_start={new Date(Date.parse(entryData.week_start))}
-                                                week_end={new Date(Date.parse(entryData.week_end))}
+                                                week_start={moment.unix(entryData.week_start)}
+                                                week_end={moment.unix(entryData.week_end)}
                                                 onClick={() => {setCurrentHourId(entryData.id); setHoursModalOpen(true)}}
                                             />
                                         )
@@ -459,9 +459,9 @@ function Activity() {
                                             <ActivityJustificationCard
                                                 key={`ActivityEntryJustification${index}`}
                                                 type={entryData.type}
-                                                start={new Date(Date.parse(entryData.start))}
-                                                end={entryData.end ? new Date(Date.parse(entryData.end)) : null}
-                                                timestamp={new Date(entryData.timestamp)}
+                                                start={moment.unix(entryData.start)}
+                                                end={entryData.end ? moment.unix(entryData.end) : null}
+                                                timestamp={moment.unix(entryData.timestamp)}
                                                 status={entryData.status}
                                                 managed_by={entryData.managed_by}
                                                 onClick={() => {setCurrentJustificationId(entryData.id); setJustificationModalOpen(true)}}
