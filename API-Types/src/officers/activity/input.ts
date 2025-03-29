@@ -26,9 +26,7 @@ export const ListOfficerJustificationsQueryParams = rt.Partial({
 });
 
 export const UpdateOfficerLastShiftBody = rt.Record({
-   last_shift: rt.Union(rt.String.withConstraint((string) => {
-         return !isNaN(Date.parse(string));
-   }), rt.Null)
+   last_shift: rt.Union(rt.Number, rt.Null)
 });
 export type UpdateOfficerLastShiftBodyType = rt.Static<typeof UpdateOfficerLastShiftBody>;
 
