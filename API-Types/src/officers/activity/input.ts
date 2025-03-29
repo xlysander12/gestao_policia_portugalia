@@ -53,12 +53,8 @@ export type ManageOfficerJustificationBodyType = rt.Static<typeof ManageOfficerJ
 
 export const ChangeOfficerJustificationBody = rt.Partial({
     type: rt.Number,
-    start: rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
-    }),
-    end: rt.Union(rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
-    }), rt.Null),
+    start: rt.Number,
+    end: rt.Union(rt.Number, rt.Null),
     description: rt.String,
     comment: rt.String
 });

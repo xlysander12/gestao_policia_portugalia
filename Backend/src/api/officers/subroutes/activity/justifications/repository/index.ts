@@ -105,9 +105,13 @@ export async function updateOfficerJustificationDetails(force: string, nif: numb
     for (const field of validFields) {
         // If the field is present in the changes list, add it to the query
         if (Object.keys(changes).includes(field.name)) {
-            updateQuery += `${field.db} = ?, `;
-            // @ts-expect-error
-            params.push(changes[field.name]);
+            if (field.name === "start" || field.name === "end") {
+                updateQuery += `${field.db} = FROM_UNIXTIME(?), `;
+            } else {
+                updateQuery += `${field.db} = ?, `;
+            }
+
+            params.push(changes[field.name as keyof ChangeOfficerJustificationBodyType]);
         }
     }
 
