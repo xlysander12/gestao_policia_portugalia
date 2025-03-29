@@ -5,7 +5,7 @@ export function dateToString(date: Date, preserveHours: boolean = true): string 
         return newDate.toISOString().split('T')[0];
     }
 
-    return newDate.toISOString();
+    return newDate.toISOString().split(".")[0];
 }
 
 export function stringToDate(date: string): Date {

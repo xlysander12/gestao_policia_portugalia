@@ -11,6 +11,14 @@ import {join} from "path";
 import {logToConsole} from "./utils/logger";
 config({path: join(__dirname, "..", ".env")});
 
+// Ensure all required environment variables are set
+import {requiredEnvVarsExist} from "./utils/required-env";
+requiredEnvVarsExist();
+
+// Ensure all required files exist
+import {requiredFilesExist} from "./utils/required-env";
+requiredFilesExist();
+
 // Load routes
 import endpoint from "./main";
 import {ExpressResponse} from "./types/response-types";
@@ -57,6 +65,6 @@ app.use((_req, res: ExpressResponse, next) => {
 // Include all routes
 app.use("/portugalia/portalseguranca", endpoint);
 
-httpServer.listen(process.env["PS_HTTP_PORT"], () => {
-   logToConsole(`Server started on port ${process.env["PS_HTTP_PORT"]}`, "info");
+httpServer.listen(process.env["HTTP_PORT"], () => {
+   logToConsole(`Server started on port ${process.env["HTTP_PORT"]}`, "info");
 });

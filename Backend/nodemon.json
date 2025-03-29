@@ -6,5 +6,5 @@
         "./",
         "../Frontend/dist/*"
     ],
-    "ext": "js, json"
+    "ext": "js, json, env"
 }
