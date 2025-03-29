@@ -2,10 +2,10 @@ import * as rt from 'runtypes';
 
 export const ListOfficerHoursQueryParams = rt.Partial({
     before: rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
-        }),
+        return !isNaN(parseInt(string));
+    }),
     after: rt.String.withConstraint((string) => {
-        return !isNaN(Date.parse(string));
+        return !isNaN(parseInt(string));
     }),
 });
 export type ListOfficerHoursQueryParams = rt.Static<typeof ListOfficerHoursQueryParams>;

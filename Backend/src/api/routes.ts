@@ -511,11 +511,11 @@ const activityRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `week_start >= ? OR week_end >= ?`,
+                        queryFunction: () => `(week_start >= FROM_UNIXTIME(?) OR week_end >= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     before: {
-                        queryFunction: () => `week_end <= ? OR week_start <= ?`,
+                        queryFunction: () => `(week_end <= FROM_UNIXTIME(?) OR week_start <= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     }
                 }
