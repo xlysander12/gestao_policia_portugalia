@@ -10,7 +10,7 @@ import {
     officerHoursHistory
 } from "../services";
 import {OfficerHoursEntryType} from "../repository";
-import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
+import {dateToString, dateToUnix, stringToDate} from "../../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMinWeekMinutes} from "../../../../../../utils/config-handler";
 import {requestQueryToReceivedQueryParams} from "../../../../../../utils/filters";
@@ -29,8 +29,8 @@ export async function getOfficerHoursHistoryController(req: express.Request, res
         data: result.data!.map((hour: OfficerHoursEntryType) => {
             return {
                 ...hour,
-                week_start: dateToString(hour.week_start, false),
-                week_end: dateToString(hour.week_end, false)
+                week_start: dateToUnix(hour.week_start),
+                week_end: dateToUnix(hour.week_end)
             }
         })
     });
@@ -56,8 +56,8 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
         },
         data: {
             ...result.data!,
-            week_start: dateToString(result.data!.week_start, false),
-            week_end: dateToString(result.data!.week_end, false)
+            week_start: dateToUnix(result.data!.week_start),
+            week_end: dateToUnix(result.data!.week_end)
         }
     });
 }
@@ -79,8 +79,8 @@ export async function getOfficerLastWeekController(req: express.Request, res: Of
         },
         data: {
             ...result.data!,
-            week_start: dateToString(result.data!.week_start, false),
-            week_end: dateToString(result.data!.week_end, false)
+            week_start: dateToUnix(result.data!.week_start),
+            week_end: dateToUnix(result.data!.week_end)
         }
     });
 }

@@ -11,8 +11,8 @@ export interface OfficerLastShiftResponse extends BaseResponse {
 
 interface OfficerSpecificHoursType {
     id: number,
-    week_start: string,
-    week_end: string,
+    week_start: number,
+    week_end: number,
     minutes: number,
     submitted_by: number
 }
