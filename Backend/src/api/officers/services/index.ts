@@ -114,6 +114,11 @@ export async function restoreOfficer(officer: InnerOfficerData, force: string): 
 export async function alterOfficer(nif: number, force: string, currentInfo: InnerOfficerData, changes: UpdateOfficerRequestBody, loggedOfficer: InnerOfficerData): Promise<DefaultReturn<void>> {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "promotion_date", "phone", "iban", "kms", "discord", "steam"];
 
+    // * An User cannot alter the information about an Officer with higher patent than them
+    if (currentInfo.patent >= loggedOfficer.patent) {
+        return {result: false, status: 403, message: "Não tens permissão para alterar este efetivo."};
+    }
+
     // * Figure out if this change is considered a promotion
     // Get the expression from the config file
     let isPromotionExpression: string = getForcePromotionExpression(force);
@@ -122,11 +127,6 @@ export async function alterOfficer(nif: number, force: string, currentInfo: Inne
     for (const field of validFields) {
         isPromotionExpression = isPromotionExpression.replaceAll(`$old${field}`, currentInfo[field as keyof InnerOfficerData] as string);
         isPromotionExpression = isPromotionExpression.replaceAll(`$new${field}`, changes[field as keyof UpdateOfficerRequestBody] !== undefined ? changes[field as keyof UpdateOfficerRequestBody] as string : currentInfo[field as keyof InnerOfficerData] as string);
-    }
-
-    // * An User cannot alter the information about an Officer with higher patent than them
-    if (currentInfo.patent >= loggedOfficer.patent) {
-        return {result: false, status: 403, message: "Não tens permissão para alterar este efetivo."};
     }
 
     // Evaluate the expression
@@ -174,12 +174,12 @@ async function convertHubValues(force: string, patent: string, status: string, e
     // Convert the entry date
     // This date is in the DD/MM/YYYY format
     let entry_date_split = entry_date.split("/");
-    const outEntry_date = `${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`;
+    const outEntry_date = Date.parse(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`);
 
     // Convert the promotion date
     // This date is in the DD/MM/YYYY format
     let promotion_date_split = promotion_date.split("/");
-    const outPromotion_date = `${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`;
+    const outPromotion_date = Date.parse(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`);
 
     // Convert the phone number
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
