@@ -7,7 +7,7 @@ import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
-import {dateToString, dateToUnix, stringToDate, unixToDate} from "../../../../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../../util/repository";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {InnerOfficerJustificationData} from "../../../../../../types/inner-types";

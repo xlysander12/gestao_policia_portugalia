@@ -7,7 +7,7 @@ import {
     OfficerInfoGetResponse,
     OfficerListResponse
 } from "@portalseguranca/api-types/officers/output";
-import {dateToString, dateToUnix} from "../../../utils/date-handler";
+import {dateToUnix} from "../../../utils/date-handler";
 import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {userHasIntents} from "../../accounts/repository";

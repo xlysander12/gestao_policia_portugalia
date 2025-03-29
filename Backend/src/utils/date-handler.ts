@@ -8,6 +8,10 @@ export function dateToString(date: Date, preserveHours: boolean = true): string 
     return newDate.toISOString().split(".")[0];
 }
 
+/**
+ * @deprecated - All forms of time handling should be done in Unix Time
+ *
+ */
 export function stringToDate(date: string): Date {
     return new Date(Date.parse(date));
 }

@@ -2,7 +2,7 @@ import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
-import {dateToString, dateToUnix} from "../../../utils/date-handler";
+import {dateToUnix} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
 import {RowDataPacket} from "mysql2/promise";

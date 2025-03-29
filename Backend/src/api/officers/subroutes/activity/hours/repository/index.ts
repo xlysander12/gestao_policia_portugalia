@@ -2,7 +2,7 @@ import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../../utils/fi
 import {queryDB} from "../../../../../../utils/db-connector";
 import {OfficerSpecificHoursType} from "@portalseguranca/api-types/officers/activity/output";
 import {RouteFilterType} from "../../../../../routes";
-import {dateToString} from "../../../../../../utils/date-handler";
+import {dateToUnix} from "../../../../../../utils/date-handler";
 
 export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" | "week_end"> & {
     week_start: Date,
@@ -67,7 +67,7 @@ export async function fetchLastHoursEntry(force: string, nif: number): Promise<O
 }
 
 export async function ensureNoHoursThisWeek(force: string, nif: number, week_start: Date): Promise<boolean> {
-    const result = await queryDB(force, `SELECT * FROM officer_hours WHERE officer = ? AND week_end > ?`, [nif, dateToString(week_start, false)]);
+    const result = await queryDB(force, `SELECT * FROM officer_hours WHERE officer = ? AND week_end > FROM_UNIXTIME(?)`, [nif, dateToUnix(week_start)]);
 
     return result.length === 0;
 }
