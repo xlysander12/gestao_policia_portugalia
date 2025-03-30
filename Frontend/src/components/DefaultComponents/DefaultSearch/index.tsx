@@ -106,8 +106,8 @@ function DefaultSearch(props: DefaultSearchProps) {
 
             // * Add the newly created text to the previous item in the current value
             setCurrentValue((draft) => {
-                draft[draft.length - 1].value = (value as Moment).format("YYYY-MM-DD");
-                draft[draft.length -1].labelValue = (value as Moment).format("DD-MM-YYYY");
+                draft[draft.length - 1].value = (value as Moment).unix();
+                draft[draft.length - 1].labelValue = (value as Moment).format("DD-MM-YYYY");
             });
         }
 

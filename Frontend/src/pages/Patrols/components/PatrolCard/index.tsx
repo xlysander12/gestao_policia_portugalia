@@ -5,7 +5,6 @@ import InformationCard from "../../../../components/InformationCard";
 import style from "./patrol-card.module.css";
 import {DefaultTypography} from "../../../../components/DefaultComponents";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
-import {getTimeDelta} from "../../../../utils/misc.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
 import moment from "moment";
@@ -91,7 +90,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                     </DefaultTypography>
 
                     <DefaultTypography color={"gray"}>{getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
-                    <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? getTimeDelta(new Date(patrolInfo.start), new Date(patrolInfo.end)): "N/A"}</DefaultTypography>
+                    <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? moment.duration(moment.unix(patrolInfo.end).diff(moment.unix(patrolInfo.start))).format("hh[h]mm", {trim: false}): "N/A"}</DefaultTypography>
                 </div>
                 <div className={style.patrolCardMiddle}>
                     <Gate show={loading}>
@@ -110,7 +109,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                     </Gate>
                 </div>
                 <div className={style.patrolCardRight}>
-                    <DefaultTypography fontSize={"small"} color={"gray"}>{moment(patrolInfo.start).calendar()}</DefaultTypography>
+                    <DefaultTypography fontSize={"small"} color={"gray"}>{moment.unix(patrolInfo.start).calendar()}</DefaultTypography>
                 </div>
             </div>
         </InformationCard>
