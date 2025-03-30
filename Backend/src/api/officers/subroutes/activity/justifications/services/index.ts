@@ -68,7 +68,7 @@ export async function officerJustificationCreate(force: string, nif: number, typ
         }
     }
 
-    // Make sure the providaded start date is from before the end date, if this isn't null
+    // Make sure the provided start date is from before the end date, if this isn't null
     if (end && start > end) {
         return {
             result: false,
@@ -110,6 +110,25 @@ export async function officerJustificationUpdateStatus(force: string, nif: numbe
 }
 
 export async function officerJustificationChangeDetails(force: string, nif: number, justificationData: InnerOfficerJustificationData, changes: ChangeOfficerJustificationBodyType): Promise<DefaultReturn<void>> {
+
+    // Make sure the provided start date is from before the end date, if this isn't null
+    // Make sure the end date is set for this comparison, both on the changes and the justification data
+    if (changes.end || justificationData.end !== null) {
+        // Get the end date, either from the changes or the justification data
+        let endDate = changes.end ? unixToDate(changes.end) : justificationData.end!;
+
+        // Get the start date, either from the changes or the justification data
+        let startDate = changes.start ? unixToDate(changes.start) : justificationData.start;
+
+        if (startDate > endDate) {
+            return {
+                result: false,
+                status: 400,
+                message: "Data de início não pode ser superior à data de fim"
+            }
+        }
+    }
+
     // * Call the repository to update the justification
     await updateOfficerJustificationDetails(force, nif, justificationData.id, changes);
 
@@ -122,7 +141,7 @@ export async function officerJustificationChangeDetails(force: string, nif: numb
 }
 
 export async function officerJustificationDelete(force: string, nif: number, justificationData: InnerOfficerJustificationData): Promise<DefaultReturn<void>> {
-    // * cCall the repository to delete the justification
+    // * Call the repository to delete the justification
     await deleteOfficerJustification(force, nif, justificationData.id);
 
     // Return the result
