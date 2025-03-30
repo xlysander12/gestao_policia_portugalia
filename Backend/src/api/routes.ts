@@ -786,11 +786,11 @@ const patrolsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `start >= ? OR end >= ?`,
+                        queryFunction: () => `(start >= FROM_UNIXTIME(?) OR end >= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     before: {
-                        queryFunction: () => `end <= ? OR start <= ?`,
+                        queryFunction: () => `(end <= FROM_UNIXTIME(?) OR start <= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     active: {

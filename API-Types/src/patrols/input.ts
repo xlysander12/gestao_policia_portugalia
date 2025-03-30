@@ -1,8 +1,8 @@
 import * as rt from "runtypes";
 
 export const ListPatrolsQueryParams = rt.Partial({
-    after: rt.String.withConstraint(string => !isNaN(Date.parse(string))),
-    before: rt.String.withConstraint(string => !isNaN(Date.parse(string))),
+    after: rt.String.withConstraint(string => /^\d+$/.test(string)),
+    before: rt.String.withConstraint(string => /^\d+$/.test(string)),
     active: rt.String.withConstraint(string => string === "true" || string === "false"),
     officers: rt.String.withConstraint(string => {
             if (!Array.isArray(string.split(","))) return false;
