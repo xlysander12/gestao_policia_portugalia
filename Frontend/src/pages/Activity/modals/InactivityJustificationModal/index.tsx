@@ -558,6 +558,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                                 buttonColor={"lightgreen"}
                                                 darkTextOnHover
                                                 type={"submit"}
+                                                disabled={!justificationData.start || justificationData.start.isAfter(justificationData.end)}
                                                 sx={{flex: 1}}
                                             >
                                                 Guardar Alterações
