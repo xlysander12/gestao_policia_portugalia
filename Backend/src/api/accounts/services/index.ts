@@ -13,6 +13,7 @@ import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 import {InnerAccountData} from "../../../types/inner-types";
 import {getOfficerData} from "../../officers/repository";
 import { AccountInfo } from "@portalseguranca/api-types/account/output";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -44,7 +45,7 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
         data: {
             defaultPassword: requestedAccount.password === null,
             suspended: requestedAccount.suspended,
-            lastUsed: requestedAccount.last_interaction,
+            lastUsed: requestedAccount.last_interaction ? dateToUnix(requestedAccount.last_interaction): null,
             intents: requestedAccount.intents
         }
     }

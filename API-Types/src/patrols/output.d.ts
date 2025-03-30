@@ -5,8 +5,8 @@ export interface MinifiedPatrolData {
     type: number
     unit: number | null
     officers: number[]
-    start: string
-    end: string | null
+    start: number
+    end: number | null
     canceled: boolean
 }
 

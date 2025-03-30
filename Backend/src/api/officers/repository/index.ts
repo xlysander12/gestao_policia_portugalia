@@ -153,7 +153,12 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
     let params: any[] = [];
     let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
         if (changes[field as keyof UpdateOfficerRequestBody] !== undefined) {
-            acc += `${field} = ?, `;
+            if (field === "entry_date" || field === "promotion_date") {
+                acc += `${field} = FROM_UNIXTIME(?), `;
+            } else {
+                acc += `${field} = ?, `;
+            }
+            
             params.push(changes[field as keyof UpdateOfficerRequestBody]);
         }
 

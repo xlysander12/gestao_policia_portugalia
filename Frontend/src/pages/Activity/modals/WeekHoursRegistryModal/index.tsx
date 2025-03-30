@@ -78,8 +78,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         // Make the request to create the entry
         const response = await make_request<AddOfficerHoursBodyType>(`/officers/${officer}/activity/hours`, "POST", {
             body: {
-                week_start: entryData.week_start!.format("YYYY-MM-DD")!,
-                week_end: entryData.week_end!.format("YYYY-MM-DD")!,
+                week_start: entryData.week_start!.unix(),
+                week_end: entryData.week_end!.unix(),
                 minutes: entryData.minutes
             }
         });
@@ -137,8 +137,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             // Set the registry data
             setEntryData({
                 ...(data as OfficerSpecificHoursResponse).data,
-                week_start: moment((data as OfficerSpecificHoursResponse).data.week_start),
-                week_end: moment((data as OfficerSpecificHoursResponse).data.week_end)
+                week_start: moment.unix((data as OfficerSpecificHoursResponse).data.week_start),
+                week_end: moment.unix((data as OfficerSpecificHoursResponse).data.week_end)
             });
             setDidMinimumHours((data as OfficerSpecificHoursResponse).meta.min_hours);
 
@@ -199,12 +199,12 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                 null;
 
             // Get the date 7 days after the week_end of the most recent entry
-            const weekEnd = new Date((mostRecentEntry ? Date.parse(mostRecentEntry.week_end) : new Date().getTime()) + 7 * 24 * 60 * 60 * 1000);
+            const weekEnd = moment.unix(mostRecentEntry ? mostRecentEntry.week_end : moment().unix()).add(7, "days")
 
             // Set the registry data with default values
             setEntryData((draft) => {
-                draft.week_start = moment(mostRecentEntry ? mostRecentEntry.week_end : new Date().getTime());
-                draft.week_end = moment(weekEnd);
+                draft.week_start = moment(mostRecentEntry ? moment.unix(mostRecentEntry.week_end) : moment());
+                draft.week_end = weekEnd;
             });
 
             // Set the loading state to false

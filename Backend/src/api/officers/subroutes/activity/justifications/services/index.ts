@@ -7,7 +7,7 @@ import {
     createOfficerJustification, deleteOfficerJustification, getOfficerActiveJustifications,
     getOfficerJustificationsHistory, updateOfficerJustificationDetails, updateOfficerJustificationStatus
 } from "../repository";
-import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../../../../utils/date-handler";
 import {getForceInactivityTypes} from "../../../../../util/repository";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {InnerOfficerJustificationData} from "../../../../../../types/inner-types";
@@ -25,11 +25,11 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
             return {
                 id: r.id,
                 type: r.type,
-                start: dateToString(r.start, false),
-                end: r.end ? dateToString(r.end, false): null,
+                start: dateToUnix(r.start),
+                end: r.end ? dateToUnix(r.end): null,
                 status: r.status,
                 managed_by: r.managed_by,
-                timestamp: r.timestamp.getTime()
+                timestamp: dateToUnix(r.timestamp)
             }
         })
     }
@@ -53,7 +53,7 @@ export async function officerActive(force: string, nif: number): Promise<Default
     }
 }
 
-export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: string, end?: string): Promise<DefaultReturn<void>> {
+export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: number, end?: number): Promise<DefaultReturn<void>> {
     // * Make sure the provided type is valid
     // Get the types of inactivity
     let inactivityTypes = await getForceInactivityTypes(force);
@@ -68,8 +68,8 @@ export async function officerJustificationCreate(force: string, nif: number, typ
         }
     }
 
-    // Make sure the providaded start date is from before the end date, if this isn't null
-    if (end && stringToDate(start).getTime() > stringToDate(end).getTime()) {
+    // Make sure the provided start date is from before the end date, if this isn't null
+    if (end && start > end) {
         return {
             result: false,
             status: 400,
@@ -78,7 +78,7 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 
     // * Call the repository to create the justification
-    await createOfficerJustification(force, nif, type, description, stringToDate(start), end ? stringToDate(end): undefined);
+    await createOfficerJustification(force, nif, type, description, unixToDate(start), end ? unixToDate(end): undefined);
 
     // Return the result
     return {
@@ -110,6 +110,25 @@ export async function officerJustificationUpdateStatus(force: string, nif: numbe
 }
 
 export async function officerJustificationChangeDetails(force: string, nif: number, justificationData: InnerOfficerJustificationData, changes: ChangeOfficerJustificationBodyType): Promise<DefaultReturn<void>> {
+
+    // Make sure the provided start date is from before the end date, if this isn't null
+    // Make sure the end date is set for this comparison, both on the changes and the justification data
+    if (changes.end || justificationData.end !== null) {
+        // Get the end date, either from the changes or the justification data
+        let endDate = changes.end ? unixToDate(changes.end) : justificationData.end!;
+
+        // Get the start date, either from the changes or the justification data
+        let startDate = changes.start ? unixToDate(changes.start) : justificationData.start;
+
+        if (startDate > endDate) {
+            return {
+                result: false,
+                status: 400,
+                message: "Data de início não pode ser superior à data de fim"
+            }
+        }
+    }
+
     // * Call the repository to update the justification
     await updateOfficerJustificationDetails(force, nif, justificationData.id, changes);
 
@@ -122,7 +141,7 @@ export async function officerJustificationChangeDetails(force: string, nif: numb
 }
 
 export async function officerJustificationDelete(force: string, nif: number, justificationData: InnerOfficerJustificationData): Promise<DefaultReturn<void>> {
-    // * cCall the repository to delete the justification
+    // * Call the repository to delete the justification
     await deleteOfficerJustification(force, nif, justificationData.id);
 
     // Return the result

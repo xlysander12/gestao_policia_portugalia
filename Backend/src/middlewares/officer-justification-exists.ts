@@ -2,7 +2,7 @@ import express from "express";
 import {getOfficerJustificationDetails} from "../api/officers/subroutes/activity/justifications/repository";
 import {FORCE_HEADER} from "../utils/constants";
 import {OfficerJustificationAPIResponse} from "../types/response-types";
-import {stringToDate} from "../utils/date-handler";
+import {unixToDate} from "../utils/date-handler";
 import {userHasIntents} from "../api/accounts/repository";
 
 async function justificationExistsMiddleware(req: express.Request, res: OfficerJustificationAPIResponse, next: express.NextFunction) {
@@ -22,8 +22,8 @@ async function justificationExistsMiddleware(req: express.Request, res: OfficerJ
         id: justification.id,
         officer: res.locals.targetOfficer!.nif,
         type: justification.type,
-        start: stringToDate(justification.start),
-        end: justification.end ? stringToDate(justification.end): null,
+        start: unixToDate(justification.start),
+        end: justification.end ? unixToDate(justification.end): null,
         description: justification.description,
         status: justification.status,
         comment: justification.comment || null,

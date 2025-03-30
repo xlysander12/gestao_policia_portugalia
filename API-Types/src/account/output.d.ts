@@ -7,12 +7,12 @@ export interface ValidateTokenResponse extends BaseResponse {
 export interface AccountInfo {
     defaultPassword: boolean,
     suspended: boolean,
-    lastUsed: Date | null,
+    lastUsed: number | null,
     intents: {[key: string]: boolean}
 }
 
 export interface AccountInfoResponse extends BaseResponse {
-    data: Omit<AccountInfo, "lastUsed"> & {lastUsed: string | null}
+    data: AccountInfo
 }
 
 export interface LoginResponse extends BaseResponse {

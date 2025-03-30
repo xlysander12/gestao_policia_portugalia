@@ -44,3 +44,12 @@ export interface InnerPatrolData extends Omit<PatrolData, "id" | "start" | "end"
     force: string,
     editable?: boolean
 }
+
+export interface InnerError {
+    code: string
+    route: string
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD"
+    body: string
+    timestamp: Date
+    stack: string
+}

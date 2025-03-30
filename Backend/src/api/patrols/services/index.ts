@@ -10,6 +10,7 @@ import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
 import {sortOfficers} from "../../officers/services";
+import {unixToDate} from "../../../utils/date-handler";
 
 export async function sortPatrolOfficers(force: string, officers: number[]) {
     // Get the details of all officers of the patrol
@@ -149,8 +150,8 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
         patrolData.type,
         patrolData.special_unit || null,
         patrolData.officers,
-        patrolData.start,
-        patrolData.end || null,
+        unixToDate(patrolData.start),
+        patrolData.end ? unixToDate(patrolData.end): null,
         patrolData.notes || null
     );
 

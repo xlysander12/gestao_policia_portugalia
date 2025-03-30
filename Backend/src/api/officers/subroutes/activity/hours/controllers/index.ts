@@ -10,7 +10,7 @@ import {
     officerHoursHistory
 } from "../services";
 import {OfficerHoursEntryType} from "../repository";
-import {dateToString, stringToDate} from "../../../../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMinWeekMinutes} from "../../../../../../utils/config-handler";
 import {requestQueryToReceivedQueryParams} from "../../../../../../utils/filters";
@@ -29,8 +29,8 @@ export async function getOfficerHoursHistoryController(req: express.Request, res
         data: result.data!.map((hour: OfficerHoursEntryType) => {
             return {
                 ...hour,
-                week_start: dateToString(hour.week_start, false),
-                week_end: dateToString(hour.week_end, false)
+                week_start: dateToUnix(hour.week_start),
+                week_end: dateToUnix(hour.week_end)
             }
         })
     });
@@ -56,8 +56,8 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
         },
         data: {
             ...result.data!,
-            week_start: dateToString(result.data!.week_start, false),
-            week_end: dateToString(result.data!.week_end, false)
+            week_start: dateToUnix(result.data!.week_start),
+            week_end: dateToUnix(result.data!.week_end)
         }
     });
 }
@@ -79,8 +79,8 @@ export async function getOfficerLastWeekController(req: express.Request, res: Of
         },
         data: {
             ...result.data!,
-            week_start: dateToString(result.data!.week_start, false),
-            week_end: dateToString(result.data!.week_end, false)
+            week_start: dateToUnix(result.data!.week_start),
+            week_end: dateToUnix(result.data!.week_end)
         }
     });
 }
@@ -89,7 +89,7 @@ export async function addOfficerHoursEntryController(req: express.Request, res: 
     const {week_start, week_end, minutes} = req.body as AddOfficerHoursBodyType;
 
     // Call the service to add the hours
-    let result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, stringToDate(week_start), stringToDate(week_end), minutes, res.locals.loggedOfficer);
+    let result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, unixToDate(week_start), unixToDate(week_end), minutes, res.locals.loggedOfficer);
 
     res.status(result.status).json({message: result.message});
 

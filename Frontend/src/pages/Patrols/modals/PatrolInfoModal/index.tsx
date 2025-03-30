@@ -94,8 +94,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         const temp: InnerPatrolData = {
             ...responseJson.data,
             type: getObjectFromId(responseJson.data.type, getForceData(patrolForce).patrol_types)!,
-            start: moment(responseJson.data.start),
-            end: responseJson.data.end ? moment(responseJson.data.end) : null,
+            start: moment.unix(responseJson.data.start),
+            end: responseJson.data.end ? moment.unix(responseJson.data.end) : null,
             officers: [],
             unit: responseJson.data.unit ? getObjectFromId(responseJson.data.unit, getForceData(patrolForce).special_units)! : null,
             editable: responseJson.meta.editable
@@ -140,9 +140,9 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         const response = await make_request<EditPatrolBody>(`/patrols/${id}`, "PATCH", {
             body: {
-                start: patrolData!.start.format("YYYY-MM-DDTHH:mm:ss"),
+                start: patrolData!.start.unix(),
                 officers: patrolData!.officers.map(officer => officer.nif),
-                end: patrolData!.end ? patrolData!.end.format("YYYY-MM-DDTHH:mm:ss"): null,
+                end: patrolData!.end ? patrolData!.end.unix(): null,
                 notes: patrolData!.notes === "" ? null: patrolData!.notes
             }
         });

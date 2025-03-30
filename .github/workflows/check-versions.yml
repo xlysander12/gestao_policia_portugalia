@@ -1,0 +1,108 @@
+name: Ensure Version Increment
+on:
+  pull_request:
+    type:
+      - opened
+    branches:
+      - staging
+      - main
+
+  push:
+    branches:
+      - staging
+
+jobs:
+  check-backend-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine base branch
+        id: base_branch
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "BASE_BRANCH=origin/staging" >> $GITHUB_ENV
+          else
+            echo "BASE_BRANCH=HEAD~1" >> $GITHUB_ENV
+          fi
+
+      - name: Get package.json versions from current branch
+        id: current_version
+        run: |
+          VERSION=$(jq -r .version Backend/package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Get package.json versions from base branch
+        id: base_version
+        run: |
+          STAGING_VERSION=$(git show $BASE_BRANCH:Backend/package.json | jq -r .version)
+          echo "STAGING_VERSION=$STAGING_VERSION" >> $GITHUB_ENV
+
+      - name: Check version increment
+        run: |
+          CHANGED=$(git diff --name-only $BASE_BRANCH HEAD -- Backend/)
+          
+          is_greater() {
+            dpkg --compare-versions "$1" "gt" "$2"
+          }
+          
+          if [[ -n "$CHANGED" ]]; then
+              if ! is_greater "VERSION" "$STAGING_VERSION"; then
+              echo "Backend version must be incremented. Current: $BACKEND, Previous: $STAGING_VERSION"
+              exit 1
+              fi
+          else
+            echo "No changes detected in Backend"
+            exit 0
+          fi
+
+  check-frontend-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine base branch
+        id: base_branch
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "BASE_BRANCH=origin/staging" >> $GITHUB_ENV
+          else
+            echo "BASE_BRANCH=HEAD~1" >> $GITHUB_ENV
+          fi
+
+      - name: Get package.json version from current branch
+        id: current_version
+        run: |
+          VERSION=$(jq -r .version Frontend/package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Get package.json versions from base branch
+        id: base_version
+        run: |
+          STAGING_VERSION=$(git show $BASE_BRANCH:Frontend/package.json | jq -r .version)
+          echo "STAGING_VERSION=$STAGING_VERSION" >> $GITHUB_ENV
+
+      - name: Check version increment
+        run: |
+          CHANGED=$(git diff --name-only $BASE_BRANCH HEAD -- Frontend/)
+          
+          is_greater() {
+            dpkg --compare-versions "$1" "gt" "$2"
+          }
+          
+          if [[ -n "$CHANGED" ]]; then
+            if ! is_greater "$VERSION" "$STAGING_VERSION"; then
+              echo "Frontend version must be incremented. Current: $VERSION, Previous: $STAGING_VERSION"
+              exit 1
+            fi
+          else
+            echo "No changes detected in Frontend"
+            exit 0
+          fi

@@ -511,11 +511,11 @@ const activityRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `week_start >= ? OR week_end >= ?`,
+                        queryFunction: () => `(week_start >= FROM_UNIXTIME(?) OR week_end >= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     before: {
-                        queryFunction: () => `week_end <= ? OR week_start <= ?`,
+                        queryFunction: () => `(week_end <= FROM_UNIXTIME(?) OR week_start <= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     }
                 }
@@ -586,19 +586,19 @@ const activityRoutes: routesType = {
                 filters: {
                     "type": {
                         queryFunction: () => `type = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value: string) => parseInt(value)
                     },
                     "status": {
                         queryFunction: () => `status = ?`,
                         valueFunction: (value: string) => value
                     },
                     "during": {
-                        queryFunction: () => `start_date <= ? AND end_date >= ?`,
+                        queryFunction: () => `start_date <= FROM_UNIXTIME(?) AND end_date >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
-                    "managed": {
-                        queryFunction: () => `managed = ?`,
-                        valueFunction: (value: number) => value
+                    "managed_by": {
+                        queryFunction: () => `managed_by = ?`,
+                        valueFunction: (value: string) => parseInt(value)
                     }
                 }
             },
@@ -786,11 +786,11 @@ const patrolsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `start >= ? OR end >= ?`,
+                        queryFunction: () => `(start >= FROM_UNIXTIME(?) OR end >= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     before: {
-                        queryFunction: () => `end <= ? OR start <= ?`,
+                        queryFunction: () => `(end <= FROM_UNIXTIME(?) OR start <= FROM_UNIXTIME(?))`,
                         valueFunction: (value: string) => [value, value]
                     },
                     active: {

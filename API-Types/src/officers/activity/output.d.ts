@@ -5,14 +5,14 @@ export interface OfficerLastShiftResponse extends BaseResponse {
         passed_max_days: boolean
     }
     data: {
-        last_shift: string
+        last_shift: number
     }
 }
 
 interface OfficerSpecificHoursType {
     id: number,
-    week_start: string,
-    week_end: string,
+    week_start: number,
+    week_end: number,
     minutes: number,
     submitted_by: number
 }
@@ -31,8 +31,8 @@ export interface OfficerHoursResponse extends BaseResponse {
 export type OfficerMinifiedJustification = {
     id: number,
     type: number,
-    start: string,
-    end: string | null,
+    start: number,
+    end: number | null,
     status: "pending" | "approved" | "denied",
     managed_by: number | null,
     timestamp: number

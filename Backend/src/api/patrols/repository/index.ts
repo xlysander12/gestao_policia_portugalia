@@ -2,7 +2,7 @@ import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
-import {dateToString} from "../../../utils/date-handler";
+import {dateToUnix} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
 import {RowDataPacket} from "mysql2/promise";
@@ -31,8 +31,8 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
             type: patrol.type,
             unit: patrol.special_unit,
             officers: JSON.parse(patrol.officers),
-            start: dateToString(patrol.start),
-            end: patrol.end !== null ? dateToString(patrol.end) : null,
+            start: dateToUnix(patrol.start),
+            end: patrol.end !== null ? dateToUnix(patrol.end) : null,
             canceled: patrol.canceled === 1
         });
     }
@@ -132,7 +132,7 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
     };
 }
 
-export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: string, end: string | null, notes: string | null): Promise<void> {
+export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
     // Insert the patrol into the database
     await queryDB(force, `INSERT INTO patrols (type, special_unit, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?)`, [type, specialUnit, JSON.stringify(officers), start, end, notes]);
 }

@@ -15,6 +15,11 @@ import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 import {useForceData} from "../../../hooks";
+import moment, {Moment} from "moment";
+
+type InnerAcountInfo = Omit<AccountInfo, "lastUsed"> & {
+    lastUsed: Moment | null
+}
 
 type AccountInformationModalProps = {
     open: boolean,
@@ -39,7 +44,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         intentsObject[intent.name] = false;
     }
 
-    const [accountInfo, setAccountInfo] = useImmer<AccountInfo>({
+    const [accountInfo, setAccountInfo] = useImmer<InnerAcountInfo>({
         defaultPassword: false,
         suspended: false,
         lastUsed: null,
@@ -91,7 +96,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             setAccountInfo(draft => {
                 draft.defaultPassword = accountInfoJson.data.defaultPassword;
                 draft.suspended = accountInfoJson.data.suspended;
-                draft.lastUsed = accountInfoJson.data.lastUsed ? new Date(Date.parse(accountInfoJson.data.lastUsed)): null;
+                draft.lastUsed = accountInfoJson.data.lastUsed ? moment.unix(accountInfoJson.data.lastUsed): null;
                 draft.intents = accountInfoJson.data.intents;
             });
 
@@ -157,14 +162,14 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         // Make the information refresh to reflext the changes and change the manage buttons
         setNeedsRefresh(true);
 
-        // ! Loading will bne disabled by the refresh
+        // ! Loading will be disabled by the refresh
     }
 
     let lastUsedString;
     if (accountInfo.lastUsed === null) {
         lastUsedString = "Nunca utilizada";
     } else {
-        lastUsedString = `${accountInfo.lastUsed.getDate().toString().padStart(2, "0")}/${(accountInfo.lastUsed.getMonth() + 1).toString().padStart(2, "0")}/${accountInfo.lastUsed.getFullYear()} @ ${accountInfo.lastUsed.getHours().toString().padStart(2, "0")}:${accountInfo.lastUsed.getMinutes().toString().padStart(2, "0")}`;
+        lastUsedString = accountInfo.lastUsed.format("DD/MM/YYYY @ HH:mm");
     }
 
     let modalContent: ReactElement;

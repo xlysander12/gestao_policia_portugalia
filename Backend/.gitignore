@@ -5,3 +5,4 @@ logs/
 config.json
 nodemon.dev.json
 src/assets/google-creds.json
+src/assets/github-issues-app.pem

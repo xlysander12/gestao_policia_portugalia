@@ -7,8 +7,12 @@ import {DevSupport} from "@react-buddy/ide-toolbox";
 import {ComponentPreviews, useInitial} from "./dev";
 import moment from "moment";
 import 'moment/dist/locale/pt';
+import momentDurationFormatSetup from "moment-duration-format";
 
-moment().locale('pt');
+momentDurationFormatSetup(moment);
+moment.locale('pt');
+
+
 
 scan({
     enabled: false

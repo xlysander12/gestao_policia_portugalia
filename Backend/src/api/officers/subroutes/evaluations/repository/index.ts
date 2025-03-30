@@ -3,6 +3,7 @@ import {queryDB} from "../../../../../utils/db-connector";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filters";
 import {RouteFilterType} from "../../../../routes";
 import {userHasIntents} from "../../../../accounts/repository";
+import {dateToUnix} from "../../../../../utils/date-handler";
 
 export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
@@ -23,7 +24,7 @@ export async function getEvaluations(force: string, requester: number, target: n
             id: row.id,
             target: row.target,
             author: row.author,
-            timestamp: row.timestamp.getTime(),
+            timestamp: dateToUnix(row.timestamp),
             average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average
         });
     }
@@ -47,7 +48,7 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
             id: row.id,
             target: row.target,
             author: row.author,
-            timestamp: row.timestamp.getTime(),
+            timestamp: dateToUnix(row.timestamp),
             average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average
         });
     }

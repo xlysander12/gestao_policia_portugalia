@@ -18,7 +18,7 @@ import {
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input";
 import {OfficerJustificationAPIResponse} from "../../../../../../types/response-types";
-import {dateToString} from "../../../../../../utils/date-handler";
+import {dateToString, dateToUnix} from "../../../../../../utils/date-handler";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerJustificationsHistoryResponse>) {
     // * Make sure the requesting account has permission to check this info
@@ -62,8 +62,8 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
         data: {
             id: res.locals.justification.id,
             type: res.locals.justification.type,
-            start: dateToString(res.locals.justification.start, false),
-            end: res.locals.justification.end ? dateToString(res.locals.justification.end, false): null,
+            start: dateToUnix(res.locals.justification.start),
+            end: res.locals.justification.end ? dateToUnix(res.locals.justification.end): null,
             description: res.locals.justification.description,
             status: res.locals.justification.status,
             comment: res.locals.justification.comment || undefined,

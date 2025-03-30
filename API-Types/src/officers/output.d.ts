@@ -19,8 +19,8 @@ export interface OfficerData extends MinifiedOfficerData {
     kms: number,
     discord: number,
     steam: string,
-    entry_date: string,
-    promotion_date: string | null,
+    entry_date: number,
+    promotion_date: number | null,
     special_units: OfficerUnit[],
     fire_reason?: string
 }
