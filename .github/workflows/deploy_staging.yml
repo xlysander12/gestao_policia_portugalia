@@ -13,7 +13,7 @@ on:
 
 jobs:
   deploy_staging:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Create SSH Key
