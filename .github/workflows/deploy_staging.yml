@@ -4,9 +4,11 @@ on:
     branches:
       - "staging"
     types: [closed]
+
   push:
     branches:
       - "staging"
+
   workflow_dispatch:
 
 jobs:

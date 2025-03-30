@@ -51,8 +51,8 @@ jobs:
           
           if [[ -n "$CHANGED" ]]; then
               if ! is_greater "VERSION" "$STAGING_VERSION"; then
-              echo "Backend version must be incremented. Current: $BACKEND, Previous: $STAGING_VERSION"
-              exit 1
+                echo "Backend version must be incremented. Current: $BACKEND, Previous: $STAGING_VERSION"
+                exit 1
               fi
           else
             echo "No changes detected in Backend"
