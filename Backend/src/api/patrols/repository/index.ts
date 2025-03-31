@@ -141,8 +141,12 @@ export async function editPatrol(force: string, id: number, changes: EditPatrolB
     // Build the query string and params depending on the fields that were provided
     let params: string[] = [];
     let updateQuery = `UPDATE patrols SET ${Object.keys(changes).reduce((acc, field) => {
-        acc += `${field} = ?, `;
-
+        if (field === "start" || field === "end") {
+            acc += `${field} = FROM_UNIXTIME(?), `;
+        } else {
+            acc += `${field} = ?, `;
+        }
+        
         if (field === "officers") {
             params.push(JSON.stringify(changes[field as keyof EditPatrolBody]));
         } else {
