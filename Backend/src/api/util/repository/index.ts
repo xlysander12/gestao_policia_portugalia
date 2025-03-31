@@ -197,3 +197,19 @@ export async function getPendingInactivityJustifications(force: string, include_
         nif: row.officer as number
     }));
 }
+
+export async function getUserErrors(force: string, nif: number) {
+    // Get the list from the database
+    const errors = await queryDB(force, `SELECT * FROM errors WHERE nif = ?`, nif);
+
+    // Build an array with the errors
+    let errorsList: {code: string, timestamp: Date}[] = [];
+    for (const error of errors) {
+        errorsList.push({
+            code: error.code,
+            timestamp: error.timestamp
+        });
+    }
+
+    return errorsList;
+}

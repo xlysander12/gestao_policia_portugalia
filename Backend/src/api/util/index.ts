@@ -6,7 +6,7 @@ import {
     getIntentsController, getNotificationsController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController,
     getSpecialUnitsController,
-    getStatusesController
+    getStatusesController, getUserErrorsController
 } from "./controllers";
 import {logToConsole} from "../../utils/logger";
 
@@ -32,6 +32,8 @@ app.get("/evaluation-grades", getEvaluationGradesController);
 app.get("/evaluation-fields", getEvaluationFieldsController);
 
 app.get("/notifications", getNotificationsController);
+
+app.get("/errors", getUserErrorsController);
 
 logToConsole("Util routes loaded successfully", "info");
 
