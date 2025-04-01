@@ -115,14 +115,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                 onClose={() => setOfficerPickerModalOpen(false)}
                 callback={addOfficer}
                 filter={(officer) => {
-                    if (officers.map((off) => off.nif).includes(officer.nif)) {
-                        return false;
-                    }
-
-                    // Checking if the officer has a status that prevents from doing patrols
-                    const officerStatus = getObjectFromId(officer.status, getForceData(officer.force!).statuses);
-
-                    return officerStatus!.canPatrol;
+                    return !officers.map((off) => off.nif).includes(officer.nif);
                 }}
             />
         </>

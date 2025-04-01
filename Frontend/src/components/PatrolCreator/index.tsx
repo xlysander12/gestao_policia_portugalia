@@ -14,7 +14,7 @@ import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output"
 import moment, {Moment} from "moment";
 import {useImmer} from "use-immer";
 import {getObjectFromId} from "../../forces-data-context.ts";
-import {FormEvent, useContext, useState} from "react";
+import {useContext, useState} from "react";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {make_request} from "../../utils/requests.ts";
 import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
@@ -57,10 +57,7 @@ function PatrolCreator() {
         notes: null
     });
 
-    const createPatrol = async (event: FormEvent) => {
-        // Prevent page from realoading
-        event.preventDefault();
-
+    const createPatrol = async () => {
         // Set the loading state to true
         setLoading(true);
 
@@ -93,7 +90,7 @@ function PatrolCreator() {
                 <DefaultTypography fontSize={"larger"}>Registar Patrulha</DefaultTypography>
             </ManagementBar>
 
-            <form onSubmit={createPatrol} className={style.informationsDiv}>
+            <div className={style.informationsDiv}>
                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo de Patrulha:</DefaultTypography>
                 <DefaultSelect
                     disabled={loading}
@@ -215,12 +212,12 @@ function PatrolCreator() {
                         darkTextOnHover
                         fullWidth
                         buttonColor={"lightgreen"}
-                        type={"submit"}
+                        onClick={createPatrol}
                     >
                         Registar Patrulha
                     </DefaultButton>
                 </div>
-            </form>
+            </div>
         </>
     );
 }
