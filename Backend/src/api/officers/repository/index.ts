@@ -85,7 +85,7 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(nif: number, force: string, former: boolean = false): Promise<InnerOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, former: boolean = false, check_justification: boolean = true): Promise<InnerOfficerData | null> {
     // * Get the data from the database
     const officerDataResult = await queryDB(force, `SELECT *
                                               FROM officers
@@ -97,12 +97,14 @@ export async function getOfficerData(nif: number, force: string, former: boolean
     }
 
     // * Check if the officer has any active "inactivity type" justifications
-    // Get the officer's active justifications
-    const justifications = await getOfficerActiveJustifications(force, nif);
+    let hasInactivityJustification: boolean = false;
+    if (check_justification) {
+        // Get the officer's active justifications
+        const justifications = await getOfficerActiveJustifications(force, nif);
 
-    // Check if any of the justifications are of the "inactivity type"
-    const hasInactivityJustification: boolean = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
-
+        // Check if any of the justifications are of the "inactivity type"
+        hasInactivityJustification = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
+    }
 
     // Return the officer data
     return {

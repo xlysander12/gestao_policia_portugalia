@@ -6,6 +6,7 @@ import {
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {queryDB} from "../../../../../../utils/db-connector";
 import {dateToUnix} from "../../../../../../utils/date-handler";
+import {getForceInactivityJustificationType} from "../../../../../../utils/config-handler";
 
 type MinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
     start: Date,
@@ -75,6 +76,18 @@ export async function getOfficerActiveJustifications(force: string, nif: number)
 
     // Return the array
     return arr;
+}
+
+export async function wasOfficerInactiveInDate(force: string, nif: number, date: Date) {
+    // Fetch from the database
+    const unix = dateToUnix(date);
+    const result = await queryDB(force, "SELECT * FROM officer_justifications WHERE officer = ? AND type = ? AND ((FROM_UNIXTIME(?) BETWEEN start_date AND end_date) OR (FROM_UNIXTIME(?) > start_date AND end_date IS NULL)) AND status = 'approved'", [nif, getForceInactivityJustificationType(force), dateToUnix(date), dateToUnix(date)]);
+
+    // If the result is empty, return null
+    if (result.length === 0) return false;
+
+    // Return the result
+    return true;
 }
 
 export async function createOfficerJustification(force: string, nif: number, type: number, description: string, start: Date, end?: Date): Promise<void> {
