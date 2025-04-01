@@ -1,11 +1,14 @@
+function padtwodigits(num: number): string {
+    return num < 10 ? `0${num}` : `${num}`;
+}
+
+export function formatDate(date: Date, preserveHours: boolean = true): string {
+    return `${date.getFullYear()}-${padtwodigits(date.getMonth() + 1)}-${padtwodigits(date.getDate())}${preserveHours ? ` @ ${padtwodigits(date.getHours())}:${padtwodigits(date.getMinutes())}:${padtwodigits(date.getSeconds())}`: ''}`;
+}
+
 export function dateToString(date: Date, preserveHours: boolean = true): string {
     let newDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-
-    if (!preserveHours) {
-        return newDate.toISOString().split('T')[0];
-    }
-
-    return newDate.toISOString().split(".")[0];
+    return formatDate(newDate, preserveHours);
 }
 
 /**
@@ -17,7 +20,7 @@ export function stringToDate(date: string): Date {
 }
 
 export function formatDateTime(date: Date): string {
-    return date.toISOString().split(".")[0].replace("T", " @ ");
+    return formatDate(date);
 }
 
 export function dateToUnix(date: Date): number {

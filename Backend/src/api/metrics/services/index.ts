@@ -1,6 +1,6 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {buildBodyOfficerDetails, submitIssueToGithub} from "../utils";
-import {getErrorDetails} from "../repository";
+import {getErrorDetails, setErrorReported} from "../repository";
 import {dateToString} from "../../../utils/date-handler";
 
 export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string): Promise<DefaultReturn<void>> {
@@ -36,6 +36,14 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
         return {result: false, status: 500, message: "Ocorreu um erro ao enviar o problema"};
+    }
+
+    // If an error code was provided, set his "reported" status in the DB to 1
+    if (code !== undefined) {
+        const errorDetails = await getErrorDetails(loggedUser.force, code);
+        if (errorDetails) {
+            await setErrorReported(loggedUser.force, code);
+        }
     }
 
     // Return a 200 status code

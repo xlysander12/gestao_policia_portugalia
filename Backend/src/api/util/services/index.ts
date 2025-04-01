@@ -7,7 +7,7 @@ import {
     getForcePatents, getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
-    getForceStatuses, getPendingInactivityJustifications
+    getForceStatuses, getPendingInactivityJustifications, getUserErrors
 } from "../repository";
 import {
     InactivityTypeData,
@@ -161,5 +161,17 @@ export async function notifications(force: string, nif: number): Promise<Default
         status: 200,
         message: "Operação concluída com sucesso",
         data: notifications
+    }
+}
+
+export async function errors(force: string, nif: number): Promise<DefaultReturn<{code: string, timestamp: Date}[]>> {
+    // Get the list from the database
+    const errors = await getUserErrors(force, nif);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: errors
     }
 }

@@ -222,7 +222,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                 open={open}
                 onClose={onClose}
                 title={newEntry ? "Novo Registo - Horas Semanais": `Horas semanais #${entryId}`}
-                url={`/atividade/${officer}/h/${entryId}`}
+                url={newEntry ? undefined : `/atividade/${officer}/h/${entryId}`}
             >
                 {/* Show Loader */}
                 <Gate show={loading}>

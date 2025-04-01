@@ -110,3 +110,12 @@ export interface UtilEvaluationFieldsResponse extends BaseResponse {
 export interface UtilNotificationsResponse extends BaseResponse {
     data: BaseNotification[]
 }
+
+export interface UserError {
+    code: string
+    timestamp: number
+}
+
+export interface UtilUserErrorsResponse extends BaseResponse {
+    data: UserError[]
+}

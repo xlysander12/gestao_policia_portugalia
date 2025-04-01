@@ -1,6 +1,7 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {
+    errors,
     evaluationFields,
     evaluationGrades,
     forceInactivityTypes,
@@ -13,12 +14,18 @@ import {
 import {
     UtilInactivityTypesResponse,
     UtilIntentsResponse,
-    UtilPatentsResponse, UtilPatrolTypesResponse,
+    UtilPatentsResponse,
+    UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
     UtilStatusesResponse,
-    UtilForcePatrolForcesResponse, UtilNotificationsResponse, UtilEvaluationGradesResponse, UtilEvaluationFieldsResponse
+    UtilForcePatrolForcesResponse,
+    UtilNotificationsResponse,
+    UtilEvaluationGradesResponse,
+    UtilEvaluationFieldsResponse,
+    UtilUserErrorsResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from
@@ -122,4 +129,24 @@ export async function getNotificationsController(req: express.Request, res: APIR
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getUserErrorsController(req: express.Request, res: APIResponse<UtilUserErrorsResponse>) {
+    // Call the service to get the errors
+    const result = await errors(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif);
+
+    res.status(result.status);
+
+    if (!result.result) {
+        res.json({message: result.message});
+        return;
+    }
+
+    res.json({
+        message: result.message,
+        data: result.data!.map(error => ({
+            code: error.code,
+            timestamp: dateToUnix(error.timestamp)
+        }))
+    });
 }

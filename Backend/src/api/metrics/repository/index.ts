@@ -20,3 +20,8 @@ export async function getErrorDetails(force: string, code: string): Promise<Inne
         stack: errorDetails[0].stack
     }
 }
+
+export async function setErrorReported(force: string, code: string) {
+    // Querying the DB to change the column
+    await queryDB(force, `UPDATE errors SET reported = 1 WHERE code = ?`, code);
+}

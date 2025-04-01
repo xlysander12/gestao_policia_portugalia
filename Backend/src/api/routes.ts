@@ -314,6 +314,16 @@ const utilRoutes: routesType = {
                 requiresForce: true
             }
         }
+    },
+
+    // Route to get all errors of a user
+    "/util/errors$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
     }
 }
 
