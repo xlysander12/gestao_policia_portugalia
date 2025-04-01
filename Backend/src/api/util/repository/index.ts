@@ -200,7 +200,7 @@ export async function getPendingInactivityJustifications(force: string, include_
 
 export async function getUserErrors(force: string, nif: number) {
     // Get the list from the database
-    const errors = await queryDB(force, `SELECT * FROM errors WHERE nif = ?`, nif);
+    const errors = await queryDB(force, `SELECT * FROM errors WHERE nif = ? AND reported = 0`, nif);
 
     // Build an array with the errors
     let errorsList: {code: string, timestamp: Date}[] = [];
