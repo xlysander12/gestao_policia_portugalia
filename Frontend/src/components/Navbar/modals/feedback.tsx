@@ -4,22 +4,60 @@ import {Modal, ModalSection} from "../../Modal";
 import style from "./feedback.module.css";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTextField, DefaultTypography} from "../../DefaultComponents";
 import {FormEvent, useEffect, useState} from "react";
-import {Divider} from "@mui/material";
+import {Autocomplete, AutocompleteRenderInputParams, Divider} from "@mui/material";
 import {make_request} from "../../../utils/requests.ts";
 import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
 import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@portalseguranca/api-types/metrics/input";
 import {toast} from "react-toastify";
+import {UserError, UtilUserErrorsResponse} from "@portalseguranca/api-types/util/output";
+import moment, {Moment} from "moment";
+
+type InnerUserError = Omit<UserError, "timestamp"> & {
+    timestamp: Moment
+}
 
 type FeedbackModalProps = {
     type: "error" | "suggestion"
-    code?: string
     open: boolean
     onClose: () => void
 }
-function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
-    const [errorCode, setErrorCode] = useState<string>(code ? code : "");
+
+function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
+    const [errorCode, setErrorCode] = useState<InnerUserError>({code: "", timestamp: moment()});
     const [title, setTitle] = useState<string>("");
     const [message, setMessage] = useState<string>("");
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [fetchedCodes, setFetchedCodes] = useState<InnerUserError[]>([]);
+
+    async function fetchErrorCodes() {
+        // Set the loading flag to true
+        setLoading(true);
+
+        // Fetch the errors from the API
+        const response = await make_request("/util/errors", "GET", {
+            reloadOn500: false
+        });
+        const responseJson: UtilUserErrorsResponse = await response.json();
+
+        if (!response.ok) {
+            toast.error(responseJson.message);
+            setLoading(false);
+            setFetchedCodes([]);
+            return;
+        }
+
+        // Apply the data from the response to state
+        setFetchedCodes(responseJson.data.map(error => ({
+            ...error,
+            timestamp: moment.unix(error.timestamp)
+        })).sort((a, b) => {
+            return b.timestamp.diff(a.timestamp);
+        }));
+
+        // Set the loading flag to false
+        setLoading(false);
+    }
 
     async function handleSubmit(event: FormEvent) {
         // Prevent the page from reloading
@@ -30,11 +68,11 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
 
         // Make the request
         const response = await make_request<SubmitIssueRequestBodyType | SubmitSuggestionRequestBodyType>(endpoint, "POST", {
-           body: {
-               code: errorCode,
-               title: title,
-               body: message
-           },
+            body: {
+                code: errorCode.code !== "" ? errorCode.code: undefined,
+                title: title,
+                body: message
+            },
             reloadOn500: false
         });
 
@@ -46,7 +84,7 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
             toast.success(data.message);
 
             // Revert the values to default
-            setErrorCode(code ? code : "");
+            setErrorCode({code: "", timestamp: moment()});
             setTitle("");
             setMessage("");
 
@@ -60,10 +98,17 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
     }
 
     useEffect(() => {
-        setErrorCode(code ? code : "");
+        setErrorCode({code: "", timestamp: moment()});
         setTitle("");
         setMessage("");
-    }, [type]);
+        setFetchedCodes([]);
+
+        // If the type is error, fetch the error codes from the user
+        if (open && type === "error") {
+            fetchErrorCodes();
+        }
+    }, [type, open]);
+
 
     return (
         <>
@@ -80,12 +125,43 @@ function FeedbackModal({type, code, open, onClose}: FeedbackModalProps) {
                                     fontWeight={"bold"}
                                     color={"var(--portalseguranca-color-accent)"}
                                 >
-                                    Código de erro:
+                                    Código de erro (opcional):
                                 </DefaultTypography>
 
-                                <DefaultTextField
+                                <Autocomplete
+                                    freeSolo
+                                    options={fetchedCodes}
+                                    loading={loading}
+                                    loadingText={"A carregar códigos..."}
+                                    noOptionsText={"Nenhum código encontrado"}
                                     value={errorCode}
-                                    onChange={(e) => setErrorCode(e.target.value)}
+                                    onChange={(_, value) => {
+                                        setErrorCode((value as InnerUserError))
+                                    }}
+                                    getOptionLabel={(option) => {
+                                        if ((option as InnerUserError).code === "") {
+                                            return "";
+                                        }
+
+                                        return `${(option as InnerUserError).code} - ${(option as InnerUserError).timestamp.calendar()}`
+                                    }}
+                                    getOptionKey={(option) => {
+                                        return (option as InnerUserError).code;
+                                    }}
+                                    renderInput={(params: AutocompleteRenderInputParams) => {
+                                        return (
+                                            <DefaultTextField {...params}/>
+                                        );
+                                    }}
+                                    slotProps={{
+                                        popper: {
+                                            sx: {
+                                                "& .MuiAutocomplete-noOptions, & .MuiAutocomplete-loading": {
+                                                    color: "var(--portalseguranca-color-text-light)"
+                                                }
+                                            }
+                                        }
+                                    }}
                                 />
 
                                 <Divider sx={{margin: "10px 0"}}/>
