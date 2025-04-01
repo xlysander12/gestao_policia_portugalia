@@ -149,12 +149,18 @@ export async function addOfficer(name: string, patent: number, callsign: string 
 export async function updateOfficer(nif: number, force: string, changes: UpdateOfficerRequestBody, isPromotion: boolean) {
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "promotion_date", "phone", "iban", "kms", "discord", "steam"];
 
+    // Check if the officer has any active inactivity justifications
+    const has_inactivity = (await getOfficerActiveJustifications(force, nif)).some(justification => justification.type === getForceInactivityJustificationType(force));
+
     // Build the query string and params depending on the fields that were provided
     let params: any[] = [];
     let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
         if (changes[field as keyof UpdateOfficerRequestBody] !== undefined) {
             if (field === "entry_date" || field === "promotion_date") {
                 acc += `${field} = FROM_UNIXTIME(?), `;
+            } else if (field === "status" && changes.status === getForceInactiveStatus(force) && has_inactivity) {
+                // If the user is trying to set the status to inactive, check if the officer has an active justification. If it has, skip this field
+                return acc;
             } else {
                 acc += `${field} = ?, `;
             }
