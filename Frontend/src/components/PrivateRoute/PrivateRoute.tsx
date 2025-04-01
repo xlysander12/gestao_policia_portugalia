@@ -37,10 +37,18 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     // Get the force's data from Context
     const [forceData] = useForceData();
 
+    const redirectLogin = () => {
+        if (location.pathname === "/") {
+            navigate("/login");
+        } else {
+            navigate("/login?redirect=" + location.pathname);
+        }
+    }
+
     const checkToken = async (): Promise<{valid: boolean, nif: number}> => {
         // Check if there is a force in the local storage. If there isn't, return to login
         if (!localStorage.getItem("force")) {
-            navigate("/login?redirect=" + location.pathname);
+            redirectLogin();
             return {valid: false, nif: 0};
         }
 
@@ -52,7 +60,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             toast("Sessão inválida. Por favor, faça login novamente.", {
                 type: "error",
             });
-            navigate("/login?redirect=" + location.pathname);
+            redirectLogin();
 
             return {valid: false, nif: 0};
         }
