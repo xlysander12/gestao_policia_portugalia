@@ -309,7 +309,16 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 <MenuItem
                     disabled
                 >
-                    <DefaultTypography fontSize={"x-small"} color={"lightgray"}>v{packageJson.version}</DefaultTypography>
+                    <DefaultTypography
+                        clickable
+                        fontSize={"x-small"}
+                        color={"lightgray"}
+                        onClick={() => {
+                            window.open("https://github.com/xlysander12/gestao_policia_portugalia", "_blank"
+                            )}
+                        }>
+                        v{packageJson.version}
+                    </DefaultTypography>
                 </MenuItem>
             </Menu>
 

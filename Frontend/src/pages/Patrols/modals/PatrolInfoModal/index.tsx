@@ -151,6 +151,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         if (!response.ok) {
             toast.error(responseJson.message);
+            setLoading(false);
             return;
         }
 
