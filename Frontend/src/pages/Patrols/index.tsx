@@ -4,7 +4,7 @@ import ManagementBar from "../../components/ManagementBar";
 import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
 import {useEffect, useState} from "react";
 import {make_request} from "../../utils/requests.ts";
-import { RequestError } from "@portalseguranca/api-types/index.ts";
+import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
 import {toast} from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
 import {DefaultPagination, DefaultSearch} from "../../components/DefaultComponents";
@@ -34,7 +34,7 @@ function Patrols() {
     const [patrolInfoModalOpen, setPatrolInfoModalOpen] = useState<boolean>(false);
 
     // Handle websocket events
-    useWebSocketEvent("patrols", async () => {
+    useWebSocketEvent(SOCKET_EVENT.PATROLS, async () => {
         // * Every time a event happens, the page needs to be refreshed
         // Fetch the patrols from the API
         const {patrols, pages} = await fetchPatrols();

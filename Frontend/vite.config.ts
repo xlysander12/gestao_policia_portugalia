@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import {BASE_API_URL, BASE_URL, BASE_WS_URL} from "./src/utils/constants";
 import compression from "vite-plugin-compression2";
+import * as path from "node:path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,6 +23,11 @@ export default defineConfig({
         //     }
         // })
     ],
+    resolve: {
+      alias: {
+          "@portalseguranca/api-types": path.resolve(__dirname, "../API-Types/src"),
+      }
+    },
     base: BASE_URL,
     server: {
         proxy: {

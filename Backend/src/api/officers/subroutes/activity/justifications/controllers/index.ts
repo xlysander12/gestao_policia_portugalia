@@ -6,7 +6,7 @@ import {
     officerJustificationCreate, officerJustificationDelete,
     officerJustificationUpdateStatus
 } from "../services";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../../../../utils/constants";
+import {FORCE_HEADER} from "../../../../../../utils/constants";
 import {
     OfficerActiveJustificationsResponse,
     OfficerJustificationDetailsResponse,
@@ -95,14 +95,6 @@ export async function createOfficerJustificationController(req: express.Request,
     res.status(result.status).json({
         message: result.message
     });
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
-            nif: res.locals.targetOfficer!.nif,
-            type: "justification"
-        });
-    }
 }
 
 export async function getOfficerActiveJustificationsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerActiveJustificationsResponse>) {
@@ -133,15 +125,6 @@ export async function manageOfficerJustificationController(req: express.Request,
     res.status(result.status).json({
         message: result.message
     });
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
-            nif: res.locals.targetOfficer!.nif,
-            type: "justification",
-            id: res.locals.justification.id
-        });
-    }
 }
 
 export async function changeOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
@@ -150,15 +133,6 @@ export async function changeOfficerJustificationController(req: express.Request,
 
     // Return the result
     res.status(result.status).json({message: result.message});
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
-            nif: res.locals.targetOfficer!.nif,
-            type: "justification",
-            id: res.locals.justification.id
-        });
-    }
 }
 
 export async function deleteOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
@@ -169,13 +143,4 @@ export async function deleteOfficerJustificationController(req: express.Request,
     res.status(result.status).json({
         message: result.message
     });
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.emit(UPDATE_EVENTS.ACTIVITY, {
-            nif: res.locals.targetOfficer!.nif,
-            type: "justification",
-            id: res.locals.justification.id
-        });
-    }
 }

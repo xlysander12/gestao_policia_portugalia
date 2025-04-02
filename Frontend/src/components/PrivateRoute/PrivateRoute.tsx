@@ -17,6 +17,8 @@ import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
+import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -151,11 +153,21 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     }
 
     // Add the Socket Event listener for the logged user's data
-    useWebSocketEvent("officers", useCallback((data: OfficerSocket) => {
+    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback(data => {
         if (data.nif === loggedUser.info.personal.nif) {
             updateValues(false);
         }
     }, [socket?.id, loggedUser.info.personal.nif]), socket);
+
+    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback(data => {
+        if (data.type !== "justification") return;
+
+        if (data.nif !== loggedUser.info.personal.nif) return;
+
+        if (data.action === "add") return;
+
+        updateValues(false);
+    }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {

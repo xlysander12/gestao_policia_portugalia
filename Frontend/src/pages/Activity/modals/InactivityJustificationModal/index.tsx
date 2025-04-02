@@ -1,4 +1,4 @@
-    import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
+import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
 import {
     OfficerActivitySocket,
     OfficerJustification,
@@ -11,17 +11,20 @@ import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
+import {BaseResponse, RequestError, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
 import {Checkbox, Divider, FormControlLabel, MenuItem, Tooltip} from "@mui/material";
 import {
-    DefaultButton, DefaultDatePicker, DefaultOutlinedTextField,
+    DefaultButton,
+    DefaultDatePicker,
+    DefaultOutlinedTextField,
     DefaultSelect,
     DefaultTypography
 } from "../../../../components/DefaultComponents";
 import {useImmer} from "use-immer";
 import {
-    AddOfficerJustificationBodyType, ChangeOfficerJustificationBodyType,
+    AddOfficerJustificationBodyType,
+    ChangeOfficerJustificationBodyType,
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {getOfficerFromNif} from "../../../../utils/misc.ts";
@@ -253,7 +256,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }
 
     // Handle websocket events
-    useWebSocketEvent<OfficerActivitySocket>("activity", useCallback(async (data) => {
+    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback(async (data) => {
         // If the event is not about inactivity justifications, it doesn't matter
         if (data.type !== "justification") return;
 

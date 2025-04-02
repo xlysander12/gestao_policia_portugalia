@@ -5,12 +5,13 @@ import {ReceivedQueryParams} from "../../../utils/filters";
 import {createPatrol, deletePatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {getOfficerData} from "../../officers/repository";
-import {getForcePatrolForces} from "../../../utils/config-handler";
+import {getForceInactiveStatus, getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
 import {sortOfficers} from "../../officers/services";
 import {unixToDate} from "../../../utils/date-handler";
+import {wasOfficerInactiveInDate} from "../../officers/subroutes/activity/justifications/repository";
 
 export async function sortPatrolOfficers(force: string, officers: number[]) {
     // Get the details of all officers of the patrol
@@ -48,7 +49,7 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
 
 async function canOfficerBeInPatrol(force: string, officerNif: number, patrolStart: Date, patrolEnd: Date | null, patrolId?: string): Promise<[boolean, string]> {
     if (await isOfficerInPatrol(force, officerNif, patrolStart, patrolEnd, patrolId)) {
-        return [false, "O efetivo já está em patrulha"];
+        return [false, `O efetivo de NIF ${officerNif} já está em patrulha`];
     }
 
     // First, check if the officer exists, either in the current force or in any of the forces the current force has patrols with
@@ -56,7 +57,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     let officerForce: string = force;
 
     for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-        const tempResult = await getOfficerData(officerNif, patrolForce);
+        const tempResult = await getOfficerData(officerNif, patrolForce, false, false);
 
         if (tempResult !== null) {
             officerData = tempResult;
@@ -67,13 +68,20 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
 
     // If the officer does not exist in any of the forces, return an error
     if (officerData === null) {
-        return [false, "O efetivo não existe"];
+        return [false, `O efetivo de NIF ${officerNif} não existe`];
     }
 
-    // Since the officer exists, check if their status allows for patrols or not
+    // Fetch the current's officer status
     const officerStatus = (await getForceStatuses(officerForce)).filter(status => status.id === officerData.status)[0];
+
+    // Since the officer exists, check if they are / were inactive on the start of the patrol
+    if (await wasOfficerInactiveInDate(force, officerNif, patrolStart) || officerStatus.id === getForceInactiveStatus(force)) {
+        return [false, `O efetivo de NIF ${officerNif} está inativo`];
+    }
+
+    // Check if the status of the officer prevents patrols (Inactivity only appears here if forcefully set)
     if (!officerStatus.canPatrol) {
-        return [false, "O efetivo não pode patrulhar"];
+        return [false, `O efetivo de NIF ${officerNif} não pode patrulhar`];
     }
 
     return [true, ""];
@@ -134,7 +142,7 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
 
     // Loop through all the officers and check if they exist and aren't in antoher patrol or inactive
     for (const officerNif of patrolData.officers) {
-        const [canBeInPatrol, error] = await canOfficerBeInPatrol(force, officerNif, new Date(patrolData.start), patrolData.end ? new Date(patrolData.end): null);
+        const [canBeInPatrol, error] = await canOfficerBeInPatrol(force, officerNif, unixToDate(patrolData.start), patrolData.end ? unixToDate(patrolData.end): null);
 
         if (!canBeInPatrol) {
             return {
@@ -189,7 +197,7 @@ export async function patrolEdit(force: string, userData: InnerOfficerData, patr
     // Loop through all the officers and check if they exist and aren't in antoher patrol or inactive
     if (changes.officers) {
         for (const officerNif of changes.officers) {
-            const [canBeInPatrol, error] = await canOfficerBeInPatrol(force, officerNif, changes.start ? new Date(changes.start): patrolData.start, changes.end ? new Date(changes.end): patrolData.end, `${patrolData.force}${patrolData.id}`);
+            const [canBeInPatrol, error] = await canOfficerBeInPatrol(force, officerNif, changes.start ? unixToDate(changes.start): patrolData.start, changes.end ? unixToDate(changes.end): patrolData.end, `${patrolData.force}${patrolData.id}`);
 
             if (!canBeInPatrol) {
                 return {
