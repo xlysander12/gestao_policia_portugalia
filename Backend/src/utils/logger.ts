@@ -138,7 +138,7 @@ export async function logRequestToFile(res: APIResponse) {
     // Add the headers of the request to the log
     builder += "Headers:\n";
     for (const [key, value] of Object.entries(res.req.headers)) {
-        if (key === "cookie") continue; // Skip the cookie header
+        if (key !== "x-portalseguranca-force") continue; // Skip every header except the force header
         builder += `- ${key}: ${value}\n`;
     }
 
