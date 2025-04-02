@@ -1,6 +1,12 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../types";
-import {authoredEvaluationsList, createEvaluation, evaluationsList, updateEvaluation} from "../services";
+import {
+    authoredEvaluationsList,
+    createEvaluation,
+    deleteEvaluationService,
+    evaluationsList,
+    updateEvaluation
+} from "../services";
 import {FORCE_HEADER} from "../../../../../utils/constants";
 import {
     AuthoredEvaluationsListResponse,
@@ -86,6 +92,16 @@ export async function editEvaluationController(req: express.Request, res: Office
 
     // Call the service
     const result = await updateEvaluation(req.header(FORCE_HEADER)!,res.locals.loggedOfficer, res.locals.evaluation, body);
+
+    // Send the response
+    res.status(result.status).json({
+        message: result.message
+    });
+}
+
+export async function deleteEvaluationController(req: express.Request, res: OfficerEvaluationAPIResponse) {
+    // Call the service
+    const result = await deleteEvaluationService(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.evaluation);
 
     // Send the response
     res.status(result.status).json({

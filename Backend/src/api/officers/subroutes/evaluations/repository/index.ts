@@ -133,3 +133,8 @@ export async function editEvaluation(force: string, id: number, changes: EditEva
         await updateEvaluationGrades(force, id, changes.fields);
     }
 }
+
+export async function deleteEvaluation(force: string, id: number) {
+    // Delete the evaluation from the DB
+    await queryDB(force, `DELETE FROM evaluations WHERE id = ?`, [id]);
+}

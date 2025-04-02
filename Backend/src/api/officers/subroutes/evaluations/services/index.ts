@@ -1,6 +1,13 @@
 import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
-import {addEvaluation, editEvaluation, getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
+import {
+    addEvaluation,
+    deleteEvaluation,
+    editEvaluation,
+    getAuthoredEvaluations,
+    getEvaluationData,
+    getEvaluations
+} from "../repository";
 import {RouteFilterType} from "../../../../routes";
 import {ReceivedQueryParams} from "../../../../../utils/filters";
 import {userHasIntents} from "../../../../accounts/repository";
@@ -209,6 +216,26 @@ export async function updateEvaluation(force: string, loggedOfficer: InnerOffice
 
     // Apply the data in the repository
     await editEvaluation(force, evaluation.id, details);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação realizada com sucesso"
+    }
+}
+
+export async function deleteEvaluationService(force: string, loggedOfficer: InnerOfficerData, evaluation: InnerOfficerEvaluation): Promise<DefaultReturn<void>> {
+    // If the target officer is not the author of the evaluation and he doesn't have the "evaluations" intent, return an error
+    if (evaluation.author !== loggedOfficer.nif && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tens permissões para eliminar esta avaliação"
+        }
+    }
+
+    // Apply the data in the repository
+    await deleteEvaluation(force, evaluation.id);
 
     return {
         result: true,
