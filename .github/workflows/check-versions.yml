@@ -4,12 +4,7 @@ on:
     type:
       - opened
     branches:
-      - staging
-      - main
-
-  push:
-    branches:
-      - staging
+      - master
 
 jobs:
   check-backend-version:
