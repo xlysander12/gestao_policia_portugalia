@@ -80,7 +80,6 @@ export async function getOfficerActiveJustifications(force: string, nif: number)
 
 export async function wasOfficerInactiveInDate(force: string, nif: number, date: Date) {
     // Fetch from the database
-    const unix = dateToUnix(date);
     const result = await queryDB(force, "SELECT * FROM officer_justifications WHERE officer = ? AND type = ? AND ((FROM_UNIXTIME(?) BETWEEN start_date AND end_date) OR (FROM_UNIXTIME(?) > start_date AND end_date IS NULL)) AND status = 'approved'", [nif, getForceInactivityJustificationType(force), dateToUnix(date), dateToUnix(date)]);
 
     // If the result is empty, return null

@@ -1,7 +1,7 @@
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../../../types";
 import {alterOfficer, deleteOfficer, hireOfficer, importOfficers, listOfficers, officerPatrol, restoreOfficer} from "../services";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../../../utils/constants";
+import {FORCE_HEADER} from "../../../utils/constants";
 import {
     OfficerImportResponse,
     OfficerInfoGetResponse,
@@ -105,13 +105,6 @@ export async function deleteOfficerController(req: express.Request, res: Officer
 
     // Return the result
     res.status(result.status).json({message: result.message});
-
-    // Broadcast to socket
-    if (result.result) {
-        res.locals.ws.in(req.header(FORCE_HEADER)!).emit(UPDATE_EVENTS.OFFICER, {
-            nif: res.locals.targetOfficer!.nif
-        });
-    }
 
 }
 

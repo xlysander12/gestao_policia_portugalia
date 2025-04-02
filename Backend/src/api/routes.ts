@@ -30,9 +30,9 @@ import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
-import {FORCE_HEADER, UPDATE_EVENTS} from "../utils/constants";
+import {FORCE_HEADER} from "../utils/constants";
 import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
-import {SocketResponse} from "@portalseguranca/api-types";
+import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
     ListAuthoredEvaluationsQueryParams,
@@ -66,7 +66,7 @@ export type routeMethodType = {
     }
     notes?: string,
     broadcast?: {
-        event: string,
+        event: SOCKET_EVENT,
         body: (req: express.Request, res: any) => SocketResponse,
         patrol?: boolean
     }
@@ -359,7 +359,7 @@ const officersRoutes: routesType = {
                 requiresForce: true,
                 intents: ["officers"],
                 broadcast: {
-                    event: UPDATE_EVENTS.OFFICER,
+                    event: SOCKET_EVENT.OFFICERS,
                     body: (_req: express.Request, res: APIResponse): OfficerImportSocket => {
                         return {
                             action: "update",
@@ -395,7 +395,7 @@ const officersRoutes: routesType = {
                 },
                 notes: "add_officer",
                 broadcast: {
-                    event: UPDATE_EVENTS.OFFICER,
+                    event: SOCKET_EVENT.OFFICERS,
                     body: (req: express.Request, res: APIResponse): OfficerAddSocket => {
                         return {
                             action: "add",
@@ -415,7 +415,7 @@ const officersRoutes: routesType = {
                     type: UpdateOfficerRequestBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.OFFICER,
+                    event: SOCKET_EVENT.OFFICERS,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
                         return {
                             action: "update",
@@ -435,7 +435,7 @@ const officersRoutes: routesType = {
                     type: DeleteOfficerRequestBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.OFFICER,
+                    event: SOCKET_EVENT.OFFICERS,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerDeleteSocket => {
                         return {
                             action: "delete",
@@ -458,7 +458,7 @@ const officersRoutes: routesType = {
                 intents: ["officers"],
                 notes: "restore_officer",
                 broadcast: {
-                    event: UPDATE_EVENTS.OFFICER,
+                    event: SOCKET_EVENT.OFFICERS,
                     body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerRestoreSocket => {
                         return {
                             action: "restore",
@@ -497,7 +497,7 @@ const activityRoutes: routesType = {
                     type: UpdateOfficerLastShiftBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerLastShiftSocket => {
                         return {
                             type: "last_shift",
@@ -538,7 +538,7 @@ const activityRoutes: routesType = {
                     type: AddOfficerHoursBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddHoursSocket => {
                         return {
                             type: "hours",
@@ -570,7 +570,7 @@ const activityRoutes: routesType = {
                 requiresForce: true,
                 intents: ["activity"],
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (req, res: OfficerInfoAPIResponse): OfficerDeleteHoursSocket => {
                         return {
                             type: "hours",
@@ -619,7 +619,7 @@ const activityRoutes: routesType = {
                     type: AddOfficerJustificationBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddJustificationSocket => {
                         return {
                             type: "justification",
@@ -654,7 +654,7 @@ const activityRoutes: routesType = {
                     type: ManageOfficerJustificationBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerManageJustificationSocket => {
                         return {
                             type: "justification",
@@ -673,7 +673,7 @@ const activityRoutes: routesType = {
                     type: ChangeOfficerJustificationBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerUpdateJustificationSocket => {
                         return {
                             type: "justification",
@@ -689,7 +689,7 @@ const activityRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 broadcast: {
-                    event: UPDATE_EVENTS.ACTIVITY,
+                    event: SOCKET_EVENT.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerDeleteJustificationSocket => {
                         return {
                             type: "justification",
@@ -838,7 +838,7 @@ const patrolsRoutes: routesType = {
                     type: CreatePatrolBody
                 },
                 broadcast: {
-                    event: UPDATE_EVENTS.PATROL,
+                    event: SOCKET_EVENT.PATROLS,
                     body: (req, res: APIResponse): PatrolAddSocket => {
                         return {
                             action: "add",
@@ -863,7 +863,7 @@ const patrolsRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 broadcast: {
-                    event: UPDATE_EVENTS.PATROL,
+                    event: SOCKET_EVENT.PATROLS,
                     body: (_req, res: PatrolInfoAPIResponse): PatrolUpdateSocket => {
                         return {
                             action: "update",
@@ -881,7 +881,7 @@ const patrolsRoutes: routesType = {
                 requiresForce: true,
                 intents: ["patrols"],
                 broadcast: {
-                    event: UPDATE_EVENTS.PATROL,
+                    event: SOCKET_EVENT.PATROLS,
                     body: (_req, res: PatrolInfoAPIResponse): PatrolDeleteSocket => {
                         return {
                             action: "delete",
