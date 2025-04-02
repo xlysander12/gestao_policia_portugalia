@@ -333,7 +333,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         }
 
         // Check if the Officer is already in the database
-        const officerData = await getOfficerData(parseInt(nif), force);
+        const officerData = await getOfficerData(parseInt(nif), force, false, false);
 
         // If the officer is already in the database, update it with the values from the row
         if (officerData) {
@@ -342,7 +342,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
             }
         } else {
             // Check if the officer is present as a former one
-            const formerOfficerData = await getOfficerData(parseInt(nif), force, true);
+            const formerOfficerData = await getOfficerData(parseInt(nif), force, true, false);
 
             // If the officer is present as a former one, set his fired flag to false and update the values
             if (formerOfficerData) {

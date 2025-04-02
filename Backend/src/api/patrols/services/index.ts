@@ -16,23 +16,15 @@ import {wasOfficerInactiveInDate} from "../../officers/subroutes/activity/justif
 export async function sortPatrolOfficers(force: string, officers: number[]) {
     // Get the details of all officers of the patrol
     const officersData = await Promise.all(officers.map(async officerNif => {
-        let officerData = null;
+        let officerData: InnerOfficerData | null= null;
 
         // Loop through all forces to get the officer data
         for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-            // First, fetch in the active officers of the force
-            const tempResult = await getOfficerData(officerNif, patrolForce);
+            const tempResult = await getOfficerData(officerNif, patrolForce, false, false) ||
+                await getOfficerData(officerNif, patrolForce, true, false);
 
             if (tempResult !== null) {
                 officerData = tempResult;
-                break;
-            }
-
-            // If the officer is not active, fetch in the former officers
-            const tempResultFormer = await getOfficerData(officerNif, patrolForce, true);
-
-            if (tempResultFormer !== null) {
-                officerData = tempResultFormer;
                 break;
             }
         }
