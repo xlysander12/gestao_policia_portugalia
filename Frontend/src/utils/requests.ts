@@ -1,7 +1,8 @@
 // This function will handle all requests to the backend
 // It will be used by all components that need to make requests
 // It will be a wrapper around the fetch API, making it easier to use
-import {BASE_API_URL} from "./constants";
+import { RequestError } from "@portalseguranca/api-types";
+import {BASE_API_URL, BASE_URL} from "./constants";
 
 export enum RequestMethod {
     GET = "GET",
@@ -18,7 +19,7 @@ export type MakeRequestOptions<Body> = Partial<{
     useAuth: boolean,
     useBaseAPIURL: boolean,
     redirectToLoginOn401: boolean
-    reloadOn500: boolean
+    errorPageOn500: boolean
     signal: AbortSignal | null
 }>
 // ! 'useAuth' option is deprecated, and such, has been deleted
@@ -29,7 +30,7 @@ export async function make_request<BodyType>(url: string, method: RequestMethod 
                                        force = <string>localStorage.getItem("force"),
                                        useBaseAPIURL = true,
                                        redirectToLoginOn401 = true,
-                                       reloadOn500 = true,
+                                       errorPageOn500 = true,
                                        signal = null
                                    }: MakeRequestOptions<BodyType> = {}) {
     // First, make sure the URL starts with a slash
@@ -71,9 +72,15 @@ export async function make_request<BodyType>(url: string, method: RequestMethod 
     }
 
     // After that, get the code from the response, if it is higher than 500, assume something went wrong and try to reload the current page
-    // TODO: Redirect to a custom error page instead of reloading the page and, somewhere, show the error code
-    if (response.status >= 500 && reloadOn500) {
-        window.location.reload();
+    if (response.status >= 500 && errorPageOn500) {
+        // Trying to get the JSON from the response
+        try {
+            const json: RequestError = await response.json();
+            location.pathname = `${BASE_URL}/erro${json.code ? `?code=${json.code}` : ""}`;
+        } catch (_) {
+            location.pathname = `${BASE_URL}/erro`;
+        }
+
     }
 
     // Finally, return the response

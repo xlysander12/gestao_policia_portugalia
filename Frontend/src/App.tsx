@@ -27,6 +27,7 @@ import Patrols from "./pages/Patrols";
 import { useImmer } from 'use-immer';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
+import UnexpectedError from "./pages/UnexpectedError";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -121,7 +122,7 @@ function App() {
             setCanLoad(true);
         }
 
-        if (localStorage.getItem("force")) {
+        if (localStorage.getItem("force") && (location.pathname !== `${BASE_URL}/erro`)) {
             execute();
         } else {
             setCanLoad(true);
@@ -131,7 +132,7 @@ function App() {
     const router = createBrowserRouter(
         [
             {
-                // errorElement: <>Ups</>,
+                errorElement: location.hostname !== "localhost" ? <UnexpectedError /> : undefined,
                 children: [
                     {
                         path: "/login",
@@ -183,6 +184,10 @@ function App() {
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
                             }
                         ]
+                    },
+                    {
+                        path: "/erro",
+                        element: <UnexpectedError/>
                     }
                 ]
             }
@@ -192,7 +197,7 @@ function App() {
 
 
     const defaultTheme = createTheme(defaultThemeData);
-    if (!canLoad || (force !== "" && forceData[force] === undefined)) {
+    if (!canLoad || ((force !== "" && forceData[force] === undefined) && location.pathname !== `${BASE_URL}/erro`)) {
         return (
             <Loader fullPage/>
         )
