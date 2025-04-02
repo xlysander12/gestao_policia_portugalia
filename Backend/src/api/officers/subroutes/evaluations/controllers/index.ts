@@ -20,8 +20,8 @@ import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca
 export async function getEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<EvaluationsListResponse>) {
     // Call the service
     const result = res.locals.queryParams && isQueryParamPresent("page", res.locals.queryParams) ?
-        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams["page"])) :
-        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
+        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams["page"])) :
+        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     // Send the response
     if (!result.result) {

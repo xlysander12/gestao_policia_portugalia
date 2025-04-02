@@ -14,15 +14,16 @@ import {userHasIntents} from "../../../../accounts/repository";
 import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
 import {InnerOfficerEvaluation} from "../../../../../types/inner-types";
 import {getPatrol} from "../../../../patrols/repository";
+import {getOfficerData} from "../../../repository";
 
-export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
+export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
     averages: {
         [field: number]: number
     }
 }>> {
     // Fetch the evaluations from the repository
-    const evaluations = await getEvaluations(force, requester, target, routeValidFilters, filters, page);
+    const evaluations = await getEvaluations(force, requester, target, await userHasIntents(requester.nif, force, "evaluations"), routeValidFilters, filters, page);
 
     // * Calculate the averages for each present field of the evaluations
     // Store all grades for each field
@@ -79,12 +80,37 @@ export async function evaluationsList(force: string, requester: number, target: 
 }
 
 export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<MinifiedEvaluation[]>> {
-    // If the logged officer isn't the same as the target officer and he doesn't have the "evaluations" intent, return an error
-    if (loggedOfficer.nif !== officer && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
-        return {
-            result: false,
-            status: 403,
-            message: "Não tens permissões para aceder a esta informação"
+    // If the logged officer isn't the same as the target officer, a few checks need to be done
+    // - The requesting officer must have the "evaluations" intent
+    // - The author officer cannot be higher patent than the requesting officer
+    if (loggedOfficer.nif !== officer) {
+        if (!(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não tens permissões para aceder a esta informação"
+            }
+        }
+
+        let author = await getOfficerData(officer, force, false, false);
+        if (!author) {
+            author = await getOfficerData(officer, force, true, false);
+        }
+
+        if (!author) {
+            return {
+                result: false,
+                status: 404,
+                message: "Efetivo não encontrado"
+            }
+        }
+
+        if (loggedOfficer.patent < author.patent) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não tens permissão para aceder a esta informação"
+            }
         }
     }
 

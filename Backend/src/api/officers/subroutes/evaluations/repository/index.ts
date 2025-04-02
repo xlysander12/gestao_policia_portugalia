@@ -2,16 +2,14 @@ import {Evaluation, MinifiedEvaluation} from "@portalseguranca/api-types/officer
 import {queryDB} from "../../../../../utils/db-connector";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filters";
 import {RouteFilterType} from "../../../../routes";
-import {userHasIntents} from "../../../../accounts/repository";
 import {dateToUnix} from "../../../../../utils/date-handler";
 import {EditEvaluationBodyType, EvaluationBodyFieldsType} from "@portalseguranca/api-types/officers/evaluations/input";
 import {ResultSetHeader} from "mysql2/promise";
+import {InnerOfficerData} from "../../../../../types";
+import {getOfficerData} from "../../../repository";
 
-export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
+export async function getEvaluations(force: string, requester: InnerOfficerData, target: number, all: boolean = false, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
-
-    // Check if the user has the "evaluations" intent
-    const all = await userHasIntents(requester, force, "evaluations");
 
     // Build the filters query and values
     const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ?" : "target = ? AND author = ?", value: all ? target : [target, requester]});
@@ -22,6 +20,21 @@ export async function getEvaluations(force: string, requester: number, target: n
     // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
+        // * For each found evaluations, if the "all" param is true, filter the evaluations where the author has higher patent than the requester
+        if (all && row.author !== requester.nif) {
+            // Fetch the data of the author
+            let author = await getOfficerData(row.author, force, false, false) || await getOfficerData(row.author, force, true, false);
+            if (!author) {
+                // If the author doesn't exist, skip the evaluation
+                continue;
+            }
+
+            // Compare patents
+            if (author.patent > requester.patent) {
+                continue;
+            }
+        }
+
         evaluations.push({
             id: row.id,
             target: row.target,
