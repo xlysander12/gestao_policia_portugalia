@@ -26,7 +26,7 @@ export const CreateEvaluationBody = Record({
     patrol: Optional(Number),
     comments: Optional(String),
     timestamp: Optional(Number),
-    fields: EvaluationBodyFields
+    fields: EvaluationBodyFields.withConstraint(fields => Object.keys(fields).length > 0)
 });
 
 export type CreateEvaluationBodyType = Static<typeof CreateEvaluationBody>
@@ -35,7 +35,7 @@ export const EditEvaluationBody = Partial({
    patrol: Number,
    comments: String,
    timestamp: Number,
-   fields: EvaluationBodyFields
+    fields: EvaluationBodyFields.withConstraint(fields => Object.keys(fields).length > 0)
 });
 
 export type EditEvaluationBodyType = Static<typeof EditEvaluationBody>
