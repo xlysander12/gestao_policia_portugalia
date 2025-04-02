@@ -3,10 +3,7 @@ import style from "./officerinfo.module.css";
 import {OfficerPicker} from "../../components/OfficerPicker";
 import {Loader} from "../../components/Loader";
 import {make_request} from "../../utils/requests";
-import {
-    Divider,
-    MenuItem
-} from "@mui/material";
+import {Divider, MenuItem} from "@mui/material";
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {useParams} from "react-router-dom";
@@ -14,23 +11,26 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
-    DefaultButton, DefaultDatePicker,
+    DefaultButton,
+    DefaultDatePicker,
     DefaultSelect,
-    DefaultTextField, DefaultTypography
+    DefaultTextField,
+    DefaultTypography
 } from "../../components/DefaultComponents";
 import {
     MinifiedOfficerData,
     OfficerData,
-    OfficerInfoGetResponse, OfficerSocket,
+    OfficerInfoGetResponse,
+    OfficerSocket,
     OfficerUnit
 } from "@portalseguranca/api-types/officers/output";
-import {RecruitModal, FireModal, AccountInformationModal, ImportOfficersModal} from "./modals";
+import {AccountInformationModal, FireModal, ImportOfficersModal, RecruitModal} from "./modals";
 import SpecialUnitsTable from "./SpecialUnitsTable.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./ActivityPanel.tsx";
 import ManagementBar from "../../components/ManagementBar";
-import { UpdateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
-import {RequestError} from "@portalseguranca/api-types/index.ts";
+import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input.ts";
+import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import ShareButton from "../../components/ShareButton";
@@ -180,7 +180,7 @@ function OfficerInfo() {
     const [isImportModalOpen, setImportModalOpen] = useState<boolean>(false);
 
     // Handle updates from socket
-    useWebSocketEvent<OfficerSocket>("officers", async (data) => {
+    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, async (data) => {
         // If the update wasn't for the officer being viewed, return
         if (data.nif !== officerNif) return;
 

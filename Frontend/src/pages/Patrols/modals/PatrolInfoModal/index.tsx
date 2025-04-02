@@ -1,6 +1,6 @@
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
-import moment, { Moment } from "moment";
+import moment, {Moment} from "moment";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
@@ -20,7 +20,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {Divider} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
-import {RequestError, BaseResponse} from "@portalseguranca/api-types";
+import {BaseResponse, RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import OfficerList from "../../../../components/OfficerList";
 
@@ -54,7 +54,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const [loading, setLoading] = useState<boolean>(false);
 
     // Handle WebSocket events
-    useWebSocketEvent<ExistingPatrolSocket>("patrols", useCallback(async (event) => {
+    useWebSocketEvent<ExistingPatrolSocket>(SOCKET_EVENT.PATROLS, useCallback(async (event) => {
         if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
 
         if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it

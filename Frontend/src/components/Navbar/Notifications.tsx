@@ -10,14 +10,15 @@ import {
 } from '@portalseguranca/api-types/util/output';
 import {useNavigate} from "react-router-dom";
 import {useForceData, usePrevious, useWebSocketEvent} from "../../hooks";
-import { LoggedUserContext } from '../PrivateRoute/logged-user-context.ts';
+import {LoggedUserContext} from '../PrivateRoute/logged-user-context.ts';
 import useSound from "use-sound";
 import notification_sound1 from "../../assets/notification_sound1.mp3"
 import Gate from "../Gate/gate.tsx";
 import {DefaultTypography} from "../DefaultComponents";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
-import { OfficerData } from '@portalseguranca/api-types/officers/output';
+import {OfficerData} from '@portalseguranca/api-types/officers/output';
+import { SOCKET_EVENT } from '@portalseguranca/api-types';
 
 type InnerActivityNotification = Omit<ActivityNotification, "officer"> & {
     officer: OfficerData
@@ -113,7 +114,7 @@ function Notifications() {
         setMenuAnchor(null);
     }
 
-    useWebSocketEvent("activity", useCallback(() => {
+    useWebSocketEvent(SOCKET_EVENT.ACTIVITY, useCallback(() => {
         if (loggedUser.intents["activity"]) {
             setNeedsRefresh(true);
         }

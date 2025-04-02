@@ -9,6 +9,8 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import ManagementBar from "../ManagementBar";
 import Gate from "../Gate/gate.tsx";
 import {Loader} from "../Loader";
+import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 
 type OfficerCardProps = {
     name: string
@@ -58,8 +60,19 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
     const [searchString, setSearchString] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // WebSocket connection
-    useWebSocketEvent("officers", () => {
+    // WebSocket connections
+    useWebSocketEvent(SOCKET_EVENT.OFFICERS, () => {
+        search(searchString, false);
+    });
+
+    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, (data) => {
+        // If the data is not a justification, return
+        if (data.type !== "justification") return;
+
+        // If it's just the addition of a new justification, it wasn't approved yeu
+        if (data.action === "add") return;
+
+        // Otherwise, refresh the officers
         search(searchString, false);
     });
 

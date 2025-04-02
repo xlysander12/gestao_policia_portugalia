@@ -17,6 +17,7 @@ import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
+import { SOCKET_EVENT } from "@portalseguranca/api-types";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -151,7 +152,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     }
 
     // Add the Socket Event listener for the logged user's data
-    useWebSocketEvent("officers", useCallback((data: OfficerSocket) => {
+    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback(data => {
         if (data.nif === loggedUser.info.personal.nif) {
             updateValues(false);
         }
