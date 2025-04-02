@@ -43,3 +43,9 @@ export interface UpdateEvaluationSocket extends SocketResponse {
     target: number,
     id: number
 }
+
+export interface DeleteEvaluationSocket extends SocketResponse {
+    action: "delete",
+    target: number,
+    id: number
+}

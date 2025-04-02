@@ -43,7 +43,11 @@ import {
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
-import {AddEvaluationSocket, UpdateEvaluationSocket} from "@portalseguranca/api-types/officers/evaluations/output";
+import {
+    AddEvaluationSocket,
+    DeleteEvaluationSocket,
+    UpdateEvaluationSocket
+} from "@portalseguranca/api-types/officers/evaluations/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -815,6 +819,21 @@ const evaluationsRoutes: routesType = {
                     body: (_, res: OfficerEvaluationAPIResponse): UpdateEvaluationSocket => {
                         return {
                             action: "update",
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.evaluation.id,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerEvaluationAPIResponse): DeleteEvaluationSocket => {
+                        return {
+                            action: "delete",
                             target: res.locals.targetOfficer!.nif,
                             id: res.locals.evaluation.id,
                             by: res.locals.loggedOfficer.nif

@@ -171,8 +171,8 @@ export async function createAccount(nif: number, force: string): Promise<Default
     }
 
     // After, make sure the officer exists in the force since there can't be accounts for non-existing officers
-    const officerDetails = await getOfficerData(nif, force);
-    if (officerDetails === null) {
+    const officerDetails = await getOfficerData(nif, force, false, false);
+    if (!officerDetails) {
         return {result: false, status: 404, message: "Este efetivo não existe nesta força"};
     }
 

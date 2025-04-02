@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {logToConsole} from "../../../../utils/logger";
 import {
-    createEvaluationController, editEvaluationController,
+    createEvaluationController, deleteEvaluationController, editEvaluationController,
     getAuthoredEvaluationsListController,
     getEvaluationDataController,
     getEvaluationsListController
@@ -27,6 +27,9 @@ app.get("/:id", getEvaluationDataController);
 
 // Route to update an Evaluation
 app.patch("/:id", editEvaluationController);
+
+// Route to delete an Evaluation
+app.delete("/:id", deleteEvaluationController);
 
 logToConsole("Officers Evaluations routes loaded successfully", "info");
 export default app;
