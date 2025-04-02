@@ -1,4 +1,4 @@
-import {BaseResponse} from "../../index";
+import {BaseResponse, SocketResponse} from "../../index";
 
 export interface MinifiedEvaluation {
     id: number
@@ -31,4 +31,9 @@ export interface AuthoredEvaluationsListResponse extends BaseResponse {
 
 export interface EvaluationDetailResponse extends BaseResponse {
     data: Evaluation
+}
+
+export interface AddEvaluationSocket extends SocketResponse {
+    action: "add"
+    target: number
 }

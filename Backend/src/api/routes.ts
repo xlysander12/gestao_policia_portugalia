@@ -39,6 +39,7 @@ import {
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
+import {AddEvaluationSocket} from "@portalseguranca/api-types/officers/evaluations/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -743,6 +744,17 @@ const evaluationsRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: CreateEvaluationBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerInfoAPIResponse): AddEvaluationSocket => {
+                        return {
+                            action: "add",
+                            target: res.locals.targetOfficer!.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
                 }
             }
         }
