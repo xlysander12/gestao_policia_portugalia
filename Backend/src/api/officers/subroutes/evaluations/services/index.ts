@@ -1,9 +1,10 @@
 import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
-import {getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
+import {addEvaluation, getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
 import {RouteFilterType} from "../../../../routes";
 import {ReceivedQueryParams} from "../../../../../utils/filters";
 import {userHasIntents} from "../../../../accounts/repository";
+import {CreateEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
 
 export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
@@ -87,5 +88,34 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
         status: 200,
         message: "Operação realizada com sucesso",
         data: result
+    }
+}
+
+export async function createEvaluation(force: string, loggedOfficer: InnerOfficerData, targetOfficer: InnerOfficerData, details: CreateEvaluationBodyType): Promise<DefaultReturn<void>> {
+    // If the target officer has a greater or equal patent than the logged officer, this evaluation cannot be created
+    if (targetOfficer.patent >= loggedOfficer.patent) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tens permissões para criar uma avaliação a este efetivo"
+        }
+    }
+
+    // If the body doesn't have a patrol, timestamp must be present
+    if (!details.patrol && !details.timestamp) {
+        return {
+            result: false,
+            status: 400,
+            message: "É obrigatório colocar uma data de avaliação quando não é associada nenhuma patrulha"
+        }
+    }
+
+    // Apply the data in the repository
+    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.timestamp);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação realizada com sucesso"
     }
 }

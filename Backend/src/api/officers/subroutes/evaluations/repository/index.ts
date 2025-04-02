@@ -4,6 +4,8 @@ import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filte
 import {RouteFilterType} from "../../../../routes";
 import {userHasIntents} from "../../../../accounts/repository";
 import {dateToUnix} from "../../../../../utils/date-handler";
+import {EvaluationBodyFieldsType} from "@portalseguranca/api-types/officers/evaluations/input";
+import {ResultSetHeader} from "mysql2/promise";
 
 export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
@@ -85,4 +87,27 @@ export async function getEvaluationData(force: string, id: number): Promise<Eval
         timestamp: basicQueryResult[0].timestamp.getTime(),
         fields: fields
     }
+}
+
+export async function updateEvaluationGrades(force: string, id: number, grades: EvaluationBodyFieldsType) {
+    // Delete all data from the evaluation on the DB
+    await queryDB(force, `DELETE FROM evaluations_data WHERE evaluation = ?`, [id]);
+
+    // Insert the new data into the DB
+    for (const field in grades) {
+        await queryDB(force, `INSERT INTO evaluations_data (evaluation, field, grade) VALUES (?, ?, ?)`, [id, parseInt(field), grades[field]]);
+    }
+}
+
+export async function addEvaluation(force: string, author: number, target: number, fields: EvaluationBodyFieldsType, patrol?: number, comments?: string, timestamp?: number): Promise<number> {
+    // Insert the evaluation into the DB
+    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, timestamp) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol || null, comments || null, timestamp || null]);
+
+    // Get the ID of the inserted evaluation
+    const id = (result as unknown as ResultSetHeader).insertId;
+
+    // Insert the fields into the DB
+    await updateEvaluationGrades(force, id, fields);
+
+    return id;
 }

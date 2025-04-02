@@ -35,6 +35,7 @@ import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/r
 import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
+    CreateEvaluationBody,
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
@@ -706,7 +707,7 @@ const activityRoutes: routesType = {
 }
 
 const evaluationsRoutes: routesType = {
-    // Route to get the list of evaluations where the officer is the target
+    // Route to get the list of, create, edit and delete a evaluations where the officer is the target
     "/officers/\\d+/evaluations$": {
         methods: {
             GET: {
@@ -735,6 +736,13 @@ const evaluationsRoutes: routesType = {
                         queryFunction: () => "patrol = ?",
                         valueFunction: (value: string) => parseInt(value)
                     }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: CreateEvaluationBody
                 }
             }
         }
@@ -782,7 +790,7 @@ const evaluationsRoutes: routesType = {
                 requiresForce: true
             }
         }
-    }
+    },
 }
 
 const patrolsRoutes: routesType = {

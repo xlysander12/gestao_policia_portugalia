@@ -1,6 +1,7 @@
 import {Router} from "express";
 import {logToConsole} from "../../../../utils/logger";
 import {
+    createEvaluationController,
     getAuthoredEvaluationsListController,
     getEvaluationDataController,
     getEvaluationsListController
@@ -9,15 +10,19 @@ import evaluationExistsMiddleware from "../../../../middlewares/evaluation-exist
 
 const app = Router();
 
-// Get the list of evaluations with an Officer as target
+// Get the list of Evaluations with an Officer as target
 app.get("/", getEvaluationsListController);
 
-// Get the list of evaluations with an Officer as author
+// Get the list of Evaluations with an Officer as author
 app.get("/author", getAuthoredEvaluationsListController);
 
-// From this point forward, all routes require the evaluation to exist
+// Route to create an Evaluation
+app.post("/", createEvaluationController);
+
+// From this point forward, all routes require the Evaluation to exist
 app.use("/:id", evaluationExistsMiddleware);
 
+// Route to get the details of an Evaluation
 app.get("/:id", getEvaluationDataController);
 
 logToConsole("Officers Evaluations routes loaded successfully", "info");
