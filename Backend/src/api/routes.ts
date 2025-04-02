@@ -31,15 +31,19 @@ import {RuntypeBase} from "runtypes/lib/runtype";
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
-import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
+import {
+    OfficerEvaluationAPIResponse,
+    OfficerJustificationAPIResponse,
+    PatrolInfoAPIResponse
+} from "../types/response-types";
 import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
-    CreateEvaluationBody,
+    CreateEvaluationBody, EditEvaluationBody,
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
-import {AddEvaluationSocket} from "@portalseguranca/api-types/officers/evaluations/output";
+import {AddEvaluationSocket, UpdateEvaluationSocket} from "@portalseguranca/api-types/officers/evaluations/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -708,7 +712,7 @@ const activityRoutes: routesType = {
 }
 
 const evaluationsRoutes: routesType = {
-    // Route to get the list of, create, edit and delete a evaluations where the officer is the target
+    // Route to get the list of and create evaluations where the officer is the target
     "/officers/\\d+/evaluations$": {
         methods: {
             GET: {
@@ -755,7 +759,6 @@ const evaluationsRoutes: routesType = {
                         }
                     }
                 }
-                }
             }
         }
     },
@@ -794,12 +797,30 @@ const evaluationsRoutes: routesType = {
         }
     },
 
-    // Route to get the details of an evaluation
+    // Route to get the details of, update and delete an evaluation
     "/officers/\\d+/evaluations/\\d+$": {
         methods: {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: EditEvaluationBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerEvaluationAPIResponse): UpdateEvaluationSocket => {
+                        return {
+                            action: "update",
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.evaluation.id,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
     },

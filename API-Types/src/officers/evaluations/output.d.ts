@@ -37,3 +37,9 @@ export interface AddEvaluationSocket extends SocketResponse {
     action: "add"
     target: number
 }
+
+export interface UpdateEvaluationSocket extends SocketResponse {
+    action: "update",
+    target: number,
+    id: number
+}

@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {logToConsole} from "../../../../utils/logger";
 import {
-    createEvaluationController,
+    createEvaluationController, editEvaluationController,
     getAuthoredEvaluationsListController,
     getEvaluationDataController,
     getEvaluationsListController
@@ -19,11 +19,14 @@ app.get("/author", getAuthoredEvaluationsListController);
 // Route to create an Evaluation
 app.post("/", createEvaluationController);
 
-// From this point forward, all routes require the Evaluation to exist
+// * From this point forward, all routes require the Evaluation to exist
 app.use("/:id", evaluationExistsMiddleware);
 
 // Route to get the details of an Evaluation
 app.get("/:id", getEvaluationDataController);
+
+// Route to update an Evaluation
+app.patch("/:id", editEvaluationController);
 
 logToConsole("Officers Evaluations routes loaded successfully", "info");
 export default app;

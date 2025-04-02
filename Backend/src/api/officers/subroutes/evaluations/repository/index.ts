@@ -4,7 +4,7 @@ import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../utils/filte
 import {RouteFilterType} from "../../../../routes";
 import {userHasIntents} from "../../../../accounts/repository";
 import {dateToUnix} from "../../../../../utils/date-handler";
-import {EvaluationBodyFieldsType} from "@portalseguranca/api-types/officers/evaluations/input";
+import {EditEvaluationBodyType, EvaluationBodyFieldsType} from "@portalseguranca/api-types/officers/evaluations/input";
 import {ResultSetHeader} from "mysql2/promise";
 
 export async function getEvaluations(force: string, requester: number, target: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
@@ -110,4 +110,26 @@ export async function addEvaluation(force: string, author: number, target: numbe
     await updateEvaluationGrades(force, id, fields);
 
     return id;
+}
+
+export async function editEvaluation(force: string, id: number, changes: EditEvaluationBodyType) {
+    // Build the query
+    const values: string[] = [];
+    const query = `UPDATE evaluations SET ${Object.keys(changes).reduce((acc, field) => {
+        if (field === "fields") return acc;
+        
+        // Add the value to the values array
+        values.push(changes[field as keyof EditEvaluationBodyType] as string);
+        
+        // Add the field to the query
+        return acc + `${field} = ?, `;
+    }, "").slice(0, -2)} WHERE id = ?`;
+
+    // Execute the query
+    await queryDB(force, query, [...values, id]);
+
+    // Update the fields in the DB, if they are present
+    if (changes.fields) {
+        await updateEvaluationGrades(force, id, changes.fields);
+    }
 }

@@ -30,3 +30,12 @@ export const CreateEvaluationBody = Record({
 });
 
 export type CreateEvaluationBodyType = Static<typeof CreateEvaluationBody>
+
+export const EditEvaluationBody = Partial({
+   patrol: Number,
+   comments: String,
+   timestamp: Number,
+   fields: EvaluationBodyFields
+});
+
+export type EditEvaluationBodyType = Static<typeof EditEvaluationBody>

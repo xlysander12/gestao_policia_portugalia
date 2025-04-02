@@ -46,6 +46,14 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
             });
             return;
         }
+
+        // This error was triggered by a foreign key constraint violation
+        if (err.errno === 1452) {
+            res.status(400).json({
+                message: "Corpo do pedido inválido",
+            });
+            return;
+        }
     }
 
     // Defining variable that holds the route

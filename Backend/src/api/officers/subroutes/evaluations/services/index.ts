@@ -1,10 +1,12 @@
 import {DefaultReturn, InnerOfficerData} from "../../../../../types";
 import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
-import {addEvaluation, getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
+import {addEvaluation, editEvaluation, getAuthoredEvaluations, getEvaluationData, getEvaluations} from "../repository";
 import {RouteFilterType} from "../../../../routes";
 import {ReceivedQueryParams} from "../../../../../utils/filters";
 import {userHasIntents} from "../../../../accounts/repository";
-import {CreateEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
+import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
+import {InnerOfficerEvaluation} from "../../../../../types/inner-types";
+import {getPatrol} from "../../../../patrols/repository";
 
 export async function evaluationsList(force: string, requester: number, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
     evaluations: MinifiedEvaluation[],
@@ -110,8 +112,103 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
         }
     }
 
+    // * If a patrol is provided, this patrol must have both the loggedOfficer and the targetOfficer present
+    if (details.patrol) {
+        // Get the patrol data
+        const patrol = await getPatrol(force, `${force}${details.patrol}`);
+
+        // If the patrol doesn't exist, return an error
+        if (!patrol) {
+            return {
+                result: false,
+                status: 404,
+                message: "Patrulha não existente"
+            }
+        }
+
+        // Check if the logged officer is present in the patrol
+        if (!patrol.officers.includes(loggedOfficer.nif)) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não podes associar uma patrulha em que não estás presente"
+            }
+        }
+
+        // Check if the target officer is present in the patrol
+        if (!patrol.officers.includes(targetOfficer.nif)) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
+            }
+        }
+    }
+
     // Apply the data in the repository
     await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.timestamp);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação realizada com sucesso"
+    }
+}
+
+export async function updateEvaluation(force: string, loggedOfficer: InnerOfficerData, evaluation: InnerOfficerEvaluation, details: EditEvaluationBodyType): Promise<DefaultReturn<void>> {
+    // If the target officer is not the author of the evaluation and he doesn't have the "evaluations" intent, return an error
+    if (evaluation.author !== loggedOfficer.nif && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tens permissões para editar esta avaliação"
+        }
+    }
+
+    // * If a patrol is provided, this patrol must have both the loggedOfficer and the targetOfficer present
+    if (details.patrol) {
+        // Get the patrol data
+        const patrol = await getPatrol(force, `${force}${details.patrol}`);
+
+        // If the patrol doesn't exist, return an error
+        if (!patrol) {
+            return {
+                result: false,
+                status: 404,
+                message: "Patrulha não existente"
+            }
+        }
+
+        // Check if the logged officer is present in the patrol
+        if (!patrol.officers.includes(loggedOfficer.nif)) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não podes associar uma patrulha em que não estás presente"
+            }
+        }
+
+        // Check if the target officer is present in the patrol
+        if (!patrol.officers.includes(evaluation.target)) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
+            }
+        }
+    }
+
+    // If the changes are empty, return success
+    if (Object.keys(details).length === 0) {
+        return {
+            result: true,
+            status: 200,
+            message: "Operação realizada com sucesso"
+        }
+    }
+
+    // Apply the data in the repository
+    await editEvaluation(force, evaluation.id, details);
 
     return {
         result: true,
