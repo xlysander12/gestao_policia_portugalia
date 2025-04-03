@@ -63,6 +63,12 @@ function Login({onLoginCallback}: LoginPageProps) {
         // Disable the loading flag
         setLoading(false);
 
+        // Clear all existing toasts
+        toast.dismiss();
+
+        // Show toast informing logic successful
+        toast.success("Login realizado com sucesso. A reidirecionar....");
+
         // Handle the login logic in the App core
         onLoginCallback();
 
