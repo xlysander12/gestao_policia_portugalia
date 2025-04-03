@@ -727,11 +727,11 @@ const evaluationsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `timestamp >= ?`,
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     before: {
-                        queryFunction: () => `timestamp <= ?`,
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     author: {
@@ -778,11 +778,11 @@ const evaluationsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `timestamp >= ?`,
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     before: {
-                        queryFunction: () => `timestamp <= ?`,
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     target: {

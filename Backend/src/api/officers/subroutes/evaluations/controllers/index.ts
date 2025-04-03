@@ -34,6 +34,7 @@ export async function getEvaluationsListController(req: express.Request, res: Of
     res.status(result.status).json({
         message: result.message,
         meta: {
+            pages: result.data!.pages,
           averages: result.data!.averages
         },
         data: result.data!.evaluations
@@ -55,8 +56,11 @@ export async function getAuthoredEvaluationsListController(req: express.Request,
     }
 
     res.status(result.status).json({
+        meta: {
+            pages: result.data!.pages
+        },
         message: result.message,
-        data: result.data!
+        data: result.data!.evaluations
     });
 }
 

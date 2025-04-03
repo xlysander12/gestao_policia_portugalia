@@ -18,6 +18,7 @@ export interface Evaluation extends Omit<MinifiedEvaluation, "average"> {
 
 export interface EvaluationsListResponse extends BaseResponse {
     meta: {
+        pages: number
         averages: {
             [field: number]: number
         }
@@ -26,6 +27,9 @@ export interface EvaluationsListResponse extends BaseResponse {
 }
 
 export interface AuthoredEvaluationsListResponse extends BaseResponse {
+    meta: {
+        pages: number
+    }
     data: MinifiedEvaluation[]
 }
 

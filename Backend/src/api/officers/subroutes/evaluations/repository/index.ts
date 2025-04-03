@@ -6,35 +6,66 @@ import {dateToUnix} from "../../../../../utils/date-handler";
 import {EditEvaluationBodyType, EvaluationBodyFieldsType} from "@portalseguranca/api-types/officers/evaluations/input";
 import {ResultSetHeader} from "mysql2/promise";
 import {InnerOfficerData} from "../../../../../types";
-import {getOfficerData} from "../../../repository";
 
-export async function getEvaluations(force: string, requester: InnerOfficerData, target: number, all: boolean = false, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
+export async function getEvaluations(force: string, requester: InnerOfficerData, target: number, all: boolean = false, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<{
+    pages: number,
+    evaluations: MinifiedEvaluation[]
+}> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
-    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ?" : "target = ? AND author = ?", value: all ? target : [target, requester]});
+    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ? AND author.patent <= requester.patent" : "target = ? AND author = ?", value: all ? target : [target, requester.nif]});
 
     // Query the database to get the evaluations
-    const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult.values);
+    const query = all ? `
+        SELECT 
+            id,
+            target, 
+            author, 
+            timestamp 
+        FROM 
+            evaluationsV
+            JOIN officers author ON evaluationsV.author = author.nif
+            JOIN officers requester ON requester.nif = ?
+        ${filtersResult.query}
+        LIMIT ${entries_per_page} 
+        OFFSET ${(page - 1) * entries_per_page}
+    ` : `
+        SELECT
+            id,
+            target, 
+            author, 
+            timestamp
+        FROM
+            evaluationsV
+        ${filtersResult.query}
+        LIMIT ${entries_per_page}
+        OFFSET ${(page - 1) * entries_per_page}
+    `
+    const result = await queryDB(force, query, all ? [requester.nif, ...filtersResult.values] : filtersResult.values);
+
+    // Query the database to fetch all rows that match the criteria
+    const count_query = all ? `
+        SELECT 
+            COUNT(*) AS count
+        FROM 
+            evaluationsV
+            JOIN officers author ON evaluationsV.author = author.nif
+            JOIN officers requester ON requester.nif = ?
+        ${filtersResult.query}
+    ` : `
+        SELECT
+            COUNT(*) AS count
+        FROM
+            evaluationsV
+        ${filtersResult.query}
+    `
+
+    const count_result = await queryDB(force, count_query, all ? [requester.nif, ...filtersResult.values] : filtersResult.values);
 
     // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
-        // * For each found evaluations, if the "all" param is true, filter the evaluations where the author has higher patent than the requester
-        if (all && row.author !== requester.nif) {
-            // Fetch the data of the author
-            let author = await getOfficerData(row.author, force, false, false) || await getOfficerData(row.author, force, true, false);
-            if (!author) {
-                // If the author doesn't exist, skip the evaluation
-                continue;
-            }
-
-            // Compare patents
-            if (author.patent > requester.patent) {
-                continue;
-            }
-        }
-
         evaluations.push({
             id: row.id,
             target: row.target,
@@ -44,10 +75,16 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
         });
     }
 
-    return evaluations;
+    return {
+        pages: Math.ceil(count_result[0].count / entries_per_page),
+        evaluations: evaluations
+    };
 }
 
-export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<MinifiedEvaluation[]> {
+export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<{
+    pages: number,
+    evaluations: MinifiedEvaluation[]
+}> {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
@@ -56,6 +93,9 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
     // Query the database to get the evaluations
     const result = await queryDB(force, `SELECT id, target, author, timestamp FROM evaluationsV ${filtersResult.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult.values);
 
+    // Query the database to get the count of total evaluations
+    const count_result = await queryDB(force, `SELECT COUNT(*) AS count FROM evaluationsV ${filtersResult.query}`, filtersResult.values);
+
     // Return the evaluations
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
@@ -68,7 +108,10 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
         });
     }
 
-    return evaluations;
+    return {
+        pages: Math.ceil(count_result[0].count / entries_per_page),
+        evaluations: evaluations
+    };
 }
 
 export async function getEvaluationData(force: string, id: number): Promise<Evaluation | null> {
