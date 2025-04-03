@@ -213,7 +213,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 <Link to={"/efetivos"} className={style.navButton}>Efetivos</Link>
                                 <Link to={"/patrulhas"} className={style.navButton}>Patrulhas</Link>
                                 <Link to={"/atividade"} className={style.navButton}>Atividade</Link>
-                                <Link to={"/"} className={style.navButton}>Avaliações</Link>
+                                <Link to={"/avaliacoes"} className={style.navButton}>Avaliações</Link>
                             </div>
                         </Gate>
                     </div>

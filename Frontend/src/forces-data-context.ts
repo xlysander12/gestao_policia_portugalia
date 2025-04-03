@@ -1,5 +1,7 @@
 import {createContext} from "react";
 import {
+    EvaluationField,
+    EvaluationGrade,
     InactivityTypeData,
     IntentData,
     PatentData, PatrolTypeData,
@@ -8,12 +10,14 @@ import {
 } from "@portalseguranca/api-types/util/output";
 
 export type ForceData = {
-    patents: PatentData[],
-    statuses: StatusData[],
-    intents: IntentData[],
-    inactivity_types: InactivityTypeData[],
-    patrol_types: PatrolTypeData[],
-    special_units: SpecialUnitData[],
+    patents: PatentData[]
+    statuses: StatusData[]
+    intents: IntentData[]
+    inactivity_types: InactivityTypeData[]
+    patrol_types: PatrolTypeData[]
+    evaluation_grades: EvaluationGrade[]
+    evaluation_fields: EvaluationField[]
+    special_units: SpecialUnitData[]
     special_unit_roles: SpecialUnitRoleData[]
 }
 

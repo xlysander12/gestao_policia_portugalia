@@ -11,6 +11,8 @@ import OfficerInfo from "./pages/OfficerInfo";
 import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilEvaluationFieldsResponse,
+    UtilEvaluationGradesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
     UtilIntentsResponse,
@@ -28,6 +30,7 @@ import { useImmer } from 'use-immer';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
+import Evaluations from "./pages/Evaluations";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -52,6 +55,8 @@ function App() {
             intents: [],
             inactivity_types: [],
             patrol_types: [],
+            evaluation_grades: [],
+            evaluation_fields: [],
             special_units: [],
             special_unit_roles: []
         }
@@ -75,6 +80,14 @@ function App() {
         // Fetching the patrol types
         const patrolTypesResponse = await make_request("/util/patrol-types", "GET", {force: forceName});
         forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
+
+        // Fetching the evaluation grades
+        const evaluationGradesResponse = await make_request("/util/evaluation-grades", "GET", {force: forceName});
+        forceTempData.evaluation_grades = ((await evaluationGradesResponse.json()) as UtilEvaluationGradesResponse).data;
+
+        // Fetching the evaluation fields
+        const evaluationFieldsResponse = await make_request("/util/evaluation-fields", "GET", {force: forceName});
+        forceTempData.evaluation_fields = ((await evaluationFieldsResponse.json()) as UtilEvaluationFieldsResponse).data;
 
         // Fetching the special units
         const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
@@ -182,6 +195,27 @@ function App() {
                             {
                                 path: ":patrolId",
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Patrols/>}/>
+                            }
+                        ]
+                    },
+                    {
+                        path: "/avaliacoes",
+                        children: [
+                            {
+                                path: "",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />}/>
+                            },
+                            {
+                                path: ":nif",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />}/>
+                            },
+                            {
+                                path: ":nif/author",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />}/>
+                            },
+                            {
+                                path: ":nif/:entry_id",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />} />
                             }
                         ]
                     },
