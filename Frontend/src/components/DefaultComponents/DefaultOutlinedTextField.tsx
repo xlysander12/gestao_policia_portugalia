@@ -1,5 +1,8 @@
 import {styled} from "@mui/material/styles";
-import {OutlinedTextFieldProps, TextField} from "@mui/material";
+import {IconButton, InputAdornment, OutlinedTextFieldProps, TextField} from "@mui/material";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useState } from "react";
 
 type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean, textWhenDisabled?: boolean};
 
@@ -48,10 +51,26 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
     }
 }));
 const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+
     return (
         <DefaultOutlinedTextFieldStyle
             variant={"outlined"}
             {...props}
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+                ...props.InputProps,
+                endAdornment: props.type === "password" ? (
+                    <InputAdornment position={"end"}>
+                        <IconButton
+                            onClick={() => {setShowPassword((prev) => !prev)}}
+                            edge={"end"}
+                        >
+                            {showPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                        </IconButton>
+                    </InputAdornment>
+                ) : undefined,
+            }}
         />
     );
 }
