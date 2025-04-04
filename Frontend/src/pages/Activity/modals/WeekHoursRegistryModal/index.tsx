@@ -88,6 +88,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         // If the request wasn't successful, show an error message
         if (!response.ok) {
             toast(data.message, {type: "error"});
+            setLoading(false);
             return;
         }
 
