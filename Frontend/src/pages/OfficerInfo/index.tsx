@@ -37,6 +37,7 @@ import ShareButton from "../../components/ShareButton";
 
 
 type InformationPairProps = {
+    required?: boolean
     label: string,
     value: string | number | Moment,
     type?: string,
@@ -47,13 +48,14 @@ type InformationPairProps = {
     isSelect?: boolean,
     children?: ReactNode | ReactNode[]
 }
-const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
+const InformationPair = ({required = true, label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
     // If it's a select, return a select input
     if (isSelect) {
         return (
             <div className={style.informationPairDiv}>
                 <label>{label}</label>
                 <DefaultSelect
+                    required={required}
                     fullWidth
                     sameTextColorWhenDisabled
                     disabled={!editMode}
@@ -80,7 +82,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                     slotProps={{
                         textField: {
                             fullWidth: true,
-                            required: true,
+                            required: required,
                         }
                     }}
                 />
@@ -94,7 +96,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
             <label>{label}</label>
             <DefaultTextField
                 fullWidth
-                required
+                required={required}
                 textWhenDisabled
                 disabled={!editMode}
                 type={type}
@@ -610,6 +612,7 @@ function OfficerInfo() {
 
                             {/*Data de Subida pair*/}
                             <InformationPair
+                                required={false}
                                 label={"Data de Subida:"}
                                 value={officerInfo.professional.promotion_date || ""}
                                 type={"date"}
