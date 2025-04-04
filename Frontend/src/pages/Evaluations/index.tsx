@@ -60,12 +60,21 @@ function Evaluations() {
     return (
         <>
             <ScreenSplit
-                leftSideComponent={<OfficerPicker callback={setCurrentOfficer} />}
+                leftSideComponent={
+                    <OfficerPicker
+                        callback={setCurrentOfficer}
+                        filter={(officer) =>
+                            asAuthor ? officer.patent <= loggedUser.info.professional.patent.id :
+                                officer.patent < loggedUser.info.professional.patent.id}
+                    />
+                }
                 leftSidePercentage={35}
             >
                 <>
                     <ManagementBar>
-                        <></>
+                        <>
+
+                        </>
                     </ManagementBar>
 
                     {/*List of Evaluations*/}
