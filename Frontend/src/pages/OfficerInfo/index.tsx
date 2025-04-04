@@ -376,12 +376,15 @@ function OfficerInfo() {
                                 Gerir Conta
                             </DefaultButton>
                         </Gate>
-                        <DefaultButton
-                            hidden={editMode || !loggedUser.intents.officers}
-                            onClick={() => setImportModalOpen(true)}
-                        >
-                            Importar do HUB
-                        </DefaultButton>
+
+                        <Gate show={!editMode && loggedUser.intents.officers}>
+                            <DefaultButton
+                                hidden={editMode || !loggedUser.intents.officers}
+                                onClick={() => setImportModalOpen(true)}
+                            >
+                                Importar do HUB
+                            </DefaultButton>
+                        </Gate>
 
                         <Gate show={officerInfo.former}>
                             <DefaultTypography color={"red"}>Estás a ver um antigo efetivo</DefaultTypography>
