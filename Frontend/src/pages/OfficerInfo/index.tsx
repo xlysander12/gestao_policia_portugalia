@@ -43,7 +43,7 @@ type InformationPairProps = {
     type?: string,
     pattern?: RegExp,
     editMode: boolean,
-    onChangeCallback?: ((event: ChangeEvent<HTMLInputElement>) => void) | any,
+    onChangeCallback?: (event: any, value?: any) => void,
     step?: number,
     isSelect?: boolean,
     children?: ReactNode | ReactNode[]
@@ -100,7 +100,7 @@ const InformationPair = ({required = true, label, value, type = "text", pattern,
                 textWhenDisabled
                 disabled={!editMode}
                 type={type}
-                error={(pattern !== undefined) && !(pattern.test(String(value)))}
+                error={(pattern !== undefined) && !(pattern.test(String(value as string | number)))}
                 value={value === null ? "": value}
                 onChange={onChangeCallback}
                 inputProps={{
@@ -127,7 +127,7 @@ function OfficerInfo() {
         },
         professional: {
             patent: number,
-            callsign: string,
+            callsign: string | null,
             status: number,
             entry_date: Moment,
             promotion_date: Moment | null,
@@ -287,7 +287,7 @@ function OfficerInfo() {
 
                     // Professional Info
                     patent: officerInfo.professional.patent,
-                    callsign: officerInfo.professional.callsign,
+                    callsign: officerInfo.professional.callsign ?? undefined,
                     status: officerInfo.professional.status,
                     entry_date: officerInfo.professional.entry_date.unix(),
                     promotion_date: officerInfo.professional.promotion_date ? officerInfo.professional.promotion_date.unix(): undefined,
@@ -576,7 +576,7 @@ function OfficerInfo() {
                             {/*CallSign pair*/}
                             <InformationPair
                                 label={"CallSign:"}
-                                value={officerInfo.professional.callsign}
+                                value={officerInfo.professional.callsign ?? ""}
                                 pattern={/^[A-Z]+-([0-9]){2}$/}
                                 editMode={editMode}
                                 onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {

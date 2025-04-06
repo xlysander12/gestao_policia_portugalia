@@ -52,7 +52,7 @@ function Patrols() {
         let result;
 
         if (filters) {
-            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters!]});
+            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters]});
         } else {
             result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}]});
         }
@@ -77,7 +77,7 @@ function Patrols() {
         };
     }
 
-    async function handleChangeViewedPatrol(id: string) {
+    function handleChangeViewedPatrol(id: string) {
         setSelectedPatrol(id);
         setPatrolInfoModalOpen(true);
     }

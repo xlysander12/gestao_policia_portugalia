@@ -314,7 +314,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                     <DefaultTypography
                                         color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
                                     >
-                                        ({toHoursAndMinutes(entryData!.minutes!)})
+                                        ({toHoursAndMinutes(entryData.minutes)})
                                     </DefaultTypography>
                                 </div>
 

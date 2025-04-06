@@ -51,7 +51,7 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
     }
 }));
 const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
-    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState<boolean>(props.type !== "password");
 
     return (
         <DefaultOutlinedTextFieldStyle

@@ -256,7 +256,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }
 
     // Handle websocket events
-    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback(async (data) => {
+    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback((data) => {
         // If the event is not about inactivity justifications, it doesn't matter
         if (data.type !== "justification") return;
 
@@ -354,7 +354,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         value={justificationData?.type}
                                         onChange={(e) => {
                                             setJustificationData((draft) => {
-                                                draft!.type = e.target.value as number;
+                                                draft.type = e.target.value as number;
                                             });
                                         }}
                                         sx={{minWidth: "152px", textAlign: "start", marginBottom: "10px"}}
@@ -426,7 +426,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                             value={moment(justificationData?.start)}
                                             onChange={(date) => {
                                                 setJustificationData((draft) => {
-                                                    draft!.start = date;
+                                                    draft.start = date;
                                                 });
                                             }}
                                             sx={{width: "150px"}}
@@ -456,7 +456,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                                 value={justificationData?.end}
                                                 onChange={(date) => {
                                                     setJustificationData((draft) => {
-                                                        draft!.end = date;
+                                                        draft.end = date;
                                                     });
                                                 }}
                                                 slotProps={{
@@ -476,7 +476,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                             checked={justificationData?.end === null}
                                             onChange={(e) => {
                                                 setJustificationData((draft) => {
-                                                    draft!.end = e.target.checked ? null : moment(new Date());
+                                                    draft.end = e.target.checked ? null : moment(new Date());
                                                 });
                                             }}
                                             disabled={!editMode && !newEntry}
@@ -514,7 +514,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                     value={justificationData?.description}
                                     onChange={(e) => {
                                         setJustificationData((draft) => {
-                                            draft!.description = e.target.value;
+                                            draft.description = e.target.value;
                                         });
                                     }}
                                     sx={{width: "100%", marginBottom: "10px"}}
@@ -540,7 +540,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                         value={justificationData?.comment}
                                         onChange={(e) => {
                                             setJustificationData((draft) => {
-                                                draft!.comment = e.target.value;
+                                                draft.comment = e.target.value;
                                             });
                                         }}
                                         sx={{width: "100%", marginBottom: "10px"}}

@@ -93,15 +93,15 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             },
 
             professional: {
-                patent: getObjectFromId(userData.patent as number, forceData.patents)!,
-                callsign: userData.callsign,
-                status: getObjectFromId(userData.status as number, forceData.statuses)!,
+                patent: getObjectFromId(userData.patent, forceData.patents)!,
+                callsign: userData.callsign ?? "",
+                status: getObjectFromId(userData.status, forceData.statuses)!,
                 entry_date: moment.unix(userData.entry_date),
                 promotion_date: userData.promotion_date ? moment.unix(userData.promotion_date) : null,
                 special_units: userData.special_units.map((unit) => {
                     return {
-                        unit: getObjectFromId(unit.id as number, forceData.special_units)!,
-                        role: getObjectFromId(unit.role as number, forceData.special_unit_roles)!
+                        unit: getObjectFromId(unit.id, forceData.special_units)!,
+                        role: getObjectFromId(unit.role, forceData.special_unit_roles)!
                     };
                 })
             }

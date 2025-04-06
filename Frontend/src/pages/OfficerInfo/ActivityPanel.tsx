@@ -68,7 +68,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         // Make the request
         await make_request<UpdateOfficerLastShiftBodyType>(`/officers/${officer}/activity/last-shift`, "PUT", {
             body: {
-                last_shift: lastShift!.unix()
+                last_shift: lastShift.unix()
             }
         });
 

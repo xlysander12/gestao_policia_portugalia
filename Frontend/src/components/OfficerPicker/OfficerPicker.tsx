@@ -2,7 +2,10 @@ import {ReactElement, useEffect, useState, FormEvent} from "react";
 import style from "./officer-picker.module.css";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTypography} from "../DefaultComponents";
-import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import {
+    MinifiedOfficerData,
+    OfficerListResponse
+} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
@@ -85,19 +88,16 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
         // Send the request to the API to get the results from the search
         const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET");
+        const response_json = await response.json() as OfficerListResponse;
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {
-            const response_json = await response.json();
-            console.log(response_json["message"]);
+            console.log(response_json.message);
             return;
         }
 
-        // Get the response as JSON
-        const responseJSON: OfficerListResponse = await response.json();
-
         // Update the state with the new officers
-        setOfficers(responseJSON.data);
+        setOfficers(response_json.data);
 
         // Set the loading state to false
         if (showLoading) {

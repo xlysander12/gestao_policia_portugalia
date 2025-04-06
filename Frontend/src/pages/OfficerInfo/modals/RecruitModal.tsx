@@ -9,6 +9,7 @@ import {DefaultButton, DefaultTextField} from "../../../components/DefaultCompon
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import { CreateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
+import { BaseResponse } from "@portalseguranca/api-types";
 
 type RecruitModalProps = {
     open: boolean
@@ -53,10 +54,11 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                     steam: officerInfo.steam
                 }
             });
+        const recruit_json = await recruitRequest.json() as BaseResponse;
 
         // Check if the response is ok
         if (!recruitRequest.ok) {
-            alert((await recruitRequest.json()).message);
+            toast.error(recruit_json.message);
             return;
         }
 
@@ -110,9 +112,10 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
     const restoreOfficer = async (nif: number) => {
         // Make the request to restore the officer
         const restoreRequest = await make_request(`/officers/${nif}/restore`, "POST");
+        const restoreJson = await restoreRequest.json() as BaseResponse;
 
         // Output the response to a toast
-        toast((await restoreRequest.json()).message, {type: restoreRequest.ok ? "success" : "error"});
+        toast(restoreJson.message, {type: restoreRequest.ok ? "success" : "error"});
 
         // If the request was successful, navigate to the page of the restored officer
         if (restoreRequest.ok) {

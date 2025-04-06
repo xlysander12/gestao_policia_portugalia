@@ -51,7 +51,7 @@ function DefaultSearch(props: DefaultSearchProps) {
         return builder;
     }
 
-    const triggerCallback = async () => {
+    const triggerCallback = () => {
         // Build the object that will be passed to the callback
         const returnObject: {key: string, value: any}[] = [];
         for (const item of currentValue) {
@@ -120,8 +120,8 @@ function DefaultSearch(props: DefaultSearchProps) {
 
             // * Add the newly created text to the previous item in the current value
             setCurrentValue((draft) => {
-                draft[draft.length - 1].value = value.key === "true";
-                draft[draft.length -1].labelValue = value.key === "true" ? "Sim" : "Não";
+                draft[draft.length - 1].value = (value as DefaultSearchOption).key === "true";
+                draft[draft.length -1].labelValue = (value as DefaultSearchOption).key === "true" ? "Sim" : "Não";
             });
         }
 
@@ -134,8 +134,8 @@ function DefaultSearch(props: DefaultSearchProps) {
 
             // * Add the newly created text to the previous item in the current value
             setCurrentValue((draft) => {
-                draft[draft.length - 1].value = value.key;
-                draft[draft.length - 1].labelValue = value.label;
+                draft[draft.length - 1].value = (value as DefaultSearchOption).key;
+                draft[draft.length - 1].labelValue = (value as DefaultSearchOption).label;
             });
         }
 
@@ -192,7 +192,7 @@ function DefaultSearch(props: DefaultSearchProps) {
                 })));
 
                 setLoading(false);
-            }).catch(error => {
+            }).catch((error: Error) => {
                 if (error.name === "AbortError") return;
 
                 console.error(error);
@@ -248,7 +248,7 @@ function DefaultSearch(props: DefaultSearchProps) {
                     if (reason === "selectOption" || reason === "createOption") {
                         if (currentOption === null) { // New option is getting added
                             // First, make sure an option with the same key isn't already added
-                            if (currentValue.find((item) => item.key === details!.option.key)) return;
+                            if (currentValue.find((item) => item.key === (details!.option as DefaultSearchOption).key)) return;
 
                             // Set the current editing option in state
                             const newOption: DefaultSearchOption = details!.option;
@@ -296,7 +296,7 @@ function DefaultSearch(props: DefaultSearchProps) {
 
                     // Handle removing options
                     if (reason === "removeOption") {
-                        handleOptionDelete(details!.option);
+                        handleOptionDelete(details!.option as string);
                     }
 
                     // Handle the clear button
