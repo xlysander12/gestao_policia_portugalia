@@ -34,7 +34,8 @@ app.use("/db", async (req, res, next) => {
     };
 
     for (const force of getForcesList()) {
-        const isValid = await isTokenValid(req.cookies["sessionToken"], force);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+        const isValid = await isTokenValid(req.cookies.sessionToken, force);
         if (isValid.valid) {
             loggedUser = {...isValid, force: force};
             break;

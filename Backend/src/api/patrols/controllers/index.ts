@@ -4,9 +4,8 @@ import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory, sortPatrolOffice
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
-import {RequestError} from "@portalseguranca/api-types";
 import {PatrolInfoAPIResponse} from "../../../types/response-types";
-import {dateToString, dateToUnix} from "../../../utils/date-handler";
+import {dateToUnix} from "../../../utils/date-handler";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 
 export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse>) {
@@ -17,8 +16,8 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     }>;
 
     // Check if there is a page parameter
-    if (res.locals.queryParams && isQueryParamPresent("page", res.locals.queryParams)) {
-        result = await patrolsHistory(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams["page"]));
+    if (isQueryParamPresent("page", res.locals.queryParams)) {
+        result = await patrolsHistory(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams.page));
     } else {
         result = await patrolsHistory(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
     }

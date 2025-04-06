@@ -2,7 +2,7 @@ import {BaseResponse, SocketResponse} from "../index";
 export interface MinifiedOfficerData {
     name: string
     patent: number
-    callsign: string
+    callsign: string | null
     status: number
     nif: number
     force?: string

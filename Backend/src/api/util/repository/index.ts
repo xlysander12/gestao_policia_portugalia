@@ -22,21 +22,21 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
         }
 
         return {
-            id: patents[0].id,
-            name: patents[0].name,
-            max_evaluation: patents[0].max_evaluation,
-            leading_char: patents[0].leading_char
+            id: patents[0].id as number,
+            name: patents[0].name as string,
+            max_evaluation: patents[0].max_evaluation as number,
+            leading_char: patents[0].leading_char as string
         };
     }
 
     // Build an array with the patents
-    let patentsList: PatentData[] = [];
+    const patentsList: PatentData[] = [];
     for (const patent of patents) {
         patentsList.push({
-            id: patent.id,
-            name: patent.name,
-            max_evaluation: patent.max_evaluation,
-            leading_char: patent.leading_char
+            id: patent.id as number,
+            name: patent.name as string,
+            max_evaluation: patent.max_evaluation as number,
+            leading_char: patent.leading_char as string
         });
     }
 
@@ -48,12 +48,12 @@ export async function getForceStatuses(force: string): Promise<StatusData[]> {
     const statuses = await queryDB(force, `SELECT * FROM status`);
 
     // Build an array with the statuses
-    let statusesList: StatusData[] = [];
+    const statusesList: StatusData[] = [];
     for (const status of statuses) {
         statusesList.push({
-            id: status.id,
-            name: status.name,
-            color: status.color,
+            id: status.id as number,
+            name: status.name as string,
+            color: status.color as string,
             canPatrol: status.can_patrol === 1
         });
     }
@@ -66,13 +66,13 @@ export async function getForceSpecialUnits(force: string): Promise<SpecialUnitDa
     const units = await queryDB(force, `SELECT * FROM special_units`);
 
     // Build an array with the units
-    let unitsList: SpecialUnitData[] = [];
+    const unitsList: SpecialUnitData[] = [];
     for (const unit of units) {
         unitsList.push({
-            id: unit.id,
-            name: unit.name,
-            acronym: unit.acronym,
-            description: unit.description
+            id: unit.id as number,
+            name: unit.name as string,
+            acronym: unit.acronym as string,
+            description: unit.description as string | null
         });
     }
 
@@ -84,11 +84,11 @@ export async function getForceSpecialUnitsRoles(force: string): Promise<SpecialU
     const roles = await queryDB(force, `SELECT * FROM specialunits_roles`);
 
     // Build an array with the roles
-    let rolesList: SpecialUnitRoleData[] = [];
+    const rolesList: SpecialUnitRoleData[] = [];
     for (const role of roles) {
         rolesList.push({
-            id: role.id,
-            name: role.name
+            id: role.id as number,
+            name: role.name as string
         });
     }
 
@@ -100,11 +100,11 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
     const intents = await queryDB(force, `SELECT * FROM intents`);
 
     // Build an array with the statuses
-    let intentsList: IntentData[] = [];
+    const intentsList: IntentData[] = [];
     for (const intent of intents) {
         intentsList.push({
-            name: intent.name,
-            description: intent.description
+            name: intent.name as string,
+            description: intent.description as string
         });
     }
 
@@ -116,13 +116,13 @@ export async function getForceInactivityTypes(force: string): Promise<Inactivity
     const types = await queryDB(force, `SELECT * FROM inactivity_types`);
 
     // Build an array with the types
-    let typesList: InactivityTypeData[] = [];
+    const typesList: InactivityTypeData[] = [];
     for (const type of types) {
         typesList.push({
-            id: type.id,
-            name: type.name,
-            description: type.description,
-            color: type.color
+            id: type.id as number,
+            name: type.name as string,
+            description: type.description as string,
+            color: type.color as string
         });
     }
 
@@ -134,11 +134,11 @@ export async function getForcePatrolTypes(force: string): Promise<PatrolTypeData
     const types = await queryDB(force, `SELECT * FROM patrols_types`);
 
     // Build an array with the types
-    let typesList: PatrolTypeData[] = [];
+    const typesList: PatrolTypeData[] = [];
     for (const type of types) {
         typesList.push({
-            id: type.id,
-            name: type.name,
+            id: type.id as number,
+            name: type.name as string,
             isSpecial: Number(type.special) === 1
         })
     }
@@ -151,12 +151,12 @@ export async function getEvaluationGrades(force: string): Promise<EvaluationGrad
     const result = await queryDB(force, `SELECT * FROM evaluation_grades`);
 
     // Build an array with the grades
-    let gradesList: EvaluationGrade[] = [];
+    const gradesList: EvaluationGrade[] = [];
     for (const grade of result) {
         gradesList.push({
-            id: grade.id,
-            name: grade.name,
-            color: grade.color
+            id: grade.id as number,
+            name: grade.name as string,
+            color: grade.color as string
         });
     }
 
@@ -168,19 +168,19 @@ export async function getEvaluationFields(force: string): Promise<EvaluationFiel
     const result = await queryDB(force, `SELECT * FROM evaluation_fields`);
 
     // Build an array with the fields
-    let fieldsList: EvaluationField[] = [];
+    const fieldsList: EvaluationField[] = [];
     for (const field of result) {
         fieldsList.push({
-            id: field.id,
-            name: field.name,
-            starting_patent: field.starting_patent
+            id: field.id as number,
+            name: field.name as string,
+            starting_patent: field.starting_patent as number
         });
     }
 
     return fieldsList;
 }
 
-export async function getPendingInactivityJustifications(force: string, include_expired: boolean = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
+export async function getPendingInactivityJustifications(force: string, include_expired = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
     // Fecth all pending justifications
     const justifications = include_expired ?
         await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending") :
@@ -203,11 +203,11 @@ export async function getUserErrors(force: string, nif: number) {
     const errors = await queryDB(force, `SELECT * FROM errors WHERE nif = ? AND reported = 0`, nif);
 
     // Build an array with the errors
-    let errorsList: {code: string, timestamp: Date}[] = [];
+    const errorsList: {code: string, timestamp: Date}[] = [];
     for (const error of errors) {
         errorsList.push({
-            code: error.code,
-            timestamp: error.timestamp
+            code: error.code as string,
+            timestamp: error.timestamp as Date
         });
     }
 

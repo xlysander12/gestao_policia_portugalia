@@ -11,13 +11,13 @@ import {ReceivedQueryParams} from "../utils/filters";
 import { RequestError, BaseResponse } from "@portalseguranca/api-types";
 import {Server} from "socket.io";
 
-export type ExpressResponse<BodyType = {}> = express.Response<BodyType | RequestError | BaseResponse> & {
+export type ExpressResponse<BodyType = object> = express.Response<BodyType | RequestError | BaseResponse> & {
     locals: {
         ws: Server
     }
 }
 
-export type APIResponse<BodyType = {}> = ExpressResponse<BodyType> & {
+export type APIResponse<BodyType = object> = ExpressResponse<BodyType> & {
     locals: {
         routeDetails: routeMethodType
         queryParams: ReceivedQueryParams
@@ -25,31 +25,31 @@ export type APIResponse<BodyType = {}> = ExpressResponse<BodyType> & {
     }
 }
 
-export type OfficerInfoAPIResponse<BodyType = {}> = APIResponse<BodyType> & {
+export type OfficerInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
     locals: {
         targetOfficer: InnerOfficerData | null
     }
 }
 
-export type AccountInfoAPIResponse<BodyType = {}> = APIResponse<BodyType> & {
+export type AccountInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
     locals: {
         targetAccount: InnerAccountData
     }
 }
 
-export type OfficerJustificationAPIResponse<BodyType = {}> = OfficerInfoAPIResponse<BodyType> & {
+export type OfficerJustificationAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         justification: InnerOfficerJustificationData
     }
 }
 
-export type OfficerEvaluationAPIResponse<BodyType = {}> = OfficerInfoAPIResponse<BodyType> & {
+export type OfficerEvaluationAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         evaluation: InnerOfficerEvaluation
     }
 }
 
-export type PatrolInfoAPIResponse<BodyType = {}> = APIResponse<BodyType> & {
+export type PatrolInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
     locals: {
         patrol: InnerPatrolData
     }

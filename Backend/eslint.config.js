@@ -19,9 +19,19 @@ export default tseslint.config(
         rules: {
             "prefer-const": "warn",
             "@typescript-eslint/no-non-null-assertion": "off",
-            "perfectionist/sort-imports": "warn",
+            "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/restrict-template-expressions": "off",
+            "@typescript-eslint/dot-notation": "warn",
+            "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+            "@typescript-eslint/no-inferrable-types": "warn",
+            "@typescript-eslint/prefer-nullish-coalescing": "warn",
+            "@typescript-eslint/prefer-for-of": "warn",
+            "no-control-regex": "off",
+            "@typescript-eslint/no-floating-promises": "warn"
+            // "perfectionist/sort-imports": "warn",
+            // "perfectionist/sort-objects": "off",
 
         }
     },
-    perfectionist.configs["recommended-natural"]
+    // perfectionist.configs["recommended-natural"]
 );

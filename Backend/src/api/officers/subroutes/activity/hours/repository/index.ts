@@ -16,14 +16,14 @@ export async function fetchHoursHistory(force: string, nif: number, routeValidFi
     const result = await queryDB(force, `SELECT * FROM officer_hours ${filtersResult.query}`, filtersResult.values);
 
     // Build a proper object to hold all information
-    let hours: OfficerHoursEntryType[] = [];
+    const hours: OfficerHoursEntryType[] = [];
     for (const entry of result) {
         hours.push({
-            id: entry.id,
-            week_start: entry.week_start,
-            week_end: entry.week_end,
-            minutes: entry.minutes,
-            submitted_by: entry.submitted_by
+            id: entry.id as number,
+            week_start: entry.week_start as Date,
+            week_end: entry.week_end as Date,
+            minutes: entry.minutes as number,
+            submitted_by: entry.submitted_by as number
         });
     }
 
@@ -40,11 +40,11 @@ export async function fetchHoursEntry(force: string, nif: number, id: number): P
 
     // Return the object with the information
     return {
-        id: result[0].id,
-        week_start: result[0].week_start,
-        week_end: result[0].week_end,
-        minutes: result[0].minutes,
-        submitted_by: result[0].submitted_by
+        id: result[0].id as number,
+        week_start: result[0].week_start as Date,
+        week_end: result[0].week_end as Date,
+        minutes: result[0].minutes as number,
+        submitted_by: result[0].submitted_by as number
     };
 }
 
@@ -58,11 +58,11 @@ export async function fetchLastHoursEntry(force: string, nif: number): Promise<O
 
     // Return the object with the information
     return {
-        id: result[0].id,
-        week_start: result[0].week_start,
-        week_end: result[0].week_end,
-        minutes: result[0].minutes,
-        submitted_by: result[0].submitted_by
+        id: result[0].id as number,
+        week_start: result[0].week_start as Date,
+        week_end: result[0].week_end as Date,
+        minutes: result[0].minutes as number,
+        submitted_by: result[0].submitted_by as number
     };
 }
 

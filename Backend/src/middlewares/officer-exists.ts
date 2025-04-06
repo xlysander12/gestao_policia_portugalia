@@ -1,6 +1,6 @@
 import {Request, NextFunction} from "express";
 import {FORCE_HEADER} from "../utils/constants";
-import {InnerOfficerData, OfficerInfoAPIResponse} from "../types";
+import {OfficerInfoAPIResponse} from "../types";
 import {getOfficerData} from "../api/officers/repository";
 import {isQueryParamPresent} from "../utils/filters";
 import {getForcePatrolForces} from "../utils/config-handler";
@@ -10,7 +10,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
     // First, check if the officer is an active one
     let officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!);
     if (officerResult !== null) { // If it is, set the officer data and continue
-        res.locals.targetOfficer = officerResult as InnerOfficerData;
+        res.locals.targetOfficer = officerResult;
         res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
         res.locals.targetOfficer.isFormer = false;
         next();
@@ -22,7 +22,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
         officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!, true);
 
         if (officerResult !== null) {
-            res.locals.targetOfficer = officerResult as InnerOfficerData;
+            res.locals.targetOfficer = officerResult;
             res.locals.targetOfficer.isFormer = true;
             res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
             next();
@@ -31,11 +31,11 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
     }
 
     // If this is the endpoint to fech an officer's data and the query parameter patrol is present, go through all forces the user can patrol with and check if the officer is in any of them
-    if (res.locals.routeDetails.notes === "get_officer" && isQueryParamPresent("patrol", res.locals.queryParams) && res.locals.queryParams["patrol"] === "true") {
+    if (res.locals.routeDetails.notes === "get_officer" && isQueryParamPresent("patrol", res.locals.queryParams) && res.locals.queryParams.patrol === "true") {
         for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!)) {
             officerResult = await getOfficerData(Number(req.params.nif), force, false);
             if (officerResult !== null) {
-                res.locals.targetOfficer = officerResult as InnerOfficerData;
+                res.locals.targetOfficer = officerResult;
                 res.locals.targetOfficer.force = force;
                 res.locals.targetOfficer.isFormer = false;
                 next();
@@ -45,7 +45,7 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
             // If the officer wasn't found, search in former officers of that force
             officerResult = await getOfficerData(Number(req.params.nif), force, true);
             if (officerResult !== null) {
-                res.locals.targetOfficer = officerResult as InnerOfficerData;
+                res.locals.targetOfficer = officerResult;
                 res.locals.targetOfficer.force = force;
                 res.locals.targetOfficer.isFormer = true;
                 next();

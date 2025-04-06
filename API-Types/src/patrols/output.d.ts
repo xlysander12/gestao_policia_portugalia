@@ -18,7 +18,7 @@ export interface PatrolHistoryResponse extends BaseResponse {
 }
 
 export interface PatrolData extends MinifiedPatrolData {
-    notes: string
+    notes: string | null
 }
 
 export interface PatrolInfoResponse extends BaseResponse {

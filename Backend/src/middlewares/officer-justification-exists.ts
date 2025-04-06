@@ -7,7 +7,7 @@ import {userHasIntents} from "../api/accounts/repository";
 
 async function justificationExistsMiddleware(req: express.Request, res: OfficerJustificationAPIResponse, next: express.NextFunction) {
     // * Make sure the provided justification id is valid
-    let justification = await getOfficerJustificationDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(req.params["id"]));
+    const justification = await getOfficerJustificationDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(req.params.id));
 
     // If the justification doesn't exist, return an error
     if (justification === null) {

@@ -16,19 +16,17 @@ import {InnerOfficerEvaluation} from "../../../../../types/inner-types";
 import {getPatrol} from "../../../../patrols/repository";
 import {getOfficerData} from "../../../repository";
 
-export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
+export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
     evaluations: MinifiedEvaluation[],
-    averages: {
-        [field: number]: number
-    }
+    averages: Record<number, number>
 }>> {
     // Fetch the evaluations from the repository
     const {pages, evaluations} = await getEvaluations(force, requester, target, await userHasIntents(requester.nif, force, "evaluations"), routeValidFilters, filters, page);
 
     // * Calculate the averages for each present field of the evaluations
     // Store all grades for each field
-    const field_grades: {[field: number]: number[]} = {};
+    const field_grades: Record<number, number[]> = {};
 
     // Loop through all evaluations
     for (const evaluation of evaluations) {
@@ -38,6 +36,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
         // Loop through all fields
         for (const field in evaluationData.fields) {
             // If the field doesn't exist in the object, create it
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (!field_grades[field]) {
                 field_grades[field] = [];
             }
@@ -50,7 +49,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     // Calculate the pondered average for each field
     // This calculation will be done by the following expression:
     // (For every grade g in the field => g * (arr.size() - index)) / (Sum of all indexes)
-    const averages: {[field: number]: number} = {};
+    const averages: Record<number, number> = {};
     for (const field in field_grades) {
         // Get the sum of all grades multiplied by their wheigth (wheigth = arr.size() - index)
         let sum = 0;
@@ -81,7 +80,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     }
 }
 
-export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1): Promise<DefaultReturn<{
+export async function authoredEvaluationsList(force: string, loggedOfficer: InnerOfficerData, officer: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
     evaluations: MinifiedEvaluation[],
 }>> {
@@ -97,10 +96,7 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
             }
         }
 
-        let author = await getOfficerData(officer, force, false, false);
-        if (!author) {
-            author = await getOfficerData(officer, force, true, false);
-        }
+        const author = await getOfficerData(officer, force, false, false) ?? await getOfficerData(officer, force, true, false);
 
         if (!author) {
             return {

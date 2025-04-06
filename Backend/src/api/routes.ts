@@ -48,28 +48,25 @@ import {
     DeleteEvaluationSocket,
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
+import {paramsTypes} from "../utils/db-connector";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export type RouteFilterType = {
-    [key: string]: {
+export type RouteFilterType = Record<string, {
         queryFunction: (receivedParams: ReceivedQueryParams) => string,
-        valueFunction?: (value: any) => any
-    }
-}
+        valueFunction?: (value: string) => paramsTypes | paramsTypes[]
+    }>
 
-export type routeMethodType = {
+export interface routeMethodType {
     requiresToken: boolean
     requiresForce: boolean
     intents?: string[]
     filters?: RouteFilterType
     queryParams?: {
         type: RuntypeBase,
-        schema?: {
-            [key: string]: {
-                parseFunction: <T>(value: string) => T,
-            }
-        }
+        schema?: Record<string, {
+                parseFunction: (value: string) => unknown,
+            }>
     }
     body?: {
         type: RuntypeBase
@@ -77,20 +74,17 @@ export type routeMethodType = {
     notes?: string,
     broadcast?: {
         event: SOCKET_EVENT,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body: (req: express.Request, res: any) => SocketResponse,
         patrol?: boolean
     }
 }
 
-export type routeType = {
-    methods: {
-        [key in methodType]?: routeMethodType
-    }
+export interface routeType {
+    methods: Partial<Record<methodType, routeMethodType>>
 }
 
-export type routesType = {
-    [key: string]: routeType
-}
+export type routesType = Record<string, routeType>;
 
 const accountRoutes: routesType = {
     // Route to validate a token
@@ -353,8 +347,8 @@ const officersRoutes: routesType = {
                         valueFunction: (value: string) => `%${value}%`
                     },
                     force: {
-                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams["patrol"] === "true" ? '`officerForce` = ?': "",
-                        valueFunction: (value: number) => value
+                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams.patrol === "true" ? '`officerForce` = ?': "",
+                        valueFunction: (value: string) => value
                     }
                 }
             }
@@ -739,7 +733,7 @@ const evaluationsRoutes: routesType = {
                         valueFunction: (value: string) => parseInt(value)
                     },
                     withPatrol: {
-                        queryFunction: (receivedParams) => receivedParams["withPatrol"] === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
+                        queryFunction: (receivedParams) => receivedParams.withPatrol === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
                     },
                     patrol: {
                         queryFunction: () => "patrol = ?",
@@ -790,7 +784,7 @@ const evaluationsRoutes: routesType = {
                         valueFunction: (value: string) => parseInt(value)
                     },
                     withPatrol: {
-                        queryFunction: (receivedParams) => receivedParams["withPatrol"] === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
+                        queryFunction: (receivedParams) => receivedParams.withPatrol === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
                     },
                     patrol: {
                         queryFunction: () => "patrol = ?",
@@ -864,14 +858,14 @@ const patrolsRoutes: routesType = {
                         valueFunction: (value: string) => [value, value]
                     },
                     active: {
-                        queryFunction: (receivedParams) => receivedParams["active"] === "true" ? "end IS NULL" : "end IS NOT NULL",
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "end IS NULL" : "end IS NOT NULL",
                     },
                     officers: {
                         queryFunction: (receivedParams) => {
-                            const arr = receivedParams["officers"].split(",");
+                            const arr = receivedParams.officers.split(",");
 
                             let query = "";
-                            for (let _ = 0; _ < arr.length; _++) {
+                            for (const _ of arr) {
                                 query += `officers LIKE ? AND `;
                             }
 
@@ -883,11 +877,11 @@ const patrolsRoutes: routesType = {
                     },
                     type: {
                         queryFunction: () => `type = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value) => value
                     },
                     unit: {
                         queryFunction: () => `special_unit = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value) => value
                     }
                 }
             },

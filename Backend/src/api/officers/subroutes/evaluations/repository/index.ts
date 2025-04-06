@@ -7,7 +7,7 @@ import {EditEvaluationBodyType, EvaluationBodyFieldsType} from "@portalseguranca
 import {ResultSetHeader} from "mysql2/promise";
 import {InnerOfficerData} from "../../../../../types";
 
-export async function getEvaluations(force: string, requester: InnerOfficerData, target: number, all: boolean = false, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<{
+export async function getEvaluations(force: string, requester: InnerOfficerData, target: number, all = false, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number,
     evaluations: MinifiedEvaluation[]
 }> {
@@ -67,11 +67,11 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
         evaluations.push({
-            id: row.id,
-            target: row.target,
-            author: row.author,
-            timestamp: dateToUnix(row.timestamp),
-            average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average
+            id: row.id as number,
+            target: row.target as number,
+            author: row.author as number,
+            timestamp: dateToUnix(row.timestamp as Date),
+            average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average as number
         });
     }
 
@@ -81,7 +81,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
     };
 }
 
-export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page: number = 1, entries_per_page: number = 10): Promise<{
+export async function getAuthoredEvaluations(force: string, officer: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number,
     evaluations: MinifiedEvaluation[]
 }> {
@@ -100,11 +100,11 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
     const evaluations: MinifiedEvaluation[] = [];
     for (const row of result) {
         evaluations.push({
-            id: row.id,
-            target: row.target,
-            author: row.author,
-            timestamp: dateToUnix(row.timestamp),
-            average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average
+            id: row.id as number,
+            target: row.target as number,
+            author: row.author as number,
+            timestamp: dateToUnix(row.timestamp as Date),
+            average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average as number
         });
     }
 
@@ -127,20 +127,20 @@ export async function getEvaluationData(force: string, id: number): Promise<Eval
     const fieldsQueryResult = await queryDB(force, `SELECT field, grade FROM evaluations_data WHERE evaluation = ?`, [id]);
 
     // * Parse the fields
-    const fields: {[field: number]: number} = {};
+    const fields: Record<number, number> = {};
 
     // Since the field column is unique, we can just iterate over the fieldsQueryResult
     for (const field of fieldsQueryResult) {
-        fields[field.field] = field.grade;
+        fields[field.field as number] = field.grade as number;
     }
 
     return {
-        id: basicQueryResult[0].id,
-        target: basicQueryResult[0].target,
-        author: basicQueryResult[0].author,
-        patrol: basicQueryResult[0].patrol,
-        comments: basicQueryResult[0].comments,
-        timestamp: basicQueryResult[0].timestamp.getTime(),
+        id: basicQueryResult[0].id as number,
+        target: basicQueryResult[0].target as number,
+        author: basicQueryResult[0].author as number,
+        patrol: basicQueryResult[0].patrol as number | null,
+        comments: basicQueryResult[0].comments as string | null,
+        timestamp: dateToUnix(basicQueryResult[0].timestamp as Date),
         fields: fields
     }
 }
@@ -157,7 +157,7 @@ export async function updateEvaluationGrades(force: string, id: number, grades: 
 
 export async function addEvaluation(force: string, author: number, target: number, fields: EvaluationBodyFieldsType, patrol?: number, comments?: string, timestamp?: number): Promise<number> {
     // Insert the evaluation into the DB
-    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, timestamp) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol || null, comments || null, timestamp || null]);
+    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, timestamp) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol ?? null, comments ?? null, timestamp ?? null]);
 
     // Get the ID of the inserted evaluation
     const id = (result as unknown as ResultSetHeader).insertId;

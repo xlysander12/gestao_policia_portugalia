@@ -2,12 +2,12 @@ function padtwodigits(num: number): string {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
-export function formatDate(date: Date, preserveHours: boolean = true): string {
+export function formatDate(date: Date, preserveHours = true): string {
     return `${date.getFullYear()}-${padtwodigits(date.getMonth() + 1)}-${padtwodigits(date.getDate())}${preserveHours ? ` @ ${padtwodigits(date.getHours())}:${padtwodigits(date.getMinutes())}:${padtwodigits(date.getSeconds())}`: ''}`;
 }
 
-export function dateToString(date: Date, preserveHours: boolean = true): string {
-    let newDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+export function dateToString(date: Date, preserveHours = true): string {
+    const newDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
     return formatDate(newDate, preserveHours);
 }
 

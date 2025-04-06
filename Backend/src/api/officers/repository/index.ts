@@ -1,6 +1,6 @@
 import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {isQueryParamPresent, ReceivedQueryParams} from "../../../utils/filters";
-import {queryDB} from "../../../utils/db-connector";
+import {paramsTypes, queryDB} from "../../../utils/db-connector";
 import {
     MinifiedOfficerData,
     OfficerUnit
@@ -22,7 +22,7 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
     const filtersResult = useFilters ? buildFiltersQuery(routeValidFilters, filters) : null;
 
     // Check if the "patrol" query param is present
-    const isPatrol = useFilters ? isQueryParamPresent("patrol", filters) && filters["patrol"] === "true" : false;
+    const isPatrol = useFilters ? isQueryParamPresent("patrol", filters) && filters.patrol === "true" : false;
 
     // * Get the data from the database
     let officersListResult;
@@ -37,19 +37,19 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
     for (const officer of officersListResult) {
         // * Check if the officer has any active "inactivity type" justifications
         // Get the officer's active justifications
-        const justifications = await getOfficerActiveJustifications(force, officer.nif);
+        const justifications = await getOfficerActiveJustifications(force, officer.nif as number);
 
         // Check if any of the justifications are of the "inactivity type"
         const hasInactivityJustification: boolean = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
 
         // Build officer data
         const officerData: MinifiedOfficerData = {
-            name: officer.name,
-            patent: officer.patent,
-            callsign: officer.callsign,
-            status: hasInactivityJustification ? getForceInactiveStatus(force): officer.status,
-            nif: officer.nif,
-            force: isPatrol ? officer.officerForce : undefined
+            name: officer.name as string,
+            patent: officer.patent as number,
+            callsign: officer.callsign as string,
+            status: hasInactivityJustification ? getForceInactiveStatus(force): officer.status as number,
+            nif: officer.nif as number,
+            force: isPatrol ? officer.officerForce as string : undefined
         }
 
         officersList.push(officerData);
@@ -57,7 +57,7 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
 
     // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
     // If so, remove the duplicates nifs
-    if (useFilters && isQueryParamPresent("patrol", filters) && filters["patrol"] === "true") {
+    if (useFilters && isQueryParamPresent("patrol", filters) && filters.patrol === "true") {
         officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif)) === index);
     }
 
@@ -71,12 +71,12 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
                                                      WHERE officer = ?`, nif);
 
     // Get the data from all the officer's units and store in array
-    let officerUnits: OfficerUnit[] = [];
+    const officerUnits: OfficerUnit[] = [];
     for (const unit of officerUnitsResult) {
         // Build officer unit
         const officerUnit = {
-            id: unit.unit,
-            role: unit.role
+            id: unit.unit as number,
+            role: unit.role as number
         }
 
         officerUnits.push(officerUnit);
@@ -85,7 +85,7 @@ export async function getOfficerUnits(force: string, nif: number): Promise<Offic
     return officerUnits;
 }
 
-export async function getOfficerData(nif: number, force: string, former: boolean = false, check_justification: boolean = true): Promise<InnerOfficerData | null> {
+export async function getOfficerData(nif: number, force: string, former = false, check_justification = true): Promise<InnerOfficerData | null> {
     // * Get the data from the database
     const officerDataResult = await queryDB(force, `SELECT *
                                               FROM officers
@@ -97,7 +97,7 @@ export async function getOfficerData(nif: number, force: string, former: boolean
     }
 
     // * Check if the officer has any active "inactivity type" justifications
-    let hasInactivityJustification: boolean = false;
+    let hasInactivityJustification = false;
     if (check_justification) {
         // Get the officer's active justifications
         const justifications = await getOfficerActiveJustifications(force, nif);
@@ -108,22 +108,22 @@ export async function getOfficerData(nif: number, force: string, former: boolean
 
     // Return the officer data
     return {
-        name: officerDataResult[0].name,
-        patent: officerDataResult[0].patent,
-        callsign: officerDataResult[0].callsign,
-        status: hasInactivityJustification ? getForceInactiveStatus(force): officerDataResult[0].status,
-        entry_date: officerDataResult[0].entry_date,
-        promotion_date: officerDataResult[0].promotion_date,
-        phone: officerDataResult[0].phone,
-        nif: officerDataResult[0].nif,
-        iban: officerDataResult[0].iban,
-        kms: officerDataResult[0].kms,
-        discord: officerDataResult[0].discord,
-        steam: officerDataResult[0].steam,
+        name: officerDataResult[0].name as string,
+        patent: officerDataResult[0].patent as number,
+        callsign: officerDataResult[0].callsign as string | null,
+        status: hasInactivityJustification ? getForceInactiveStatus(force): officerDataResult[0].status as number,
+        entry_date: officerDataResult[0].entry_date as Date,
+        promotion_date: officerDataResult[0].promotion_date as Date | null,
+        phone: officerDataResult[0].phone as number,
+        nif: officerDataResult[0].nif as number,
+        iban: officerDataResult[0].iban as string,
+        kms: officerDataResult[0].kms as number,
+        discord: officerDataResult[0].discord as number,
+        steam: officerDataResult[0].steam as string,
         special_units: await getOfficerUnits(force, nif),
         isFormer: former,
         force: force,
-        fire_reason: officerDataResult[0].fire_reason
+        fire_reason: officerDataResult[0].fire_reason as string | null
     };
 }
 
@@ -136,7 +136,7 @@ export async function getNextAvailableCallsign(startingLetter: string, force: st
     // Get the next callsign number
     let callsignNumber = 1;
     if (callsignsResult.length > 0) {
-        callsignNumber = (Number.parseInt(callsignsResult[0].callsign.split("-")[1]) + 1);
+        callsignNumber = (Number.parseInt((callsignsResult[0].callsign as string).split("-")[1]) + 1);
     }
 
     return `${startingLetter}-${callsignNumber.toString().padStart(2, "0")}`;
@@ -155,8 +155,8 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
     const has_inactivity = (await getOfficerActiveJustifications(force, nif)).some(justification => justification.type === getForceInactivityJustificationType(force));
 
     // Build the query string and params depending on the fields that were provided
-    let params: any[] = [];
-    let updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
+    const params: paramsTypes[] = [];
+    const updateQuery = `UPDATE officers SET ${validFields.reduce((acc, field) => {
         if (changes[field as keyof UpdateOfficerRequestBody] !== undefined) {
             if (field === "entry_date" || field === "promotion_date") {
                 acc += `${field} = FROM_UNIXTIME(?), `;
@@ -167,7 +167,7 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
                 acc += `${field} = ?, `;
             }
             
-            params.push(changes[field as keyof UpdateOfficerRequestBody]);
+            params.push(changes[field as keyof UpdateOfficerRequestBody] as paramsTypes);
         }
 
         return acc;
@@ -198,9 +198,7 @@ export async function updateOfficerUnits(nif: number, force: string, units: Offi
 
 export async function fireOfficer(nif: number, force: string, reason?: string) {
     // Make sure the 'reason' field is present, if not, use default
-    if (reason === "" || reason === null || reason === undefined) {
-        reason = "Despedimento por opção própria";
-    }
+    reason ??= "Despedimento por opção própria";
 
     // Set the fired column to true and add a value to the fire_reason column
     await queryDB(force, "UPDATE officers SET fired = 1, fire_reason = ? WHERE nif = ?", [reason, nif]);

@@ -5,6 +5,7 @@ import path from "node:path";
 import {APIResponse} from "../types";
 import {formatDateTime} from "./date-handler";
 import {FORCE_HEADER} from "./constants";
+import {ExpressResponse} from "../types/response-types";
 
 let logFile: string;
 
@@ -111,11 +112,11 @@ export function logToConsole(message: string, type?: "info" | "warning" | "error
         fileLogBuilder += finalMessageNoColors + "\n";
 
         // Append the message to the file
-        fsa.appendFile(logFile, fileLogBuilder);
+        void fsa.appendFile(logFile, fileLogBuilder);
     }
 }
 
-export async function logRequestToFile(res: APIResponse) {
+export async function logRequestToFile(res: ExpressResponse | APIResponse) {
     if (!res.locals.routeDetails) {
         logToConsole(`Route details not present in response oject. Skipping logging... [${res.req.originalUrl} - ${res.req.method}]`, "warning");
         return;
@@ -130,10 +131,10 @@ export async function logRequestToFile(res: APIResponse) {
     builder += `Source IP: ${res.req.header("X-Real-IP") ? res.req.header("X-Real-IP"): res.req.socket.remoteAddress}\n`;
 
     // Add the line with the force, if applicable
-    builder += `Force: ${res.locals.routeDetails.requiresForce ? (res.req.header(FORCE_HEADER) ? res.req.header(FORCE_HEADER)!.toUpperCase(): "Force not Present"): "N/A"}\n`;
+    builder += `Force: ${(res as APIResponse).locals.routeDetails.requiresForce ? (res.req.header(FORCE_HEADER) ? res.req.header(FORCE_HEADER)!.toUpperCase(): "Force not Present"): "N/A"}\n`;
 
     // Add the line with the Logged User, if applicable
-    builder += `Logged User: ${res.locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? res.locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
+    builder += `Logged User: ${(res as APIResponse).locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? (res as APIResponse).locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
 
     // Add the headers of the request to the log
     builder += "Headers:\n";
@@ -143,7 +144,7 @@ export async function logRequestToFile(res: APIResponse) {
     }
 
     // Add a line with the request body, if applicable
-    if (res.locals.routeDetails.body !== undefined) { // Make sure this route is supposed to have a body
+    if ((res as APIResponse).locals.routeDetails.body !== undefined) { // Make sure this route is supposed to have a body
         // Add a blank line
         builder += "\n";
 

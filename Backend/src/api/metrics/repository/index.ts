@@ -12,12 +12,12 @@ export async function getErrorDetails(force: string, code: string): Promise<Inne
 
     // Return the error details
     return {
-        code: errorDetails[0].code,
-        route: errorDetails[0].route,
-        method: errorDetails[0].method,
-        body: errorDetails[0].body,
-        timestamp: errorDetails[0].timestamp,
-        stack: errorDetails[0].stack
+        code: errorDetails[0].code as string,
+        route: errorDetails[0].route as string,
+        method: errorDetails[0].method as "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD",
+        body: errorDetails[0].body as string,
+        timestamp: errorDetails[0].timestamp as Date,
+        stack: errorDetails[0].stack as string
     }
 }
 

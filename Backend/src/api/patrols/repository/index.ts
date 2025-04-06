@@ -8,12 +8,12 @@ import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
 import {RowDataPacket} from "mysql2/promise";
 
 function splitPatrolId(id: string): [string, number] {
-    const idMatch = id.match(/([a-z]+)(\d+)$/);
+    const idMatch = /([a-z]+)(\d+)$/.exec(id);
 
     return [idMatch![1], parseInt(idMatch![2])];
 }
 
-export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<{
+export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{
     patrols: MinifiedPatrolData[],
     pages: number
 }> {
@@ -27,12 +27,12 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
     const patrols: MinifiedPatrolData[] = [];
     for (const patrol of result) {
         patrols.push({
-            id: patrol.id,
-            type: patrol.type,
-            unit: patrol.special_unit,
-            officers: JSON.parse(patrol.officers),
-            start: dateToUnix(patrol.start),
-            end: patrol.end !== null ? dateToUnix(patrol.end) : null,
+            id: patrol.id as string,
+            type: patrol.type as number,
+            unit: patrol.special_unit as number | null,
+            officers: JSON.parse(patrol.officers as string) as number[],
+            start: dateToUnix(patrol.start as Date),
+            end: patrol.end !== null ? dateToUnix(patrol.end as Date) : null,
             canceled: patrol.canceled === 1
         });
     }
@@ -59,15 +59,15 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
     const patrol = result[0];
 
     return {
-        id: splitPatrolId(patrol.id)[1],
-        type: patrol.type,
-        unit: patrol.special_unit,
-        officers: JSON.parse(patrol.officers),
-        start: patrol.start,
-        end: patrol.end,
+        id: splitPatrolId(patrol.id as string)[1],
+        type: patrol.type as number,
+        unit: patrol.special_unit as number | null,
+        officers: JSON.parse(patrol.officers as string) as number[],
+        start: patrol.start as Date,
+        end: patrol.end as Date | null,
         canceled: patrol.canceled === 1,
-        notes: patrol.notes,
-        force: splitPatrolId(patrol.id)[0]
+        notes: patrol.notes as string | null,
+        force: splitPatrolId(patrol.id as string)[0]
     };
 }
 
@@ -109,7 +109,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
 }
 
 export async function getOfficerPatrol(force: string, officerNif: number): Promise<InnerPatrolData | null> {
-    const result = await queryDB(force, `SELECT *
+    const result = await queryDB(force, `SELECT id
                                          FROM patrolsV
                                          WHERE officers LIKE ?
                                            AND end IS NULL`, [`%${officerNif}%`]);
@@ -117,19 +117,8 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
     if (result.length === 0) {
         return null;
     }
-
-    const patrol = result[0];
-    return {
-        id: splitPatrolId(patrol.id)[1],
-        type: patrol.type,
-        unit: patrol.unit,
-        officers: JSON.parse(patrol.officers),
-        start: patrol.start,
-        end: patrol.end,
-        canceled: patrol.canceled === 1,
-        notes: patrol.notes,
-        force: splitPatrolId(patrol.id)[0]
-    };
+    
+    return await getPatrol(force, result[0].id as string);
 }
 
 export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
@@ -139,8 +128,8 @@ export async function createPatrol(force: string, type: number, specialUnit: num
 
 export async function editPatrol(force: string, id: number, changes: EditPatrolBody, canceled?: boolean) {
     // Build the query string and params depending on the fields that were provided
-    let params: string[] = [];
-    let updateQuery = `UPDATE patrols SET ${Object.keys(changes).reduce((acc, field) => {
+    const params: string[] = [];
+    const updateQuery = `UPDATE patrols SET ${Object.keys(changes).reduce((acc, field) => {
         if (field === "start" || field === "end") {
             acc += `${field} = FROM_UNIXTIME(?), `;
         } else {

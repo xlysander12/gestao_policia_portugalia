@@ -7,7 +7,7 @@ import {getOfficerData} from "../api/officers/repository";
 
 async function evaluationExistsMiddleware(req: express.Request, res: OfficerEvaluationAPIResponse, next: express.NextFunction) {
     // * Make sure the provided evaluation id is valid
-    let evaluation = await getEvaluationData(req.header(FORCE_HEADER)!, parseInt(req.params["id"]));
+    const evaluation = await getEvaluationData(req.header(FORCE_HEADER)!, parseInt(req.params.id));
 
     // If the evaluation doesn't exist, return an error
     if (evaluation === null) {
@@ -37,7 +37,7 @@ async function evaluationExistsMiddleware(req: express.Request, res: OfficerEval
         }
 
         // Getting the details of the author
-        let author = await getOfficerData(evaluation.author, req.header(FORCE_HEADER)!, false, false) ||
+        const author = await getOfficerData(evaluation.author, req.header(FORCE_HEADER)!, false, false) ??
             await getOfficerData(evaluation.author, req.header(FORCE_HEADER)!, true, false);
 
         // If the author doesn't exist, return an error

@@ -1,12 +1,13 @@
 import express from "express";
-import {FORCE_HEADER} from "../utils/constants";
+
 import {getAccountDetails} from "../api/accounts/repository";
 import {AccountInfoAPIResponse} from "../types/response-types";
+import {FORCE_HEADER} from "../utils/constants";
 
 async function accountExistsMiddle(req: express.Request, res: AccountInfoAPIResponse, next: express.NextFunction) {
-    let {nif} = req.params;
+    const {nif} = req.params;
 
-    let accountResult = await getAccountDetails(Number(nif), req.header(FORCE_HEADER)!);
+    const accountResult = await getAccountDetails(Number(nif), req.header(FORCE_HEADER)!);
     if (accountResult === null) {
         res.status(404).json({
             message: "Utilizador não encontrado"

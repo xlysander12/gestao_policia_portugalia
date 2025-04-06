@@ -1,8 +1,9 @@
 import {queryDB} from "../../../utils/db-connector";
 import {getForcesList} from "../../../utils/config-handler";
 import {InnerAccountData} from "../../../types/inner-types";
+import {getForceIntents} from "../../util/repository";
 
-export async function isTokenValid(token: string, force: any): Promise<{valid: boolean, status: number, nif?: number}> {
+export async function isTokenValid(token: string | undefined, force: string | undefined): Promise<{valid: boolean, status: number, nif?: number}> {
     // If token is undefined, return false as the token is invalid
     if (token === undefined) return {valid: false, status: 401};
 
@@ -16,7 +17,7 @@ export async function isTokenValid(token: string, force: any): Promise<{valid: b
     if (result.length === 0) return {valid: false, status: 401};
 
     // Return true and the corresponding user if the token exists
-    return {valid: true, status: 200, nif: Number(result[0].nif)};
+    return {valid: true, status: 200, nif: result[0].nif as number};
 }
 
 export async function userHasIntents(nif: number, force: string, intent: string | string[]) {
@@ -40,18 +41,18 @@ export async function userHasIntents(nif: number, force: string, intent: string 
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-type userForcesReturn = {name: string, password?: string, suspended: boolean}[];
+type userForcesReturn = {name: string, password?: string | null, suspended: boolean}[];
 export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
-    let user_forces: userForcesReturn = [];
+    const user_forces: userForcesReturn = [];
 
     // Loop through all forces and see which of them have an account for this user
     for (const force of getForcesList()) {
         const queryResult = await queryDB(force, 'SELECT password, suspended FROM users WHERE nif = ?', nif);
         if (queryResult.length !== 0 ) { // This user exists in this force
-            let to_push: {name: string, password?: string, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
+            const to_push: {name: string, password?: string | null, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
 
             if (return_passwords) { // If the option to retrieve passwords is true, add the password to the object
-                to_push.password = queryResult[0].password;
+                to_push.password = queryResult[0].password as string | null;
             }
 
             // Push the object to the final array
@@ -74,12 +75,6 @@ export async function updateLastTimeUserInteracted(nif: number) {
     }
 }
 
-export async function getForceIntents(force: string): Promise<string[]> {
-    // Get all possible intents
-    const intentsQuery = await queryDB(force, 'SELECT name FROM intents');
-    return intentsQuery.map((intent) => intent.name);
-}
-
 export async function getAccountDetails(nif: number, force: string): Promise<InnerAccountData | null> {
     // Fetch all the data related to the account from the database
     const result = await queryDB(force, 'SELECT * FROM users WHERE nif = ? LIMIT 1', nif);
@@ -90,11 +85,11 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
     }
 
     // Build the return object
-    let details: InnerAccountData = {
-        nif: result[0].nif,
-        password: result[0].password,
+    const details: InnerAccountData = {
+        nif: result[0].nif as number,
+        password: result[0].password as string | null,
         suspended: result[0].suspended === 1,
-        last_interaction: result[0].last_interaction,
+        last_interaction: result[0].last_interaction as Date | null,
         intents: {}
     }
 
@@ -103,12 +98,12 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
 
     // After getting all intents, default them to false in the response
     forceIntents.forEach((intent) => {
-        details.intents[intent] = false;
+        details.intents[intent.name] = false;
     });
 
     // Check if the user has the intents, one by one
     for (const forceIntent of forceIntents) {
-        details.intents[forceIntent] = await userHasIntents(nif, force, forceIntent);
+        details.intents[forceIntent.name] = await userHasIntents(nif, force, forceIntent.name);
     }
 
     // Return the details of the Account
@@ -153,7 +148,7 @@ export async function deleteAccountToken(force: string, nif: number, token: stri
 
 export async function updateAccountPassword(nif: number, hash: string, currentToken: string) {
     // Get the list of forces the user belongs to
-    let userForces = await getUserForces(nif);
+    const userForces = await getUserForces(nif);
 
     // Update the password in all forces
     for (const force of userForces) {

@@ -14,7 +14,7 @@ import {InnerOfficerJustificationData} from "../../../../../../types/inner-types
 
 export async function officerHistory(force: string, nif: number): Promise<DefaultReturn<OfficerMinifiedJustification[]>> {
     // Call the repository to get the data
-    let result = await getOfficerJustificationsHistory(force, nif);
+    const result = await getOfficerJustificationsHistory(force, nif);
 
     // Return the result
     return {
@@ -37,7 +37,7 @@ export async function officerHistory(force: string, nif: number): Promise<Defaul
 
 export async function officerActive(force: string, nif: number): Promise<DefaultReturn<OfficerActiveJustification[]>> {
     // Call the repository to get the data
-    let result = await getOfficerActiveJustifications(force, nif);
+    const result = await getOfficerActiveJustifications(force, nif);
 
     // Return the result
     return {
@@ -56,7 +56,7 @@ export async function officerActive(force: string, nif: number): Promise<Default
 export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: number, end?: number): Promise<DefaultReturn<void>> {
     // * Make sure the provided type is valid
     // Get the types of inactivity
-    let inactivityTypes = await getForceInactivityTypes(force);
+    const inactivityTypes = await getForceInactivityTypes(force);
 
     // Check if the provided type is a valid id
     if (!inactivityTypes.map((t) => t.id).includes(type)) {
@@ -115,10 +115,10 @@ export async function officerJustificationChangeDetails(force: string, nif: numb
     // Make sure the end date is set for this comparison, both on the changes and the justification data
     if (changes.end || justificationData.end !== null) {
         // Get the end date, either from the changes or the justification data
-        let endDate = changes.end ? unixToDate(changes.end) : justificationData.end!;
+        const endDate = changes.end ? unixToDate(changes.end) : justificationData.end!;
 
         // Get the start date, either from the changes or the justification data
-        let startDate = changes.start ? unixToDate(changes.start) : justificationData.start;
+        const startDate = changes.start ? unixToDate(changes.start) : justificationData.start;
 
         if (startDate > endDate) {
             return {

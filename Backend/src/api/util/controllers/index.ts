@@ -29,7 +29,7 @@ import {dateToUnix} from "../../../utils/date-handler";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from
-    let force = req.header(FORCE_HEADER)!;
+    const force = req.header(FORCE_HEADER)!;
 
     // Call the service to get the patents
     const result = await forcePatents(force);
@@ -39,7 +39,7 @@ export async function getPatentsController(req: express.Request, res: ExpressRes
 
 export async function getStatusesController(req: express.Request, res: ExpressResponse<UtilStatusesResponse>) {
     // Get what force the user is trying to get the patents from
-    let force = req.header(FORCE_HEADER)!;
+    const force = req.header(FORCE_HEADER)!;
 
     // Call the service to get the statuses
     const result = await forceStatuses(force);
@@ -50,7 +50,7 @@ export async function getStatusesController(req: express.Request, res: ExpressRe
 
 export async function getSpecialUnitsController(req: express.Request, res: ExpressResponse<UtilSpecialUnitsResponse>) {
     // Get what force the user is trying to get the patents from
-    let force = req.header(FORCE_HEADER)!;
+    const force = req.header(FORCE_HEADER)!;
 
     // Call the service to get the statuses
     const result = await forceSpecialUnits(force);
@@ -83,9 +83,9 @@ export async function getPatrolTypesController(req: express.Request, res: Expres
     res.status(result.status).json({message: result.message, data: result.data!});
 }
 
-export async function getPatrolForcesController(req: express.Request, res: ExpressResponse<UtilForcePatrolForcesResponse>) {
+export function getPatrolForcesController(req: express.Request, res: ExpressResponse<UtilForcePatrolForcesResponse>) {
     // Call the service to get the types
-    const result = await forcePatrolForces(req.header(FORCE_HEADER)!);
+    const result = forcePatrolForces(req.header(FORCE_HEADER)!);
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});

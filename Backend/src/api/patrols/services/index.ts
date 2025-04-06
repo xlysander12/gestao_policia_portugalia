@@ -20,7 +20,7 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
 
         // Loop through all forces to get the officer data
         for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-            const tempResult = await getOfficerData(officerNif, patrolForce, false, false) ||
+            const tempResult = await getOfficerData(officerNif, patrolForce, false, false) ??
                 await getOfficerData(officerNif, patrolForce, true, false);
 
             if (tempResult !== null) {
@@ -64,7 +64,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     }
 
     // Fetch the current's officer status
-    const officerStatus = (await getForceStatuses(officerForce)).filter(status => status.id === officerData.status)[0];
+    const officerStatus = (await getForceStatuses(officerForce)).find(status => status.id === officerData.status)!;
 
     // Since the officer exists, check if they are / were inactive on the start of the patrol
     if (await wasOfficerInactiveInDate(force, officerNif, patrolStart) || officerStatus.id === getForceInactiveStatus(force)) {
@@ -79,7 +79,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     return [true, ""];
 }
 
-export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page: number = 1, entriesPerPage: number = 10): Promise<DefaultReturn<{
+export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<DefaultReturn<{
     patrols: MinifiedPatrolData[],
     pages: number
 }>> {
@@ -148,11 +148,11 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     // Since all officers exist, create the patrol
     await createPatrol(force,
         patrolData.type,
-        patrolData.special_unit || null,
+        patrolData.special_unit ?? null,
         patrolData.officers,
         unixToDate(patrolData.start),
         patrolData.end ? unixToDate(patrolData.end): null,
-        patrolData.notes || null
+        patrolData.notes ?? null
     );
 
     // If everything went well, return success

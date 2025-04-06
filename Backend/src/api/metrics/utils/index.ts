@@ -10,9 +10,9 @@ async function getOcotkit() {
     const PRIVATE_KEY = (await fs.readFile(path.join(__dirname, "..", "..", "..", "assets", "github-issues-app.pem"), "utf-8"));
 
     const auth = createAppAuth({
-        appId: process.env["GH_APP_ID"]!,
+        appId: process.env.GH_APP_ID!,
         privateKey: PRIVATE_KEY,
-        installationId: process.env["GH_APP_INSTALLATION_ID"]!,
+        installationId: process.env.GH_APP_INSTALLATION_ID!,
     });
 
     const {token} = await auth({type: "installation"});
@@ -36,7 +36,7 @@ export async function submitIssueToGithub(title: string, body: string, labels: s
     // Get Octokit instance
     const octokit = await getOcotkit();
 
-    return await octokit.request(`POST /repos/${process.env["GH_REPO_OWNER"]}/${process.env["GH_REPO_NAME"]}/issues`, {
+    return await octokit.request(`POST /repos/${process.env.GH_REPO_OWNER}/${process.env.GH_REPO_NAME}/issues`, {
         title: title,
         body: body,
         labels: labels

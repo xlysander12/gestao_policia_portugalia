@@ -3,7 +3,7 @@ import {fetchLastShift, updateLastShift} from "../repository";
 
 export async function getOfficerLastShift(force: string, nif: number): Promise<DefaultReturn<Date | null>> {
     // Fetch the last shift of the officer from the repository
-    let last_shift = await fetchLastShift(force, nif);
+    const last_shift = await fetchLastShift(force, nif);
 
     if (last_shift === null) {
         return {

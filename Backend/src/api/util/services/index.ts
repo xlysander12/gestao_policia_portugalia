@@ -102,7 +102,7 @@ export async function forcePatrolTypes(force: string): Promise<DefaultReturn<Pat
     }
 }
 
-export async function forcePatrolForces(force: string): Promise<DefaultReturn<string[]>> {
+export function forcePatrolForces(force: string): DefaultReturn<string[]> {
     return {
         result: true,
         status: 200,
