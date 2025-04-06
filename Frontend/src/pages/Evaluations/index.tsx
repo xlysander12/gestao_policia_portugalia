@@ -54,7 +54,7 @@ function Evaluations() {
     }
 
     useEffect(() => {
-        fetchEvaluations();
+        void fetchEvaluations();
     }, [currentOfficer.nif, asAuthor]);
 
     return (

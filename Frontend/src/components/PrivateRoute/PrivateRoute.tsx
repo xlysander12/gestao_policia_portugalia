@@ -155,7 +155,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback(data => {
         if (data.nif === loggedUser.info.personal.nif) {
-            updateValues(false);
+            void updateValues(false);
         }
     }, [socket?.id, loggedUser.info.personal.nif]), socket);
 
@@ -166,14 +166,14 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
         if (data.action === "add") return;
 
-        updateValues(false);
+        void updateValues(false);
     }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
         // Call the function to check the authentication only if we're not in the login page
         if (!isLoginPage) {
-            updateValues();
+            void updateValues();
         }
 
     }, [isLoginPage, element]);

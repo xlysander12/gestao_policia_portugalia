@@ -162,7 +162,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         }
 
         if (open && !newEntry) {
-            execute();
+            void execute();
         }
 
         return () => {
@@ -213,7 +213,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         }
 
         if (open && newEntry) {
-            execute();
+            void execute();
         }
     }, [open]);
 

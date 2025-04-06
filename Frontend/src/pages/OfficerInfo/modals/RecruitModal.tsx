@@ -149,7 +149,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                                 label={"NIF"}
                                 type={"text"}
                                 onChange={(event) => setOfficerInfo(draft => {draft.nif = event.target.value})}
-                                onBlur={() => {checkOfficer(parseInt(officerInfo.nif))}}
+                                onBlur={() => {void checkOfficer(parseInt(officerInfo.nif))}}
                                 error={officerInfo.nif !== "" && (!(/^[0-9]{7,9}$/.test(officerInfo.nif)) || restoreDialog.is_error)}
                                 sx={{margin: "10px 0 0 0"}}
                                 required

@@ -200,7 +200,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         }
 
         if (id !== null && open) {
-            exec();
+            void exec();
         }
 
         return () => {

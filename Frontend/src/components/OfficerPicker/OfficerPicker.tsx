@@ -65,7 +65,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
     // WebSocket connections
     useWebSocketEvent(SOCKET_EVENT.OFFICERS, () => {
-        search(searchString, false);
+        void search(searchString, false);
     });
 
     useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, (data) => {
@@ -76,7 +76,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
         if (data.action === "add") return;
 
         // Otherwise, refresh the officers
-        search(searchString, false);
+        void search(searchString, false);
     });
 
     // Function to fetch the backend and get the officers depending on the search query
@@ -107,7 +107,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
     // On component mount, do an initial search with an empty string
     useEffect(() => {
-        search();
+        void search();
     }, []);
 
 

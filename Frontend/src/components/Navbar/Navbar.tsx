@@ -193,7 +193,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
         }
 
         if (!isLoginPage) {
-            exec();
+            void exec();
         }
     }, [isLoginPage]);
 

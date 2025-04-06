@@ -93,7 +93,7 @@ function Patrols() {
             setTotalPages(pages);
         }
 
-        execute();
+        void execute();
     }, [page]);
 
     // When the page loads, verify if there's a patrol id in the URL

@@ -105,7 +105,7 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
 
         // If the type is error, fetch the error codes from the user
         if (open && type === "error") {
-            fetchErrorCodes();
+            void fetchErrorCodes();
         }
     }, [type, open]);
 

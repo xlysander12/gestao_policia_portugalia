@@ -97,7 +97,7 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
 
     useEffect(() => {
         if (doImport)
-            importOfficers();
+            void importOfficers();
     }, [doImport]);
 
     return (

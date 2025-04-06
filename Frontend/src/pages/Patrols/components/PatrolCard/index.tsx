@@ -75,7 +75,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
             setLoading(false);
         }
 
-        exec();
+        void exec();
     }, [patrolInfo.id]);
 
     return (

@@ -123,7 +123,7 @@ function Notifications() {
 
     useEffect(() => {
         if (needsRefresh) {
-            updateNotifications();
+            void updateNotifications();
         }
     }, [needsRefresh]);
 

@@ -309,7 +309,7 @@ function OfficerInfo() {
     }
 
     // Whenever the nif in state changes, we need to fetch the officer's info
-    useEffect(() => {fetchOfficerInfo()}, [officerNif]);
+    useEffect(() => {void fetchOfficerInfo()}, [officerNif]);
 
     function officerListCallback(officer: MinifiedOfficerData) {
         // Make sure we don't change officer's while editing
@@ -401,7 +401,7 @@ function OfficerInfo() {
                                 buttonColor={"red"}
                                 onClick={() => {
                                     setEditMode(false);
-                                    fetchOfficerInfo(true);
+                                    void fetchOfficerInfo(true);
                                 }}
                             >
                                 Cancelar

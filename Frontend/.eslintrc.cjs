@@ -29,7 +29,7 @@ module.exports = {
         "react/jsx-pascal-case": "warn",
         "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/no-floating-promises": "off",
+        // "@typescript-eslint/no-floating-promises": "off",
         "@typescript-eslint/no-misused-promises": "off",
         "@typescript-eslint/no-unnecessary-type-assertion": "warn",
         "@typescript-eslint/require-await": "warn",

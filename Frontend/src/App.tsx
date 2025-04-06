@@ -136,7 +136,7 @@ function App() {
         }
 
         if (localStorage.getItem("force") && (location.pathname !== `${BASE_URL}/erro`)) {
-            execute();
+            void execute();
         } else {
             setCanLoad(true);
         }

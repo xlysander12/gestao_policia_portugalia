@@ -132,7 +132,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
         }
 
         if (open && needsReload && !newEntry) {
-            fetchJustificationData();
+            void fetchJustificationData();
         }
 
         if (!open) { // Ensure that the needsReload is set to true when the modal is closed so it loads the data again when opened

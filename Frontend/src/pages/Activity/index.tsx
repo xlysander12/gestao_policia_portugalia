@@ -321,7 +321,7 @@ function Activity() {
             await fetchActivity();
         }
 
-        execute();
+        void execute();
     }, [currentOfficer.nif]);
 
     // Everytime the nif in the params changes, we will update the currentOfficer state
