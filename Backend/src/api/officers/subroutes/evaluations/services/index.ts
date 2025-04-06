@@ -15,6 +15,8 @@ import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca
 import {InnerOfficerEvaluation} from "../../../../../types/inner-types";
 import {getPatrol} from "../../../../patrols/repository";
 import {getOfficerData} from "../../../repository";
+import {getForcePatents} from "../../../../util/repository";
+import {PatentData} from "@portalseguranca/api-types/util/output";
 
 export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
@@ -128,8 +130,11 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
 }
 
 export async function createEvaluation(force: string, loggedOfficer: InnerOfficerData, targetOfficer: InnerOfficerData, details: CreateEvaluationBodyType): Promise<DefaultReturn<void>> {
-    // If the target officer has a greater or equal patent than the logged officer, this evaluation cannot be created
-    if (targetOfficer.patent >= loggedOfficer.patent) {
+    // * If the target officer has a greater patent than the one the logged officer can evaluate, this evaluation cannot be created
+    // Get the logged officer's patent data
+    const loggedOfficerPatent = await getForcePatents(force, loggedOfficer.patent) as PatentData;
+
+    if (targetOfficer.patent > loggedOfficerPatent.max_evaluation) {
         return {
             result: false,
             status: 403,
@@ -190,8 +195,8 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
 }
 
 export async function updateEvaluation(force: string, loggedOfficer: InnerOfficerData, evaluation: InnerOfficerEvaluation, details: EditEvaluationBodyType): Promise<DefaultReturn<void>> {
-    // If the target officer is not the author of the evaluation and he doesn't have the "evaluations" intent, return an error
-    if (evaluation.author !== loggedOfficer.nif && !(await userHasIntents(loggedOfficer.nif, force, "evaluations"))) {
+    // If the target officer is not the author of the evaluation, return an error
+    if (evaluation.author !== loggedOfficer.nif) {
         return {
             result: false,
             status: 403,
