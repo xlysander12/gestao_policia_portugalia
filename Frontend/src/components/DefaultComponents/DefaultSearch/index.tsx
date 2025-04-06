@@ -170,6 +170,11 @@ function DefaultSearch(props: DefaultSearchProps) {
         setToCallCallback(true);
     }
 
+    // Ensure options update when needed
+    useEffect(() => {
+        setOptions(props.options);
+    }, [props.options]);
+
     // Trigger the callback when an option's addition is complete
     useEffect(() => {
         if (toCallCallback) {

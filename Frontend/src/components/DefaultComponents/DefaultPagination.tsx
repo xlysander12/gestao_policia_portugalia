@@ -1,7 +1,7 @@
 import {styled} from "@mui/system";
 import {Pagination, PaginationProps} from "@mui/material";
 
-type DefaultPaginationProps = Partial<PaginationProps> & {
+type DefaultPaginationProps = PaginationProps & {
     lightBackground?: boolean
 };
 
