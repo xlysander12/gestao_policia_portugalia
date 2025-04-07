@@ -37,19 +37,21 @@ export interface EvaluationDetailResponse extends BaseResponse {
     data: Evaluation
 }
 
-export interface AddEvaluationSocket extends SocketResponse {
-    action: "add"
+export interface EvaluationSocket extends SocketResponse {
     target: number
+    author: number
 }
 
-export interface UpdateEvaluationSocket extends SocketResponse {
-    action: "update",
-    target: number,
+export interface AddEvaluationSocket extends EvaluationSocket {
+    action: "add"
+}
+
+export interface UpdateEvaluationSocket extends EvaluationSocket {
+    action: "update"
     id: number
 }
 
-export interface DeleteEvaluationSocket extends SocketResponse {
-    action: "delete",
-    target: number,
+export interface DeleteEvaluationSocket extends EvaluationSocket {
+    action: "delete"
     id: number
 }

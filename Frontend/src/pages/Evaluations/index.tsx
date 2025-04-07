@@ -1,20 +1,35 @@
 import style from "./evaluations.module.css";
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import {OfficerPicker} from "../../components/OfficerPicker";
-import {useContext, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
-import {EvaluationsListResponse, MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluations/output";
+import {
+    EvaluationsListResponse,
+    EvaluationSocket,
+    MinifiedEvaluation
+} from "@portalseguranca/api-types/officers/evaluations/output";
 import ManagementBar from "../../components/ManagementBar";
 import {make_request} from "../../utils/requests.ts";
 import { toast } from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
 import {Loader} from "../../components/Loader";
 import {DefaultButton, DefaultPagination, DefaultSearch, DefaultTypography} from "../../components/DefaultComponents";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import {EvaluationCard} from "./components/EvaluationCard";
-import {FormControlLabel, Switch} from "@mui/material";
+import {
+    FormControlLabel,
+    Switch,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
+} from "@mui/material";
 import {getObjectFromId} from "../../forces-data-context.ts";
+import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {EvaluationModal} from "./modals";
 
 function Evaluations() {
     // Get the logged user from context
@@ -40,17 +55,33 @@ function Evaluations() {
     const [totalPages, setTotalPages] = useState<number>(1);
 
     // Author flag
-    const [asAuthor, setAsAuthor] = useState<boolean>(false);
+    const [asAuthor, setAsAuthor] = useState<boolean>(true);
 
     // List of evaluations
     const [evaluations, setEvaluations] = useState<MinifiedEvaluation[]>([]);
 
-    async function fetchEvaluations(showLoading: boolean = true, filters?: {key: string, value: string}[]) {
+    // List of averages
+    const [averages, setAverages] = useState<{[key: number]: number}>({});
+
+    // List of selected filters
+    const [filters, setFilters] = useState<{key: string, value: string}[]>([]);
+
+    // Modal Control States
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
+    const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
+    const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null)
+
+
+    // Variable that sets if the averages table should be shown
+    const showAverages = !loading && !asAuthor && evaluations.length > 0;
+
+    async function fetchEvaluations(showLoading: boolean = true) {
         if (showLoading) setLoading(true);
 
         // Fetch evaluations from the API
         const response = await make_request(`/officers/${currentOfficer.nif}/evaluations${asAuthor ? "/author": ""}`, "GET", {
-            queryParams: filters ? [{key: "page", value: String(page)}, ...filters] : [{key: "page", value: String(page)}]
+            queryParams: [{key: "page", value: String(page)}, ...filters]
         });
         const response_json: EvaluationsListResponse = await response.json();
 
@@ -65,13 +96,24 @@ function Evaluations() {
         // Apply the total pages to the state
         setTotalPages(response_json.meta.pages);
 
+        // Apply the averages to the state
+        setAverages(response_json.meta.averages);
+
         // Disable loading
         if (showLoading) setLoading(false);
     }
 
+    // Update from the websocket event
+    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback(async (data) => {
+        // If the evaluation that changed is about the current selected officer, reload the parameters
+        if ((data.target === currentOfficer.nif && !asAuthor) || (data.author === currentOfficer.nif && asAuthor)) {
+            await fetchEvaluations(false);
+        }
+    }, []));
+
     useEffect(() => {
         void fetchEvaluations();
-    }, [currentOfficer.nif, asAuthor]);
+    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]);
 
     return (
         <>
@@ -79,10 +121,22 @@ function Evaluations() {
                 leftSideComponent={
                     <OfficerPicker
                         disabled={loading}
-                        callback={setCurrentOfficer}
+                        callback={(officer) => {
+                            // Set the current page to 1
+                            setPage(1);
+
+                            // If, on changing, the target user isn't the logged user and the logged user doesn't have the "evaluations" intent, set "asAuthor" to false
+                            if (officer.nif !== loggedUser.info.personal.nif && asAuthor && !loggedUser.intents.evaluations) {
+                                setAsAuthor(false);
+                            }
+
+                            // Set the target officer
+                            setCurrentOfficer(officer);
+                        }}
                         filter={(officer) =>
                             asAuthor ? officer.patent <= loggedUser.info.professional.patent.id :
-                                officer.patent < loggedUser.info.professional.patent.id}
+                                officer.patent <= loggedUser.info.professional.patent.max_evaluation
+                        }
                     />
                 }
                 leftSidePercentage={35}
@@ -93,6 +147,11 @@ function Evaluations() {
                             <div className={style.managementBarLeft}>
                                 <div>
                                     <FormControlLabel
+                                        disabled={loading ||
+                                            currentOfficer.nif === loggedUser.info.personal.nif ||
+                                            (!loggedUser.intents.evaluations && currentOfficer.nif !== loggedUser.info.personal.nif)
+
+                                        }
                                         control={<Switch onChange={(event) => setAsAuthor(event.target.checked)}/>}
                                         labelPlacement={"end"}
                                         label={"Autoria"}
@@ -108,7 +167,7 @@ function Evaluations() {
                                 </div>
                                 <DefaultSearch
                                     fullWidth
-                                    callback={(options) => void fetchEvaluations(true, options)}
+                                    callback={(options) => setFilters(options)}
                                     options={[
                                         {label: "Depois de", key: "after", type: "date"},
                                         {label: "Antes de", key: "before", type: "date"},
@@ -145,13 +204,62 @@ function Evaluations() {
 
                                     onChange={(_, page) => setPage(page)}
                                 />
-                                <DefaultButton>Criar Avaliação</DefaultButton>
+                                <Gate show={!asAuthor}>
+                                    <DefaultButton>Criar Avaliação</DefaultButton>
+                                </Gate>
                             </div>
                         </div>
                     </ManagementBar>
 
                     {/*List of Evaluations*/}
-                    <div className={style.evaluationsDiv}>
+                    <Gate show={showAverages}>
+                        <TableContainer sx={{boxSizing: "border-box", padding: "0 1px 0 0"}}>
+                            <Table size={"small"} padding={"normal"} sx={{height: "70px"}}>
+                                <TableHead>
+                                    <TableRow>
+                                        {averages ? Object.keys(averages).map(avg => {
+                                            return (
+                                                <TableCell
+                                                    key={`averageField#${avg}`}
+                                                    align={"center"}
+                                                    sx={{
+                                                        color: "var(--portalseguranca-color-text-light)",
+                                                        border: "1px solid var(--portalseguranca-color-background-light)",
+                                                        backgroundColor: "var(--portalseguranca-color-background-dark)"
+                                                    }}>
+                                                    {getObjectFromId(parseInt(avg), forceData.evaluation_fields)!.name}
+                                                </TableCell>
+                                            );
+                                        }): (<></>)}
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    <TableRow>
+                                        {averages ? Object.keys(averages).map(avg => {
+                                            // Get the grade
+                                            const grade = getObjectFromId(averages[parseInt(avg)], forceData.evaluation_grades)!;
+
+                                            return (
+                                                <TableCell
+                                                    key={`averageGrade#${avg}`}
+                                                    align={"center"}
+                                                    sx={{color: "var(--portalseguranca-color-text-dark)",
+                                                        backgroundColor: grade.color,
+                                                        border: "1px solid var(--portalseguranca-color-background-dark)"
+                                                    }}
+                                                >
+                                                        {grade.name}
+                                                </TableCell>
+                                            );
+                                        }): (<></>)}
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Gate>
+
+                    <div className={`${style.evaluationsDiv} ${showAverages ? style.evaluationsDivWithTable : ""}`}>
                         <Gate show={loading}>
                             <Loader fullDiv />
                         </Gate>
@@ -167,7 +275,11 @@ function Evaluations() {
                                         <EvaluationCard
                                             key={`evaluation#${evaluation.id}`}
                                             evaluation={evaluation}
-                                            callback={() => console.log(evaluation.id)}
+                                            callback={() => {
+                                                setSelectedId(evaluation.id);
+                                                setModalOpen(true);
+                                                setEvaluationOfficerNif(evaluation.target);
+                                            }}
                                         />
                                     );
                                 })}
@@ -176,6 +288,17 @@ function Evaluations() {
                     </div>
                 </>
             </ScreenSplit>
+
+            <EvaluationModal
+                open={modalOpen}
+                onClose={() => {
+                    setModalOpen(false);
+                    setIsNewEntry(false);
+                }}
+                officerNif={evaluationOfficerNif ?? 0}
+                id={selectedId}
+                newEntry={isNewEntry}
+            />
         </>
     );
 }

@@ -10,6 +10,10 @@
     padding: 0.7rem 0;
 }
 
+.evaluationsDivWithTable {
+    height: calc(100% - calc(5.4rem + 70px)) !important;
+}
+
 .managementBarMain {
     display: flex;
     flex-direction: row;
