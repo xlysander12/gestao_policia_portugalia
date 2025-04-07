@@ -753,6 +753,7 @@ const evaluationsRoutes: routesType = {
                         return {
                             action: "add",
                             target: res.locals.targetOfficer!.nif,
+                            author: res.locals.loggedOfficer.nif,
                             by: res.locals.loggedOfficer.nif
                         }
                     }
@@ -814,6 +815,7 @@ const evaluationsRoutes: routesType = {
                         return {
                             action: "update",
                             target: res.locals.targetOfficer!.nif,
+                            author: res.locals.evaluation.author,
                             id: res.locals.evaluation.id,
                             by: res.locals.loggedOfficer.nif
                         }
@@ -829,6 +831,7 @@ const evaluationsRoutes: routesType = {
                         return {
                             action: "delete",
                             target: res.locals.targetOfficer!.nif,
+                            author: res.locals.evaluation.author,
                             id: res.locals.evaluation.id,
                             by: res.locals.loggedOfficer.nif
                         }
