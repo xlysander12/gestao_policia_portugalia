@@ -1,4 +1,5 @@
 import {
+    EvaluationDecision,
     EvaluationField,
     EvaluationGrade,
     InactivityTypeData,
@@ -174,6 +175,23 @@ export async function getEvaluationFields(force: string): Promise<EvaluationFiel
             id: field.id as number,
             name: field.name as string,
             starting_patent: field.starting_patent as number
+        });
+    }
+
+    return fieldsList;
+}
+
+export async function getEvaluationDecisions(force: string): Promise<EvaluationDecision[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM evaluation_decisions`);
+
+    // Build an array with the fields
+    const fieldsList: EvaluationDecision[] = [];
+    for (const field of result) {
+        fieldsList.push({
+            id: field.id as number,
+            name: field.name as string,
+            color: field.color as string
         });
     }
 

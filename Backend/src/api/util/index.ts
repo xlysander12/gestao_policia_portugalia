@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+    getEvaluationDecisionsController,
     getEvaluationFieldsController,
     getEvaluationGradesController,
     getInactivityTypesController,
@@ -30,6 +31,8 @@ app.get("/patrol-forces", getPatrolForcesController);
 app.get("/evaluation-grades", getEvaluationGradesController);
 
 app.get("/evaluation-fields", getEvaluationFieldsController);
+
+app.get("/evaluation-decisions", getEvaluationDecisionsController);
 
 app.get("/notifications", getNotificationsController);
 

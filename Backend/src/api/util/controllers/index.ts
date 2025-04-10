@@ -1,7 +1,7 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {
-    errors,
+    errors, evaluationDecisions,
     evaluationFields,
     evaluationGrades,
     forceInactivityTypes,
@@ -22,7 +22,8 @@ import {
     UtilNotificationsResponse,
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
-    UtilUserErrorsResponse
+    UtilUserErrorsResponse,
+    UtilEvaluationDecisionsResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
@@ -110,6 +111,22 @@ export async function getEvaluationGradesController(req: express.Request, res: E
 export async function getEvaluationFieldsController(req: express.Request, res: ExpressResponse<UtilEvaluationFieldsResponse>) {
     // Call the service
     const result = await evaluationFields(req.header(FORCE_HEADER)!);
+
+    // Send the list to the client
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
+}
+
+export async function getEvaluationDecisionsController(req: express.Request, res: ExpressResponse<UtilEvaluationDecisionsResponse>) {
+    // Call the service
+    const result = await evaluationDecisions(req.header(FORCE_HEADER)!);
 
     // Send the list to the client
     if (!result.result) {

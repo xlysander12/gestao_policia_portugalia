@@ -1,5 +1,6 @@
 import {DefaultReturn} from "../../../types";
 import {
+    getEvaluationDecisions,
     getEvaluationFields,
     getEvaluationGrades,
     getForceInactivityTypes,
@@ -15,7 +16,7 @@ import {
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
-    StatusData, ActivityNotification, EvaluationGrade, EvaluationField
+    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
@@ -126,6 +127,15 @@ export async function evaluationFields(force: string): Promise<DefaultReturn<Eva
         status: 200,
         message: "Operação concluída com sucesso",
         data: await getEvaluationFields(force)
+    }
+}
+
+export async function evaluationDecisions(force: string): Promise<DefaultReturn<EvaluationDecision[]>> {
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: await getEvaluationDecisions(force)
     }
 }
 

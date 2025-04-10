@@ -310,6 +310,16 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all the evaluation decisions of the force
+    "/util/evaluation-decisions$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all notifications for an user
     "/util/notifications$": {
         methods: {
