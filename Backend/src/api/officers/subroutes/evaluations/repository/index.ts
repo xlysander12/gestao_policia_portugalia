@@ -128,14 +128,17 @@ export async function getEvaluationData(force: string, id: number): Promise<Eval
     }
 
     // Get the fields of the evaluation
-    const fieldsQueryResult = await queryDB(force, `SELECT field, grade FROM evaluations_data WHERE evaluation = ?`, [id]);
+    const fieldsQueryResult = await queryDB(force, `SELECT field, grade, comments FROM evaluations_data WHERE evaluation = ?`, [id]);
 
     // * Parse the fields
-    const fields: Record<number, number> = {};
+    const fields: EvaluationBodyFieldsType = {};
 
     // Since the field column is unique, we can just iterate over the fieldsQueryResult
     for (const field of fieldsQueryResult) {
-        fields[field.field as number] = field.grade as number;
+        fields[field.field as number] = {
+            grade: field.grade as number,
+            comments: field.comments as string | null
+        };
     }
 
     return {
@@ -156,7 +159,7 @@ export async function updateEvaluationGrades(force: string, id: number, grades: 
 
     // Insert the new data into the DB
     for (const field in grades) {
-        await queryDB(force, `INSERT INTO evaluations_data (evaluation, field, grade) VALUES (?, ?, ?)`, [id, parseInt(field), grades[field]]);
+        await queryDB(force, `INSERT INTO evaluations_data (evaluation, field, grade, comments) VALUES (?, ?, ?, ?)`, [id, parseInt(field), grades[field].grade, grades[field].comments]);
     }
 }
 

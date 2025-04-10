@@ -44,7 +44,8 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
             }
 
             // Add the grade to the field
-            field_grades[field].push(evaluationData.fields[field]);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            field_grades[field].push(evaluationData.fields[field].grade);
         }
     }
 

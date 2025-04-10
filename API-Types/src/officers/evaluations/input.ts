@@ -1,4 +1,4 @@
-import {Dictionary, Number, Optional, Partial, Record, String, Static} from "runtypes";
+import {Dictionary, Number, Optional, Partial, Record, String, Static, Union, Null} from "runtypes";
 
 export const ListEvaluationsQueryParams = Partial({
     page: String.withConstraint(string => !isNaN(parseInt(string))),
@@ -18,7 +18,7 @@ export const ListAuthoredEvaluationsQueryParams = Partial({
     patrol: String.withConstraint(string => !isNaN(parseInt(string))),
 });
 
-export const EvaluationBodyFields = Dictionary(Number, String.withConstraint(string => !isNaN(parseInt(string))));
+export const EvaluationBodyFields = Dictionary(Record({grade: Number, comments: Union(String, Null)}), String.withConstraint(string => !isNaN(parseInt(string))));
 
 export type EvaluationBodyFieldsType = Static<typeof EvaluationBodyFields>
 

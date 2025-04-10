@@ -13,7 +13,10 @@ export interface Evaluation extends Omit<MinifiedEvaluation, "average"> {
     patrol: number | null
     comments: string | null
     fields: {
-        [field: number]: number
+        [field: number]: {
+            grade: number
+            comments: string | null
+        }
     }
 }
 
