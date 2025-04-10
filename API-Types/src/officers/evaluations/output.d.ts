@@ -4,6 +4,7 @@ export interface MinifiedEvaluation {
     id: number
     target: number
     author: number
+    decision: number | null
     timestamp: number
     average: number
 }

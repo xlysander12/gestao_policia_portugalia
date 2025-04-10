@@ -74,6 +74,7 @@ export function getEvaluationDataController(_req: express.Request, res: OfficerE
             author: res.locals.evaluation.author,
             patrol: res.locals.evaluation.patrol,
             comments: res.locals.evaluation.comments,
+            decision: res.locals.evaluation.decision,
             timestamp: res.locals.evaluation.timestamp.getTime(),
             fields: res.locals.evaluation.fields,
         }

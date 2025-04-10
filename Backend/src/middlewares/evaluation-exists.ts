@@ -64,6 +64,7 @@ async function evaluationExistsMiddleware(req: express.Request, res: OfficerEval
         author: evaluation.author,
         patrol: evaluation.patrol,
         comments: evaluation.comments,
+        decision: evaluation.decision,
         timestamp: new Date(evaluation.timestamp),
         fields: evaluation.fields
     }

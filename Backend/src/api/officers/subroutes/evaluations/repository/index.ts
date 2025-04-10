@@ -22,6 +22,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             id,
             target, 
             author, 
+            decision,
             timestamp 
         FROM 
             evaluationsV
@@ -35,6 +36,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             id,
             target, 
             author, 
+            decision,
             timestamp
         FROM
             evaluationsV
@@ -70,6 +72,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             id: row.id as number,
             target: row.target as number,
             author: row.author as number,
+            decision: row.decision as number | null,
             timestamp: dateToUnix(row.timestamp as Date),
             average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average as number
         });
@@ -103,6 +106,7 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
             id: row.id as number,
             target: row.target as number,
             author: row.author as number,
+            decision: row.decision as number | null,
             timestamp: dateToUnix(row.timestamp as Date),
             average: (await queryDB(force, `SELECT CEILING(AVG(grade)) AS average FROM evaluations_data WHERE evaluation = ?`, [row.id]))[0].average as number
         });
@@ -140,6 +144,7 @@ export async function getEvaluationData(force: string, id: number): Promise<Eval
         author: basicQueryResult[0].author as number,
         patrol: basicQueryResult[0].patrol as number | null,
         comments: basicQueryResult[0].comments as string | null,
+        decision: basicQueryResult[0].decision as number | null,
         timestamp: dateToUnix(basicQueryResult[0].timestamp as Date),
         fields: fields
     }
