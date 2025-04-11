@@ -1,6 +1,6 @@
 import ManagementBar from "../ManagementBar";
 import style from "../../pages/Patrols/patrols.module.css";
-import {DefaultPagination, DefaultSearch} from "../DefaultComponents";
+import {DefaultPagination, DefaultSearch, DefaultTypography} from "../DefaultComponents";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {getObjectFromId} from "../../forces-data-context.ts";
@@ -166,6 +166,16 @@ function PatrolPicker(props: PatrolPickerProps) {
                             callback={props.callback}
                         />
                     ))}
+                </Gate>
+
+                <Gate show={!loading && patrols.length === 0}>
+                    <DefaultTypography
+                        color={"var(--portalseguranca-color-text-dark)"}
+                        fontSize={"xx-large"}
+                        sx={{alignSelf: "center"}}
+                    >
+                        Sem Registos
+                    </DefaultTypography>
                 </Gate>
             </div>
         </>

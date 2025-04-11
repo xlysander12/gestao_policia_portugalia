@@ -192,6 +192,16 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
                         )
                     })}
                 </Gate>
+
+                <Gate show={!loading && officers.length === 0}>
+                    <DefaultTypography
+                        color={"var(--portalseguranca-color-text-dark)"}
+                        fontSize={"xx-large"}
+                        sx={{alignSelf: "center"}}
+                    >
+                        Sem Registos
+                    </DefaultTypography>
+                </Gate>
             </div>
         </div>
     );

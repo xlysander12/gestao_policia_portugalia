@@ -40,12 +40,12 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
                 borderColor: `${textWhenDisabled ? "transparent": "var(--portalseguranca-color-accent)"}`,
             },
 
-            padding: `${textWhenDisabled ? "4px 0 5px": "16.5px, 14px"}`,
+            padding: `${textWhenDisabled ? "4px 0 5px": "16.5px, 14px"}`
         },
 
         "& .MuiOutlinedInput-input": {
             "&.Mui-disabled": {
-                WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "rgba(208,199,211,0.5)"}`,
+                WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "gray"}`,
             }
         }
     }
