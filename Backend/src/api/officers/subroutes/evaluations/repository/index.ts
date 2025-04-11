@@ -186,6 +186,9 @@ export async function editEvaluation(force: string, id: number, changes: EditEva
         values.push(changes[field as keyof EditEvaluationBodyType] as string);
         
         // Add the field to the query
+        if (field === "timestamp") {
+            return acc + `${field} = FROM_UNIXTIME(?), `;
+        }
         return acc + `${field} = ?, `;
     }, "").slice(0, -2)} WHERE id = ?`;
 
