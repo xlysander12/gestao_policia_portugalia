@@ -25,6 +25,16 @@ const StyledDefaultSearch = styled(Autocomplete, {
 }));
 
 function DefaultSearch(props: DefaultSearchProps) {
+    // If the defaultFilters prop is present, ensure every key is a valid option
+    if (props.defaultFilters) {
+        for (const filter of props.defaultFilters) {
+            if (!props.options.find(option => option.key === filter.key)) {
+                throw new Error(`Key "${filter.key}" is not a valid option`);
+            }
+        }
+    }
+
+
     const [options, setOptions] = useState<DefaultSearchOption[]>(props.options)
     const [currentOption, setCurrentOption] = useState<DefaultSearchOption | null>(null);
     const [currentValue, setCurrentValue] = useImmer<{label: string, key: string, value: any, labelValue: string}[]>([]);
@@ -173,7 +183,7 @@ function DefaultSearch(props: DefaultSearchProps) {
     // Ensure options update when needed
     useEffect(() => {
         setOptions(props.options);
-    }, [props.options]);
+    }, [JSON.stringify(props.options)]);
 
     // Trigger the callback when an option's addition is complete
     useEffect(() => {
@@ -181,7 +191,35 @@ function DefaultSearch(props: DefaultSearchProps) {
             triggerCallback();
             setToCallCallback(false);
         }
-    }, [currentValue]);
+    }, [currentValue, toCallCallback]);
+
+    // Apply the default filters when passed to props
+    useEffect(() => {
+        if (props.defaultFilters) {
+            // Loop through the passed filters
+            for (const filter of props.defaultFilters) {
+                setCurrentValue(draft => {
+                    draft.push(filter)
+                });
+            }
+
+            // Call the callback function to ensure the search is performed
+            setToCallCallback(true);
+        }
+
+        return () => {
+            // Delete all filters applied by the default ones
+            if (props.defaultFilters) {
+                for (const filter of props.defaultFilters) {
+                    const newValue = currentValue.filter(value => {
+                        return value.key === filter.key && value.value === filter.value;
+                    });
+
+                    setCurrentValue(newValue);
+                }
+            }
+        }
+    }, [JSON.stringify(props.defaultFilters)]);
 
     // Call the async function when the current option needs it
     useEffect(() => {
