@@ -185,6 +185,9 @@ export async function editEvaluation(force: string, id: number, changes: EditEva
         // Add the value to the values array
         values.push(changes[field as keyof EditEvaluationBodyType] as string);
         
+        // If the timestamp field is present together with the patrol field, disregard the patrol field
+        if (field === "timestamp" && changes.patrol) return acc;
+        
         // Add the field to the query
         if (field === "timestamp") {
             return acc + `${field} = FROM_UNIXTIME(?), `;

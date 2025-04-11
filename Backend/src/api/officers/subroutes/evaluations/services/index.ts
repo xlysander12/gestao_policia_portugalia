@@ -44,7 +44,6 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
             }
 
             // Add the grade to the field
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             field_grades[field].push(evaluationData.fields[field].grade);
         }
     }
@@ -186,7 +185,7 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
     }
 
     // Apply the data in the repository
-    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol ?? undefined, details.comments, details.timestamp);
+    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.patrol ? undefined : details.timestamp);
 
     return {
         result: true,
