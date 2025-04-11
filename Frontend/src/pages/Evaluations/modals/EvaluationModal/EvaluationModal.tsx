@@ -1,7 +1,7 @@
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
-import {useForceData} from "../../../../hooks";
-import {useEffect, useState} from "react";
+import {useForceData, useWebSocketEvent} from "../../../../hooks";
+import {useCallback, useContext, useEffect, useState} from "react";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {toast} from "react-toastify";
@@ -20,10 +20,18 @@ import ClearIcon from '@mui/icons-material/Clear';
 import PatrolInfoModal from "../../../Patrols/modals/PatrolInfoModal";
 import {useImmer} from "use-immer";
 import { MinifiedOfficerData, OfficerInfoGetResponse } from "@portalseguranca/api-types/officers/output";
-import {Evaluation, EvaluationDetailResponse } from "@portalseguranca/api-types/officers/evaluations/output";
-import { EditEvaluationBodyType } from "@portalseguranca/api-types/officers/evaluations/input";
+import {
+    DeleteEvaluationSocket,
+    Evaluation,
+    EvaluationDetailResponse,
+    EvaluationSocket, UpdateEvaluationSocket
+} from "@portalseguranca/api-types/officers/evaluations/output";
+import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
 import AddEvaluationSection from "./AddEvaluationSection";
-import { BaseResponse } from "@portalseguranca/api-types";
+import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
+import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
+import {PatrolPickerModal} from "../../../../components/PatrolPicker";
+import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 
 type InnerEvaluation = Omit<Evaluation, "target" | "author" | "timestamp"> & {
     target: MinifiedOfficerData
@@ -59,6 +67,9 @@ function EvaluationModal(props: EvaluationModalProps) {
     // Get force's data from context
     const [forceData] = useForceData();
 
+    // Get logged user from context
+    const loggedUser = useContext(LoggedUserContext);
+
     // Loading flag
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -68,10 +79,9 @@ function EvaluationModal(props: EvaluationModalProps) {
     // State that holds the evaluation data
     const [evaluationData, setEvaluationData] = useImmer<InnerEvaluation>(PLACEHOLDER_EVALUATION_DATA);
 
-    // Patrol Modal control
+    // Modals control
     const [patrolModalOpen, setPatrolModalOpen] = useState<boolean>(false);
-
-    // Confirmation Dialog controll
+    const [patrolPickerModalOpen, setPatrolPickerModalOpen] = useState<boolean>(false);
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState<boolean>(false);
 
     function handleClose() {
@@ -129,6 +139,41 @@ function EvaluationModal(props: EvaluationModalProps) {
         setLoading(false);
     }
 
+    function handlePatrolAddition(patrol: MinifiedPatrolData) {
+        console.log(patrol.id.replace(localStorage.getItem("force")!, ""));
+        setEvaluationData(draft => {
+            draft.patrol = parseInt(patrol.id.replace(localStorage.getItem("force")!, ""));
+            draft.timestamp = moment.unix(patrol.end ?? patrol.start)
+        });
+    }
+
+    async function handleEvaluationCreation() {
+        // Set the loading state to true
+        setLoading(true);
+
+        // Query the server to create the evaluation
+        const response = await make_request<CreateEvaluationBodyType>(`/officers/${props.officerData!.nif}/evaluations`, RequestMethod.POST, {
+            body: {
+                patrol: evaluationData.patrol ?? undefined,
+                comments: evaluationData.comments ?? undefined,
+                decision: evaluationData.decision ?? undefined,
+                timestamp: evaluationData.timestamp.unix(),
+                fields: evaluationData.fields
+            }
+        });
+        const responseJson = await response.json() as BaseResponse;
+
+        if (!response.ok) {
+            toast.error(responseJson.message);
+            setLoading(false);
+            return;
+        }
+
+        toast.success("Avaliação criada com sucesso");
+
+        props.onClose();
+    }
+
     async function handleEvaluationSave() {
         // Set the loading state to true
         setLoading(true);
@@ -176,25 +221,63 @@ function EvaluationModal(props: EvaluationModalProps) {
         handleClose();
     }
 
+    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback(async (data) => {
+        // If we are creating a new Evaluation, discard this event
+        if (props.newEntry) return;
+
+        // If the action is an addition of an Evaluation, discard this event
+        if (data.action === "add") return;
+
+        // If the id the of edited evaluation isn't the same as the current one, discard this event
+        if ((data as UpdateEvaluationSocket | DeleteEvaluationSocket).id !== evaluationData.id) return;
+
+        // If the current Evaluation was deleted, close the modal and inform the user
+        if (data.action === "delete") {
+            props.onClose();
+            toast.warning("A avaliação que estavas a ver foi apagada!");
+        }
+
+        // If the current Evaluation was edited, update it's content unless editMode is on
+        if (data.action === "update" && !editMode) {
+            await fetchEvaluationData(false);
+            toast.warning("A avaliação que estavas a ver foi editada!")
+        }
+    }, [props.newEntry, evaluationData.id, props.onClose, editMode]));
+
     useEffect(() => {
         if (props.open) {
-            if (props.id) { // If ID is set, then we are viewing an existing evaluation
-                void fetchEvaluationData();
-            }
-
             if (props.newEntry) { // If the newEntry flag is true, this is a new evaluation
                 // Ensure the evaluationData is set to the placeholder
                 setEvaluationData(PLACEHOLDER_EVALUATION_DATA);
 
+                // Set the author and target values
+                setEvaluationData(draft => {
+                    draft.author = {
+                        callsign: loggedUser.info.professional.callsign,
+                        name: loggedUser.info.personal.name,
+                        nif: loggedUser.info.personal.nif,
+                        patent: loggedUser.info.professional.patent.id,
+                        status: loggedUser.info.professional.status.id
+                    };
+                    draft.target = props.officerData!
+                });
+
                 // Set the editmode to true
                 setEditMode(true);
+
+                // Ensure the loading state is false
+                setLoading(false);
+            } else if (props.id) { // If ID is set, then we are viewing an existing evaluation
+                void fetchEvaluationData();
             }
         }
 
         return () => {
-            // Reset flags
+            // Reset flags and values
             setEditMode(false);
             setLoading(true);
+
+            setEvaluationData(PLACEHOLDER_EVALUATION_DATA);
         }
     }, [props.open, props.id, props.officerNif, props.newEntry]);
 
@@ -246,7 +329,7 @@ function EvaluationModal(props: EvaluationModalProps) {
                                 <DefaultTypography
                                     color={evaluationData.patrol === null && !editMode ? "gray" : "var(--portalseguranca-color-text-light)"}
                                     clickable={evaluationData.patrol !== null || editMode}
-                                    onClick={evaluationData.patrol !== null ? () => {setPatrolModalOpen(true)} : () => {}}
+                                    onClick={evaluationData.patrol !== null ? () => {setPatrolModalOpen(true)} : () => setPatrolPickerModalOpen(true)}
                                 >
                                     {evaluationData.patrol === null ? (editMode ? "Associar Patrulha" : "Sem patrulha associada") : `Patrulha #${localStorage.getItem("force")!.toUpperCase()}${evaluationData.patrol}`}
                                 </DefaultTypography>
@@ -457,24 +540,40 @@ function EvaluationModal(props: EvaluationModalProps) {
                             </Gate>
 
                             <Gate show={editMode}>
-                                <DefaultButton
-                                    buttonColor={"lightgreen"}
-                                    sx={{flex: 1}}
-                                    onClick={handleEvaluationSave}
-                                >
-                                    Guardar
-                                </DefaultButton>
+                                <Gate show={!props.newEntry}>
+                                    <DefaultButton
+                                        buttonColor={"lightgreen"}
+                                        darkTextOnHover
+                                        sx={{flex: 1}}
+                                        onClick={handleEvaluationSave}
+                                    >
+                                        Guardar
+                                    </DefaultButton>
 
-                                <DefaultButton
-                                    buttonColor={"red"}
-                                    sx={{flex: 1}}
-                                    onClick={() => {
-                                        setEditMode(false);
-                                        void fetchEvaluationData();
-                                    }}
-                                >
-                                    Cancelar
-                                </DefaultButton>
+                                    <DefaultButton
+                                        buttonColor={"red"}
+                                        sx={{flex: 1}}
+                                        onClick={() => {
+                                            setEditMode(false);
+                                            void fetchEvaluationData();
+                                        }}
+                                    >
+                                        Cancelar
+                                    </DefaultButton>
+                                </Gate>
+
+                                <Gate show={props.newEntry ?? false}>
+                                    <DefaultButton
+                                        disabled={Object.keys(evaluationData.fields).length === 0}
+                                        buttonColor={"lightgreen"}
+                                        darkTextOnHover
+                                        onClick={handleEvaluationCreation}
+                                        sx={{flex: 1}}
+                                    >
+                                        Criar Avaliação
+                                    </DefaultButton>
+                                </Gate>
+
                             </Gate>
                         </div>
                     </ModalSection>
@@ -487,6 +586,15 @@ function EvaluationModal(props: EvaluationModalProps) {
                 text={"Tens a certeza que desejas apagar esta avaliação?\nEsta ação não pode ser revertida!"}
                 onConfirm={handleEvaluationDelete}
                 onDeny={() => setConfirmationDialogOpen(false)}
+            />
+
+            <PatrolPickerModal
+                open={patrolPickerModalOpen}
+                onClose={() => setPatrolPickerModalOpen(false)}
+                filters={[
+                    {key: "officers", value: `${evaluationData.author.nif},${evaluationData.target.nif}`}
+                ]}
+                callback={handlePatrolAddition}
             />
 
             <PatrolInfoModal

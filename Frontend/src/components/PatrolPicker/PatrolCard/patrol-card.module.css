@@ -4,6 +4,7 @@
     align-items: center;
     border-radius: 5px;
     width: 100%;
+    text-align: start;
 }
 
 .patrolCardLeft {

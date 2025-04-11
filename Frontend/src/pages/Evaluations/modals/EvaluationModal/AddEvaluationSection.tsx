@@ -65,7 +65,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     })}
                 </DefaultSelect>
 
-                <Divider flexItem />
+                <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
                     Avaliação:
@@ -89,7 +89,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     })}
                 </DefaultSelect>
 
-                <Divider flexItem />
+                <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
                     Observações:
@@ -102,7 +102,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     onChange={event => setComments(event.target.value === "" ? null : event.target.value)}
                 />
 
-                <Divider flexItem />
+                <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                 <DefaultButton
                     fullWidth

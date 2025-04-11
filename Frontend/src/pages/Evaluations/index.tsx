@@ -109,7 +109,7 @@ function Evaluations() {
         if ((data.target === currentOfficer.nif && !asAuthor) || (data.author === currentOfficer.nif && asAuthor)) {
             await fetchEvaluations(false);
         }
-    }, []));
+    }, [currentOfficer.nif, asAuthor]));
 
     useEffect(() => {
         void fetchEvaluations();
@@ -205,7 +205,14 @@ function Evaluations() {
                                     onChange={(_, page) => setPage(page)}
                                 />
                                 <Gate show={!asAuthor}>
-                                    <DefaultButton>Criar Avaliação</DefaultButton>
+                                    <DefaultButton
+                                        onClick={() => {
+                                            setIsNewEntry(true);
+                                            setModalOpen(true);
+                                        }}
+                                    >
+                                        Criar Avaliação
+                                    </DefaultButton>
                                 </Gate>
                             </div>
                         </div>
@@ -296,6 +303,7 @@ function Evaluations() {
                     setIsNewEntry(false);
                 }}
                 officerNif={evaluationOfficerNif ?? 0}
+                officerData={currentOfficer}
                 id={selectedId}
                 newEntry={isNewEntry}
             />
