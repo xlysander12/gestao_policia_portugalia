@@ -186,7 +186,7 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
     }
 
     // Apply the data in the repository
-    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.timestamp);
+    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol ?? undefined, details.comments, details.timestamp);
 
     return {
         result: true,
