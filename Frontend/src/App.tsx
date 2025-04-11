@@ -11,6 +11,7 @@ import OfficerInfo from "./pages/OfficerInfo";
 import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilEvaluationDecisionsResponse,
     UtilEvaluationFieldsResponse,
     UtilEvaluationGradesResponse,
     UtilForcePatrolForcesResponse,
@@ -57,6 +58,7 @@ function App() {
             patrol_types: [],
             evaluation_grades: [],
             evaluation_fields: [],
+            evaluation_decisions: [],
             special_units: [],
             special_unit_roles: []
         }
@@ -88,6 +90,10 @@ function App() {
         // Fetching the evaluation fields
         const evaluationFieldsResponse = await make_request("/util/evaluation-fields", "GET", {force: forceName});
         forceTempData.evaluation_fields = ((await evaluationFieldsResponse.json()) as UtilEvaluationFieldsResponse).data;
+
+        // Fetching the evaluation fields
+        const evaluationDecisionsResponse = await make_request("/util/evaluation-decisions", "GET", {force: forceName});
+        forceTempData.evaluation_decisions = ((await evaluationDecisionsResponse.json()) as UtilEvaluationDecisionsResponse).data;
 
         // Fetching the special units
         const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
@@ -135,7 +141,7 @@ function App() {
             setCanLoad(true);
         }
 
-        if (localStorage.getItem("force") && (location.pathname !== `${BASE_URL}/erro`)) {
+        if (localStorage.getItem("force") && !(location.pathname.includes(`${BASE_URL}/erro`))) {
             void execute();
         } else {
             setCanLoad(true);
@@ -231,7 +237,7 @@ function App() {
 
 
     const defaultTheme = createTheme(defaultThemeData);
-    if (!canLoad || ((force !== "" && forceData[force] === undefined) && location.pathname !== `${BASE_URL}/erro`)) {
+    if (!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))) {
         return (
             <Loader fullPage/>
         )

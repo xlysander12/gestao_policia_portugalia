@@ -1,5 +1,6 @@
 import {createContext} from "react";
 import {
+    EvaluationDecision,
     EvaluationField,
     EvaluationGrade,
     InactivityTypeData,
@@ -17,6 +18,7 @@ export type ForceData = {
     patrol_types: PatrolTypeData[]
     evaluation_grades: EvaluationGrade[]
     evaluation_fields: EvaluationField[]
+    evaluation_decisions: EvaluationDecision[]
     special_units: SpecialUnitData[]
     special_unit_roles: SpecialUnitRoleData[]
 }

@@ -1,1 +1,1 @@
-export {default as EvaluationModal} from './EvaluationModal';
+export {default as EvaluationModal} from './EvaluationModal/EvaluationModal.tsx';

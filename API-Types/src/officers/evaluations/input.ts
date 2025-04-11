@@ -23,7 +23,7 @@ export const EvaluationBodyFields = Dictionary(Record({grade: Number, comments: 
 export type EvaluationBodyFieldsType = Static<typeof EvaluationBodyFields>
 
 export const CreateEvaluationBody = Record({
-    patrol: Optional(Number),
+    patrol: Optional(Union(Number, Null)),
     comments: Optional(String),
     decision: Optional(Number),
     timestamp: Optional(Number),
@@ -33,9 +33,9 @@ export const CreateEvaluationBody = Record({
 export type CreateEvaluationBodyType = Static<typeof CreateEvaluationBody>
 
 export const EditEvaluationBody = Partial({
-    patrol: Number,
-    comments: String,
-    decision: Number,
+    patrol: Union(Number, Null),
+    comments: Union(String, Null),
+    decision: Union(Number, Null),
     timestamp: Number,
     fields: EvaluationBodyFields.withConstraint(fields => Object.keys(fields).length > 0)
 });

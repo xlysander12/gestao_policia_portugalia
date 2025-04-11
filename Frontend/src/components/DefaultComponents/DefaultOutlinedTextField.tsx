@@ -69,7 +69,7 @@ const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
                             {showPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
                         </IconButton>
                     </InputAdornment>
-                ) : undefined,
+                ) : props.InputProps?.endAdornment,
             }}
         />
     );

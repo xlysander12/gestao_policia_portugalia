@@ -71,7 +71,7 @@ const DefaultTextField = (props: DefaultTextFieldProps) => {
                             {showPassword ? <VisibilityOffIcon sx={{color: "white"}}/> : <VisibilityIcon sx={{color: "white"}}/>}
                         </IconButton>
                     </InputAdornment>
-                ) : undefined,
+                ) : props.InputProps?.endAdornment,
             }}
         />
     );

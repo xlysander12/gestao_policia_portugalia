@@ -66,7 +66,7 @@ function EvaluationCard(props: EvaluationCardProps) {
     return (
         <InformationCard
             callback={props.callback}
-            statusColor={getObjectFromId(props.evaluation.average, forceData.evaluation_grades)!.color}
+            statusColor={props.evaluation.decision ? getObjectFromId(props.evaluation.decision, forceData.evaluation_decisions)!.color : getObjectFromId(props.evaluation.average, forceData.evaluation_grades)!.color}
         >
             <div className={styles.evaluationCardMain}>
                 <div className={styles.evaluationCardLeft}>
