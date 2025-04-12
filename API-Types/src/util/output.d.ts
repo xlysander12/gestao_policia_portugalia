@@ -117,6 +117,10 @@ export interface UtilEvaluationDecisionsResponse extends BaseResponse {
     data: EvaluationDecision[]
 }
 
+export interface UtilLastCeremonyResponse extends BaseResponse {
+    data: number
+}
+
 export interface UtilNotificationsResponse extends BaseResponse {
     data: BaseNotification[]
 }

@@ -8,7 +8,7 @@ import {
     getForcePatents, getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
-    getForceStatuses, getPendingInactivityJustifications, getUserErrors
+    getForceStatuses, getLastCeremony, getPendingInactivityJustifications, getUserErrors, updateLastCeremony
 } from "../repository";
 import {
     InactivityTypeData,
@@ -20,6 +20,7 @@ import {
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
+import {unixToDate} from "../../../utils/date-handler";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -136,6 +137,38 @@ export async function evaluationDecisions(force: string): Promise<DefaultReturn<
         status: 200,
         message: "Operação concluída com sucesso",
         data: await getEvaluationDecisions(force)
+    }
+}
+
+export async function lastCeremony(force: string): Promise<DefaultReturn<Date>> {
+    // Get the last ceremony from the repository
+    const lastCeremony = await getLastCeremony(force);
+
+    if (!lastCeremony) {
+        return {
+            result: false,
+            status: 404,
+            message: "Não existe nenhuma data da última cerimónia registada",
+        }
+    }
+
+    // Return 200
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: lastCeremony
+    }
+}
+
+export async function changeLastCeremony(force: string, timestamp: number): Promise<DefaultReturn<void>> {
+    // Change the last ceremony date in the repository
+    await updateLastCeremony(force, unixToDate(timestamp));
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
     }
 }
 

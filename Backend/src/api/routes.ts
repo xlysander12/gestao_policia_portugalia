@@ -49,6 +49,7 @@ import {
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
+import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -316,6 +317,24 @@ const utilRoutes: routesType = {
             GET: {
                 requiresToken: false,
                 requiresForce: true
+            }
+        }
+    },
+
+    // Route to get and update the last ceremony date of the force
+    "/util/last-ceremony$": {
+        methods: {
+            GET: {
+                requiresForce: true,
+                requiresToken: false
+            },
+            PUT: {
+                requiresForce: true,
+                requiresToken: true,
+                intents: ["evaluations"],
+                body: {
+                    type: ChangeLastCeremonyRequestBody
+                }
             }
         }
     },

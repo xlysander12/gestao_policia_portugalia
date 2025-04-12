@@ -1,6 +1,7 @@
 import express from "express";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {
+    changeLastCeremony,
     errors, evaluationDecisions,
     evaluationFields,
     evaluationGrades,
@@ -9,7 +10,7 @@ import {
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits,
-    forceStatuses, notifications
+    forceStatuses, lastCeremony, notifications
 } from "../services";
 import {
     UtilInactivityTypesResponse,
@@ -23,10 +24,11 @@ import {
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
     UtilUserErrorsResponse,
-    UtilEvaluationDecisionsResponse
+    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
+import {ChangeLastCeremonyRequestBodyType} from "@portalseguranca/api-types/util/input";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from
@@ -138,6 +140,34 @@ export async function getEvaluationDecisionsController(req: express.Request, res
         message: result.message,
         data: result.data!
     });
+}
+
+export async function getLastCeremonyController(req: express.Request, res: ExpressResponse<UtilLastCeremonyResponse>) {
+    // Call the service
+    const result = await lastCeremony(req.header(FORCE_HEADER)!);
+
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: dateToUnix(result.data!)
+    });
+}
+export async function changeLastCeremonyController(req: express.Request, res: APIResponse) {
+    const {timestamp} = req.body as ChangeLastCeremonyRequestBodyType;
+
+    // Call the service
+    const result = await changeLastCeremony(req.header(FORCE_HEADER)!, timestamp);
+
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({message: result.message});
 }
 
 export async function getNotificationsController(req: express.Request, res: APIResponse<UtilNotificationsResponse>) {

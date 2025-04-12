@@ -1,10 +1,11 @@
 import express from 'express';
 import {
+    changeLastCeremonyController,
     getEvaluationDecisionsController,
     getEvaluationFieldsController,
     getEvaluationGradesController,
     getInactivityTypesController,
-    getIntentsController, getNotificationsController,
+    getIntentsController, getLastCeremonyController, getNotificationsController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController,
     getSpecialUnitsController,
     getStatusesController, getUserErrorsController
@@ -33,6 +34,10 @@ app.get("/evaluation-grades", getEvaluationGradesController);
 app.get("/evaluation-fields", getEvaluationFieldsController);
 
 app.get("/evaluation-decisions", getEvaluationDecisionsController);
+
+app.get("/last-ceremony", getLastCeremonyController);
+
+app.put("/last-ceremony", changeLastCeremonyController);
 
 app.get("/notifications", getNotificationsController);
 

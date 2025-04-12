@@ -11,6 +11,7 @@ import {
 } from "@portalseguranca/api-types/util/output";
 import {queryDB} from "../../../utils/db-connector";
 import {OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[] | PatentData | null> {
     // Get the list from the database
@@ -196,6 +197,30 @@ export async function getEvaluationDecisions(force: string): Promise<EvaluationD
     }
 
     return fieldsList;
+}
+
+export async function getLastCeremony(force: string): Promise<Date | null> {
+    // Query the DB to fetch the last ceremony date
+    const result = await queryDB(force, `SELECT date FROM last_ceremony LIMIT 1`);
+
+    // If there is no result, there isn't a last ceremony
+    if (result.length === 0) return null;
+
+    return result[0].date as Date;
+}
+
+export async function updateLastCeremony(force: string, date: Date) {
+    // Check if there already is a last ceremony stored
+    const last = await getLastCeremony(force);
+
+    // If there is no last ceremony, insert it
+    if (!last) {
+        await queryDB(force, `INSERT INTO last_ceremony (date) VALUES (FROM_UNIXTIME(?))`, dateToUnix(date));
+        return;
+    }
+
+    // If there is a last ceremony, update it
+    await queryDB(force, `UPDATE last_ceremony SET date = FROM_UNIXTIME(?)`, dateToUnix(date));
 }
 
 export async function getPendingInactivityJustifications(force: string, include_expired = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
