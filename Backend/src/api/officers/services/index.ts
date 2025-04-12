@@ -23,6 +23,7 @@ import {PatentData} from "@portalseguranca/api-types/util/output";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {getOfficerPatrol} from "../../patrols/repository";
 import {getSheetValues} from "../../../utils/google-sheets";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export function sortOfficers(officers: InnerOfficerData[]): InnerOfficerData[] {
     // Sort the officers by patent from highest to lowest and, if the patent is the same, by callsign from lowest to highest
@@ -183,12 +184,14 @@ async function convertHubValues(force: string, patent: string, status: string, e
     // Convert the entry date
     // This date is in the DD/MM/YYYY format
     const entry_date_split = entry_date.split("/");
-    const outEntry_date = Date.parse(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`);
+    const outEntry_date = dateToUnix(new Date(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`));
 
     // Convert the promotion date
     // This date is in the DD/MM/YYYY format
     const promotion_date_split = promotion_date.split("/");
-    const outPromotion_date = Date.parse(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`);
+    const outPromotion_date = promotion_date_split.length === 1 ?
+        undefined :
+        dateToUnix(new Date(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`));
 
     // Convert the phone number
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
@@ -305,9 +308,9 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
     importing_forces[force] = true;
 
     // * Get the all data from the Force's HUB on Google Sheets
-    // Fecth the spreadsheet id and sheet name from the config file
+    // Fetch the spreadsheet id and sheet name from the config file
     if (!getForceHubDetails(force)) { // If there's no HUB information present, this is not supported for this force
-        return {result: false, status: 422, message: "Esta rota não é suportada por esta força."};
+        return {result: false, status: 422, message: "Esta ação não é suportada por esta força."};
     }
 
     const {id, sheet} = getForceHubDetails(force)!;
