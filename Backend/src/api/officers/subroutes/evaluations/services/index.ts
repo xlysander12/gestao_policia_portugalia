@@ -23,15 +23,21 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     evaluations: MinifiedEvaluation[],
     averages: Record<number, number>
 }>> {
+    // Check if the requester has the "evaluations" intent
+    const hasIntent = await userHasIntents(requester.nif, force, "evaluations");
+
     // Fetch the evaluations from the repository
-    const {pages, evaluations} = await getEvaluations(force, requester, target, await userHasIntents(requester.nif, force, "evaluations"), routeValidFilters, filters, page);
+    const {pages, evaluations} = await getEvaluations(force, requester, target, hasIntent, routeValidFilters, filters, page);
 
     // * Calculate the averages for each present field of the evaluations
+    // Get all evaluations from the filters, without any pagination
+    const allEvals = (await getEvaluations(force, requester, target, hasIntent, routeValidFilters, filters, 0)).evaluations;
+
     // Store all grades for each field
     const field_grades: Record<number, number[]> = {};
 
     // Loop through all evaluations
-    for (const evaluation of evaluations) {
+    for (const evaluation of allEvals) {
         // Fetch the complete evaluation data
         const evaluationData = (await getEvaluationData(force, evaluation.id))!;
 

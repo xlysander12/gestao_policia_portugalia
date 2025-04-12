@@ -29,8 +29,11 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             JOIN officers author ON evaluationsV.author = author.nif
             JOIN officers requester ON requester.nif = ?
         ${filtersResult.query}
-        LIMIT ${entries_per_page} 
-        OFFSET ${(page - 1) * entries_per_page}
+        ${page > 0 ?
+            `LIMIT ${entries_per_page}
+             OFFSET ${(page - 1) * entries_per_page}
+             ` : ""
+        }
     ` : `
         SELECT
             id,
@@ -41,8 +44,11 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
         FROM
             evaluationsV
         ${filtersResult.query}
-        LIMIT ${entries_per_page}
-        OFFSET ${(page - 1) * entries_per_page}
+            ${page > 0 ?
+                    `LIMIT ${entries_per_page}
+             OFFSET ${(page - 1) * entries_per_page}
+             ` : ""
+            }
     `
     const result = await queryDB(force, query, all ? [requester.nif, ...filtersResult.values] : filtersResult.values);
 
