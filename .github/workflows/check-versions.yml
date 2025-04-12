@@ -1,8 +1,9 @@
 name: Ensure Version Increment
 on:
   pull_request:
-    type:
+    types:
       - opened
+      - synchronize
     branches:
       - master
 
