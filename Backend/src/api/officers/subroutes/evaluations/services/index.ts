@@ -15,7 +15,7 @@ import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca
 import {InnerOfficerEvaluation} from "../../../../../types/inner-types";
 import {getPatrol} from "../../../../patrols/repository";
 import {getOfficerData} from "../../../repository";
-import {getForcePatents} from "../../../../util/repository";
+import {getEvaluationFields, getForcePatents} from "../../../../util/repository";
 import {PatentData} from "@portalseguranca/api-types/util/output";
 
 export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
@@ -184,6 +184,30 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
         }
     }
 
+    // * Loop through every given field and check if the target can be evaluated by it
+    // Get all force fields from the DB
+    const allFields = await getEvaluationFields(force);
+    for (const field of Object.keys(details.fields)) {
+        const foundField = allFields.find((allF) => allF.id === parseInt(field));
+
+        // If this field wasn't found, return an error
+        if (!foundField) {
+            return {
+                result: false,
+                status: 400,
+                message: "Campo de avaliação fornecido inválido"
+            }
+        }
+
+        if (foundField.starting_patent > targetOfficer.patent) {
+            return {
+                result: false,
+                status: 400,
+                message: "Este efetivo não pode ser evaliado sob este campo de avaliação"
+            }
+        }
+    }
+
     // Apply the data in the repository
     await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.patrol ? undefined : details.timestamp);
 
@@ -243,6 +267,43 @@ export async function updateEvaluation(force: string, loggedOfficer: InnerOffice
             result: true,
             status: 200,
             message: "Operação realizada com sucesso"
+        }
+    }
+
+    // * Loop through every given field and check if the target can be evaluated by it, if fields were given
+    if (details.fields) {
+        // Get all force fields from the DB
+        const allFields = await getEvaluationFields(force);
+        const targetOfficer = await getOfficerData(evaluation.target, force, false, false) ??
+            await getOfficerData(evaluation.target, force, true, false);
+
+        if (!targetOfficer) {
+            return {
+                result: false,
+                status: 400,
+                message: "Efetivo não encontrado"
+            }
+        }
+
+        for (const field of Object.keys(details.fields)) {
+            const foundField = allFields.find((allF) => allF.id === parseInt(field));
+
+            // If this field wasn't found, return an error
+            if (!foundField) {
+                return {
+                    result: false,
+                    status: 400,
+                    message: "Campo de avaliação fornecido inválido"
+                }
+            }
+
+            if (foundField.starting_patent > targetOfficer.patent) {
+                return {
+                    result: false,
+                    status: 400,
+                    message: "Este efetivo não pode ser evaliado sob este campo de avaliação"
+                }
+            }
         }
     }
 
