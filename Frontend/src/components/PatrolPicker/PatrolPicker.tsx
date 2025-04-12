@@ -40,9 +40,12 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     // Every time the page changes, fetch the patrols of that page
     useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         const execute = async () => {
             // Fetch the patrols from the API
-            const {patrols, pages} = await fetchPatrols(true);
+            const {patrols, pages} = await fetchPatrols(true, undefined, signal);
 
             // Set the patrols and set loading to false
             setPatrols(patrols);
@@ -50,9 +53,11 @@ function PatrolPicker(props: PatrolPickerProps) {
         }
 
         void execute();
+
+        return () => controller.abort();
     }, [page]);
 
-    async function fetchPatrols(showLoading?: boolean, filters?: {key: string, value: string}[]): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+    async function fetchPatrols(showLoading?: boolean, filters?: {key: string, value: string}[], signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
         if (showLoading) {
             setLoading(true);
         }
@@ -69,9 +74,9 @@ function PatrolPicker(props: PatrolPickerProps) {
         }
 
         if (filters) {
-            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters]});
+            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters], signal});
         } else {
-            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}]});
+            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}], signal});
         }
 
         const patrols: PatrolHistoryResponse | RequestError = await result.json();
@@ -100,6 +105,7 @@ function PatrolPicker(props: PatrolPickerProps) {
                 <div className={style.searchDiv}>
                     <DefaultSearch
                         fullWidth
+                        disabled={loading}
                         // limitTags={2}
                         callback={async (options) => {
                             const {patrols, pages} = await fetchPatrols(true, options);

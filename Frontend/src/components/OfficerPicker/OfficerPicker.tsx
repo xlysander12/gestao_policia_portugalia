@@ -80,14 +80,14 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
     });
 
     // Function to fetch the backend and get the officers depending on the search query
-    const search = async (query?: string, showLoading: boolean = true) => {
+    const search = async (query?: string, showLoading: boolean = true, signal?: AbortSignal) => {
         // Set the loading state to true
         if (showLoading) {
             setLoading(true);
         }
 
         // Send the request to the API to get the results from the search
-        const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET");
+        const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET", {signal});
         const response_json = await response.json() as OfficerListResponse;
 
         // If the response status is not 200, then there was an error
@@ -107,7 +107,11 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
     // On component mount, do an initial search with an empty string
     useEffect(() => {
-        void search();
+        const controller = new AbortController();
+        const signal = controller.signal;
+        void search(undefined, true, signal);
+
+        return () => controller.abort();
     }, []);
 
 

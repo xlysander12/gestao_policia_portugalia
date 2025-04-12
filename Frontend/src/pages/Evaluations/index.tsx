@@ -3,14 +3,18 @@ import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import {OfficerPicker} from "../../components/OfficerPicker";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
-import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import {
+    MinifiedOfficerData,
+    OfficerInfoGetResponse,
+    OfficerListResponse
+} from "@portalseguranca/api-types/officers/output";
 import {
     EvaluationsListResponse,
     EvaluationSocket,
     MinifiedEvaluation
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import ManagementBar from "../../components/ManagementBar";
-import {make_request} from "../../utils/requests.ts";
+import {make_request, RequestMethod} from "../../utils/requests.ts";
 import { toast } from "react-toastify";
 import Gate from "../../components/Gate/gate.tsx";
 import {Loader} from "../../components/Loader";
@@ -30,8 +34,16 @@ import {
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {EvaluationModal} from "./modals";
+import {useParams} from "react-router-dom";
+import ShareButton from "../../components/ShareButton";
 
-function Evaluations() {
+type EvaluationsPageProps = {
+    asAuthor?: boolean
+}
+function Evaluations(props: EvaluationsPageProps) {
+    // Get possible params from the URL
+    const {nif, entry_id} = useParams();
+
     // Get the logged user from context
     const loggedUser = useContext(LoggedUserContext);
 
@@ -40,22 +52,23 @@ function Evaluations() {
 
     // Loading flag
     const [loading, setLoading] = useState<boolean>(true);
+    const [officerLoading, setOfficerLoading] = useState<boolean>(false);
 
     // Current Officer State
     const [currentOfficer, setCurrentOfficer] = useState<MinifiedOfficerData>({
-        name: loggedUser.info.personal.name,
-        patent: loggedUser.info.professional.patent.id,
-        callsign: loggedUser.info.professional.callsign,
-        status: loggedUser.info.professional.status.id,
-        nif: loggedUser.info.personal.nif,
-    });
+            name: loggedUser.info.personal.name,
+            patent: loggedUser.info.professional.patent.id,
+            callsign: loggedUser.info.professional.callsign,
+            status: loggedUser.info.professional.status.id,
+            nif: loggedUser.info.personal.nif
+        });
 
     // Page handling
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
 
     // Author flag
-    const [asAuthor, setAsAuthor] = useState<boolean>(true);
+    const [asAuthor, setAsAuthor] = useState<boolean>(!!props.asAuthor || nif === undefined || isNaN(parseInt(nif)) || parseInt(nif) === loggedUser.info.personal.nif);
 
     // List of evaluations
     const [evaluations, setEvaluations] = useState<MinifiedEvaluation[]>([]);
@@ -70,18 +83,52 @@ function Evaluations() {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
     const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
-    const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null)
+    const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null);
 
 
     // Variable that sets if the averages table should be shown
     const showAverages = !loading && !asAuthor && evaluations.length > 0;
 
-    async function fetchEvaluations(showLoading: boolean = true) {
+    async function fetchOfficerInfo(signal?: AbortSignal) {
+        // Set the loading flag to true
+        setOfficerLoading(true);
+
+        // Query the server to get the data of the Officer
+        const response = await make_request(`/officers/${nif}`, RequestMethod.GET, {signal});
+        const responseJson = await response.json() as OfficerInfoGetResponse;
+
+        if (!response.ok) {
+            toast.error(responseJson.message);
+            setCurrentOfficer({
+                name: loggedUser.info.personal.name,
+                patent: loggedUser.info.professional.patent.id,
+                callsign: loggedUser.info.professional.callsign,
+                status: loggedUser.info.professional.status.id,
+                nif: loggedUser.info.personal.nif
+            });
+            setAsAuthor(true);
+            return;
+        }
+
+        setCurrentOfficer({
+            name: responseJson.data.name,
+            patent: responseJson.data.patent,
+            callsign: responseJson.data.callsign,
+            status: responseJson.data.status,
+            nif: responseJson.data.nif,
+        });
+
+        // Set the loading flag to false
+        setOfficerLoading(false);
+    }
+
+    async function fetchEvaluations(showLoading: boolean = true, signal?: AbortSignal) {
         if (showLoading) setLoading(true);
 
         // Fetch evaluations from the API
         const response = await make_request(`/officers/${currentOfficer.nif}/evaluations${asAuthor ? "/author": ""}`, "GET", {
-            queryParams: [{key: "page", value: String(page)}, ...filters]
+            queryParams: [{key: "page", value: String(page)}, ...filters],
+            signal
         });
         const response_json: EvaluationsListResponse = await response.json();
 
@@ -111,9 +158,34 @@ function Evaluations() {
         }
     }, [currentOfficer.nif, asAuthor]));
 
+    // Everytime any settings change, reload the evaluations
     useEffect(() => {
-        void fetchEvaluations();
+        const controller = new AbortController;
+        const signal = controller.signal;
+
+        void fetchEvaluations(true, signal);
+
+        return () => controller.abort();
     }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]);
+
+    // Everytime the nif param changes, load the new officer's info
+    useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        if (nif && !isNaN(parseInt(nif))) {
+            void fetchOfficerInfo(signal);
+        }
+
+        if (nif && !isNaN(parseInt(nif)) && entry_id && !isNaN(parseInt(entry_id))) {
+            setSelectedId(parseInt(entry_id));
+            setIsNewEntry(false);
+            setEvaluationOfficerNif(parseInt(nif));
+            setModalOpen(true);
+        }
+
+        return () => controller.abort();
+    }, [nif, entry_id]);
 
     return (
         <>
@@ -192,6 +264,8 @@ function Evaluations() {
                                         }
                                     ]}
                                 />
+
+                                <ShareButton url={`/avaliacoes/${currentOfficer.nif}`} color={"var(--portalseguranca-color-accent)"}/>
                             </div>
 
                             <div className={style.managementBarRight}>
@@ -204,7 +278,7 @@ function Evaluations() {
 
                                     onChange={(_, page) => setPage(page)}
                                 />
-                                <Gate show={!asAuthor}>
+                                <Gate show={!asAuthor && (!officerLoading || currentOfficer.status !== -1)}>
                                     <DefaultButton
                                         onClick={() => {
                                             setIsNewEntry(true);

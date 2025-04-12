@@ -24,12 +24,12 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
     const [forceData] = useForceData();
 
     // Get the possible fields
-    const possibleFields = forceData.evaluation_fields.filter((field) =>
+    let possibleFields = forceData.evaluation_fields.filter((field) =>
         props.addedFields.indexOf(field.id) === -1 && props.target.patent >= field.starting_patent
     );
 
     // Store the field data
-    const [field, setField] = useState<number>(possibleFields[0].id);
+    const [field, setField] = useState<number>(possibleFields.length > 0 ? possibleFields[0].id : 0);
     const [grade, setGrade] = useState<number>(forceData.evaluation_grades[0].id);
     const [comments, setComments] = useState<string | null>(null);
 
@@ -47,6 +47,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     Campo de Avaliação:
                 </DefaultTypography>
                 <DefaultSelect
+                    disabled={possibleFields.length === 0}
                     value={field}
                     onChange={(event) => {
                         setField(event.target.value as number);
@@ -71,6 +72,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     Avaliação:
                 </DefaultTypography>
                 <DefaultSelect
+                    disabled={possibleFields.length === 0}
                     value={grade}
                     onChange={(event) => {
                         setGrade(event.target.value as number);
@@ -95,9 +97,10 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     Observações:
                 </DefaultTypography>
                 <DefaultOutlinedTextField
+                    disabled={possibleFields.length === 0}
                     fullWidth
                     multiline
-                    placeholder={"Sem observações"}
+                    placeholder={"Sem observações (recomendado em caso de avaliação negativa)"}
                     value={comments ?? ""}
                     onChange={event => setComments(event.target.value === "" ? null : event.target.value)}
                 />
@@ -105,14 +108,27 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                 <Divider flexItem sx={{marginBottom: "5px"}}/>
 
                 <DefaultButton
+                    disabled={possibleFields.length === 0}
                     fullWidth
                     buttonColor={"lightgreen"}
                     darkTextOnHover
-                    onClick={() => props.onAdd({
-                        id: field,
-                        grade,
-                        comments
-                    })}
+                    onClick={() => {
+                        props.onAdd({
+                            id: field,
+                            grade,
+                            comments
+                        });
+
+                        // Re calculate te possible fields and apply it to the selector
+                        possibleFields = possibleFields.filter(possible => possible.id !== field);
+                        setField(possibleFields.length > 0 ? possibleFields[0].id : 0);
+
+                        // Reset the evaluation selector to the first possible option
+                        setGrade(forceData.evaluation_grades[0].id);
+
+                        // Clear all content of the "comments" text field
+                        setComments(null);
+                    }}
                 >
                     Adicionar
                 </DefaultButton>

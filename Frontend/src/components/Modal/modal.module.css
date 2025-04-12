@@ -41,7 +41,7 @@
     /*margin: auto;*/
 }
 
-.content .section:last-child {
+.content > .section:last-child {
     margin: 0;
 }
 

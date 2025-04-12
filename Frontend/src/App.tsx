@@ -216,8 +216,8 @@ function App() {
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />}/>
                             },
                             {
-                                path: ":nif/author",
-                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />}/>
+                                path: ":nif/autor",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations asAuthor />}/>
                             },
                             {
                                 path: ":nif/:entry_id",

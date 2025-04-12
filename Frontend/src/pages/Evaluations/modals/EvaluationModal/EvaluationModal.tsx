@@ -1,3 +1,4 @@
+import styles from "./evaluation-modal.module.css";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
@@ -290,7 +291,8 @@ function EvaluationModal(props: EvaluationModalProps) {
                 }
                 open={props.open}
                 onClose={handleClose}
-                width={"50%"}
+                url={props.newEntry ? undefined : `/avaliacoes/${evaluationData.target.nif}/${evaluationData.id}`}
+                width={"60%"}
             >
                 <Gate show={loading}>
                     <Loader fullDiv size={"98px"}></Loader>
@@ -412,84 +414,88 @@ function EvaluationModal(props: EvaluationModalProps) {
                         </div>
                     </ModalSection>
 
-                    {Object.keys(evaluationData.fields).map((field => {
-                        return (
-                            <ModalSection
-                                key={`field${field}`}
-                                title={`Campo de Avaliação - ${getObjectFromId(parseInt(field), forceData.evaluation_fields)!.name}`}
-                            >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "flex-start",
-                                        justifyContent: "flex-start"
-                                    }}
+                    <div
+                        className={styles.fieldsContainer}
+                    >
+                        {Object.keys(evaluationData.fields).map(((field) => {
+                            return (
+                                <ModalSection
+                                    key={`field${field}`}
+                                    title={`${getObjectFromId(parseInt(field), forceData.evaluation_fields)!.name}`}
                                 >
-                                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
-                                        Avaliação:
-                                    </DefaultTypography>
-                                    <DefaultSelect
-                                        disabled={!editMode}
-                                        sameTextColorWhenDisabled
-                                        value={evaluationData.fields[parseInt(field)].grade}
-                                        onChange={(event) => {
-                                            setEvaluationData((draft) => {
-                                                draft.fields[parseInt(field)].grade = event.target.value as number
-                                            });
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "flex-start",
+                                            justifyContent: "flex-start"
                                         }}
-                                        sx={{width: "50%", textAlign: "start"}}
                                     >
-                                        {forceData.evaluation_grades.map(grade => {
-                                            return (
-                                                <MenuItem
-                                                    key={`grade${grade.id}`}
-                                                    value={grade.id}
-                                                >
-                                                    {grade.name}
-                                                </MenuItem>
-                                            );
-                                        })}
-                                    </DefaultSelect>
-
-                                    <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
-                                        Observações:
-                                    </DefaultTypography>
-                                    <DefaultOutlinedTextField
-                                        disabled={!editMode}
-                                        textWhenDisabled
-                                        fullWidth
-                                        multiline
-                                        placeholder={"Sem observações"}
-                                        value={evaluationData.fields[parseInt(field)].comments ?? ""}
-                                        onChange={event => setEvaluationData(draft => {
-                                            draft.fields[parseInt(field)].comments = event.target.value !== "" ? event.target.value : null
-                                        })}
-                                    />
-
-                                    {/* If editMode is on, show button to remove this field */}
-                                    <Gate show={editMode}>
-                                        <Divider flexItem sx={{marginBottom: "5px"}}/>
-
-                                        <DefaultButton
-                                            buttonColor={"red"}
-                                            fullWidth
-                                            onClick={() => {
-                                                setEvaluationData(draft => {
-                                                    delete draft.fields[parseInt(field)];
+                                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
+                                            Avaliação:
+                                        </DefaultTypography>
+                                        <DefaultSelect
+                                            disabled={!editMode}
+                                            sameTextColorWhenDisabled
+                                            value={evaluationData.fields[parseInt(field)].grade}
+                                            onChange={(event) => {
+                                                setEvaluationData((draft) => {
+                                                    draft.fields[parseInt(field)].grade = event.target.value as number
                                                 });
                                             }}
+                                            sx={{width: "100%", textAlign: "start"}}
                                         >
-                                            Remover Campo
-                                        </DefaultButton>
-                                    </Gate>
+                                            {forceData.evaluation_grades.map(grade => {
+                                                return (
+                                                    <MenuItem
+                                                        key={`grade${grade.id}`}
+                                                        value={grade.id}
+                                                    >
+                                                        {grade.name}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </DefaultSelect>
 
-                                </div>
-                            </ModalSection>
-                        );
-                    }))}
+                                        <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
+                                            Observações:
+                                        </DefaultTypography>
+                                        <DefaultOutlinedTextField
+                                            disabled={!editMode}
+                                            textWhenDisabled
+                                            fullWidth
+                                            multiline
+                                            placeholder={"Sem observações (recomendado em caso de avaliação negativa)"}
+                                            value={evaluationData.fields[parseInt(field)].comments ?? ""}
+                                            onChange={event => setEvaluationData(draft => {
+                                                draft.fields[parseInt(field)].comments = event.target.value !== "" ? event.target.value : null
+                                            })}
+                                        />
+
+                                        {/* If editMode is on, show button to remove this field */}
+                                        <Gate show={editMode}>
+                                            <Divider flexItem sx={{marginBottom: "5px"}}/>
+
+                                            <DefaultButton
+                                                buttonColor={"red"}
+                                                fullWidth
+                                                onClick={() => {
+                                                    setEvaluationData(draft => {
+                                                        delete draft.fields[parseInt(field)];
+                                                    });
+                                                }}
+                                            >
+                                                Remover Campo
+                                            </DefaultButton>
+                                        </Gate>
+
+                                    </div>
+                                </ModalSection>
+                            );
+                        }))}
+                    </div>
 
                     {/* If editMode is one, show the option to add another evaluation field*/}
                     <Gate show={editMode}>

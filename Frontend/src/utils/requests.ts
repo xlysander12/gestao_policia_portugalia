@@ -76,9 +76,9 @@ export async function make_request<BodyType>(url: string, method: RequestMethod 
         // Trying to get the JSON from the response
         try {
             const json: RequestError = await response.json();
-            location.pathname = `${BASE_URL}/erro${json.code ? `?code=${json.code}` : ""}`;
+            location.href = `${location.protocol}//${location.host}${BASE_URL}/erro${json.code ? `?code=${json.code}` : ""}`;
         } catch (_) {
-            location.pathname = `${BASE_URL}/erro`;
+            location.href = `${location.protocol}//${location.host}${BASE_URL}/erro`;
         }
 
     }
