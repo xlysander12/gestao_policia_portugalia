@@ -107,6 +107,7 @@ function Evaluations(props: EvaluationsPageProps) {
                 nif: loggedUser.info.personal.nif
             });
             setAsAuthor(true);
+            console.log("asAuthor set to true");
             return;
         }
 
@@ -163,14 +164,16 @@ function Evaluations(props: EvaluationsPageProps) {
         const controller = new AbortController;
         const signal = controller.signal;
 
-        // If the selected officer is the logged one and "asAuthor" is false, set it to true
-        if (currentOfficer.nif === loggedUser.info.personal.nif && !asAuthor) {
-            setAsAuthor(true);
+        //If "asAuthor" is true, check wether it can remain like that, or not
+        if (asAuthor && !loggedUser.intents.evaluations && currentOfficer.nif !== loggedUser.info.personal.nif) {
+            setAsAuthor(false);
         } else {
             void fetchEvaluations(true, signal);
         }
 
-        return () => controller.abort();
+        return () => {
+            controller.abort();
+        }
     }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]);
 
     // Everytime the nif param changes, load the new officer's info
@@ -205,6 +208,8 @@ function Evaluations(props: EvaluationsPageProps) {
                             // If, on changing, the target user isn't the logged user and the logged user doesn't have the "evaluations" intent, set "asAuthor" to false
                             if (officer.nif !== loggedUser.info.personal.nif && asAuthor && !loggedUser.intents.evaluations) {
                                 setAsAuthor(false);
+                            } else if (officer.nif === loggedUser.info.personal.nif && !asAuthor) {
+                                setAsAuthor(true);
                             }
 
                             // Set the target officer
