@@ -169,9 +169,9 @@ export async function updateEvaluationGrades(force: string, id: number, grades: 
     }
 }
 
-export async function addEvaluation(force: string, author: number, target: number, fields: EvaluationBodyFieldsType, patrol?: number, comments?: string, timestamp?: number): Promise<number> {
+export async function addEvaluation(force: string, author: number, target: number, fields: EvaluationBodyFieldsType, patrol?: number, comments?: string, decision?: number | null, timestamp?: number): Promise<number> {
     // Insert the evaluation into the DB
-    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, timestamp) VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol ?? null, comments ?? null, timestamp ?? null]);
+    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, decision, timestamp) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol ?? null, comments ?? null, decision ?? null, timestamp ?? null]);
 
     // Get the ID of the inserted evaluation
     const id = (result as unknown as ResultSetHeader).insertId;
@@ -187,12 +187,12 @@ export async function editEvaluation(force: string, id: number, changes: EditEva
     const values: string[] = [];
     const query = `UPDATE evaluations SET ${Object.keys(changes).reduce((acc, field) => {
         if (field === "fields") return acc;
+
+        // If the timestamp field is present together with the patrol field, disregard the timestamp field
+        if (field === "timestamp" && changes.patrol) return acc;
         
         // Add the value to the values array
         values.push(changes[field as keyof EditEvaluationBodyType] as string);
-        
-        // If the timestamp field is present together with the patrol field, disregard the patrol field
-        if (field === "timestamp" && changes.patrol) return acc;
         
         // Add the field to the query
         if (field === "timestamp") {
