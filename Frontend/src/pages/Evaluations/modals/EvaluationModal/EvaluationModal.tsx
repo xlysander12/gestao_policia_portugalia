@@ -198,6 +198,9 @@ function EvaluationModal(props: EvaluationModalProps) {
 
         toast.success("Avaliação guardada com sucesso!");
 
+        // Set the edit mode to false
+        setEditMode(false);
+
         // Fetch the evaluation data again
         await fetchEvaluationData();
     }
