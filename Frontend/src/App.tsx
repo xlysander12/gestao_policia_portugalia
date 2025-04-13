@@ -16,7 +16,7 @@ import {
     UtilEvaluationGradesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
-    UtilIntentsResponse,
+    UtilIntentsResponse, UtilLastCeremonyResponse,
     UtilPatentsResponse,
     UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
@@ -32,6 +32,7 @@ import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
 import Evaluations from "./pages/Evaluations";
+import moment from 'moment';
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -51,6 +52,7 @@ function App() {
     const fetchForceData = async (forceName: string) => {
         // Creating a temp variable to store the force data
         const forceTempData: ForceData = {
+            last_ceremony: moment(),
             patents: [],
             statuses: [],
             intents: [],
@@ -62,6 +64,10 @@ function App() {
             special_units: [],
             special_unit_roles: []
         }
+
+        // Fetching the last ceremony
+        const lastCeremonyResponse = await make_request("/util/last-ceremony", "GET");
+        forceTempData.last_ceremony = moment.unix((await lastCeremonyResponse.json() as UtilLastCeremonyResponse).data);
 
         // Fetching the patents
         const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});

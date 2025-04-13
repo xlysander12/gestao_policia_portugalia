@@ -9,8 +9,10 @@ import {
     SpecialUnitData, SpecialUnitRoleData,
     StatusData
 } from "@portalseguranca/api-types/util/output";
+import {Moment} from "moment";
 
 export type ForceData = {
+    last_ceremony: Moment
     patents: PatentData[]
     statuses: StatusData[]
     intents: IntentData[]

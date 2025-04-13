@@ -263,6 +263,14 @@ function Evaluations(props: EvaluationsPageProps) {
                                             }
                                         }
                                     ]}
+                                    defaultFilters={forceData.last_ceremony.isValid() ?[
+                                        {
+                                            label: "Depois de",
+                                            key: "after",
+                                            value: forceData.last_ceremony.unix(),
+                                            labelValue: forceData.last_ceremony.format("DD/MM/YYYY")
+                                        }
+                                    ] : []}
                                 />
 
                                 <ShareButton url={`/avaliacoes/${currentOfficer.nif}`} color={"var(--portalseguranca-color-accent)"}/>
