@@ -195,19 +195,7 @@ function DefaultSearch(props: DefaultSearchProps) {
 
     // Apply the default filters when passed to props
     useEffect(() => {
-        if (props.defaultFilters) {
-            // Loop through the passed filters
-            for (const filter of props.defaultFilters) {
-                setCurrentValue(draft => {
-                    draft.push(filter)
-                });
-            }
-
-            // Call the callback function to ensure the search is performed
-            setToCallCallback(true);
-        }
-
-        return () => {
+        function clearDefaultFilters() {
             // Delete all filters applied by the default ones
             if (props.defaultFilters) {
                 for (const filter of props.defaultFilters) {
@@ -218,6 +206,28 @@ function DefaultSearch(props: DefaultSearchProps) {
                     setCurrentValue(newValue);
                 }
             }
+        }
+
+        if (props.defaultFilters) {
+            // Delete all filters applied by the default ones
+            clearDefaultFilters();
+
+            // Loop through the passed filters
+            for (const filter of props.defaultFilters) {
+                // If this filter is already set, skip it
+                if (currentValue.find(val => val.key === filter.key) !== undefined) continue;
+
+                setCurrentValue(draft => {
+                    draft.push(filter)
+                });
+            }
+
+            // Call the callback function to ensure the search is performed
+            setToCallCallback(true);
+        }
+
+        return () => {
+            if (props.defaultFilters) clearDefaultFilters();
         }
     }, [JSON.stringify(props.defaultFilters)]);
 
@@ -368,8 +378,8 @@ function DefaultSearch(props: DefaultSearchProps) {
                     }
                 }}
                 {...props}
-
                 options={options}
+                getOptionDisabled={option => currentValue.find(val => (option as DefaultSearchOption).key === val.key) !== undefined}
             />
 
             <Popover
