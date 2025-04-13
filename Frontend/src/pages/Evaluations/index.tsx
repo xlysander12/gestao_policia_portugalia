@@ -285,7 +285,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                     ] : []}
                                 />
 
-                                <ShareButton url={`/avaliacoes/${currentOfficer.nif}`} color={"var(--portalseguranca-color-accent)"}/>
+                                <ShareButton url={`/avaliacoes/${currentOfficer.nif}${asAuthor ? "/autor": ""}`} color={"var(--portalseguranca-color-accent)"}/>
                             </div>
 
                             <div className={style.managementBarRight}>
