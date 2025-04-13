@@ -163,7 +163,12 @@ function Evaluations(props: EvaluationsPageProps) {
         const controller = new AbortController;
         const signal = controller.signal;
 
-        void fetchEvaluations(true, signal);
+        // If the selected officer is the logged one and "asAuthor" is false, set it to true
+        if (currentOfficer.nif === loggedUser.info.personal.nif && !asAuthor) {
+            setAsAuthor(true);
+        } else {
+            void fetchEvaluations(true, signal);
+        }
 
         return () => controller.abort();
     }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]);
@@ -206,7 +211,8 @@ function Evaluations(props: EvaluationsPageProps) {
                             setCurrentOfficer(officer);
                         }}
                         filter={(officer) =>
-                            asAuthor ? officer.patent <= loggedUser.info.professional.patent.id :
+                            officer.nif === loggedUser.info.personal.nif ||
+                            asAuthor && loggedUser.intents.evaluations ? officer.patent <= loggedUser.info.professional.patent.id :
                                 officer.patent <= loggedUser.info.professional.patent.max_evaluation
                         }
                     />
@@ -221,7 +227,8 @@ function Evaluations(props: EvaluationsPageProps) {
                                     <FormControlLabel
                                         disabled={loading ||
                                             currentOfficer.nif === loggedUser.info.personal.nif ||
-                                            (!loggedUser.intents.evaluations && currentOfficer.nif !== loggedUser.info.personal.nif)
+                                            !loggedUser.intents.evaluations ||
+                                            currentOfficer.patent > loggedUser.info.professional.patent.max_evaluation
 
                                         }
                                         control={<Switch onChange={(event) => setAsAuthor(event.target.checked)}/>}

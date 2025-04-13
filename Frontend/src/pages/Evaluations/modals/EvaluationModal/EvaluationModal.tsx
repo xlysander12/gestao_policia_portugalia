@@ -141,10 +141,9 @@ function EvaluationModal(props: EvaluationModalProps) {
     }
 
     function handlePatrolAddition(patrol: MinifiedPatrolData) {
-        console.log(patrol.id.replace(localStorage.getItem("force")!, ""));
         setEvaluationData(draft => {
             draft.patrol = parseInt(patrol.id.replace(localStorage.getItem("force")!, ""));
-            draft.timestamp = moment.unix(patrol.end ?? patrol.start)
+            draft.timestamp = moment.unix(patrol.end ?? moment().unix())
         });
     }
 
