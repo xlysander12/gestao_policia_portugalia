@@ -75,6 +75,7 @@ function LastCeremonyModal(props: LastCeremonyModalProps) {
                     }}
                 >
                     <DefaultButton
+                        disabled={loading || !date.isValid()}
                         buttonColor={"lightgreen"}
                         darkTextOnHover
                         onClick={updateLastCeremony}
