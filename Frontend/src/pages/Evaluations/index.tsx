@@ -282,7 +282,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                             value: forceData.last_ceremony.unix(),
                                             labelValue: forceData.last_ceremony.format("DD/MM/YYYY")
                                         }
-                                    ] : []}
+                                    ] : undefined}
                                 />
 
                                 <ShareButton url={`/avaliacoes/${currentOfficer.nif}${asAuthor ? "/autor": ""}`} color={"var(--portalseguranca-color-accent)"}/>
