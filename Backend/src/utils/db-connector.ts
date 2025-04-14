@@ -1,20 +1,16 @@
-import assert from "node:assert";
-
 import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
 import {getDatabaseConnetionDetails, getForceDatabase, getForcesList} from "./config-handler";
-type poolsType = {
-    [key: string]: Pool
-}
-let pools: poolsType = {};
+type poolsType = Record<string, Pool>;
+const pools: poolsType = {};
 
 // Database configuration
 const databaseConfig = getDatabaseConnetionDetails();
 
 // For every force present in the config file, create a pool using the credentials in that same file
-for (let force of getForcesList()) {
-    let forceDB = getForceDatabase(force);
+for (const force of getForcesList()) {
+    const forceDB = getForceDatabase(force);
 
-    let options: PoolOptions = {
+    const options: PoolOptions = {
         ...databaseConfig,
         charset: "utf8mb4",
         database: forceDB,
@@ -25,15 +21,16 @@ for (let force of getForcesList()) {
     pools[force] = createPool(options);
 
     // Test the connection in newly created pool
-    pools[force].query("SELECT 1").catch((err) => {
+    pools[force].query("SELECT 1").catch((err: unknown) => {
         throw Error(`Error connecting to ${force} database: ${err}`);
     });
 }
 
 // Function used by the backend to query the database
-export async function queryDB(force: string, query: string, params?: any | any[]): Promise<RowDataPacket[]> {
+export type paramsTypes = string | number | null | Date | undefined;
+export async function queryDB(force: string, query: string, params?: paramsTypes | paramsTypes[]): Promise<RowDataPacket[]> {
     // If the force parameter is not set, return
-    if (!force || getForcesList().indexOf(force) === -1)
+    if (!force || !getForcesList().includes(force))
         throw new Error("Force parameter not set or incorrect! Force: " + force);
 
     // Make sure the params are an array
@@ -45,10 +42,7 @@ export async function queryDB(force: string, query: string, params?: any | any[]
         else params = [];
     }
 
-    let queryResult = await pools[force].query<RowDataPacket[]>(query, params);
-
-    // Make sure the query result is not empty
-    assert(queryResult !== undefined, "Query result is empty!");
+    const queryResult = await pools[force].query<RowDataPacket[]>(query, params);
 
     return queryResult[0]; // Return only the result of the query and no fields
 }

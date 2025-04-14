@@ -20,7 +20,7 @@ function ShareButton({url, color, size}: ShareButtonProps) {
         <IconButton
             size={size}
             onClick={() => {
-                navigator.clipboard.writeText(final_url);
+                void navigator.clipboard.writeText(final_url);
                 toast.info("Ligação direta copiada para a área de transferência! (CTRL + V)");
             }}
         >

@@ -107,6 +107,20 @@ export interface UtilEvaluationFieldsResponse extends BaseResponse {
     data: EvaluationField[]
 }
 
+export interface EvaluationDecision {
+    id: number
+    name: string
+    color: string
+}
+
+export interface UtilEvaluationDecisionsResponse extends BaseResponse {
+    data: EvaluationDecision[]
+}
+
+export interface UtilLastCeremonyResponse extends BaseResponse {
+    data: number
+}
+
 export interface UtilNotificationsResponse extends BaseResponse {
     data: BaseNotification[]
 }

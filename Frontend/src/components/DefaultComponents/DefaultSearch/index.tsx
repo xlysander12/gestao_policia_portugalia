@@ -25,6 +25,16 @@ const StyledDefaultSearch = styled(Autocomplete, {
 }));
 
 function DefaultSearch(props: DefaultSearchProps) {
+    // If the defaultFilters prop is present, ensure every key is a valid option
+    if (props.defaultFilters) {
+        for (const filter of props.defaultFilters) {
+            if (!props.options.find(option => option.key === filter.key)) {
+                throw new Error(`Key "${filter.key}" is not a valid option`);
+            }
+        }
+    }
+
+
     const [options, setOptions] = useState<DefaultSearchOption[]>(props.options)
     const [currentOption, setCurrentOption] = useState<DefaultSearchOption | null>(null);
     const [currentValue, setCurrentValue] = useImmer<{label: string, key: string, value: any, labelValue: string}[]>([]);
@@ -51,7 +61,7 @@ function DefaultSearch(props: DefaultSearchProps) {
         return builder;
     }
 
-    const triggerCallback = async () => {
+    const triggerCallback = () => {
         // Build the object that will be passed to the callback
         const returnObject: {key: string, value: any}[] = [];
         for (const item of currentValue) {
@@ -120,8 +130,8 @@ function DefaultSearch(props: DefaultSearchProps) {
 
             // * Add the newly created text to the previous item in the current value
             setCurrentValue((draft) => {
-                draft[draft.length - 1].value = value.key === "true";
-                draft[draft.length -1].labelValue = value.key === "true" ? "Sim" : "Não";
+                draft[draft.length - 1].value = (value as DefaultSearchOption).key === "true";
+                draft[draft.length -1].labelValue = (value as DefaultSearchOption).key === "true" ? "Sim" : "Não";
             });
         }
 
@@ -134,8 +144,8 @@ function DefaultSearch(props: DefaultSearchProps) {
 
             // * Add the newly created text to the previous item in the current value
             setCurrentValue((draft) => {
-                draft[draft.length - 1].value = value.key;
-                draft[draft.length - 1].labelValue = value.label;
+                draft[draft.length - 1].value = (value as DefaultSearchOption).key;
+                draft[draft.length - 1].labelValue = (value as DefaultSearchOption).label;
             });
         }
 
@@ -170,13 +180,56 @@ function DefaultSearch(props: DefaultSearchProps) {
         setToCallCallback(true);
     }
 
+    // Ensure options update when needed
+    useEffect(() => {
+        setOptions(props.options);
+    }, [JSON.stringify(props.options)]);
+
     // Trigger the callback when an option's addition is complete
     useEffect(() => {
         if (toCallCallback) {
             triggerCallback();
             setToCallCallback(false);
         }
-    }, [currentValue]);
+    }, [currentValue, toCallCallback]);
+
+    // Apply the default filters when passed to props
+    useEffect(() => {
+        function clearDefaultFilters() {
+            // Delete all filters applied by the default ones
+            if (props.defaultFilters) {
+                for (const filter of props.defaultFilters) {
+                    const newValue = currentValue.filter(value => {
+                        return value.key === filter.key && value.value === filter.value;
+                    });
+
+                    setCurrentValue(newValue);
+                }
+            }
+        }
+
+        if (props.defaultFilters) {
+            // Delete all filters applied by the default ones
+            clearDefaultFilters();
+
+            // Loop through the passed filters
+            for (const filter of props.defaultFilters) {
+                // If this filter is already set, skip it
+                if (currentValue.find(val => val.key === filter.key) !== undefined) continue;
+
+                setCurrentValue(draft => {
+                    draft.push(filter)
+                });
+            }
+
+            // Call the callback function to ensure the search is performed
+            setToCallCallback(true);
+        }
+
+        return () => {
+            if (props.defaultFilters) clearDefaultFilters();
+        }
+    }, [JSON.stringify(props.defaultFilters)]);
 
     // Call the async function when the current option needs it
     useEffect(() => {
@@ -192,7 +245,7 @@ function DefaultSearch(props: DefaultSearchProps) {
                 })));
 
                 setLoading(false);
-            }).catch(error => {
+            }).catch((error: Error) => {
                 if (error.name === "AbortError") return;
 
                 console.error(error);
@@ -248,7 +301,7 @@ function DefaultSearch(props: DefaultSearchProps) {
                     if (reason === "selectOption" || reason === "createOption") {
                         if (currentOption === null) { // New option is getting added
                             // First, make sure an option with the same key isn't already added
-                            if (currentValue.find((item) => item.key === details!.option.key)) return;
+                            if (currentValue.find((item) => item.key === (details!.option as DefaultSearchOption).key)) return;
 
                             // Set the current editing option in state
                             const newOption: DefaultSearchOption = details!.option;
@@ -296,7 +349,7 @@ function DefaultSearch(props: DefaultSearchProps) {
 
                     // Handle removing options
                     if (reason === "removeOption") {
-                        handleOptionDelete(details!.option);
+                        handleOptionDelete(details!.option as string);
                     }
 
                     // Handle the clear button
@@ -325,8 +378,8 @@ function DefaultSearch(props: DefaultSearchProps) {
                     }
                 }}
                 {...props}
-
                 options={options}
+                getOptionDisabled={option => currentValue.find(val => (option as DefaultSearchOption).key === val.key) !== undefined}
             />
 
             <Popover

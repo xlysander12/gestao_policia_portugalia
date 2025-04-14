@@ -31,35 +31,43 @@ import {RuntypeBase} from "runtypes/lib/runtype";
 import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
-import {OfficerJustificationAPIResponse, PatrolInfoAPIResponse} from "../types/response-types";
+import {
+    OfficerEvaluationAPIResponse,
+    OfficerJustificationAPIResponse,
+    PatrolInfoAPIResponse
+} from "../types/response-types";
 import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
+    CreateEvaluationBody, EditEvaluationBody,
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
+import {
+    AddEvaluationSocket,
+    DeleteEvaluationSocket,
+    UpdateEvaluationSocket
+} from "@portalseguranca/api-types/officers/evaluations/output";
+import {paramsTypes} from "../utils/db-connector";
+import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export type RouteFilterType = {
-    [key: string]: {
+export type RouteFilterType = Record<string, {
         queryFunction: (receivedParams: ReceivedQueryParams) => string,
-        valueFunction?: (value: any) => any
-    }
-}
+        valueFunction?: (value: string) => paramsTypes | paramsTypes[]
+    }>
 
-export type routeMethodType = {
+export interface routeMethodType {
     requiresToken: boolean
     requiresForce: boolean
     intents?: string[]
     filters?: RouteFilterType
     queryParams?: {
         type: RuntypeBase,
-        schema?: {
-            [key: string]: {
-                parseFunction: <T>(value: string) => T,
-            }
-        }
+        schema?: Record<string, {
+                parseFunction: (value: string) => unknown,
+            }>
     }
     body?: {
         type: RuntypeBase
@@ -67,20 +75,17 @@ export type routeMethodType = {
     notes?: string,
     broadcast?: {
         event: SOCKET_EVENT,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body: (req: express.Request, res: any) => SocketResponse,
         patrol?: boolean
     }
 }
 
-export type routeType = {
-    methods: {
-        [key in methodType]?: routeMethodType
-    }
+export interface routeType {
+    methods: Partial<Record<methodType, routeMethodType>>
 }
 
-export type routesType = {
-    [key: string]: routeType
-}
+export type routesType = Record<string, routeType>;
 
 const accountRoutes: routesType = {
     // Route to validate a token
@@ -306,6 +311,34 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all the evaluation decisions of the force
+    "/util/evaluation-decisions$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get and update the last ceremony date of the force
+    "/util/last-ceremony$": {
+        methods: {
+            GET: {
+                requiresForce: true,
+                requiresToken: false
+            },
+            PUT: {
+                requiresForce: true,
+                requiresToken: true,
+                intents: ["evaluations"],
+                body: {
+                    type: ChangeLastCeremonyRequestBody
+                }
+            }
+        }
+    },
+
     // Route to get all notifications for an user
     "/util/notifications$": {
         methods: {
@@ -343,8 +376,8 @@ const officersRoutes: routesType = {
                         valueFunction: (value: string) => `%${value}%`
                     },
                     force: {
-                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams["patrol"] === "true" ? '`officerForce` = ?': "",
-                        valueFunction: (value: number) => value
+                        queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams.patrol === "true" ? '`officerForce` = ?': "",
+                        valueFunction: (value: string) => value
                     }
                 }
             }
@@ -706,7 +739,7 @@ const activityRoutes: routesType = {
 }
 
 const evaluationsRoutes: routesType = {
-    // Route to get the list of evaluations where the officer is the target
+    // Route to get the list of and create evaluations where the officer is the target
     "/officers/\\d+/evaluations$": {
         methods: {
             GET: {
@@ -717,11 +750,11 @@ const evaluationsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `timestamp >= ?`,
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     before: {
-                        queryFunction: () => `timestamp <= ?`,
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     author: {
@@ -729,11 +762,29 @@ const evaluationsRoutes: routesType = {
                         valueFunction: (value: string) => parseInt(value)
                     },
                     withPatrol: {
-                        queryFunction: (receivedParams) => receivedParams["withPatrol"] === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
+                        queryFunction: (receivedParams) => receivedParams.withPatrol === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
                     },
                     patrol: {
                         queryFunction: () => "patrol = ?",
                         valueFunction: (value: string) => parseInt(value)
+                    }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: CreateEvaluationBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerInfoAPIResponse): AddEvaluationSocket => {
+                        return {
+                            action: "add",
+                            target: res.locals.targetOfficer!.nif,
+                            author: res.locals.loggedOfficer.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
                     }
                 }
             }
@@ -751,11 +802,11 @@ const evaluationsRoutes: routesType = {
                 },
                 filters: {
                     after: {
-                        queryFunction: () => `timestamp >= ?`,
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     before: {
-                        queryFunction: () => `timestamp <= ?`,
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     target: {
@@ -763,7 +814,7 @@ const evaluationsRoutes: routesType = {
                         valueFunction: (value: string) => parseInt(value)
                     },
                     withPatrol: {
-                        queryFunction: (receivedParams) => receivedParams["withPatrol"] === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
+                        queryFunction: (receivedParams) => receivedParams.withPatrol === "true" ? "patrol IS NOT NULL" : "patrol IS NULL"
                     },
                     patrol: {
                         queryFunction: () => "patrol = ?",
@@ -774,15 +825,50 @@ const evaluationsRoutes: routesType = {
         }
     },
 
-    // Route to get the details of an evaluation
+    // Route to get the details of, update and delete an evaluation
     "/officers/\\d+/evaluations/\\d+$": {
         methods: {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: EditEvaluationBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerEvaluationAPIResponse): UpdateEvaluationSocket => {
+                        return {
+                            action: "update",
+                            target: res.locals.targetOfficer!.nif,
+                            author: res.locals.evaluation.author,
+                            id: res.locals.evaluation.id,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                broadcast: {
+                    event: SOCKET_EVENT.EVALUATIONS,
+                    body: (_, res: OfficerEvaluationAPIResponse): DeleteEvaluationSocket => {
+                        return {
+                            action: "delete",
+                            target: res.locals.targetOfficer!.nif,
+                            author: res.locals.evaluation.author,
+                            id: res.locals.evaluation.id,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
-    }
+    },
 }
 
 const patrolsRoutes: routesType = {
@@ -804,14 +890,14 @@ const patrolsRoutes: routesType = {
                         valueFunction: (value: string) => [value, value]
                     },
                     active: {
-                        queryFunction: (receivedParams) => receivedParams["active"] === "true" ? "end IS NULL" : "end IS NOT NULL",
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "end IS NULL" : "end IS NOT NULL",
                     },
                     officers: {
                         queryFunction: (receivedParams) => {
-                            const arr = receivedParams["officers"].split(",");
+                            const arr = receivedParams.officers.split(",");
 
                             let query = "";
-                            for (let _ = 0; _ < arr.length; _++) {
+                            for (const _ of arr) {
                                 query += `officers LIKE ? AND `;
                             }
 
@@ -823,11 +909,11 @@ const patrolsRoutes: routesType = {
                     },
                     type: {
                         queryFunction: () => `type = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value) => value
                     },
                     unit: {
                         queryFunction: () => `special_unit = ?`,
-                        valueFunction: (value: number) => value
+                        valueFunction: (value) => value
                     }
                 }
             },

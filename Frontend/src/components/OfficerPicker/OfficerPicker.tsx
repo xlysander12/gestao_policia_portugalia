@@ -2,7 +2,10 @@ import {ReactElement, useEffect, useState, FormEvent} from "react";
 import style from "./officer-picker.module.css";
 import {make_request} from "../../utils/requests";
 import {DefaultButton, DefaultOutlinedTextField, DefaultTypography} from "../DefaultComponents";
-import {MinifiedOfficerData, OfficerListResponse} from "@portalseguranca/api-types/officers/output";
+import {
+    MinifiedOfficerData,
+    OfficerListResponse
+} from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
@@ -62,7 +65,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
     // WebSocket connections
     useWebSocketEvent(SOCKET_EVENT.OFFICERS, () => {
-        search(searchString, false);
+        void search(searchString, false);
     });
 
     useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, (data) => {
@@ -73,31 +76,28 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
         if (data.action === "add") return;
 
         // Otherwise, refresh the officers
-        search(searchString, false);
+        void search(searchString, false);
     });
 
     // Function to fetch the backend and get the officers depending on the search query
-    const search = async (query?: string, showLoading: boolean = true) => {
+    const search = async (query?: string, showLoading: boolean = true, signal?: AbortSignal) => {
         // Set the loading state to true
         if (showLoading) {
             setLoading(true);
         }
 
         // Send the request to the API to get the results from the search
-        const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET");
+        const response = await make_request(`/officers?patrol=${patrol ? "true": "false"}${query ? `&search=${query}&`: ""}`, "GET", {signal});
+        const response_json = await response.json() as OfficerListResponse;
 
         // If the response status is not 200, then there was an error
         if (response.status !== 200) {
-            const response_json = await response.json();
-            console.log(response_json["message"]);
+            console.log(response_json.message);
             return;
         }
 
-        // Get the response as JSON
-        const responseJSON: OfficerListResponse = await response.json();
-
         // Update the state with the new officers
-        setOfficers(responseJSON.data);
+        setOfficers(response_json.data);
 
         // Set the loading state to false
         if (showLoading) {
@@ -107,7 +107,11 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
 
     // On component mount, do an initial search with an empty string
     useEffect(() => {
-        search();
+        const controller = new AbortController();
+        const signal = controller.signal;
+        void search(undefined, true, signal);
+
+        return () => controller.abort();
     }, []);
 
 
@@ -191,6 +195,16 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
                             />
                         )
                     })}
+                </Gate>
+
+                <Gate show={!loading && officers.length === 0}>
+                    <DefaultTypography
+                        color={"var(--portalseguranca-color-text-dark)"}
+                        fontSize={"xx-large"}
+                        sx={{alignSelf: "center"}}
+                    >
+                        Sem Registos
+                    </DefaultTypography>
                 </Gate>
             </div>
         </div>

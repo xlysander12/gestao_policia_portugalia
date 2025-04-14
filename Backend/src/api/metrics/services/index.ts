@@ -5,7 +5,7 @@ import {dateToString} from "../../../utils/date-handler";
 
 export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
-    let issueTitle = `${title} - Issue Automático`;
+    const issueTitle = `${title} - Issue Automático`;
 
     // Appending to the body the information given by the user
     let issueBody = await buildBodyOfficerDetails(loggedUser);
@@ -52,7 +52,7 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
 
 export async function sendSuggestion(loggedUser: InnerOfficerData, title: string, body: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
-    let issueTitle = `${title} - Issue Automático`;
+    const issueTitle = `${title} - Issue Automático`;
 
     // Body manipulation
     let issueBody = await buildBodyOfficerDetails(loggedUser);

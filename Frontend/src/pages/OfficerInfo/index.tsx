@@ -37,23 +37,25 @@ import ShareButton from "../../components/ShareButton";
 
 
 type InformationPairProps = {
+    required?: boolean
     label: string,
     value: string | number | Moment,
     type?: string,
     pattern?: RegExp,
     editMode: boolean,
-    onChangeCallback?: ((event: ChangeEvent<HTMLInputElement>) => void) | any,
+    onChangeCallback?: (event: any, value?: any) => void,
     step?: number,
     isSelect?: boolean,
     children?: ReactNode | ReactNode[]
 }
-const InformationPair = ({label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
+const InformationPair = ({required = true, label, value, type = "text", pattern, editMode, onChangeCallback, step, isSelect = false, children}: InformationPairProps): ReactNode => {
     // If it's a select, return a select input
     if (isSelect) {
         return (
             <div className={style.informationPairDiv}>
                 <label>{label}</label>
                 <DefaultSelect
+                    required={required}
                     fullWidth
                     sameTextColorWhenDisabled
                     disabled={!editMode}
@@ -80,7 +82,7 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
                     slotProps={{
                         textField: {
                             fullWidth: true,
-                            required: true,
+                            required: required,
                         }
                     }}
                 />
@@ -94,11 +96,11 @@ const InformationPair = ({label, value, type = "text", pattern, editMode, onChan
             <label>{label}</label>
             <DefaultTextField
                 fullWidth
-                required
+                required={required}
                 textWhenDisabled
                 disabled={!editMode}
                 type={type}
-                error={(pattern !== undefined) && !(pattern.test(String(value)))}
+                error={(pattern !== undefined) && !(pattern.test(String(value as string | number)))}
                 value={value === null ? "": value}
                 onChange={onChangeCallback}
                 inputProps={{
@@ -125,7 +127,7 @@ function OfficerInfo() {
         },
         professional: {
             patent: number,
-            callsign: string,
+            callsign: string | null,
             status: number,
             entry_date: Moment,
             promotion_date: Moment | null,
@@ -285,7 +287,7 @@ function OfficerInfo() {
 
                     // Professional Info
                     patent: officerInfo.professional.patent,
-                    callsign: officerInfo.professional.callsign,
+                    callsign: officerInfo.professional.callsign ?? undefined,
                     status: officerInfo.professional.status,
                     entry_date: officerInfo.professional.entry_date.unix(),
                     promotion_date: officerInfo.professional.promotion_date ? officerInfo.professional.promotion_date.unix(): undefined,
@@ -307,7 +309,7 @@ function OfficerInfo() {
     }
 
     // Whenever the nif in state changes, we need to fetch the officer's info
-    useEffect(() => {fetchOfficerInfo()}, [officerNif]);
+    useEffect(() => {void fetchOfficerInfo()}, [officerNif]);
 
     function officerListCallback(officer: MinifiedOfficerData) {
         // Make sure we don't change officer's while editing
@@ -374,12 +376,15 @@ function OfficerInfo() {
                                 Gerir Conta
                             </DefaultButton>
                         </Gate>
-                        <DefaultButton
-                            hidden={editMode || !loggedUser.intents.officers}
-                            onClick={() => setImportModalOpen(true)}
-                        >
-                            Importar do HUB
-                        </DefaultButton>
+
+                        <Gate show={!editMode && loggedUser.intents.officers}>
+                            <DefaultButton
+                                hidden={editMode || !loggedUser.intents.officers}
+                                onClick={() => setImportModalOpen(true)}
+                            >
+                                Importar do HUB
+                            </DefaultButton>
+                        </Gate>
 
                         <Gate show={officerInfo.former}>
                             <DefaultTypography color={"red"}>Estás a ver um antigo efetivo</DefaultTypography>
@@ -396,7 +401,7 @@ function OfficerInfo() {
                                 buttonColor={"red"}
                                 onClick={() => {
                                     setEditMode(false);
-                                    fetchOfficerInfo(true);
+                                    void fetchOfficerInfo(true);
                                 }}
                             >
                                 Cancelar
@@ -571,7 +576,7 @@ function OfficerInfo() {
                             {/*CallSign pair*/}
                             <InformationPair
                                 label={"CallSign:"}
-                                value={officerInfo.professional.callsign}
+                                value={officerInfo.professional.callsign ?? ""}
                                 pattern={/^[A-Z]+-([0-9]){2}$/}
                                 editMode={editMode}
                                 onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
@@ -610,6 +615,7 @@ function OfficerInfo() {
 
                             {/*Data de Subida pair*/}
                             <InformationPair
+                                required={false}
                                 label={"Data de Subida:"}
                                 value={officerInfo.professional.promotion_date || ""}
                                 type={"date"}

@@ -27,4 +27,4 @@ jobs:
 
       - name: Run deploy script in staging server
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/portugalia/portal_seguranca/staging && ./deploy.sh -update -skip && chown -R :portal_seguranca ."
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/portugalia/portal_seguranca/staging && ./deploy.sh -update -skip"

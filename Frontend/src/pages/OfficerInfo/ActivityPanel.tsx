@@ -68,7 +68,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
         // Make the request
         await make_request<UpdateOfficerLastShiftBodyType>(`/officers/${officer}/activity/last-shift`, "PUT", {
             body: {
-                last_shift: lastShift!.unix()
+                last_shift: lastShift.unix()
             }
         });
 
@@ -77,7 +77,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
     }
 
     useEffect(() => {
-        fetchLastShift();
+        void fetchLastShift();
     }, [officer]);
 
     return (
@@ -136,7 +136,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             darkTextOnHover
                             onClick={() => {
                                 // Call the onDateChange function
-                                updateOfficerLastShift();
+                                void updateOfficerLastShift();
                             }}
                         >
                             <SaveIcon fontSize={"small"} />
@@ -147,7 +147,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             buttonColor={"red"}
                             onClick={() => {
                                 setEditMode(false);
-                                fetchLastShift();
+                                void fetchLastShift();
                             }}
                         >
                             <CancelIcon fontSize={"small"} />
@@ -197,7 +197,7 @@ const LastWeekHoursPair = ({officer}: LastWeekHoursPairProps) => {
     }
 
     useEffect(() => {
-        fetchLastWeekHours();
+        void fetchLastWeekHours();
     }, [officer]);
 
     return (
@@ -277,7 +277,7 @@ const ActiveJustificationPair = ({officer}: ActiveJustificationPairProps) => {
     }
 
     useEffect(() => {
-        fetchActiveJustification();
+        void fetchActiveJustification();
     }, [officer]);
 
     return (

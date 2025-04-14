@@ -23,14 +23,24 @@ import {PatentData} from "@portalseguranca/api-types/util/output";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {getOfficerPatrol} from "../../patrols/repository";
 import {getSheetValues} from "../../../utils/google-sheets";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export function sortOfficers(officers: InnerOfficerData[]): InnerOfficerData[] {
     // Sort the officers by patent from highest to lowest and, if the patent is the same, by callsign from lowest to highest
     return officers.sort((a, b) => {
         if (a.patent === b.patent) {
-            // If the patents are the same, strip all non-numerical characters from the callsigns and compare them as numbers
-            let aCallsign = a.callsign.replace(/\D-/g, '');
-            let bCallsign = b.callsign.replace(/\D-/g, '');
+            // If the patents are the same, check if they have callsigns
+            if (a.callsign === null && b.callsign === null) {
+                return 0; // Both are null, so they are equal
+            } else if (a.callsign === null) {
+                return 1; // a is null, b is not, so b is greater
+            } else if (b.callsign === null) {
+                return -1; // b is null, a is not, so a is greater
+            }
+
+            // Strip all non-numerical characters from the callsigns and compare them as numbers
+            const aCallsign = a.callsign.replace(/\D-/g, '');
+            const bCallsign = b.callsign.replace(/\D-/g, '');
 
             return parseInt(aCallsign) - parseInt(bCallsign);
         }
@@ -42,7 +52,7 @@ export function sortOfficers(officers: InnerOfficerData[]): InnerOfficerData[] {
 export async function listOfficers(force: string, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedOfficerData[]>> {
 
     // Fetch the list from the database
-    let officerList = await getOfficersList(force, routeValidFilters, filters);
+    const officerList = await getOfficersList(force, routeValidFilters, filters);
 
     // Return the list
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
@@ -74,13 +84,13 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     }
 
     // Checking if the patent will be a recruit or not
-    let patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
+    const patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
 
     // * Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
     if (patent === getForceDefaultPatents(force).default) {
         // Get the leading char of the patent of the new officer
-        let leading_char = ((await getForcePatents(force, patent))! as PatentData).leading_char;
+        const leading_char = ((await getForcePatents(force, patent))! as PatentData).leading_char;
 
         callsign = await getNextAvailableCallsign(leading_char, force);
     }
@@ -100,9 +110,9 @@ export async function restoreOfficer(officer: InnerOfficerData, force: string): 
 
     // * Get the new officer's callsign
     // Get the leading char of the patent of the new officer
-    let leading_char = ((await getForcePatents(force, getForceDefaultPatents(force).default))! as PatentData).leading_char;
+    const leading_char = ((await getForcePatents(force, getForceDefaultPatents(force).default))! as PatentData).leading_char;
 
-    let callsign = await getNextAvailableCallsign(leading_char, force);
+    const callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Call the repository to restore the officer
     await reHireOfficer(officer.nif, force, callsign);
@@ -130,7 +140,7 @@ export async function alterOfficer(nif: number, force: string, currentInfo: Inne
     }
 
     // Evaluate the expression
-    let isPromotion = eval(isPromotionExpression);
+    const isPromotion = eval(isPromotionExpression) as boolean;
 
     // Call the repository to update the Officer
     await updateOfficer(nif, force, changes, isPromotion);
@@ -154,7 +164,7 @@ export async function deleteOfficer(force: string, targetOfficer: InnerOfficerDa
 
 export async function officerPatrol(force: string, officerNif: number): Promise<DefaultReturn<InnerPatrolData>> {
     // Call the repository to get the patrol
-    let result = await getOfficerPatrol(force, officerNif);
+    const result = await getOfficerPatrol(force, officerNif);
 
     if (result === null) {
         return {result: false, status: 404, message: "Este efetivo não está em patrulha."};
@@ -173,13 +183,15 @@ async function convertHubValues(force: string, patent: string, status: string, e
 
     // Convert the entry date
     // This date is in the DD/MM/YYYY format
-    let entry_date_split = entry_date.split("/");
-    const outEntry_date = Date.parse(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`);
+    const entry_date_split = entry_date.split("/");
+    const outEntry_date = dateToUnix(new Date(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`));
 
     // Convert the promotion date
     // This date is in the DD/MM/YYYY format
-    let promotion_date_split = promotion_date.split("/");
-    const outPromotion_date = Date.parse(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`);
+    const promotion_date_split = promotion_date.split("/");
+    const outPromotion_date = promotion_date_split.length === 1 ?
+        undefined :
+        dateToUnix(new Date(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`));
 
     // Convert the phone number
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
@@ -208,7 +220,7 @@ async function convertHubValues(force: string, patent: string, status: string, e
     }
 }
 
-async function updateOfficerFromHub(force: string, nif: number, row: any[]): Promise<boolean> {
+async function updateOfficerFromHub(force: string, nif: number, row: string[]): Promise<boolean> {
     // * First, convert values to the correct types
     const {patent, status, entry_date, promotion_date, phone, kms, discord} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
@@ -241,7 +253,7 @@ async function updateOfficerFromHub(force: string, nif: number, row: any[]): Pro
 
 }
 
-async function addOfficerFromHub(force: string, row: any[]): Promise<[boolean, number]> {
+async function addOfficerFromHub(force: string, row: string[]): Promise<[boolean, number]> {
     const {patent, status, entry_date, promotion_date, phone, kms, discord, nif} = await convertHubValues(force,
         row[getForceHubPropertyPosition(force, "patent")!],
         row[getForceHubPropertyPosition(force, "status")!],
@@ -284,7 +296,7 @@ async function addOfficerFromHub(force: string, row: any[]): Promise<[boolean, n
 
 }
 
-const importing_forces: {[force: string]: boolean} = {}
+const importing_forces: Record<string, boolean> = {}
 
 export async function importOfficers(force: string): Promise<DefaultReturn<{import_errors: number[], non_present: number[]}>> {
     // Check if this force is not already importing
@@ -296,9 +308,9 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
     importing_forces[force] = true;
 
     // * Get the all data from the Force's HUB on Google Sheets
-    // Fecth the spreadsheet id and sheet name from the config file
+    // Fetch the spreadsheet id and sheet name from the config file
     if (!getForceHubDetails(force)) { // If there's no HUB information present, this is not supported for this force
-        return {result: false, status: 422, message: "Esta rota não é suportada por esta força."};
+        return {result: false, status: 422, message: "Esta ação não é suportada por esta força."};
     }
 
     const {id, sheet} = getForceHubDetails(force)!;
@@ -314,7 +326,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
     const import_errors: number[] = []; // Store the nifs of officers that couldn't be imported
 
     for (let index = 0; index < rows.length; index++) {
-        const row = rows[index];
+        const row = rows[index] as string[];
 
         // If the index of the row doesn't match any of the patents' ranges, skip it
         if (!isHubRowReadable(force, index)) {
@@ -322,7 +334,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         }
 
         // Since the row is a valid one, fetch the NIF out of it
-        let nif: string = row[getForceHubPropertyPosition(force, "nif")!]
+        let nif = row[getForceHubPropertyPosition(force, "nif")!]
 
         // Remove any non-numeric characters from the NIF
         nif = nif.replace(/\D/g, '');
@@ -333,7 +345,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         }
 
         // Check if the Officer is already in the database
-        const officerData = await getOfficerData(parseInt(nif), force);
+        const officerData = await getOfficerData(parseInt(nif), force, false, false);
 
         // If the officer is already in the database, update it with the values from the row
         if (officerData) {
@@ -342,7 +354,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
             }
         } else {
             // Check if the officer is present as a former one
-            const formerOfficerData = await getOfficerData(parseInt(nif), force, true);
+            const formerOfficerData = await getOfficerData(parseInt(nif), force, true, false);
 
             // If the officer is present as a former one, set his fired flag to false and update the values
             if (formerOfficerData) {
@@ -371,7 +383,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
             return false;
         }
 
-        let nif = row[getForceHubPropertyPosition(force, "nif")!].replace(/\D/g, '');
+        const nif = (row[getForceHubPropertyPosition(force, "nif")!] as string).replace(/\D/g, '');
         return officer.nif === parseInt(nif);
     }));
 

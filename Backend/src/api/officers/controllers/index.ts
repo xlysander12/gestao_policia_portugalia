@@ -8,19 +8,23 @@ import {
     OfficerListResponse
 } from "@portalseguranca/api-types/officers/output";
 import {dateToUnix} from "../../../utils/date-handler";
-import {DeleteOfficerRequestBody, UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import {
+    CreateOfficerRequestBody,
+    DeleteOfficerRequestBody,
+    UpdateOfficerRequestBody
+} from "@portalseguranca/api-types/officers/input";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {userHasIntents} from "../../accounts/repository";
 import {PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 
 export async function getOfficersListController(req: express.Request, res: APIResponse<OfficerListResponse>) {
     // Call the service
-    let result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
+    const result = await listOfficers(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     // Check if the result is valid
     if (!result.result) {
         res.status(result.status).json({
-            message: result.message!
+            message: result.message
         });
         return;
     }
@@ -50,7 +54,7 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
                 status: res.locals.targetOfficer!.status,
                 nif: res.locals.targetOfficer!.nif,
             } : {
-                ...officerData!,
+                ...officerData,
                 entry_date: dateToUnix(res.locals.targetOfficer!.entry_date),
                 promotion_date: res.locals.targetOfficer!.promotion_date !== null ? dateToUnix(res.locals.targetOfficer!.promotion_date) : null,
                 fire_reason: res.locals.targetOfficer!.fire_reason !== null ? res.locals.targetOfficer!.fire_reason : undefined,
@@ -59,15 +63,17 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
 }
 
 export async function addOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
-    let result = await hireOfficer(
-        req.body.name,
-        req.body.phone,
-        req.body.iban,
+    const body = req.body as CreateOfficerRequestBody;
+    
+    const result = await hireOfficer(
+        body.name,
+        body.phone,
+        body.iban,
         parseInt(req.params.nif),
-        req.body.kms,
-        req.body.discord,
-        req.body.steam,
-        req.body.recruit,
+        body.kms,
+        body.discord,
+        body.steam,
+        false,
         req.header(FORCE_HEADER)!,
         res.locals.targetOfficer,
         !!res.locals.targetOfficer?.isFormer,
@@ -80,7 +86,7 @@ export async function addOfficerController(req: express.Request, res: OfficerInf
 
 export async function restoreOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Call the service
-    let result = await restoreOfficer(res.locals.targetOfficer!, req.header(FORCE_HEADER)!);
+    const result = await restoreOfficer(res.locals.targetOfficer!, req.header(FORCE_HEADER)!);
 
     // Return the result
     res.status(result.status).json({message: result.message});
@@ -88,10 +94,10 @@ export async function restoreOfficerController(req: express.Request, res: Office
 
 export async function alterOfficerController(req: express.Request, res: OfficerInfoAPIResponse) {
     // * Get the changes
-    let changes = req.body as UpdateOfficerRequestBody;
+    const changes = req.body as UpdateOfficerRequestBody;
 
     // Call the service
-    let result = await alterOfficer(res.locals.targetOfficer!.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer!, changes, res.locals.loggedOfficer);
+    const result = await alterOfficer(res.locals.targetOfficer!.nif, req.header(FORCE_HEADER)!, res.locals.targetOfficer!, changes, res.locals.loggedOfficer);
 
     // Return the result
     res.status(result.status).json({message: result.message});
@@ -101,7 +107,7 @@ export async function deleteOfficerController(req: express.Request, res: Officer
     const {reason} = req.body as DeleteOfficerRequestBody;
 
     // Call the service
-    let result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, res.locals.loggedOfficer, reason);
+    const result = await deleteOfficer(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, res.locals.loggedOfficer, reason);
 
     // Return the result
     res.status(result.status).json({message: result.message});
@@ -110,7 +116,7 @@ export async function deleteOfficerController(req: express.Request, res: Officer
 
 export async function getOfficerCurrentPatrolController(req: express.Request, res: OfficerInfoAPIResponse<PatrolInfoResponse>) {
     // Call the service
-    let result = await officerPatrol(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
+    const result = await officerPatrol(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result
     if (!result.result) {
@@ -131,7 +137,7 @@ export async function getOfficerCurrentPatrolController(req: express.Request, re
 
 export async function importFromSheetsController(req: express.Request, res: APIResponse<OfficerImportResponse>) {
     // Call the service
-    let result = await importOfficers(req.header(FORCE_HEADER)!);
+    const result = await importOfficers(req.header(FORCE_HEADER)!);
 
     if (!result.result) {
         res.status(result.status).json({message: result.message});

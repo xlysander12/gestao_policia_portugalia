@@ -12,12 +12,10 @@ export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "prom
 
 export interface InnerAccountData {
     nif: number,
-    password: string,
+    password: string | null,
     suspended: boolean,
     last_interaction: Date | null,
-    intents: {
-        [key: string]: boolean
-    }
+    intents: Record<string, boolean>
 }
 
 export interface InnerOfficerJustificationData {

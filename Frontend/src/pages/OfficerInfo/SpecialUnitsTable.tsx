@@ -54,7 +54,7 @@ type SpecialUnitsTableRowProps = {
     selectSx: any,
     unit: OfficerUnit,
     unitName: string,
-    unitRoles: any,
+    unitRoles: SpecialUnitRoleData[],
     editMode: boolean,
     onChange: ((unit: OfficerUnit) => void),
     onRemove: ((unit: OfficerUnit) => void)
@@ -75,7 +75,7 @@ const SpecialUnitsTableRow = ({selectSx, unit, unitName, unitRoles, editMode, on
                     sx={selectSx}
                     variant={"outlined"}
                 >
-                    {unitRoles.map((role: SpecialUnitData) => {
+                    {unitRoles.map((role) => {
                         return (
                             <MenuItem key={`role${role.id}`} value={role.id}>{role.name}</MenuItem>
                         )

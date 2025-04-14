@@ -7,7 +7,7 @@ export async function fetchLastShift(force: string, nif: number): Promise<Date |
         return null;
     }
 
-    return result[0].last_shift;
+    return result[0].last_shift as Date;
 }
 
 export async function updateLastShift(force: string, nif: number, last_shift: Date | null) {

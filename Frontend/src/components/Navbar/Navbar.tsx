@@ -17,6 +17,7 @@ import {DefaultTypography} from "../DefaultComponents";
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Notifications from "./Notifications.tsx";
 import packageJson from "../../../package.json";
+import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
 
 type SubPathProps = {
     path?: string,
@@ -91,11 +92,10 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Set the state of the confirmation dialog for the logout
     const [isLogoutOpen, setLogoutOpen] = useState<boolean>(false);
 
-    // Set the state of the change password modal
+    // Modal states
     const [isChangePasswordOpen, setChangePasswordOpen] = useState<boolean>(false);
-
-    // Set the state of the feedback modal
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
+    const [isLastCeremonyOpen, setLastCeremonyOpen] = useState<boolean>(false);
 
     // Set the state with the status of the officer
     const [officerPatrol, setOfficerPatrol] = useState<PatrolData | null>(null);
@@ -193,7 +193,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
         }
 
         if (!isLoginPage) {
-            exec();
+            void exec();
         }
     }, [isLoginPage]);
 
@@ -213,7 +213,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 <Link to={"/efetivos"} className={style.navButton}>Efetivos</Link>
                                 <Link to={"/patrulhas"} className={style.navButton}>Patrulhas</Link>
                                 <Link to={"/atividade"} className={style.navButton}>Atividade</Link>
-                                <Link to={"/"} className={style.navButton}>Avaliações</Link>
+                                <Link to={"/avaliacoes"} className={style.navButton}>Avaliações</Link>
                             </div>
                         </Gate>
                     </div>
@@ -264,9 +264,18 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                     setAccountMenuAnchor(null);
                 }}
             >
-                <MenuItem>Atualizar Data Última Cerimónia</MenuItem>
+                <Gate show={loggedUser.intents.evaluations}>
+                    <MenuItem
+                        onClick={() => {
+                            setAccountMenuOpen(false);
+                            setLastCeremonyOpen(true);
+                        }}
+                    >
+                        Atualizar Data Última Cerimónia
+                    </MenuItem>
 
-                <Divider/>
+                    <Divider/>
+                </Gate>
 
                 <MenuItem
                     onClick={() => {
@@ -317,6 +326,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                     </DefaultTypography>
                 </MenuItem>
             </Menu>
+
+            <LastCeremonyModal open={isLastCeremonyOpen} onClose={() => setLastCeremonyOpen(false)} />
 
             <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
             <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>

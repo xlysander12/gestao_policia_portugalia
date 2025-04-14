@@ -1,0 +1,13 @@
+.fieldsContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 10px
+}
+
+.fieldsContainer > :last-child:nth-child(odd) {
+    grid-column: span 2;
+}
+
+.gridFullSpan {
+    grid-column: span 2;
+}

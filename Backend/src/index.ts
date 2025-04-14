@@ -28,6 +28,7 @@ import setupSocketEvents from "./utils/websocket-handler";
 const app = express();
 
 // Create the http server
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 const httpServer = http.createServer(app);
 
 // Set timeout to 30 seconds
@@ -65,6 +66,6 @@ app.use((_req, res: ExpressResponse, next) => {
 // Include all routes
 app.use("/portugalia/portalseguranca", endpoint);
 
-httpServer.listen(process.env["HTTP_PORT"], () => {
-   logToConsole(`Server started on port ${process.env["HTTP_PORT"]}`, "info");
+httpServer.listen(process.env.HTTP_PORT, () => {
+   logToConsole(`Server started on port ${process.env.HTTP_PORT}`, "info");
 });

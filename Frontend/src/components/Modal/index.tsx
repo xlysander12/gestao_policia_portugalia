@@ -132,12 +132,14 @@ export function Modal({open, onClose, width, height, title, disableScroll, url, 
 type ModalSectionProps = {
     title: string
     titleCentered?: boolean
+    autoWidth?: boolean
+    sx?: Record<string, string>
     children: ReactElement | ReactElement[]
 }
 
-export function ModalSection({title, titleCentered = false, children}: ModalSectionProps): ReactElement {
+export function ModalSection({title, titleCentered = false, autoWidth = false, sx, children}: ModalSectionProps): ReactElement {
     return (
-        <fieldset className={style.section}>
+        <fieldset className={style.section} style={autoWidth ? {...sx, width: "fit-content"} : sx}>
             {title ? <legend style={titleCentered ? {textAlign: "center"}: {textAlign: "start"}}>{title}</legend> : null}
             {children}
         </fieldset>

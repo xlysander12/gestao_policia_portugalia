@@ -1,11 +1,12 @@
 import style from "./login.module.css";
 import {useNavigate} from "react-router-dom";
 import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents";
-import React, {useState} from "react";
+import React, {FormEvent, useState} from "react";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { LoginRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
+import { LoginResponse } from "@portalseguranca/api-types/account/output";
 
 type LoginPageProps = {
     onLoginCallback: () => void
@@ -22,8 +23,8 @@ function Login({onLoginCallback}: LoginPageProps) {
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
 
-    const onLogin = async (event: any) => {
-        // Prevent the page from reloading and reidireting by itself
+    const onLogin = async (event: FormEvent<HTMLFormElement>) => {
+        // Disable page reload
         event.preventDefault();
 
         // Set the loading state to true
@@ -40,7 +41,7 @@ function Login({onLoginCallback}: LoginPageProps) {
         });
 
         // Get the data from the response
-        const loginJson = await loginResponse.json();
+        const loginJson = await loginResponse.json() as LoginResponse;
 
         // If the request didn't return a 200 code, the login was unsuccessful
         if (!loginResponse.ok) {
@@ -62,6 +63,12 @@ function Login({onLoginCallback}: LoginPageProps) {
         // ! Since the token should now be stored in cookies, there's no need to store it in the local storage
         // Disable the loading flag
         setLoading(false);
+
+        // Clear all existing toasts
+        toast.dismiss();
+
+        // Show toast informing logic successful
+        toast.success("Login realizado com sucesso. A reidirecionar....");
 
         // Handle the login logic in the App core
         onLoginCallback();

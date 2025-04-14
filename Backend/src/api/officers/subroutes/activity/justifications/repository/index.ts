@@ -4,30 +4,30 @@ import {
     OfficerMinifiedJustification
 } from "@portalseguranca/api-types/officers/activity/output";
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
-import {queryDB} from "../../../../../../utils/db-connector";
+import {paramsTypes, queryDB} from "../../../../../../utils/db-connector";
 import {dateToUnix} from "../../../../../../utils/date-handler";
 import {getForceInactivityJustificationType} from "../../../../../../utils/config-handler";
 
-type MinifiedOfficerJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
+type InnerOfficerMinifiedJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
     start: Date,
-    end: Date,
+    end: Date | null,
     timestamp: Date
 }
-export async function getOfficerJustificationsHistory(force: string, nif: number): Promise<MinifiedOfficerJustification[]> {
+export async function getOfficerJustificationsHistory(force: string, nif: number): Promise<InnerOfficerMinifiedJustification[]> {
     // Fetch from the database
     const results = await queryDB(force, "SELECT id, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE officer = ?", [nif]);
 
     // Order the result in an proper array
-    let arr: MinifiedOfficerJustification[] = [];
+    const arr: InnerOfficerMinifiedJustification[] = [];
     for (const result of results) {
         arr.push({
-            id: result.id,
-            type: result.type,
-            start: result.start_date,
-            end: result.end_date,
-            status: result.status,
-            managed_by: result.managed_by,
-            timestamp: result.timestamp
+            id: result.id as number,
+            type: result.type as number,
+            start: result.start_date as number & Date,
+            end: result.end_date as number & Date | null,
+            status: result.status as "pending" | "approved" | "denied",
+            managed_by: result.managed_by as number | null,
+            timestamp: result.timestamp as number & Date
         });
     }
 
@@ -35,12 +35,13 @@ export async function getOfficerJustificationsHistory(force: string, nif: number
     return arr;
 }
 
-type OfficerJustificationDetails = Omit<OfficerJustification, "start | end | timestamp"> & {
+type InnerOfficerJustification = Omit<OfficerJustification, "start | end | timestamp | comment"> & {
     start: Date
-    end: Date
+    end: Date | null
+    comment: string | null
     timestamp: Date
 }
-export async function getOfficerJustificationDetails(force: string, nif: number, id: number): Promise<OfficerJustificationDetails | null> {
+export async function getOfficerJustificationDetails(force: string, nif: number, id: number): Promise<InnerOfficerJustification | null> {
     // Fetch from the database
     const result = await queryDB(force, "SELECT * FROM officer_justifications WHERE officer = ? AND id = ?", [nif, id]);
 
@@ -50,14 +51,14 @@ export async function getOfficerJustificationDetails(force: string, nif: number,
     // Return the result
     return {
         id: id,
-        type: result[0].type,
-        start: result[0].start_date,
-        end: result[0].end_date,
-        description: result[0].description,
-        status: result[0].status,
-        comment: result[0].comment,
-        managed_by: result[0].managed_by,
-        timestamp: result[0].timestamp
+        type: result[0].type as number,
+        start: result[0].start_date as number & Date,
+        end: result[0].end_date as number & Date | null,
+        description: result[0].description as string,
+        status: result[0].status as "pending" | "approved" | "denied",
+        comment: (result[0].comment as string | null) ?? "",
+        managed_by: result[0].managed_by as number | null,
+        timestamp: result[0].timestamp as number & Date
     }
 }
 
@@ -66,11 +67,11 @@ export async function getOfficerActiveJustifications(force: string, nif: number)
     const results = await queryDB(force, "SELECT id, type FROM officer_justifications WHERE officer = ? AND ((current_date() BETWEEN start_date AND end_date) OR current_date() > start_date AND end_date IS NULL) AND status = 'approved'", [nif]);
 
     // Order the result in an proper array
-    let arr: OfficerActiveJustification[] = [];
+    const arr: OfficerActiveJustification[] = [];
     for (const result of results) {
         arr.push({
-            id: result.id,
-            type: result.type,
+            id: result.id as number,
+            type: result.type as number,
         });
     }
 
@@ -110,7 +111,7 @@ export async function updateOfficerJustificationDetails(force: string, nif: numb
 
     // * Build the query and params
     // Initialize the params array and the query string
-    let params: any[] = [];
+    const params: paramsTypes[] = [];
     let updateQuery = `UPDATE officer_justifications SET`;
     updateQuery += " ";
 

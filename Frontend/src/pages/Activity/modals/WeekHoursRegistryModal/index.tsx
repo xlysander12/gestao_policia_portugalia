@@ -88,6 +88,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         // If the request wasn't successful, show an error message
         if (!response.ok) {
             toast(data.message, {type: "error"});
+            setLoading(false);
             return;
         }
 
@@ -161,7 +162,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         }
 
         if (open && !newEntry) {
-            execute();
+            void execute();
         }
 
         return () => {
@@ -212,7 +213,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         }
 
         if (open && newEntry) {
-            execute();
+            void execute();
         }
     }, [open]);
 
@@ -313,7 +314,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
                                     <DefaultTypography
                                         color={didMinimumHours ? "var(--portalseguranca-color-text-light)": "red"}
                                     >
-                                        ({toHoursAndMinutes(entryData!.minutes!)})
+                                        ({toHoursAndMinutes(entryData.minutes)})
                                     </DefaultTypography>
                                 </div>
 

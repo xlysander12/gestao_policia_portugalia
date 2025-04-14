@@ -1,12 +1,13 @@
 import express from "express";
-import {APIResponse} from "../types";
+import {APIResponse, InnerOfficerData} from "../types";
 import {queryDB} from "../utils/db-connector";
 import {FORCE_HEADER} from "../utils/constants";
 import {logToConsole} from "../utils/logger";
 import {QueryError} from "mysql2";
+import {ExpressResponse} from "../types/response-types";
 
 function isQueryError(err: Error): err is QueryError {
-    return err && typeof err === "object" && "errno" in err;
+    return typeof err === "object" && "errno" in err;
 }
 
 async function getErrorCode(force: string): Promise<string> {
@@ -28,7 +29,7 @@ async function getErrorCode(force: string): Promise<string> {
     return result;
 }
 
-async function errorHandlerMiddleware(err: Error | QueryError, req: express.Request, res: APIResponse, _next: express.NextFunction) {
+async function errorHandlerMiddleware(err: Error | QueryError, req: express.Request, res: ExpressResponse | APIResponse, _next: express.NextFunction) {
     // Check if the error was triggered in a mysql query
     if (isQueryError(err)) {
         // This error was triggered by a constraint violation while inserting some data in the database
@@ -41,6 +42,14 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
 
         // This error was triggered by an invalid number or string in column while inserting some data in the database
         if (err.errno === 1264 || err.errno === 1406) {
+            res.status(400).json({
+                message: "Corpo do pedido inválido",
+            });
+            return;
+        }
+
+        // This error was triggered by a foreign key constraint violation
+        if (err.errno === 1452) {
             res.status(400).json({
                 message: "Corpo do pedido inválido",
             });
@@ -68,7 +77,7 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
     const code = await getErrorCode(force);
 
     // Store the error in the database
-    await queryDB(force, "INSERT INTO errors (code, route, method, body, nif, stack) VALUES (?, ?, ?, ?, ?, ?)", [code, route, req.method, req.body ? JSON.stringify(req.body): null, res.locals.loggedOfficer ? res.locals.loggedOfficer.nif: null, err.stack]);
+    await queryDB(force, "INSERT INTO errors (code, route, method, body, nif, stack) VALUES (?, ?, ?, ?, ?, ?)", [code, route, req.method, req.body ? JSON.stringify(req.body): null, res.locals.loggedOfficer ? (res.locals.loggedOfficer as InnerOfficerData).nif: null, err.stack]);
 
     logToConsole(`${route} - Error Code: ${code}`, "error", true);
 

@@ -58,10 +58,10 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
             // If the response isn't 200, create a fake officer data to display the NIF
             if (!officerResponse.ok) {
                 import_errors.push({
-                    name: "Desconhecido",
-                    patent: 0,
+                    name: `Desconhecido (#${nif})`,
+                    patent: 1,
                     callsign: "N/A",
-                    status: 0,
+                    status: 1,
                     nif
                 });
             } else {
@@ -97,7 +97,7 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
 
     useEffect(() => {
         if (doImport)
-            importOfficers();
+            void importOfficers();
     }, [doImport]);
 
     return (

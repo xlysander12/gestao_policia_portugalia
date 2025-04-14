@@ -32,6 +32,7 @@
     border: 5px solid var(--portalseguranca-color-accent);
     border-radius: 10px;
     box-shadow: black 0 0 30px 0;
+    text-align: start;
 }
 
 .section > legend {
@@ -41,7 +42,7 @@
     /*margin: auto;*/
 }
 
-.content .section:last-child {
+.content > .section:last-child {
     margin: 0;
 }
 

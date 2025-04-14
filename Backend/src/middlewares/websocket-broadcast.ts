@@ -5,12 +5,12 @@ import {getForcePatrolForces} from "../utils/config-handler";
 import {logToConsole} from "../utils/logger";
 import pc from "picocolors";
 
-export async function websocketBroadcastMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
+export function websocketBroadcastMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
     // Check if there is a broadcast key in the route object
     if (res.locals.routeDetails.broadcast) {
         // If there is, create an event handler to broadcast the message to the clients when the response is sent
         res.on("finish", () => {
-            if (res.locals.ws && req.header(FORCE_HEADER) && res.statusCode < 400) {
+            if (req.header(FORCE_HEADER) && res.statusCode < 400) {
                 // Build the message body
                 const body = res.locals.routeDetails.broadcast!.body(req, res);
 

@@ -109,7 +109,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
         // Fetch the account information if it didn't just refresh
         if (!justRefreshed) {
-            fetchAccountInfo();
+            void fetchAccountInfo();
         }
 
         // Make sure setJustRefreshed is set to false before advancing

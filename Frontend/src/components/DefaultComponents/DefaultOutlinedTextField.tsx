@@ -1,5 +1,8 @@
 import {styled} from "@mui/material/styles";
-import {OutlinedTextFieldProps, TextField} from "@mui/material";
+import {IconButton, InputAdornment, OutlinedTextFieldProps, TextField} from "@mui/material";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useState } from "react";
 
 type DefaultOutlinedTextFieldProps = Partial<OutlinedTextFieldProps> & {alternateColor?: boolean, textWhenDisabled?: boolean};
 
@@ -37,21 +40,37 @@ const DefaultOutlinedTextFieldStyle = styled(TextField, {
                 borderColor: `${textWhenDisabled ? "transparent": "var(--portalseguranca-color-accent)"}`,
             },
 
-            padding: `${textWhenDisabled ? "4px 0 5px": "16.5px, 14px"}`,
+            padding: `${textWhenDisabled ? "4px 0 5px": "16.5px, 14px"}`
         },
 
         "& .MuiOutlinedInput-input": {
             "&.Mui-disabled": {
-                WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "rgba(208,199,211,0.5)"}`,
+                WebkitTextFillColor: `${textWhenDisabled ? "var(--portalseguranca-color-text-light)": "gray"}`,
             }
         }
     }
 }));
 const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
+    const [showPassword, setShowPassword] = useState<boolean>(props.type !== "password");
+
     return (
         <DefaultOutlinedTextFieldStyle
             variant={"outlined"}
             {...props}
+            type={showPassword ? "text" : "password"}
+            InputProps={{
+                ...props.InputProps,
+                endAdornment: props.type === "password" ? (
+                    <InputAdornment position={"end"}>
+                        <IconButton
+                            onClick={() => {setShowPassword((prev) => !prev)}}
+                            edge={"end"}
+                        >
+                            {showPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                        </IconButton>
+                    </InputAdornment>
+                ) : props.InputProps?.endAdornment,
+            }}
         />
     );
 }

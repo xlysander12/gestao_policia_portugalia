@@ -71,7 +71,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         // If the patrol gets updated, fetch the new data
         if (event.action === "update" && !editMode) { // Can't update the patrol if is being edited
-            setPatrolData(await fetchPatrolData(id!));
+            setPatrolData(await fetchPatrolData(id));
             toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
         }
     }, [id, editMode]));
@@ -200,7 +200,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         }
 
         if (id !== null && open) {
-            exec();
+            void exec();
         }
 
         return () => {
@@ -214,7 +214,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             <Modal
                 width={"50%"}
                 open={open}
-                title={`Patrulha ${id === null ? "": `#${id!.toUpperCase()}`}`}
+                title={`Patrulha ${id === null ? "": `#${id.toUpperCase()}`}`}
                 onClose={handleModalClose}
             >
                 <Loader size={"100px"}/>
@@ -236,13 +236,13 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                         <ModalSection title={"Informações Gerais"}>
                             <div className={style.mainDiv}>
                                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo:</DefaultTypography>
-                                <DefaultTypography>{patrolData!.type.name}</DefaultTypography>
+                                <DefaultTypography>{patrolData.type.name}</DefaultTypography>
 
                                 <Divider flexItem sx={{marginBottom: "10px"}} />
 
-                                <Gate show={patrolData!.unit !== null}>
+                                <Gate show={patrolData.unit !== null}>
                                     <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Unidade:</DefaultTypography>
-                                    <DefaultTypography>{patrolData!.unit !== null ? `${patrolData!.unit!.name} (${patrolData!.unit.acronym})`: ""}</DefaultTypography>
+                                    <DefaultTypography>{patrolData.unit !== null ? `${patrolData.unit.name} (${patrolData.unit.acronym})`: ""}</DefaultTypography>
 
                                     <Divider flexItem sx={{marginBottom: "10px"}} />
                                 </Gate>
@@ -253,7 +253,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                             disabled={!editMode || loading}
                                             textWhenDisabled={!loading}
                                             disableFuture
-                                            value={patrolData!.start}
+                                            value={patrolData.start}
                                             onChange={(date) => setPatrolData(draft => {draft!.start = date!})}
                                             sx={{width: "190px"}}
                                         />
@@ -265,7 +265,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                             disabled={!editMode || loading}
                                             textWhenDisabled={!loading}
                                             disableFuture
-                                            value={patrolData!.end}
+                                            value={patrolData.end}
                                             onChange={(date) => setPatrolData(draft => {draft!.end = date})}
                                             sx={{width: "190px"}}
                                             clearable
@@ -282,7 +282,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                     fullWidth
                                     textWhenDisabled={!loading}
                                     placeholder={"Sem observações"}
-                                    value={patrolData!.notes ? patrolData!.notes: ""}
+                                    value={patrolData.notes ? patrolData.notes: ""}
                                     onChange={(e) => setPatrolData(draft => {draft!.notes = e.target.value})}
                                     multiline
                                 />
@@ -306,7 +306,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                             </div>
                         </ModalSection>
 
-                        <Gate show={patrolData!.editable}>
+                        <Gate show={patrolData.editable}>
                             <ModalSection title={"Ações"}>
                                 <div className={style.actionsDiv}>
                                     <Gate show={!editMode}>
@@ -328,7 +328,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
                                     <Gate show={editMode}>
                                         <DefaultButton
-                                            disabled={patrolData!.start.isAfter(patrolData!.end!) || patrolData!.start.isAfter(moment()) || (patrolData!.end ? patrolData!.end.isAfter(moment()): false)}
+                                            disabled={patrolData.start.isAfter(patrolData.end) || patrolData.start.isAfter(moment()) || (patrolData.end ? patrolData.end.isAfter(moment()): false)}
                                             buttonColor={"lightgreen"}
                                             darkTextOnHover
                                             sx={{flex: 1}}

@@ -1,15 +1,11 @@
 name: Ensure Version Increment
 on:
   pull_request:
-    type:
+    types:
       - opened
+      - synchronize
     branches:
-      - staging
-      - main
-
-  push:
-    branches:
-      - staging
+      - master
 
 jobs:
   check-backend-version:

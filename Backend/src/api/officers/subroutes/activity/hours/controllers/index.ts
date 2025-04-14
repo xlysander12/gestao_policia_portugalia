@@ -13,19 +13,18 @@ import {OfficerHoursEntryType} from "../repository";
 import {dateToUnix, unixToDate} from "../../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMinWeekMinutes} from "../../../../../../utils/config-handler";
-import {requestQueryToReceivedQueryParams} from "../../../../../../utils/filters";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerHoursResponse>) {
     // Call the service to get the hours
-    let result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, requestQueryToReceivedQueryParams(req.query));
+    const result = await officerHoursHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
 
     if (!result.result) {
-        res.status(result.status).json({message: result.message!});
+        res.status(result.status).json({message: result.message});
         return;
     }
 
     res.status(result.status).json({
-        message: result.message!,
+        message: result.message,
         data: result.data!.map((hour: OfficerHoursEntryType) => {
             return {
                 ...hour,
@@ -41,16 +40,16 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
     const {id} = req.params;
 
     // Call the service to get the hours
-    let result = await officerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(id));
+    const result = await officerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(id));
 
     // Return the result of the service
     if (!result.result) {
-        res.status(result.status).json({message: result.message!});
+        res.status(result.status).json({message: result.message});
         return;
     }
 
     res.status(result.status).json({
-        message: result.message!,
+        message: result.message,
         meta: {
             min_hours: result.data!.minutes >= getForceMinWeekMinutes(req.header(FORCE_HEADER)!)
         },
@@ -64,16 +63,16 @@ export async function getOfficerHoursEntryController(req: express.Request, res: 
 
 export async function getOfficerLastWeekController(req: express.Request, res: OfficerInfoAPIResponse<OfficerSpecificHoursResponse>) {
     // Call the service to get the last week hours
-    let result = await lastOfficerHours(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
+    const result = await lastOfficerHours(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result of the service
     if (!result.result) {
-        res.status(result.status).json({message: result.message!});
+        res.status(result.status).json({message: result.message});
         return;
     }
 
     res.status(result.status).json({
-        message: result.message!,
+        message: result.message,
         meta: {
             min_hours: result.data!.minutes >= getForceMinWeekMinutes(req.header(FORCE_HEADER)!)
         },
@@ -89,7 +88,7 @@ export async function addOfficerHoursEntryController(req: express.Request, res: 
     const {week_start, week_end, minutes} = req.body as AddOfficerHoursBodyType;
 
     // Call the service to add the hours
-    let result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, unixToDate(week_start), unixToDate(week_end), minutes, res.locals.loggedOfficer);
+    const result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, unixToDate(week_start), unixToDate(week_end), minutes, res.locals.loggedOfficer);
 
     res.status(result.status).json({message: result.message});
 }

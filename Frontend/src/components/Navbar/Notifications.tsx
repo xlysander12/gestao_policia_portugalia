@@ -17,7 +17,7 @@ import Gate from "../Gate/gate.tsx";
 import {DefaultTypography} from "../DefaultComponents";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
-import {OfficerData} from '@portalseguranca/api-types/officers/output';
+import {OfficerData, OfficerInfoGetResponse} from '@portalseguranca/api-types/officers/output';
 import { SOCKET_EVENT } from '@portalseguranca/api-types';
 
 type InnerActivityNotification = Omit<ActivityNotification, "officer"> & {
@@ -73,14 +73,15 @@ function Notifications() {
         for (const notification of notifications) {
             if (isActivityNotification(notification)) {
                 const officerResponse = await make_request(`/officers/${notification.officer}`, RequestMethod.GET);
-                const officerResponseJson = await officerResponse.json();
+                const officerResponseJson = await officerResponse.json() as OfficerInfoGetResponse;
 
                 if (!officerResponse.ok) {
                     toast.error(officerResponseJson.message);
                     continue;
                 }
 
-                notification.officer = officerResponseJson.data;
+                // @ts-expect-error - This is done this way so all the officer data can be stored in the object for reference
+                notification.officer = officerResponseJson.data as OfficerData;
             }
         }
 
@@ -122,7 +123,7 @@ function Notifications() {
 
     useEffect(() => {
         if (needsRefresh) {
-            updateNotifications();
+            void updateNotifications();
         }
     }, [needsRefresh]);
 

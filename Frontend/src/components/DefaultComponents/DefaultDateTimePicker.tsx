@@ -35,7 +35,8 @@ const DefaultDateTimePicker = (props: DefaultDateTimePickerProps) => {
           slotProps={{
               ...props.slotProps,
               field: {
-                  clearable: props.clearable
+                  clearable: props.clearable,
+                  ...props.slotProps?.field,
               }
           }}
       />

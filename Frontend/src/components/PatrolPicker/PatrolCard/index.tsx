@@ -1,19 +1,19 @@
-import {useForceData} from "../../../../hooks";
+import {useForceData} from "../../../hooks";
 import {useEffect, useState} from "react";
-import {make_request} from "../../../../utils/requests.ts";
-import InformationCard from "../../../../components/InformationCard";
+import {make_request} from "../../../utils/requests.ts";
+import InformationCard from "../../InformationCard";
 import style from "./patrol-card.module.css";
-import {DefaultTypography} from "../../../../components/DefaultComponents";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
-import Gate from "../../../../components/Gate/gate.tsx";
+import {DefaultTypography} from "../../DefaultComponents";
+import {getObjectFromId} from "../../../forces-data-context.ts";
+import Gate from "../../Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
 import moment from "moment";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
-import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import { MinifiedOfficerData, OfficerInfoGetResponse } from "@portalseguranca/api-types/officers/output";
 
 type PatrolCardProps = {
     patrolInfo: MinifiedPatrolData
-    callback: (id: string) => void
+    callback: (patrol: MinifiedPatrolData) => void
 }
 function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     // Get the force data from context
@@ -75,13 +75,13 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
             setLoading(false);
         }
 
-        exec();
+        void exec();
     }, [patrolInfo.id]);
 
     return (
         <InformationCard
             statusColor={patrolInfo.canceled ? "gray": (patrolInfo.end ? "red" : "lightgreen")}
-            callback={() => callback(patrolInfo.id)}
+            callback={() => callback(patrolInfo)}
         >
             <div className={style.patrolCardMain}>
                 <div className={style.patrolCardLeft}>

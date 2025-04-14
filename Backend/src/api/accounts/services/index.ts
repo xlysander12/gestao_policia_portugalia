@@ -18,7 +18,7 @@ import {dateToUnix} from "../../../utils/date-handler";
 export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
     if (intents) { // If intents were provided, check if the user has them
-        let hasIntents = await userHasIntents(user, force, intents);
+        const hasIntents = await userHasIntents(user, force, intents);
         if (!hasIntents) { // If the user doesn't have intents, return a 403
             return {result: false, status: 403, message: "Não tens esta permissão"};
         }
@@ -31,7 +31,7 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
     // Check if the requesting user is the user itself
     if (requestingNif !== requestedAccount.nif) {
         // If it's not the user itself, check if the user has the "accounts" intent
-        let hasIntent = await userHasIntents(requestingNif, force, "accounts");
+        const hasIntent = await userHasIntents(requestingNif, force, "accounts");
         if (!hasIntent) {
             return {result: false, status: 403, message: "Não tens permissão para efetuar esta ação"};
         }
@@ -59,14 +59,14 @@ export async function getAccountForces(requestingNif: number, nif: number): Prom
     }
 
     // Get the forces the account belongs to
-    let response = await getUserForces(nif);
+    const response = await getUserForces(nif);
 
     return {result: true, status: 200, message: "Operação bem sucedida", data: response};
 }
 
 export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<{token: string, forces: string[]}>> {
     // Check if the user exists (it's needed to check on all forces databases)
-    let user_forces = await getUserForces(nif, true);
+    const user_forces = await getUserForces(nif, true);
 
     // If the user_forces array is empty, then the username doesn't exist
     if (user_forces.length === 0) {
@@ -107,7 +107,7 @@ export async function loginUser(nif: number, password: string, persistent: boole
 
     // After generating the token, store it in the databases of all the forces the user belongs to
     for (const force of user_forces) {
-        await addAccountToken(force.name, nif, token, persistent ? persistent: false);
+        await addAccountToken(force.name, nif, token, persistent ?? false);
     }
 
     // Return the data to the Controller
@@ -117,7 +117,7 @@ export async function loginUser(nif: number, password: string, persistent: boole
 
 export async function logoutUser(nif: number, token: string): Promise<DefaultReturn<void>> {
     // Get all the forces the user belongs to
-    let forces = await getUserForces(nif);
+    const forces = await getUserForces(nif);
 
     // Delete the token from all forces
     for (const force of forces) {
@@ -171,8 +171,8 @@ export async function createAccount(nif: number, force: string): Promise<Default
     }
 
     // After, make sure the officer exists in the force since there can't be accounts for non-existing officers
-    const officerDetails = await getOfficerData(nif, force);
-    if (officerDetails === null) {
+    const officerDetails = await getOfficerData(nif, force, false, false);
+    if (!officerDetails) {
         return {result: false, status: 404, message: "Este efetivo não existe nesta força"};
     }
 
@@ -183,19 +183,19 @@ export async function createAccount(nif: number, force: string): Promise<Default
     return {result: true, status: 200, message: "Conta criada com sucesso"};
 }
 
-export async function changeUserPermissions(nif: number, force: string, requestingUser: number, intents: {[intent: string]: boolean}): Promise<DefaultReturn<void>> {
+export async function changeUserPermissions(nif: number, force: string, requestingUser: number, intents: Record<string, boolean>): Promise<DefaultReturn<void>> {
     // Get the intents names
     const intentsNames = Object.keys(intents);
 
     // Update intents in the database
-    for (let i = 0; i < intentsNames.length; i++) {
+    for (const intent of intentsNames) {
         // Make sure the requesting user has the intent it wants to update and the intent to alter accounts
-        if (!(await userHasIntents(requestingUser, force, intentsNames[i])) || !(await userHasIntents(requestingUser, force, "accounts"))) {
+        if (!(await userHasIntents(requestingUser, force, intent)) || !(await userHasIntents(requestingUser, force, "accounts"))) {
             return {result: false, status: 403, message: "Não tens permissão para efetuar esta ação"};
         }
 
         // Call the repository to update the intent
-        await changeAccountIntent(nif, force, intentsNames[i], intents[intentsNames[i]]);
+        await changeAccountIntent(nif, force, intent, intents[intent]);
     }
 
     // Return success

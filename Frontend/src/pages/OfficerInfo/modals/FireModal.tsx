@@ -8,6 +8,7 @@ import React, {FormEvent} from "react";
 import {FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Gate from "../../../components/Gate/gate.tsx";
 import {DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
+import { BaseResponse } from "@portalseguranca/api-types";
 
 type FireModalProps = {
     open: boolean,
@@ -38,7 +39,7 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
 
         // Check if the response is ok
         if (!fireRequest.ok) {
-            alert((await fireRequest.json()).message);
+            alert((await fireRequest.json() as BaseResponse).message);
             return;
         }
 

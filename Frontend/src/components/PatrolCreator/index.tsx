@@ -20,6 +20,7 @@ import {make_request} from "../../utils/requests.ts";
 import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
 import OfficerList from "../OfficerList";
+import { BaseResponse } from "@portalseguranca/api-types";
 
 type InnerNewPatrolType = {
     type: PatrolTypeData
@@ -72,7 +73,7 @@ function PatrolCreator() {
             }
         });
 
-        const responseJson = await response.json();
+        const responseJson = await response.json() as BaseResponse;
 
         if (!response.ok) {
             toast.error(responseJson.message);

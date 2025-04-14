@@ -54,7 +54,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                     }: {}}
                 >
                     {officers.map((officer) => {
-                        const officerForceData = officer.force ? getForceData(officer.force!) : forceData;
+                        const officerForceData = officer.force ? getForceData(officer.force) : forceData;
 
                         return (
                             <ListItem

@@ -4,7 +4,7 @@ import { RequestError } from "@portalseguranca/api-types";
 import {routeMethodType} from "../api/routes";
 import {requestQueryToReceivedQueryParams, ReceivedQueryParams} from "../utils/filters";
 
-function assureBodyTypes(routeDetails: routeMethodType, body: any): [boolean, string, string] {
+function assureBodyTypes(routeDetails: routeMethodType, body: unknown): [boolean, string, string] {
     // Since the route has a body pattern, check if the contents of the request's body are valid
     const validation = routeDetails.body!.type.validate(body);
 
@@ -32,7 +32,7 @@ function assureRequestTypes(req: express.Request, res: APIResponse, next: expres
         const [success, message, details] = assureBodyTypes(res.locals.routeDetails, req.body);
 
         if (!success) {
-            let response: RequestError = {
+            const response: RequestError = {
                 message: message,
                 details: details
             }
@@ -58,7 +58,7 @@ function assureRequestTypes(req: express.Request, res: APIResponse, next: expres
         const [success, message, details] = assureQueryTypes(res.locals.routeDetails, receivedQueryParams);
 
         if (!success) {
-            let response: RequestError = {
+            const response: RequestError = {
                 message: message,
                 details: details
             }

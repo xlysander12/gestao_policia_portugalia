@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Select, SelectProps} from "@mui/material";
 
-type DefaultSelectProps = Partial<SelectProps> & {sameTextColorWhenDisabled?: boolean}
+type DefaultSelectProps = SelectProps & {sameTextColorWhenDisabled?: boolean}
 
 const DefaultSelectStyle = styled(Select, {
     shouldForwardProp: (prop) => prop !== "sameTextColorWhenDisabled"

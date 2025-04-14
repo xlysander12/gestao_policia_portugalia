@@ -36,7 +36,7 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
 
         // Fetch the errors from the API
         const response = await make_request("/util/errors", "GET", {
-            reloadOn500: false
+            errorPageOn500: false
         });
         const responseJson: UtilUserErrorsResponse = await response.json();
 
@@ -73,7 +73,7 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
                 title: title,
                 body: message
             },
-            reloadOn500: false
+            errorPageOn500: false
         });
 
         // Get the data from the response
@@ -105,7 +105,7 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
 
         // If the type is error, fetch the error codes from the user
         if (open && type === "error") {
-            fetchErrorCodes();
+            void fetchErrorCodes();
         }
     }, [type, open]);
 

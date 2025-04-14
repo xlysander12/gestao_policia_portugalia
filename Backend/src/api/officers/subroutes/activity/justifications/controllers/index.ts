@@ -18,7 +18,7 @@ import {
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input";
 import {OfficerJustificationAPIResponse} from "../../../../../../types/response-types";
-import {dateToString, dateToUnix} from "../../../../../../utils/date-handler";
+import {dateToUnix} from "../../../../../../utils/date-handler";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerJustificationsHistoryResponse>) {
     // * Make sure the requesting account has permission to check this info
@@ -31,7 +31,7 @@ export async function getOfficerJustificationsHistoryController(req: express.Req
     }
 
     // Call the service to get the data
-    let result = await officerHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
+    const result = await officerHistory(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result, depending on success
     if (!result.result) {
@@ -66,7 +66,7 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
             end: res.locals.justification.end ? dateToUnix(res.locals.justification.end): null,
             description: res.locals.justification.description,
             status: res.locals.justification.status,
-            comment: res.locals.justification.comment || undefined,
+            comment: res.locals.justification.comment ?? undefined,
             managed_by: res.locals.justification.managed_by,
             timestamp: res.locals.justification.timestamp.getTime()
         }
@@ -86,10 +86,10 @@ export async function createOfficerJustificationController(req: express.Request,
 
     // * Since the permissions are okay, call the service to create the justification
     // Get the data from the request
-    let {type, start, end, description} = req.body as AddOfficerJustificationBodyType;
+    const {type, start, end, description} = req.body as AddOfficerJustificationBodyType;
 
     // Get the result from the service
-    let result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, type, description, start, end === null ? undefined: end);
+    const result = await officerJustificationCreate(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, type, description, start, end === null ? undefined: end);
 
     // Return the result
     res.status(result.status).json({
@@ -99,7 +99,7 @@ export async function createOfficerJustificationController(req: express.Request,
 
 export async function getOfficerActiveJustificationsController(req: express.Request, res: OfficerInfoAPIResponse<OfficerActiveJustificationsResponse>) {
     // Call the service to get the data
-    let result = await officerActive(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
+    const result = await officerActive(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif);
 
     // Return the result, depending on success
     if (!result.result) {
@@ -116,10 +116,10 @@ export async function getOfficerActiveJustificationsController(req: express.Requ
 
 export async function manageOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
     // Get the value from the request
-    let {approved, comment} = req.body as ManageOfficerJustificationBodyType;
+    const {approved, comment} = req.body as ManageOfficerJustificationBodyType;
 
     // Call the service to manage the justification
-    let result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, approved, comment, res.locals.loggedOfficer.nif);
+    const result = await officerJustificationUpdateStatus(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, approved, comment, res.locals.loggedOfficer.nif);
 
     // Return the result
     res.status(result.status).json({
@@ -129,7 +129,7 @@ export async function manageOfficerJustificationController(req: express.Request,
 
 export async function changeOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
     // Call the service to change the data of the justification
-    let result = await officerJustificationChangeDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, req.body as ChangeOfficerJustificationBodyType);
+    const result = await officerJustificationChangeDetails(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification, req.body as ChangeOfficerJustificationBodyType);
 
     // Return the result
     res.status(result.status).json({message: result.message});
@@ -137,7 +137,7 @@ export async function changeOfficerJustificationController(req: express.Request,
 
 export async function deleteOfficerJustificationController(req: express.Request, res: OfficerJustificationAPIResponse) {
     // Call the service to change the data of the justification
-    let result = await officerJustificationDelete(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification);
+    const result = await officerJustificationDelete(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, res.locals.justification);
 
     // Return the result
     res.status(result.status).json({

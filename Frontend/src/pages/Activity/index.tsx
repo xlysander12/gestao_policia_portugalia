@@ -213,7 +213,7 @@ function Activity() {
                 if (a.end === null) { // If A doesn't have an end date, it must go last
                     return -1;
                 } else { // A has an end date, compare it with the week_end of B
-                    return b.week_end - a.end!;
+                    return b.week_end - a.end;
                 }
             }
 
@@ -221,7 +221,7 @@ function Activity() {
                 if (b.end === null) { // If B doesn't have an end date, it must go last
                     return 1;
                 } else { // B has an end date, compare it with the week_end of A
-                    return b.end! - a.week_end;
+                    return b.end - a.week_end;
                 }
             }
 
@@ -321,7 +321,7 @@ function Activity() {
             await fetchActivity();
         }
 
-        execute();
+        void execute();
     }, [currentOfficer.nif]);
 
     // Everytime the nif in the params changes, we will update the currentOfficer state
@@ -445,7 +445,7 @@ function Activity() {
                             <Gate show={officerHistory.length > 0}>
                                 {officerHistory.map((entry, index) => {
                                     if ("minutes" in entry) { // This means it's an "hours" entry
-                                        const entryData = entry as OfficerSpecificHoursType;
+                                        const entryData = entry;
                                         return (
                                             <ActivityHoursCard
                                                 key={`ActivityEntryHours${index}`}
@@ -456,7 +456,7 @@ function Activity() {
                                             />
                                         )
                                     } else { // If it's not an "hours" entry, it's a "justification" entry
-                                        const entryData = entry as InnerMinifiedOfficerJustification;
+                                        const entryData = entry;
                                         return (
                                             <ActivityJustificationCard
                                                 key={`ActivityEntryJustification${index}`}
