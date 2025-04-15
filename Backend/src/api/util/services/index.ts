@@ -1,14 +1,20 @@
-import {DefaultReturn} from "../../../types";
+import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {
     getEvaluationDecisions,
     getEvaluationFields,
     getEvaluationGrades,
     getForceInactivityTypes,
     getForceIntents,
-    getForcePatents, getForcePatrolTypes,
+    getForcePatents,
+    getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
-    getForceStatuses, getLastCeremony, getPendingInactivityJustifications, getUserErrors, updateLastCeremony
+    getForceStatuses,
+    getLastCeremony,
+    getPendingInactivityJustifications,
+    getSpecialUnitActiveMembers,
+    getUserErrors,
+    updateLastCeremony
 } from "../repository";
 import {
     InactivityTypeData,
@@ -21,6 +27,8 @@ import {
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
 import {unixToDate} from "../../../utils/date-handler";
+import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
+import {getOfficerPatrol} from "../../patrols/repository";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -61,6 +69,50 @@ export async function forceSpecialUnits(force: string): Promise<DefaultReturn<{u
         status: 200,
         message: "Operação concluída com sucesso",
         data: {units: units, roles: roles}
+    }
+}
+
+export async function forceSpecialUnitsActiveMembers(force: string, unit_id: number): Promise<DefaultReturn<MinifiedOfficerData[]>> {
+    // First, make sure the requested Special Unit exists
+    const unit = (await getForceSpecialUnits(force)).find(u => u.id === unit_id);
+
+    if (!unit) {
+        return {
+            result: false,
+            status: 404,
+            message: "Unidade Especial Inexistente"
+        }
+    }
+
+    // Fetch all members of the requested Special Unit
+    const officers = await getSpecialUnitActiveMembers(force, unit.id);
+
+    // Loop through every member and check if they are in a patrol
+    // If they are, consider them "active"
+    const active: InnerOfficerData[] = [];
+    for (const officer of officers) {
+        // Fetch current officcer patrol
+        const patrol = await getOfficerPatrol(force, officer.nif);
+
+        if (!patrol) continue;
+
+        active.push(officer);
+    }
+
+    // Return the result
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: active.map(entry => {
+            return {
+                name: entry.name,
+                patent: entry.patent,
+                callsign: entry.callsign,
+                status: entry.status,
+                nif: entry.nif
+            }
+        })
     }
 }
 

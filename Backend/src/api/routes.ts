@@ -293,6 +293,16 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all active members of a Special Unit
+    "/util/special-units/\\d+/active": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all intents of a force
     "/util/intents$": {
         methods: {

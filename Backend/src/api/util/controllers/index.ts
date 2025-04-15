@@ -9,7 +9,7 @@ import {
     forceIntents,
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
-    forceSpecialUnits,
+    forceSpecialUnits, forceSpecialUnitsActiveMembers,
     forceStatuses, lastCeremony, notifications
 } from "../services";
 import {
@@ -24,7 +24,7 @@ import {
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
     UtilUserErrorsResponse,
-    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse
+    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse, UtilSpecialUnitsActiveResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
@@ -60,6 +60,26 @@ export async function getSpecialUnitsController(req: express.Request, res: Expre
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getSpecialUnitsActiveMembersController(req: express.Request, res: APIResponse<UtilSpecialUnitsActiveResponse>) {
+    // Get the id of the unit from params
+    const {id} = req.params;
+
+    // Call the service
+    const result = await forceSpecialUnitsActiveMembers(req.header(FORCE_HEADER)!, parseInt(id));
+
+    if (!result.result) {
+        res.status(result.status).json({
+            message: result.message
+        });
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
 }
 
 export async function getIntentsController(req: express.Request, res: ExpressResponse<UtilIntentsResponse>) {

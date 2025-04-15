@@ -6,7 +6,7 @@ import {
     getEvaluationGradesController,
     getInactivityTypesController,
     getIntentsController, getLastCeremonyController, getNotificationsController,
-    getPatentsController, getPatrolForcesController, getPatrolTypesController,
+    getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
     getSpecialUnitsController,
     getStatusesController, getUserErrorsController
 } from "./controllers";
@@ -20,6 +20,8 @@ app.get("/patents", getPatentsController);
 app.get("/statuses", getStatusesController);
 
 app.get("/special-units", getSpecialUnitsController);
+
+app.get("/special-units/:id/active", getSpecialUnitsActiveMembersController);
 
 app.get("/intents", getIntentsController);
 
