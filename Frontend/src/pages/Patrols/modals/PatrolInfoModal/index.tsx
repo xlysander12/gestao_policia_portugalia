@@ -317,13 +317,15 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                             Editar
                                         </DefaultButton>
 
-                                        <DefaultButton
-                                            buttonColor={"red"}
-                                            sx={{flex: 1}}
-                                            onClick={() => setConfirmDelete(true)}
-                                        >
-                                            Apagar
-                                        </DefaultButton>
+                                        <Gate show={loggedUser.intents.patrols}>
+                                            <DefaultButton
+                                                buttonColor={"red"}
+                                                sx={{flex: 1}}
+                                                onClick={() => setConfirmDelete(true)}
+                                            >
+                                                Apagar
+                                            </DefaultButton>
+                                        </Gate>
                                     </Gate>
 
                                     <Gate show={editMode}>
