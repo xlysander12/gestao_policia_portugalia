@@ -19,7 +19,7 @@ function LastCeremonyModal(props: LastCeremonyModalProps) {
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    const [date, setDate] = useState<Moment>(forceData.last_ceremony);
+    const [date, setDate] = useState<Moment>(forceData?.last_ceremony ?? moment());
 
     async function updateLastCeremony() {
         // Set the loading flag to true

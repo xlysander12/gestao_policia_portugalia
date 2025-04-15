@@ -4,7 +4,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import {Navbar} from "../Navbar";
 import {
-    AccountInfoResponse,
+    AccountInfoResponse, AccountSocket,
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
@@ -121,9 +121,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         return tempLoggedUser;
     }
 
-    const updateValues = async (checkAuth = true) => {
+    const updateValues = async (checkAuth = true, showLoading = true) => {
         // First, set the authorized state to false, if required
-        if (checkAuth) {
+        if (checkAuth && showLoading) {
             setAuthorized(false);
         }
 
@@ -147,7 +147,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         setLoggedUser({...userInfo});
 
         // Since the token is valid for the force, redirect the user to the requested page
-        if (checkAuth) {
+        if (checkAuth && showLoading) {
             setAuthorized(true);
         }
     }
@@ -167,6 +167,12 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         if (data.action === "add") return;
 
         void updateValues(false);
+    }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
+
+    useWebSocketEvent<AccountSocket>(SOCKET_EVENT.ACCOUNTS, useCallback((data) => {
+        if (data.nif !== loggedUser.info.personal.nif) return;
+
+        void updateValues(true, false);
     }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
