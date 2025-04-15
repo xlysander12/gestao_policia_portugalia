@@ -1,0 +1,5 @@
+.componentInnerDiv {
+    width: 100%;
+    height: calc(100% - (5.4rem + 10px));
+    padding-top: 10px;
+}

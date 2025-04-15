@@ -3,7 +3,7 @@ import './App.css'
 import "react-toastify/dist/ReactToastify.css";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
-import Dashboard from "./pages/Dashboard";
+import {Dashboard} from "./pages/Dashboard";
 import {Bounce, ToastContainer} from "react-toastify";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
