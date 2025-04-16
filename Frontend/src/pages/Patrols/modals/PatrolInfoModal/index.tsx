@@ -4,7 +4,7 @@ import moment, {Moment} from "moment";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {FormEvent, useCallback, useContext, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
 import {Loader} from "../../../../components/Loader";
 import Gate from "../../../../components/Gate/gate.tsx";
@@ -131,10 +131,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         return temp;
     }
 
-    const handleSave = async (event: FormEvent) => {
-        // Prevent the default form submission
-        event.preventDefault();
-
+    const handleSave = async () => {
         // Set the loading flag to true
         setLoading(true);
 
@@ -231,119 +228,117 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                 onClose={handleModalClose}
                 url={`/patrulhas/${id}`}
             >
-                <form onSubmit={handleSave}>
-                    <div className={style.mainDiv}>
-                        <ModalSection title={"Informações Gerais"}>
-                            <div className={style.mainDiv}>
-                                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo:</DefaultTypography>
-                                <DefaultTypography>{patrolData.type.name}</DefaultTypography>
+                <div className={style.mainDiv}>
+                    <ModalSection title={"Informações Gerais"}>
+                        <div className={style.mainDiv}>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo:</DefaultTypography>
+                            <DefaultTypography>{patrolData.type.name}</DefaultTypography>
+
+                            <Divider flexItem sx={{marginBottom: "10px"}} />
+
+                            <Gate show={patrolData.unit !== null}>
+                                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Unidade:</DefaultTypography>
+                                <DefaultTypography>{patrolData.unit !== null ? `${patrolData.unit.name} (${patrolData.unit.acronym})`: ""}</DefaultTypography>
 
                                 <Divider flexItem sx={{marginBottom: "10px"}} />
+                            </Gate>
+                            <div className={style.datesDiv}>
+                                <div className={style.soloDateDiv}>
+                                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Início:</DefaultTypography>
+                                    <DefaultDateTimePicker
+                                        disabled={!editMode || loading}
+                                        textWhenDisabled={!loading}
+                                        disableFuture
+                                        value={patrolData.start}
+                                        onChange={(date) => setPatrolData(draft => {draft!.start = date!})}
+                                        sx={{width: "190px"}}
+                                    />
+                                </div>
 
-                                <Gate show={patrolData.unit !== null}>
-                                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Unidade:</DefaultTypography>
-                                    <DefaultTypography>{patrolData.unit !== null ? `${patrolData.unit.name} (${patrolData.unit.acronym})`: ""}</DefaultTypography>
+                                <div className={style.soloDateDiv}>
+                                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Fim:</DefaultTypography>
+                                    <DefaultDateTimePicker
+                                        disabled={!editMode || loading}
+                                        textWhenDisabled={!loading}
+                                        disableFuture
+                                        value={patrolData.end}
+                                        onChange={(date) => setPatrolData(draft => {draft!.end = date})}
+                                        sx={{width: "190px"}}
+                                        clearable
+                                    />
+                                </div>
+                            </div>
 
-                                    <Divider flexItem sx={{marginBottom: "10px"}} />
+                            <Divider flexItem sx={{marginBottom: "10px"}} />
+
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Observações:</DefaultTypography>
+
+                            <DefaultOutlinedTextField
+                                disabled={!editMode || loading}
+                                fullWidth
+                                textWhenDisabled={!loading}
+                                placeholder={"Sem observações"}
+                                value={patrolData.notes ? patrolData.notes: ""}
+                                onChange={(e) => setPatrolData(draft => {draft!.notes = e.target.value})}
+                                multiline
+                            />
+                        </div>
+                    </ModalSection>
+
+                    <ModalSection title={"Membros"}>
+                        <div
+                            style={{overflowY: "visible"}}
+                        >
+                            <OfficerList
+                                startingOfficers={patrolData.officers}
+                                changeCallback={(officers) => {
+                                    setPatrolData(draft => {
+                                        draft!.officers = officers as InnerOfficerData[];
+                                    });
+                                }}
+                                invisibleDisabled={!editMode}
+                                disabled={loading}
+                            />
+                        </div>
+                    </ModalSection>
+
+                    <Gate show={patrolData.editable}>
+                        <ModalSection title={"Ações"}>
+                            <div className={style.actionsDiv}>
+                                <Gate show={!editMode}>
+                                    <DefaultButton
+                                        sx={{flex: 1}}
+                                        onClick={() => setEditMode(true)}
+                                    >
+                                        Editar
+                                    </DefaultButton>
+
+                                    <Gate show={loggedUser.intents.patrols}>
+                                        <DefaultButton
+                                            buttonColor={"red"}
+                                            sx={{flex: 1}}
+                                            onClick={() => setConfirmDelete(true)}
+                                        >
+                                            Apagar
+                                        </DefaultButton>
+                                    </Gate>
                                 </Gate>
-                                <div className={style.datesDiv}>
-                                    <div className={style.soloDateDiv}>
-                                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Início:</DefaultTypography>
-                                        <DefaultDateTimePicker
-                                            disabled={!editMode || loading}
-                                            textWhenDisabled={!loading}
-                                            disableFuture
-                                            value={patrolData.start}
-                                            onChange={(date) => setPatrolData(draft => {draft!.start = date!})}
-                                            sx={{width: "190px"}}
-                                        />
-                                    </div>
 
-                                    <div className={style.soloDateDiv}>
-                                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Fim:</DefaultTypography>
-                                        <DefaultDateTimePicker
-                                            disabled={!editMode || loading}
-                                            textWhenDisabled={!loading}
-                                            disableFuture
-                                            value={patrolData.end}
-                                            onChange={(date) => setPatrolData(draft => {draft!.end = date})}
-                                            sx={{width: "190px"}}
-                                            clearable
-                                        />
-                                    </div>
-                                </div>
-
-                                <Divider flexItem sx={{marginBottom: "10px"}} />
-
-                                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Observações:</DefaultTypography>
-
-                                <DefaultOutlinedTextField
-                                    disabled={!editMode || loading}
-                                    fullWidth
-                                    textWhenDisabled={!loading}
-                                    placeholder={"Sem observações"}
-                                    value={patrolData.notes ? patrolData.notes: ""}
-                                    onChange={(e) => setPatrolData(draft => {draft!.notes = e.target.value})}
-                                    multiline
-                                />
+                                <Gate show={editMode}>
+                                    <DefaultButton
+                                        disabled={patrolData.start.isAfter(patrolData.end) || patrolData.start.isAfter(moment()) || (patrolData.end ? patrolData.end.isAfter(moment()): false)}
+                                        buttonColor={"lightgreen"}
+                                        darkTextOnHover
+                                        sx={{flex: 1}}
+                                        onClick={handleSave}
+                                    >
+                                        Guardar
+                                    </DefaultButton>
+                                </Gate>
                             </div>
                         </ModalSection>
-
-                        <ModalSection title={"Membros"}>
-                            <div
-                                style={{overflowY: "visible"}}
-                            >
-                                <OfficerList
-                                    startingOfficers={patrolData.officers}
-                                    changeCallback={(officers) => {
-                                        setPatrolData(draft => {
-                                            draft!.officers = officers as InnerOfficerData[];
-                                        });
-                                    }}
-                                    invisibleDisabled={!editMode}
-                                    disabled={loading}
-                                />
-                            </div>
-                        </ModalSection>
-
-                        <Gate show={patrolData.editable}>
-                            <ModalSection title={"Ações"}>
-                                <div className={style.actionsDiv}>
-                                    <Gate show={!editMode}>
-                                        <DefaultButton
-                                            sx={{flex: 1}}
-                                            onClick={() => setEditMode(true)}
-                                        >
-                                            Editar
-                                        </DefaultButton>
-
-                                        <Gate show={loggedUser.intents.patrols}>
-                                            <DefaultButton
-                                                buttonColor={"red"}
-                                                sx={{flex: 1}}
-                                                onClick={() => setConfirmDelete(true)}
-                                            >
-                                                Apagar
-                                            </DefaultButton>
-                                        </Gate>
-                                    </Gate>
-
-                                    <Gate show={editMode}>
-                                        <DefaultButton
-                                            disabled={patrolData.start.isAfter(patrolData.end) || patrolData.start.isAfter(moment()) || (patrolData.end ? patrolData.end.isAfter(moment()): false)}
-                                            buttonColor={"lightgreen"}
-                                            darkTextOnHover
-                                            sx={{flex: 1}}
-                                            type={"submit"}
-                                        >
-                                            Guardar
-                                        </DefaultButton>
-                                    </Gate>
-                                </div>
-                            </ModalSection>
-                        </Gate>
-                    </div>
-                </form>
+                    </Gate>
+                </div>
             </Modal>
 
             <ConfirmationDialog
