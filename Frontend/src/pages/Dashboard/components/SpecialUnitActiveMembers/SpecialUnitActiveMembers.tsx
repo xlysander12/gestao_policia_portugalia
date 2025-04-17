@@ -58,7 +58,7 @@ function SpecialUnitActiveMembers() {
                         width: "100%"
                     }}
                 >
-                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Escolhe uma Unidade Especial:</DefaultTypography>
+                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Unidade Especial:</DefaultTypography>
                     <DefaultSelect
                         fullWidth
                         value={selected.id}
@@ -80,9 +80,11 @@ function SpecialUnitActiveMembers() {
                     backgroundColor: "var(--portalseguranca-color-background-dark)",
                     height: "calc(100% - (5.4rem + 10px))",
                     marginTop: "10px",
-                    paddingTop: "10px",
+                    padding: "0.7rem",
                 }}
             >
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Membros Ativos:</DefaultTypography>
+
                 <Gate show={loading}>
                     <Loader fullDiv />
                 </Gate>
