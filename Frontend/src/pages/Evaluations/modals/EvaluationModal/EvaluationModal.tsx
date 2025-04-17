@@ -225,6 +225,9 @@ function EvaluationModal(props: EvaluationModalProps) {
     }
 
     useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback(async (data) => {
+        // If this event was triggered by the logged officer, disregard it
+        if (data.by === loggedUser.info.personal.nif) return;
+
         // If we are creating a new Evaluation, discard this event
         if (props.newEntry) return;
 
