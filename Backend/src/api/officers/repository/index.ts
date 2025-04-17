@@ -46,7 +46,7 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
 
             // If the type has an associated status, store it in the variable
             if (type.status) {
-                justificationStatus = type.status as number;
+                justificationStatus = type.status;
                 break;
             }
         }
@@ -118,7 +118,7 @@ export async function getOfficerData(nif: number, force: string, former = false,
 
             // If the type has an associated status, store it in the variable
             if (type.status) {
-                justificationStatus = type.status as number;
+                justificationStatus = type.status;
                 break;
             }
         }
@@ -180,7 +180,7 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
 
         // If the type has an associated status, store it in the variable
         if (type.status) {
-            justificationStatus = type.status as number;
+            justificationStatus = type.status;
             break;
         }
     }
