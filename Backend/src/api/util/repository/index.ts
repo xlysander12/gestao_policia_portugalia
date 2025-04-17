@@ -146,7 +146,8 @@ export async function getForceInactivityTypes(force: string): Promise<Inactivity
             id: type.id as number,
             name: type.name as string,
             description: type.description as string,
-            color: type.color as string
+            color: type.color as string,
+            status: type.status as number | null
         });
     }
 

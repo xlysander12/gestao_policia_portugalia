@@ -54,14 +54,6 @@ export function getForceHubPropertyPosition(force: string, property: string) {
     return forceConfig.hub.ranges.properties[property] - 1;
 }
 
-export function getForceInactiveStatus(force: string) {
-    return config.forces[force].inactive_status;
-}
-
-export function getForceInactivityJustificationType(force: string) {
-    return config.forces[force].inactivity_justification_type;
-}
-
 export function getForceMaxNonWorkingDays(force: string) {
     return config.forces[force].maximum_non_working_days;
 }

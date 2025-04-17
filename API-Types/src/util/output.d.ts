@@ -37,6 +37,7 @@ export interface InactivityTypeData {
     name: string,
     description: string
     color: string
+    status: number | null
 }
 
 export interface PatrolTypeData {

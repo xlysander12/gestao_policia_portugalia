@@ -6,7 +6,6 @@ import {
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {paramsTypes, queryDB} from "../../../../../../utils/db-connector";
 import {dateToUnix} from "../../../../../../utils/date-handler";
-import {getForceInactivityJustificationType} from "../../../../../../utils/config-handler";
 
 type InnerOfficerMinifiedJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
     start: Date,
@@ -64,7 +63,7 @@ export async function getOfficerJustificationDetails(force: string, nif: number,
 
 export async function getOfficerActiveJustifications(force: string, nif: number): Promise<OfficerActiveJustification[]> {
     // Fetch from the database
-    const results = await queryDB(force, "SELECT id, type FROM officer_justifications WHERE officer = ? AND ((current_date() BETWEEN start_date AND end_date) OR current_date() > start_date AND end_date IS NULL) AND status = 'approved'", [nif]);
+    const results = await queryDB(force, "SELECT id, type FROM officer_justifications WHERE officer = ? AND ((CURRENT_TIMESTAMP() BETWEEN start_date AND end_date) OR CURRENT_TIMESTAMP() >= start_date AND end_date IS NULL) AND status = 'approved'", [nif]);
 
     // Order the result in an proper array
     const arr: OfficerActiveJustification[] = [];
@@ -79,9 +78,20 @@ export async function getOfficerActiveJustifications(force: string, nif: number)
     return arr;
 }
 
-export async function wasOfficerInactiveInDate(force: string, nif: number, date: Date) {
+export async function couldOfficerPatrolDueToJustificationInDate(force: string, nif: number, date: Date) {
     // Fetch from the database
-    const result = await queryDB(force, "SELECT * FROM officer_justifications WHERE officer = ? AND type = ? AND ((FROM_UNIXTIME(?) BETWEEN start_date AND end_date) OR (FROM_UNIXTIME(?) > start_date AND end_date IS NULL)) AND status = 'approved'", [nif, getForceInactivityJustificationType(force), dateToUnix(date), dateToUnix(date)]);
+    const result = await queryDB(force,
+        `
+                SELECT officer_justifications.*
+                FROM officer_justifications
+                JOIN inactivity_types ON officer_justifications.type = inactivity_types.id
+                JOIN status ON inactivity_types.status = status.id
+                WHERE status.can_patrol = 0
+                    AND officer_justifications.officer = ?
+                    AND ((FROM_UNIXTIME(?) BETWEEN officer_justifications.start_date AND officer_justifications.end_date)
+                        OR (FROM_UNIXTIME(?) > officer_justifications.start_date AND officer_justifications.end_date IS NULL))
+                    AND officer_justifications.status = 'approved'
+        `, [nif, dateToUnix(date), dateToUnix(date)]);
 
     // If the result is empty, return null
     if (result.length === 0) return false;
