@@ -358,6 +358,7 @@ function EvaluationModal(props: EvaluationModalProps) {
                             </DefaultTypography>
                             <DefaultDateTimePicker
                                 disabled={!editMode || evaluationData.patrol !== null}
+                                disableFuture
                                 textWhenDisabled={!editMode}
                                 value={evaluationData.timestamp}
                                 onChange={value => setEvaluationData(draft => {draft.timestamp = value ?? moment(value)})}
@@ -550,6 +551,7 @@ function EvaluationModal(props: EvaluationModalProps) {
                             <Gate show={editMode}>
                                 <Gate show={!props.newEntry}>
                                     <DefaultButton
+                                        disabled={Object.keys(evaluationData.fields).length === 0 || evaluationData.timestamp > moment()}
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         sx={{flex: 1}}
@@ -572,7 +574,7 @@ function EvaluationModal(props: EvaluationModalProps) {
 
                                 <Gate show={props.newEntry ?? false}>
                                     <DefaultButton
-                                        disabled={Object.keys(evaluationData.fields).length === 0}
+                                        disabled={Object.keys(evaluationData.fields).length === 0 || evaluationData.timestamp > moment()}
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={handleEvaluationCreation}
