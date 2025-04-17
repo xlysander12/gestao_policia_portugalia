@@ -1,8 +1,8 @@
 import ManagementBar from "../../../../components/ManagementBar";
 import {DefaultSelect, DefaultTypography} from "../../../../components/DefaultComponents";
-import {useForceData} from "../../../../hooks";
-import {Divider, MenuItem} from "@mui/material";
-import {useEffect, useState} from "react";
+import {useForceData, useWebSocketEvent} from "../../../../hooks";
+import {MenuItem} from "@mui/material";
+import {useCallback, useEffect, useState} from "react";
 import {SpecialUnitData, UtilSpecialUnitsActiveResponse} from "@portalseguranca/api-types/util/output";
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 import {make_request, RequestMethod} from "../../../../utils/requests.ts";
@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 import OfficerList from "../../../../components/OfficerList";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
+import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 
 function SpecialUnitActiveMembers() {
     const [forceData] = useForceData();
@@ -19,8 +20,9 @@ function SpecialUnitActiveMembers() {
     const [selected, setSelected] = useState<SpecialUnitData>(forceData.special_units[0] ?? undefined);
     const [active, setActive] = useState<MinifiedOfficerData[]>([]);
 
-    async function fetchActiveMembers(signal: AbortSignal) {
-        setLoading(true);
+    async function fetchActiveMembers(showLoading = true, signal?: AbortSignal) {
+        if (showLoading)
+            setLoading(true);
 
         const response = await make_request(`/util/special-units/${selected.id}/active`, RequestMethod.GET, {signal});
         const responseJson = await response.json() as UtilSpecialUnitsActiveResponse;
@@ -37,11 +39,13 @@ function SpecialUnitActiveMembers() {
         setLoading(false);
     }
 
+    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.PATROLS, useCallback(() => void fetchActiveMembers(false), []));
+
     useEffect(() => {
         const controller = new AbortController();
         const signal = controller.signal;
 
-        void fetchActiveMembers(signal);
+        void fetchActiveMembers(true, signal);
 
         return () => controller.abort();
     }, [selected.id]);
