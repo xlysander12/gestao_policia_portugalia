@@ -3,7 +3,7 @@ import {MinifiedEvaluation} from "@portalseguranca/api-types/officers/evaluation
 import {
     addEvaluation,
     deleteEvaluation,
-    editEvaluation,
+    editEvaluation, evaluationHasPatrol,
     getAuthoredEvaluations,
     getEvaluationData,
     getEvaluations
@@ -189,6 +189,18 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
                 message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
             }
         }
+
+        // Check if there isn't any other evaluation with this patrol associated
+        const result = await evaluationHasPatrol(force, loggedOfficer.nif, targetOfficer.nif, patrol.id);
+
+        // If there is an evaluation with this patrol already associated, another one cannot be done
+        if (result) {
+            return {
+                result: false,
+                status: 400,
+                message: `Já existe uma avaliação com esta patrulha associada (#${result.id})`
+            }
+        }
     } else {
         // Make sure the provided timestamp is not in the future
         if (dateToUnix(new Date()) < details.timestamp!) {
@@ -273,6 +285,18 @@ export async function updateEvaluation(force: string, loggedOfficer: InnerOffice
                 result: false,
                 status: 403,
                 message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
+            }
+        }
+
+        // Check if there isn't any other evaluation with this patrol associated
+        const result = await evaluationHasPatrol(force, loggedOfficer.nif, evaluation.target, patrol.id);
+
+        // If there is an evaluation with this patrol already associated, another one cannot be done
+        if (result && result.id !== evaluation.id) {
+            return {
+                result: false,
+                status: 400,
+                message: `Já existe uma avaliação com esta patrulha associada (#${result.id})`
             }
         }
     } else {
