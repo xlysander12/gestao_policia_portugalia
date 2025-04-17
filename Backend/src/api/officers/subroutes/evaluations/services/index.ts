@@ -17,6 +17,7 @@ import {getPatrol} from "../../../../patrols/repository";
 import {getOfficerData} from "../../../repository";
 import {getEvaluationFields, getForcePatents} from "../../../../util/repository";
 import {PatentData} from "@portalseguranca/api-types/util/output";
+import {dateToUnix} from "../../../../../utils/date-handler";
 
 export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
@@ -188,6 +189,15 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
                 message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
             }
         }
+    } else {
+        // Make sure the provided timestamp is not in the future
+        if (dateToUnix(new Date()) < details.timestamp!) {
+            return {
+                result: false,
+                status: 400,
+                message: "Não é possível fazer uma avaliação do futuro"
+            }
+        }
     }
 
     // * Loop through every given field and check if the target can be evaluated by it
@@ -263,6 +273,15 @@ export async function updateEvaluation(force: string, loggedOfficer: InnerOffice
                 result: false,
                 status: 403,
                 message: "Não podes associar uma patrulha em que não estiveste com o efetivo"
+            }
+        }
+    } else {
+        // Make sure the provided timestamp is not in the future
+        if (dateToUnix(new Date()) < details.timestamp!) {
+            return {
+                result: false,
+                status: 400,
+                message: "Não é possível fazer uma avaliação do futuro"
             }
         }
     }
