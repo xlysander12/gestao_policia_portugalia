@@ -42,7 +42,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
     // Whenever the officers change, trigger the callback function to update the parent component
     useEffect(() => {
         changeCallback(officers);
-    }, [officers.length]);
+    }, [JSON.stringify(startingOfficers)]);
 
     // Whenever the "startingOfficers" props changes, update them
     useEffect(() => {

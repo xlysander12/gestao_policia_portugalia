@@ -103,8 +103,7 @@ function ActivityJustificationCard({type, start, end, status, managed_by, timest
 
                     <Gate show={end == null}>
                         <Typography color={"gray"}>
-                            Duração: A partir de {" "}
-                            {`${padToTwoDigits(start.day())}/${padToTwoDigits(start.month() + 1)}/${start.year()}`}
+                            Duração: A partir de {start.format("DD/MM/YYYY")}
                         </Typography>
                     </Gate>
 
