@@ -174,7 +174,7 @@ function Evaluations(props: EvaluationsPageProps) {
         return () => {
             controller.abort();
         }
-    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]);
+    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters), loggedUser.intents.evaluations, loggedUser.info.personal.nif]);
 
     // Everytime the nif param changes, load the new officer's info
     useEffect(() => {

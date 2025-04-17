@@ -192,7 +192,6 @@ function PatrolCreator() {
                     disabled={loading}
                     startingOfficers={newPatrolData.officers}
                     changeCallback={(officers) => {
-                        console.log("Callback triggered");
                         setNewPatrolData((draft) => {
                             draft.officers = officers
                         });

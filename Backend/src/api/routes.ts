@@ -32,6 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
+    AccountInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -50,6 +51,7 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
+import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -132,6 +134,16 @@ const accountRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: ChangePasswordRequestBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ACCOUNTS,
+                    body: (_req: express.Request, res: APIResponse): AccountUpdateSocket => {
+                        return {
+                            action: "update",
+                            nif: res.locals.loggedOfficer.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
                 }
             }
         }
@@ -143,7 +155,17 @@ const accountRoutes: routesType = {
             POST: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["accounts"]
+                intents: ["accounts"],
+                broadcast: {
+                    event: SOCKET_EVENT.ACCOUNTS,
+                    body: (_req: express.Request, res: AccountInfoAPIResponse): AccountUpdateSocket => {
+                        return {
+                            action: "update",
+                            nif: res.locals.targetAccount.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
     },
@@ -181,12 +203,32 @@ const accountRoutes: routesType = {
                 intents: ["accounts"],
                 body: {
                     type: ChangeAccountInfoRequestBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ACCOUNTS,
+                    body: (_req: express.Request, res: AccountInfoAPIResponse): AccountManageSocket => {
+                        return {
+                            action: "manage",
+                            nif: res.locals.targetAccount.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
                 }
             },
             DELETE: {
                 requiresToken: true,
                 requiresForce: true,
-                intents: ["accounts"]
+                intents: ["accounts"],
+                broadcast: {
+                    event: SOCKET_EVENT.ACCOUNTS,
+                    body: (_req: express.Request, res: AccountInfoAPIResponse): AccountDeleteSocket => {
+                        return {
+                            action: "delete",
+                            nif: res.locals.targetAccount.nif,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
     },
@@ -246,6 +288,16 @@ const utilRoutes: routesType = {
         methods: {
             GET: {
                 requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all active members of a Special Unit
+    "/util/special-units/\\d+/active": {
+        methods: {
+            GET: {
+                requiresToken: true,
                 requiresForce: true
             }
         }

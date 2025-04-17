@@ -159,6 +159,16 @@ export async function getEvaluationData(force: string, id: number): Promise<Eval
     }
 }
 
+export async function evaluationHasPatrol(force: string, authorId: number, targetId: number, patrolId: number): Promise<Evaluation | null> {
+    const result = await queryDB(force, "SELECT id FROM evaluations WHERE target = ? AND author = ? AND patrol = ? LIMIT 1", [targetId, authorId, patrolId]);
+
+    if (result.length === 0) {
+        return null;
+    }
+
+    return await getEvaluationData(force, result[0].id as number);
+}
+
 export async function updateEvaluationGrades(force: string, id: number, grades: EvaluationBodyFieldsType) {
     // Delete all data from the evaluation on the DB
     await queryDB(force, `DELETE FROM evaluations_data WHERE evaluation = ?`, [id]);

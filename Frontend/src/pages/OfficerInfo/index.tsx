@@ -369,7 +369,7 @@ function OfficerInfo() {
                 <ManagementBar>
                     {/*Buttons that lie on the left side of the bar*/}
                     <div className={style.officerInfoAlterbarLeft}>
-                        <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent.id > officerInfo.professional.patent}>
+                        <Gate show={!editMode && loggedUser.intents.accounts && loggedUser.info.professional.patent.id > officerInfo.professional.patent && !officerInfo.former}>
                             <DefaultButton
                                 onClick={() => setAccountModalOpen(true)}
                             >

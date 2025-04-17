@@ -1,7 +1,7 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import {useEffect, useState} from "react";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
-import PatrolCreator from "../../components/PatrolCreator";
+import {PatrolCreator} from "../../components/PatrolCreator";
 import {useParams} from "react-router-dom";
 import {PatrolPicker} from "../../components/PatrolPicker";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";

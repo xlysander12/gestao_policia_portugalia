@@ -1,4 +1,5 @@
 import {BaseResponse} from "../index";
+import {MinifiedOfficerData} from "../officers/output";
 
 export interface PatentData {
     id: number,
@@ -73,6 +74,10 @@ export interface UtilSpecialUnitsResponse extends BaseResponse {
         units: SpecialUnitData[],
         roles: SpecialUnitRoleData[]
     }
+}
+
+export interface UtilSpecialUnitsActiveResponse extends BaseResponse {
+    data: MinifiedOfficerData[]
 }
 
 export interface UtilInactivityTypesResponse extends BaseResponse {

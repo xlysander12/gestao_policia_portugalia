@@ -44,6 +44,11 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
         changeCallback(officers);
     }, [officers.length]);
 
+    // Whenever the "startingOfficers" props changes, update them
+    useEffect(() => {
+        setOfficers(startingOfficers);
+    }, [JSON.stringify(startingOfficers)]);
+
     return (
         <>
             <div className={style.membersDiv}>

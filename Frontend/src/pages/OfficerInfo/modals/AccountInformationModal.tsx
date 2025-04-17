@@ -1,4 +1,4 @@
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useContext, useEffect, useState} from "react";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
 import {Loader} from "../../../components/Loader";
@@ -8,13 +8,13 @@ import {DefaultButton} from "../../../components/DefaultComponents";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import {AccountInfo, AccountInfoResponse} from "@portalseguranca/api-types/account/output";
+import {AccountInfo, AccountInfoResponse, AccountSocket} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, BaseResponse} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
-import {useForceData} from "../../../hooks";
+import {useForceData, useWebSocketEvent} from "../../../hooks";
 import moment, {Moment} from "moment";
 
 type InnerAcountInfo = Omit<AccountInfo, "lastUsed"> & {
@@ -69,59 +69,44 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         document.body.style.cursor = "default";
     }
 
-    // Fetch the current information about the officer
-    useEffect(() => {
-        async function fetchAccountInfo() {
-            // Make the request to get the account information
-            const accountInfoResponse = await make_request(`/accounts/${officerNif}`, "GET");
+    const lastUsedString = accountInfo.lastUsed?.format("DD/MM/YYYY @ HH:mm") ?? "Nunca utilizada";
 
-            // Check if the response is ok
-            if (accountInfoResponse.status === 404) {
-                setAccountExists(false);
+    async function fetchAccountInfo() {
+        // Set the loading flag to true
+        setLoading(true);
 
-                // Disable loading if enabled
-                if (loading)
-                    setLoading(false);
+        // Make the request to get the account information
+        const accountInfoResponse = await make_request(`/accounts/${officerNif}`, "GET");
 
-                return;
-            }
-
-            // If the response code is 403, the logged user doesn't have permission to see the account information
-            if (accountInfoResponse.status === 403) {
-                return;
-            }
-
-            // Convert the response to JSON and set the account info state
-            const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
-            setAccountInfo(draft => {
-                draft.defaultPassword = accountInfoJson.data.defaultPassword;
-                draft.suspended = accountInfoJson.data.suspended;
-                draft.lastUsed = accountInfoJson.data.lastUsed ? moment.unix(accountInfoJson.data.lastUsed): null;
-                draft.intents = accountInfoJson.data.intents;
-            });
-
-            setAccountExists(true);
+        // Check if the response is ok
+        if (accountInfoResponse.status === 404) {
+            setAccountExists(false);
 
             // Disable loading if enabled
-            if (loading)
-                setLoading(false);
+            setLoading(false);
+
+            return;
         }
 
-        // Fetch the account information if it didn't just refresh
-        if (!justRefreshed) {
-            void fetchAccountInfo();
+        // If the response code is 403, the logged user doesn't have permission to see the account information
+        if (accountInfoResponse.status === 403) {
+            return;
         }
 
-        // Make sure setJustRefreshed is set to false before advancing
-        setJustRefreshed(false);
+        // Convert the response to JSON and set the account info state
+        const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
+        setAccountInfo(draft => {
+            draft.defaultPassword = accountInfoJson.data.defaultPassword;
+            draft.suspended = accountInfoJson.data.suspended;
+            draft.lastUsed = accountInfoJson.data.lastUsed ? moment.unix(accountInfoJson.data.lastUsed): null;
+            draft.intents = accountInfoJson.data.intents;
+        });
 
-        // If the need to refresh is present, set it to false and set justRefreshed to true to avoid a loop
-        if (needsRefresh) {
-            setNeedsRefresh(false);
-            setJustRefreshed(true);
-        }
+        setAccountExists(true);
 
-    }, [officerNif, needsRefresh]);
+        // Disable loading if enabled
+        setLoading(false);
+    }
 
     // Function to create an account if it doesn't exist
     async function createAccount() {
@@ -165,12 +150,47 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         // ! Loading will be disabled by the refresh
     }
 
-    let lastUsedString;
-    if (accountInfo.lastUsed === null) {
-        lastUsedString = "Nunca utilizada";
-    } else {
-        lastUsedString = accountInfo.lastUsed.format("DD/MM/YYYY @ HH:mm");
-    }
+    // Subscribe to websocket events
+    useWebSocketEvent(SOCKET_EVENT.ACCOUNTS, useCallback((data: AccountSocket) => {
+        // If the event was triggered by the logged user, disregard it
+        if (data.by === loggedUserData.info.personal.nif) return;
+
+        // If the event isn't about the current officer, disregard it
+        if (data.nif !== officerNif) return;
+
+        if (data.action === "update" || data.action === "manage") {
+            if (open) // Only show the toast if the modal was open
+                toast.warning("Os detalhes da conta que estavas a visualizar foram alterados");
+            void fetchAccountInfo();
+            return;
+        }
+
+        if (data.action === "delete") {
+            if (open) // Only show the toast if the modal was open
+                toast.warning("A conta que estavas a visualizar foi apagada");
+            onClose();
+            return;
+        }
+    },[open, officerNif]));
+
+    // Fetch the current information about the officer
+    useEffect(() => {
+        // Fetch the account information if it didn't just refresh
+        if (!justRefreshed) {
+            void fetchAccountInfo();
+        }
+
+        // Make sure setJustRefreshed is set to false before advancing
+        setJustRefreshed(false);
+
+        // If the need to refresh is present, set it to false and set justRefreshed to true to avoid a loop
+        if (needsRefresh) {
+            setNeedsRefresh(false);
+            setJustRefreshed(true);
+        }
+
+    }, [officerNif, needsRefresh]);
+
 
     let modalContent: ReactElement;
 

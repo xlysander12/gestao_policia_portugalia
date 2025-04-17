@@ -12,6 +12,8 @@ import {
 import {queryDB} from "../../../utils/db-connector";
 import {OfficerMinifiedJustification} from "@portalseguranca/api-types/officers/activity/output";
 import {dateToUnix} from "../../../utils/date-handler";
+import {getOfficerData} from "../../officers/repository";
+import {InnerOfficerData} from "../../../types";
 
 export async function getForcePatents(force: string, patent_id?: number): Promise<PatentData[] | PatentData | null> {
     // Get the list from the database
@@ -95,6 +97,26 @@ export async function getForceSpecialUnitsRoles(force: string): Promise<SpecialU
     }
 
     return rolesList;
+}
+
+export async function getSpecialUnitActiveMembers(force: string, unit_id: number): Promise<InnerOfficerData[]> {
+    // Query the database to get the NIFs of every member of the special unit
+    const result = await queryDB(force, "SELECT officer FROM specialunits_officers WHERE unit = ? ORDER BY role DESC", [unit_id]);
+
+    // Loop through every row and fetch the officer data
+    const officers: InnerOfficerData[] = [];
+    for (const row of result) {
+        // Fetch the officer data
+        const data = await getOfficerData(row.officer as number, force, false, false);
+
+        // If no officer was found, skip it
+        if (!data) continue;
+
+        // Append the result to the officers list
+        officers.push(data);
+    }
+
+    return officers;
 }
 
 export async function getForceIntents(force: string): Promise<IntentData[]> {
