@@ -197,11 +197,31 @@ function Activity() {
         // * If it's a justification with no end date, it will be placed at the start
         return history.sort((a, b) => {
             if ("end" in a && "end" in b) { // * Both entries are justifications
-                if (a.end === null && b.end === null) { // If both justifications don't have an end date, sort by start date
+                if (a.end === null && b.end === null) { // Both justifications don't have an end date
+                    if (a.status === "denied" && b.status === "denied") { // If both justifications were denied, sort by start date
+                        return b.start - a.start;
+                    } else if (a.status === "denied" && b.status !== "denied") { // If A was denied, but B didn't, B goes first
+                        return 1;
+                    } else if (a.status !== "denied" && b.status === "denied") { // If A wasn't denied, but B did, A goes first
+                        return -1;
+                    }
+
+                    // Otherwise, sort by start date
                     return b.start - a.start;
-                } else if (a.end === null && b.end !== null) { // If A doesn't have an end date and B does, A must go last
+                } else if (a.end === null && b.end !== null) { // A doesn't have an end date
+                    if (a.status === "denied") { // If A was denied, sort by start date
+                        return b.start - a.start;
+                    }
+
+                    // Otherwise, A must go last
                     return -1;
-                } else if (a.end !== null && b.end === null) { // If A has an end date and B doesn't, B must go last
+
+                } else if (a.end !== null && b.end === null) { // A has an end date and B doesn't
+                    if (b.status === "denied") { // If B was denied, A goes last
+                        return -1;
+                    }
+
+                    // Otherwise, A goes first
                     return 1;
                 } else { // If both have an end date, sort by end date
                     return b.end! - a.end!;
