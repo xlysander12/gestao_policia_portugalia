@@ -70,13 +70,12 @@ function SpecialUnitActiveMembers() {
                 </div>
             </ManagementBar>
 
-            <Divider />
-
             <div
                 style={{
                     boxSizing: "border-box",
                     backgroundColor: "var(--portalseguranca-color-background-dark)",
-                    height: "calc(100% - 5.4rem)",
+                    height: "calc(100% - (5.4rem + 10px))",
+                    marginTop: "10px",
                     paddingTop: "10px",
                 }}
             >
