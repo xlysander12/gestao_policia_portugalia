@@ -165,7 +165,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Whenever an event with the name "patrols" is received, run the callback to ensure the information is up to date
     useWebSocketEvent(SOCKET_EVENT.PATROLS, async (data: SocketResponse) => {
         // If a patrol is added, check if the logged user is in any patrol
-        if (data.action === "add") {
+        if (data.action === "add" || data.action === "update") {
             setOfficerPatrol(await getOfficerPatrol());
         }
 
@@ -176,13 +176,6 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
         if (data.action === "delete") {
             if (officerPatrol !== null && officerPatrol.id === patrolFullId) {
                 setOfficerPatrol(null);
-            }
-        }
-
-        // If a patrol is updated, make sure the logged user hasn't been removed, or the patrol has ended
-        if (data.action === "update") {
-            if (officerPatrol !== null && officerPatrol.id === patrolFullId) {
-                setOfficerPatrol(await getOfficerPatrol());
             }
         }
     });

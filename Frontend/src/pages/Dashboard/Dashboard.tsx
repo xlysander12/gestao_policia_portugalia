@@ -3,6 +3,7 @@ import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import {DefaultTypography} from "../../components/DefaultComponents";
 import {SpecialUnitActiveMembers} from "./components";
+import {PatrolQuickCreator} from "../../components/PatrolCreator";
 
 function Dashboard() {
     return (
@@ -76,6 +77,10 @@ function Dashboard() {
                         </DefaultTypography>
                     </div>
                 </ManagementBar>
+
+                <div className={styles.componentInnerDiv}>
+                    <PatrolQuickCreator />
+                </div>
             </ScreenSplit>
         </ScreenSplit>
     );
