@@ -249,8 +249,8 @@ export async function updateLastCeremony(force: string, date: Date) {
 export async function getPendingInactivityJustifications(force: string, include_expired = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
     // Fecth all pending justifications
     const justifications = include_expired ?
-        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending") :
-        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ? AND end_date > ?", ["pending", new Date()]);
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = 'pending'") :
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = 'pending' AND (end_date > CURRENT_TIMESTAMP() OR end_date IS NULL)");
 
     return justifications.map((row) => ({
         id: row.id as number,
