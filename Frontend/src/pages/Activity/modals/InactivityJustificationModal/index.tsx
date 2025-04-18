@@ -108,6 +108,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             if (!response.ok) {
                 toast(data.message, {type: "error"});
                 onClose();
+                setLoading(false);
                 return;
             }
 
