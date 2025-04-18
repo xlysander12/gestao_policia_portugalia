@@ -12,6 +12,7 @@ function ForceCalendar() {
             plugins={[momentPlugin, dayGridPlugin, interactionPlugin, timeGridPlugin]}
             height={"100%"}
             locale={ptLocale}
+            titleFormat={"MMMM [de] YYYY"}
             firstDay={0}
             nowIndicator
             initialView={"dayGridMonth"}
@@ -28,10 +29,9 @@ function ForceCalendar() {
             }}
             events={[
                 {
-                    id: "1",
                     title: "Teste",
                     start: moment().toDate(),
-                    end: new Date("2025-04-19")
+                    end: moment().add(2, "days").toDate()
                 }
             ]}
         />
