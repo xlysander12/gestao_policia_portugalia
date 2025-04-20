@@ -52,6 +52,7 @@ import {
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
+import {ListEventsQueryParams, ListEventsQueryParamsType} from "@portalseguranca/api-types/events/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -365,6 +366,16 @@ const utilRoutes: routesType = {
 
     // Route to get all the evaluation decisions of the force
     "/util/evaluation-decisions$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all event types of the force
+    "/util/event-types$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -1035,6 +1046,31 @@ const patrolsRoutes: routesType = {
     }
 }
 
+const eventsRoutes: routesType = {
+    // Route to get all events in a month
+    "/events$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListEventsQueryParams as RuntypeBase
+                }
+            }
+        }
+    },
+
+    // Route to get the details of a specific event
+    "/events/\\D+\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
+    },
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1045,7 +1081,8 @@ const routes: routesType = {
     ...activityRoutes,
     ...evaluationsRoutes,
     ...officersRoutes,
-    ...patrolsRoutes
+    ...patrolsRoutes,
+    ...eventsRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.

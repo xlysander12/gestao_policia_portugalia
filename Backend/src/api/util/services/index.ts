@@ -2,7 +2,7 @@ import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {
     getEvaluationDecisions,
     getEvaluationFields,
-    getEvaluationGrades,
+    getEvaluationGrades, getEventTypes,
     getForceInactivityTypes,
     getForceIntents,
     getForcePatents,
@@ -22,7 +22,7 @@ import {
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
-    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision
+    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision, EventType
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
@@ -189,6 +189,15 @@ export async function evaluationDecisions(force: string): Promise<DefaultReturn<
         status: 200,
         message: "Operação concluída com sucesso",
         data: await getEvaluationDecisions(force)
+    }
+}
+
+export async function eventTypes(force: string): Promise<DefaultReturn<EventType[]>> {
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: await getEventTypes(force)
     }
 }
 

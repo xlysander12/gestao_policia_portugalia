@@ -1,0 +1,66 @@
+import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
+import {queryDB} from "../../../utils/db-connector";
+import {Query} from "mysql2/typings/mysql/lib/protocol/sequences/Query";
+
+export async function getEvents(force: string, month: number): Promise<InnerMinifiedEvent[]> {
+    // Query the DB to fetch the Events
+    const result = await queryDB(
+        force,
+        `
+            SELECT id, \`force\`, title, start, end
+            FROM
+                eventsV
+            WHERE
+                MONTH(start) = ? OR MONTH(end) = ?
+        `,
+        [month, month]
+    );
+
+    // Get all values into an array
+    const events: InnerMinifiedEvent[] = [];
+    for (const row of result) {
+        events.push({
+            id: row.id as number,
+            force: row.force as string,
+            title: row.title as string,
+            start: row.start as Date,
+            end: row.end as Date
+        });
+    }
+
+    return events;
+}
+
+export async function getEvent(force: string, id: number, event_force: string): Promise<InnerForceEvent | null> {
+    // Query the DB
+    const result = await queryDB(
+        force,
+        `
+            SELECT * 
+            FROM 
+                eventsV
+            WHERE
+                id = ? AND
+                \`force\` = ?
+            LIMIT 1
+        `,
+        [id, event_force]
+    );
+
+    // If no results were found, return null
+    if (result.length === 0) {
+        return null;
+    }
+
+    return {
+        id: result[0].id as number,
+        force: result[0].force as string,
+        type: result[0].type as number,
+        special_unit: result[0].special_unit as number | null,
+        title: result[0].title as string,
+        description: result[0].description as string | null,
+        assignees: JSON.parse(result[0].assignees as string) as number[],
+        start: result[0].start as Date,
+        end: result[0].end as Date
+    }
+}

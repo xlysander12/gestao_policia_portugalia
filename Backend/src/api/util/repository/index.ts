@@ -1,7 +1,7 @@
 import {
     EvaluationDecision,
     EvaluationField,
-    EvaluationGrade,
+    EvaluationGrade, EventType,
     InactivityTypeData,
     IntentData,
     PatentData, PatrolTypeData,
@@ -220,6 +220,23 @@ export async function getEvaluationDecisions(force: string): Promise<EvaluationD
     }
 
     return fieldsList;
+}
+
+export async function getEventTypes(force: string): Promise<EventType[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM event_types`);
+
+    // Build an array with the fields
+    const eventTypes: EventType[] = [];
+    for (const field of result) {
+        eventTypes.push({
+            id: field.id as number,
+            name: field.name as string,
+            variant: field.variant as "custom" | "ceremony" | "special_unit"
+        });
+    }
+
+    return eventTypes;
 }
 
 export async function getLastCeremony(force: string): Promise<Date | null> {

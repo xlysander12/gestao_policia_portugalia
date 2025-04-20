@@ -123,6 +123,16 @@ export interface UtilEvaluationDecisionsResponse extends BaseResponse {
     data: EvaluationDecision[]
 }
 
+export interface EventType {
+    id: number
+    name: string
+    variant: "custom" | "ceremony" | "special_unit"
+}
+
+export interface UtilEventTypesResponse extends BaseResponse {
+    data: EventType[]
+}
+
 export interface UtilLastCeremonyResponse extends BaseResponse {
     data: number
 }

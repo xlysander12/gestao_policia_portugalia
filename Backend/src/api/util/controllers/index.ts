@@ -4,7 +4,7 @@ import {
     changeLastCeremony,
     errors, evaluationDecisions,
     evaluationFields,
-    evaluationGrades,
+    evaluationGrades, eventTypes,
     forceInactivityTypes,
     forceIntents,
     forcePatents, forcePatrolForces,
@@ -24,7 +24,7 @@ import {
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
     UtilUserErrorsResponse,
-    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse, UtilSpecialUnitsActiveResponse
+    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse, UtilSpecialUnitsActiveResponse, UtilEventTypesResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
@@ -149,6 +149,22 @@ export async function getEvaluationFieldsController(req: express.Request, res: E
 export async function getEvaluationDecisionsController(req: express.Request, res: ExpressResponse<UtilEvaluationDecisionsResponse>) {
     // Call the service
     const result = await evaluationDecisions(req.header(FORCE_HEADER)!);
+
+    // Send the list to the client
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
+    });
+}
+
+export async function getEventTypesController(req: express.Request, res: ExpressResponse<UtilEventTypesResponse>) {
+    // Call the service
+    const result = await eventTypes(req.header(FORCE_HEADER)!);
 
     // Send the list to the client
     if (!result.result) {
