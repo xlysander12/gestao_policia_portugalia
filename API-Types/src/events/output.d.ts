@@ -11,6 +11,7 @@ export interface MinifiedEvent {
 export interface ForceEvent extends MinifiedEvent{
     type: number
     special_unit: number | null
+    author: number
     description: string | null
     assignees: number[]
 }

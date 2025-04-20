@@ -29,6 +29,7 @@ export function getEventController(_req: express.Request, res: EventInfoAPIRespo
             force: res.locals.event.force,
             type: res.locals.event.type,
             special_unit: res.locals.event.special_unit,
+            author: res.locals.event.author,
             title: res.locals.event.title,
             description: res.locals.event.description,
             assignees: res.locals.event.assignees,

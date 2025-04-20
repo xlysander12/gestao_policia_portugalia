@@ -1,6 +1,5 @@
 import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
 import {queryDB} from "../../../utils/db-connector";
-import {Query} from "mysql2/typings/mysql/lib/protocol/sequences/Query";
 
 export async function getEvents(force: string, month: number): Promise<InnerMinifiedEvent[]> {
     // Query the DB to fetch the Events
@@ -57,6 +56,7 @@ export async function getEvent(force: string, id: number, event_force: string): 
         force: result[0].force as string,
         type: result[0].type as number,
         special_unit: result[0].special_unit as number | null,
+        author: result[0].author as number,
         title: result[0].title as string,
         description: result[0].description as string | null,
         assignees: JSON.parse(result[0].assignees as string) as number[],
