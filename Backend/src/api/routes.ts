@@ -52,7 +52,10 @@ import {
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
-import {ListEventsQueryParams, ListEventsQueryParamsType} from "@portalseguranca/api-types/events/input";
+import {
+    CreateEventBody,
+    ListEventsQueryParams
+} from "@portalseguranca/api-types/events/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1054,7 +1057,14 @@ const eventsRoutes: routesType = {
                 requiresToken: true,
                 requiresForce: true,
                 queryParams: {
-                    type: ListEventsQueryParams as RuntypeBase
+                    type: ListEventsQueryParams
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: CreateEventBody
                 }
             }
         }

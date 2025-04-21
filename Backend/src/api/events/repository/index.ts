@@ -1,5 +1,6 @@
 import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
 import {queryDB} from "../../../utils/db-connector";
+import {CreateEventBody} from "@portalseguranca/api-types/events/input";
 
 export async function getEvents(force: string, month: number): Promise<InnerMinifiedEvent[]> {
     // Query the DB to fetch the Events
@@ -63,4 +64,18 @@ export async function getEvent(force: string, id: number, event_force: string): 
         start: result[0].start as Date,
         end: result[0].end as Date
     }
+}
+
+export async function createEvent(force: string, author_nif: number, data: CreateEventBody) {
+    // Query the DB to insert the Event data
+    await queryDB(
+        force,
+        `
+                INSERT INTO
+                    events (type, special_unit, author, title, description, assignees, start, end)
+                VALUES 
+                    (?, ?, ?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))
+            `,
+        [data.type, data.special_unit ?? null, author_nif, data.title ?? null, data.description ?? null, JSON.stringify(data.assignees ?? []), data.start, data.end]
+    );
 }

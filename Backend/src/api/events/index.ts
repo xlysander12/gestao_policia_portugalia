@@ -1,6 +1,6 @@
 import express from "express";
 import {logToConsole} from "../../utils/logger";
-import {getEventController, getEventsController} from "./controllers";
+import {createEventController, getEventController, getEventsController} from "./controllers";
 import {eventExistsMiddleware} from "../../middlewares/event-exists";
 
 const app = express.Router();
@@ -8,7 +8,10 @@ const app = express.Router();
 // Route to get the list of all events
 app.get("/", getEventsController);
 
-// From this point on, the Event must exist
+// Route to create an Event
+app.post("/", createEventController);
+
+// * From this point on, the Event must exist
 app.use("/:id", eventExistsMiddleware);
 
 // Route to get the details of a specific event

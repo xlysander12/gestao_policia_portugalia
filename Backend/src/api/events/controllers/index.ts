@@ -1,10 +1,11 @@
 import {APIResponse} from "../../../types";
 import express from "express";
-import {getEventsService} from "../services";
+import {createEventService, getEventsService} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {EventDetailsResponse, EventsListResponse} from "@portalseguranca/api-types/events/output";
 import {EventInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
+import {CreateEventBody} from "@portalseguranca/api-types/events/input";
 
 export async function getEventsController(req: express.Request, res: APIResponse<EventsListResponse>) {
     // Call the serivce to get the Events list
@@ -37,4 +38,13 @@ export function getEventController(_req: express.Request, res: EventInfoAPIRespo
             end: dateToUnix(res.locals.event.end)
         }
     });
+}
+
+export async function createEventController(req: express.Request, res: APIResponse) {
+    const event_data = req.body as CreateEventBody;
+
+    // Call the service
+    const result = await createEventService(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, event_data);
+
+    res.status(result.status).json({message: result.message});
 }

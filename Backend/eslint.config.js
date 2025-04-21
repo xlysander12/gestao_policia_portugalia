@@ -27,7 +27,10 @@ export default tseslint.config(
             "@typescript-eslint/prefer-nullish-coalescing": "warn",
             "@typescript-eslint/prefer-for-of": "warn",
             "no-control-regex": "off",
-            "@typescript-eslint/no-floating-promises": "warn"
+            "@typescript-eslint/no-floating-promises": "warn",
+            "@typescript-eslint/no-unsafe-member-access": "off",
+            "@typescript-eslint/no-unsafe-assignment": "off",
+            "@typescript-eslint/no-unsafe-call": "off"
             // "perfectionist/sort-imports": "warn",
             // "perfectionist/sort-objects": "off",
 
