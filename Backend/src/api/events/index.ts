@@ -1,7 +1,7 @@
 import express from "express";
 import {logToConsole} from "../../utils/logger";
-import {createEventController, getEventController, getEventsController} from "./controllers";
-import {eventExistsMiddleware} from "../../middlewares/event-exists";
+import {createEventController, editEventController, getEventController, getEventsController} from "./controllers";
+import {eventExistsMiddleware, isEventEditableMiddleware} from "../../middlewares/event-exists";
 
 const app = express.Router();
 
@@ -16,6 +16,9 @@ app.use("/:id", eventExistsMiddleware);
 
 // Route to get the details of a specific event
 app.get("/:id", getEventController);
+
+// Route to edit a specific event
+app.patch("/:id", isEventEditableMiddleware, editEventController);
 
 logToConsole("Events routes loaded successfully!", "info");
 

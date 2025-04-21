@@ -1,4 +1,4 @@
-import {Array, Null, Number, Optional, Record, Static, String, Union} from "runtypes";
+import {Array, Null, Number, Optional, Partial, Record, Static, String, Union} from "runtypes";
 
 export const ListEventsQueryParams = Record({
     month: String.withConstraint(s => !isNaN(parseInt(s)))
@@ -15,3 +15,11 @@ export const CreateEventBody = Record({
     end: Number
 });
 export type CreateEventBody = Static<typeof CreateEventBody>;
+
+export const EditEventBody = Partial({
+    description: Union(String, Null),
+    assignees: Array(Number),
+    start: Number,
+    end: Number
+});
+export type EditEventBody = Static<typeof EditEventBody>;

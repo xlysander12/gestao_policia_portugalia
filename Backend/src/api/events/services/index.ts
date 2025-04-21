@@ -1,9 +1,10 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {ForceEvent, MinifiedEvent} from "@portalseguranca/api-types/events/output";
-import {createEvent, getEvent, getEvents} from "../repository";
+import {createEvent, editEvent, getEvent, getEvents} from "../repository";
 import {dateToUnix} from "../../../utils/date-handler";
-import {CreateEventBody} from "@portalseguranca/api-types/events/input";
+import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
+import {InnerForceEvent} from "../../../types/inner-types";
 
 export async function getEventsService(force: string, month?: number): Promise<DefaultReturn<MinifiedEvent[]>> {
     if (!month) {
@@ -79,6 +80,29 @@ export async function createEventService(force: string, logged_user: InnerOffice
     return {
         result: true,
         status: 201,
+        message: "Operação concluída com sucesso"
+    }
+}
+
+export async function editEventService(force: string, event_data: InnerForceEvent, changes: EditEventBody): Promise<DefaultReturn<void>> {
+    // * If the event is not of type "custom" and assignees were provided, return an error
+    // Getting the Event Type
+    const event_type = (await getEventTypes(force)).find(event_type => event_type.id === event_data.type)!;
+
+    if (event_type.variant !== "custom" && changes.assignees !== undefined && changes.assignees.length > 0) {
+        return {
+            result: false,
+            status: 400,
+            message: "Não podem ser destacados Efetivos para este Evento"
+        }
+    }
+
+    // Calling the repository to apply the changes
+    await editEvent(force, event_data.id, changes);
+
+    return {
+        result: true,
+        status: 200,
         message: "Operação concluída com sucesso"
     }
 }

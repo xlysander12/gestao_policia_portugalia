@@ -53,7 +53,7 @@ import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
-    CreateEventBody,
+    CreateEventBody, EditEventBody,
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 
@@ -1076,6 +1076,13 @@ const eventsRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: EditEventBody
+                }
             }
         }
     },

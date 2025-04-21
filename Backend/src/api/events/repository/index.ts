@@ -1,6 +1,6 @@
 import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
-import {queryDB} from "../../../utils/db-connector";
-import {CreateEventBody} from "@portalseguranca/api-types/events/input";
+import {paramsTypes, queryDB} from "../../../utils/db-connector";
+import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 
 export async function getEvents(force: string, month: number): Promise<InnerMinifiedEvent[]> {
     // Query the DB to fetch the Events
@@ -78,4 +78,27 @@ export async function createEvent(force: string, author_nif: number, data: Creat
             `,
         [data.type, data.special_unit ?? null, author_nif, data.title ?? null, data.description ?? null, JSON.stringify(data.assignees ?? []), data.start, data.end]
     );
+}
+
+export async function editEvent(force: string, id: number, data: EditEventBody) {
+    // Build the query
+    const values: paramsTypes[] = [];
+    const query = `UPDATE events SET ${Object.keys(data).reduce((acc, field) => {
+        // Add the value to the values array
+        if (field === "assignees") {
+            values.push(JSON.stringify(data.assignees ?? []))
+        } else {
+            values.push(data[field as keyof EditEventBody] as paramsTypes); // This type assertion is required since the array has been explicitly separated
+        }
+        
+        // Add the field to the query
+        if (field === "start" || field === "end") {
+            return acc + `${field} = FROM_UNIXTIME(?), `;
+        }
+        
+        return acc + `${field} = ?, `;
+    }, "").slice(0, -2)} WHERE id = ?`;
+
+    // Execute the query
+    await queryDB(force, query, [...values, id]);
 }
