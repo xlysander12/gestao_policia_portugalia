@@ -102,3 +102,7 @@ export async function editEvent(force: string, id: number, data: EditEventBody) 
     // Execute the query
     await queryDB(force, query, [...values, id]);
 }
+
+export async function deleteEvent(force: string, id: number) {
+    await queryDB(force, 'DELETE FROM events WHERE id = ?', id);
+}

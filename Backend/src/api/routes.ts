@@ -1083,6 +1083,10 @@ const eventsRoutes: routesType = {
                 body: {
                     type: EditEventBody
                 }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
             }
         }
     },

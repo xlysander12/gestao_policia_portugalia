@@ -1,6 +1,6 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
-import {ForceEvent, MinifiedEvent} from "@portalseguranca/api-types/events/output";
-import {createEvent, editEvent, getEvent, getEvents} from "../repository";
+import {MinifiedEvent} from "@portalseguranca/api-types/events/output";
+import {createEvent, deleteEvent, editEvent, getEvents} from "../repository";
 import {dateToUnix} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
@@ -84,10 +84,10 @@ export async function createEventService(force: string, logged_user: InnerOffice
     }
 }
 
-export async function editEventService(force: string, event_data: InnerForceEvent, changes: EditEventBody): Promise<DefaultReturn<void>> {
+export async function editEventService(force: string, event: InnerForceEvent, changes: EditEventBody): Promise<DefaultReturn<void>> {
     // * If the event is not of type "custom" and assignees were provided, return an error
     // Getting the Event Type
-    const event_type = (await getEventTypes(force)).find(event_type => event_type.id === event_data.type)!;
+    const event_type = (await getEventTypes(force)).find(event_type => event_type.id === event.type)!;
 
     if (event_type.variant !== "custom" && changes.assignees !== undefined && changes.assignees.length > 0) {
         return {
@@ -98,7 +98,18 @@ export async function editEventService(force: string, event_data: InnerForceEven
     }
 
     // Calling the repository to apply the changes
-    await editEvent(force, event_data.id, changes);
+    await editEvent(force, event.id, changes);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso"
+    }
+}
+
+export async function deleteEventService(force: string, event: InnerForceEvent): Promise<DefaultReturn<void>> {
+    // Call the repository to delete the event
+    await deleteEvent(force, event.id);
 
     return {
         result: true,

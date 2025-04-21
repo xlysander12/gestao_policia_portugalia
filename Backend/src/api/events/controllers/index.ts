@@ -1,6 +1,6 @@
 import {APIResponse} from "../../../types";
 import express from "express";
-import {createEventService, editEventService, getEventsService} from "../services";
+import {createEventService, deleteEventService, editEventService, getEventsService} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {EventDetailsResponse, EventsListResponse} from "@portalseguranca/api-types/events/output";
 import {EventInfoAPIResponse} from "../../../types/response-types";
@@ -54,6 +54,13 @@ export async function editEventController(req: express.Request, res: EventInfoAP
 
     // Call the service
     const result = await editEventService(req.header(FORCE_HEADER)!, res.locals.event, changes);
+
+    res.status(result.status).json({message: result.message});
+}
+
+export async function deleteEventController(req: express.Request, res: EventInfoAPIResponse) {
+    // Call the service
+    const result = await deleteEventService(req.header(FORCE_HEADER)!, res.locals.event);
 
     res.status(result.status).json({message: result.message});
 }
