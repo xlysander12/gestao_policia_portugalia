@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse,
+    AccountInfoAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -56,6 +56,7 @@ import {
     CreateEventBody, EditEventBody,
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
+import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1065,6 +1066,15 @@ const eventsRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: CreateEventBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: APIResponse): SocketResponse => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
                 }
             }
         }
@@ -1082,11 +1092,33 @@ const eventsRoutes: routesType = {
                 requiresForce: true,
                 body: {
                     type: EditEventBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.event.id,
+                            force: res.locals.event.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
                 }
             },
             DELETE: {
                 requiresToken: true,
                 requiresForce: true,
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.event.id,
+                            force: res.locals.event.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
             }
         }
     },

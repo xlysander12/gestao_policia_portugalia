@@ -1,4 +1,4 @@
-import {BaseResponse} from "../index";
+import {BaseResponse, SocketResponse} from "../index";
 
 export interface MinifiedEvent {
     id: number
@@ -22,4 +22,9 @@ export interface EventsListResponse extends BaseResponse {
 
 export interface EventDetailsResponse extends BaseResponse {
     data: ForceEvent
+}
+
+export interface ExistingEventSocket extends SocketResponse {
+    id: number
+    force: string
 }
