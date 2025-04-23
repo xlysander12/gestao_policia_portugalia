@@ -421,8 +421,13 @@ function EventModal(props: EventModalProps) {
                             multiline
                             disabled={!editMode}
                             textWhenDisabled
-                            value={eventData.description ?? ""}
                             placeholder={"Sem descrição"}
+                            value={eventData.description ?? ""}
+                            onChange={(event) => {
+                                setEventData(draft => {
+                                   draft.description = event.target.value;
+                                });
+                            }}
                         />
                     </ModalSection>
 
