@@ -5,13 +5,13 @@ import {ReceivedQueryParams} from "../../../utils/filters";
 import {createPatrol, deletePatrol, editPatrol, isOfficerInPatrol, listPatrols} from "../repository";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {getOfficerData} from "../../officers/repository";
-import {getForceInactiveStatus, getForcePatrolForces} from "../../../utils/config-handler";
+import {getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
 import {sortOfficers} from "../../officers/services";
 import {unixToDate} from "../../../utils/date-handler";
-import {wasOfficerInactiveInDate} from "../../officers/subroutes/activity/justifications/repository";
+import {couldOfficerPatrolDueToJustificationInDate} from "../../officers/subroutes/activity/justifications/repository";
 
 export async function sortPatrolOfficers(force: string, officers: number[]) {
     // Get the details of all officers of the patrol
@@ -49,7 +49,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     let officerForce: string = force;
 
     for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-        const tempResult = await getOfficerData(officerNif, patrolForce, false, false);
+        const tempResult = await getOfficerData(officerNif, patrolForce, false, true);
 
         if (tempResult !== null) {
             officerData = tempResult;
@@ -67,7 +67,7 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     const officerStatus = (await getForceStatuses(officerForce)).find(status => status.id === officerData.status)!;
 
     // Since the officer exists, check if they are / were inactive on the start of the patrol
-    if (await wasOfficerInactiveInDate(force, officerNif, patrolStart) || officerStatus.id === getForceInactiveStatus(force)) {
+    if (await couldOfficerPatrolDueToJustificationInDate(force, officerNif, patrolStart)) {
         return [false, `O efetivo de NIF ${officerNif} está inativo`];
     }
 

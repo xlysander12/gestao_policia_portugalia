@@ -35,8 +35,6 @@ const ForceRt = rt.Record({
     database: rt.String,
     isPromotion: rt.String,
     patents: DefaultPatentsRt,
-    inactivity_justification_type: rt.Number,
-    inactive_status: rt.Number,
     maximum_non_working_days: rt.Number,
     minimum_week_minutes: rt.Number,
     hub: rt.Optional(ForceHubRt)

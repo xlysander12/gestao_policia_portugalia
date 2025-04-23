@@ -13,7 +13,7 @@ import {make_request} from "./utils/requests.ts";
 import {
     UtilEvaluationDecisionsResponse,
     UtilEvaluationFieldsResponse,
-    UtilEvaluationGradesResponse,
+    UtilEvaluationGradesResponse, UtilEventTypesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
     UtilIntentsResponse, UtilLastCeremonyResponse,
@@ -61,6 +61,7 @@ function App() {
             evaluation_grades: [],
             evaluation_fields: [],
             evaluation_decisions: [],
+            event_types: [],
             special_units: [],
             special_unit_roles: []
         }
@@ -100,6 +101,10 @@ function App() {
         // Fetching the evaluation fields
         const evaluationDecisionsResponse = await make_request("/util/evaluation-decisions", "GET", {force: forceName});
         forceTempData.evaluation_decisions = ((await evaluationDecisionsResponse.json()) as UtilEvaluationDecisionsResponse).data;
+
+        // Fetching the event types
+        const eventTypesResponse = await make_request("/util/event-types", "GET", {force: forceName});
+        forceTempData.event_types = (await eventTypesResponse.json() as UtilEventTypesResponse).data;
 
         // Fetching the special units
         const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
@@ -165,6 +170,10 @@ function App() {
                     },
                     {
                         path: "/",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
+                    },
+                    {
+                        path: "/e/:event_id",
                         element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
                     },
                     {

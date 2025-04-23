@@ -85,11 +85,19 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
                                          WHERE officers LIKE ?
                                            AND end IS NULL`, [`%${officerNif}%`]);
     } else {
-        result = await queryDB(force, `SELECT *
+        if (end === null) {
+            result = await queryDB(force, `SELECT *
+                                           FROM patrolsV
+                                           WHERE officers LIKE ?
+                                             AND ((? BETWEEN patrolsV.start AND patrolsV.end) OR
+                                                  patrolsV.end IS NULL)`, [`%${officerNif}%`, start]);
+        } else {
+            result = await queryDB(force, `SELECT *
                                          FROM patrolsV
                                          WHERE officers LIKE ?
                                            AND start <= ?
                                            AND end >= ?`, [`%${officerNif}%`, end, start]);
+        }
     }
 
     // If no patrols were found, the officer is not in a patrol

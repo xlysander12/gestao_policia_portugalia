@@ -116,10 +116,10 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const currentPath = location.pathname.replace(`${BASE_URL}`, "").replace("/", "").split("/")[0];
 
     // First thing that needs to be done is to add the main title to the navbar
-    paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === ""}/>);
+    paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === "" || currentPath === "e"}/>);
 
     // If we're in a path different than the main one, add the main path to the paths array
-    if (currentPath !== "") {
+    if (currentPath !== "" && currentPath !== "e") {
         paths.push(<SubPath key={`navbarPath${currentPath}`} name={currentPath[0].toUpperCase() + currentPath.slice(1)}/>);
     }
 

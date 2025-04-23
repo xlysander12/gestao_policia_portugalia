@@ -13,7 +13,7 @@ export async function fetchHoursHistory(force: string, nif: number, routeValidFi
     const filtersResult = buildFiltersQuery(routeValidFilters, filters, {subquery: "officer = ?", value: nif});
 
     // Get the hours of the Officer from the database
-    const result = await queryDB(force, `SELECT * FROM officer_hours ${filtersResult.query}`, filtersResult.values);
+    const result = await queryDB(force, `SELECT * FROM officer_hours ${filtersResult.query} ORDER BY week_end DESC LIMIT 100`, filtersResult.values);
 
     // Build a proper object to hold all information
     const hours: OfficerHoursEntryType[] = [];

@@ -1,7 +1,7 @@
 import {
     EvaluationDecision,
     EvaluationField,
-    EvaluationGrade,
+    EvaluationGrade, EventType,
     InactivityTypeData,
     IntentData,
     PatentData, PatrolTypeData,
@@ -146,7 +146,8 @@ export async function getForceInactivityTypes(force: string): Promise<Inactivity
             id: type.id as number,
             name: type.name as string,
             description: type.description as string,
-            color: type.color as string
+            color: type.color as string,
+            status: type.status as number | null
         });
     }
 
@@ -221,6 +222,24 @@ export async function getEvaluationDecisions(force: string): Promise<EvaluationD
     return fieldsList;
 }
 
+export async function getEventTypes(force: string): Promise<EventType[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM event_types`);
+
+    // Build an array with the fields
+    const eventTypes: EventType[] = [];
+    for (const field of result) {
+        eventTypes.push({
+            id: field.id as number,
+            name: field.name as string,
+            variant: field.variant as "custom" | "ceremony" | "special_unit",
+            intent: field.intent as string | null
+        });
+    }
+
+    return eventTypes;
+}
+
 export async function getLastCeremony(force: string): Promise<Date | null> {
     // Query the DB to fetch the last ceremony date
     const result = await queryDB(force, `SELECT date FROM last_ceremony LIMIT 1`);
@@ -248,8 +267,8 @@ export async function updateLastCeremony(force: string, date: Date) {
 export async function getPendingInactivityJustifications(force: string, include_expired = false): Promise<(Omit<OfficerMinifiedJustification, "start" | "end" | "timestamp"> & {start: Date, end: Date | null, timestamp: Date, nif: number})[]> {
     // Fecth all pending justifications
     const justifications = include_expired ?
-        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ?", "pending") :
-        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = ? AND end_date > ?", ["pending", new Date()]);
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = 'pending'") :
+        await queryDB(force, "SELECT id, officer, type, start_date, end_date, status, managed_by, timestamp FROM officer_justifications WHERE status = 'pending' AND (end_date > CURRENT_TIMESTAMP() OR end_date IS NULL)");
 
     return justifications.map((row) => ({
         id: row.id as number,

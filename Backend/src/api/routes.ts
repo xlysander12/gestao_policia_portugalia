@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse,
+    AccountInfoAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -52,6 +52,11 @@ import {
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
+import {
+    CreateEventBody, EditEventBody,
+    ListEventsQueryParams
+} from "@portalseguranca/api-types/events/input";
+import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -365,6 +370,16 @@ const utilRoutes: routesType = {
 
     // Route to get all the evaluation decisions of the force
     "/util/evaluation-decisions$": {
+        methods: {
+            GET: {
+                requiresToken: false,
+                requiresForce: true
+            }
+        }
+    },
+
+    // Route to get all event types of the force
+    "/util/event-types$": {
         methods: {
             GET: {
                 requiresToken: false,
@@ -1035,6 +1050,80 @@ const patrolsRoutes: routesType = {
     }
 }
 
+const eventsRoutes: routesType = {
+    // Route to get all events in a month
+    "/events$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListEventsQueryParams
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: CreateEventBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: APIResponse): SocketResponse => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    // Route to get the details of a specific event
+    "/events/\\D+\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                body: {
+                    type: EditEventBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.event.id,
+                            force: res.locals.event.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                broadcast: {
+                    event: SOCKET_EVENT.EVENTS,
+                    body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.event.id,
+                            force: res.locals.event.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    }
+                }
+            }
+        }
+    },
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1045,7 +1134,8 @@ const routes: routesType = {
     ...activityRoutes,
     ...evaluationsRoutes,
     ...officersRoutes,
-    ...patrolsRoutes
+    ...patrolsRoutes,
+    ...eventsRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.

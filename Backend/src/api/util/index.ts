@@ -3,7 +3,7 @@ import {
     changeLastCeremonyController,
     getEvaluationDecisionsController,
     getEvaluationFieldsController,
-    getEvaluationGradesController,
+    getEvaluationGradesController, getEventTypesController,
     getInactivityTypesController,
     getIntentsController, getLastCeremonyController, getNotificationsController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
@@ -36,6 +36,8 @@ app.get("/evaluation-grades", getEvaluationGradesController);
 app.get("/evaluation-fields", getEvaluationFieldsController);
 
 app.get("/evaluation-decisions", getEvaluationDecisionsController);
+
+app.get("/event-types", getEventTypesController);
 
 app.get("/last-ceremony", getLastCeremonyController);
 

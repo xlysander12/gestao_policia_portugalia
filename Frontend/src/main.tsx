@@ -10,7 +10,7 @@ import 'moment/dist/locale/pt';
 import momentDurationFormatSetup from "moment-duration-format";
 
 momentDurationFormatSetup(moment);
-moment.locale('pt', {
+moment.updateLocale('pt', {
     months: 'Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro'.split('_')
 });
 

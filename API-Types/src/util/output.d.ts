@@ -37,6 +37,7 @@ export interface InactivityTypeData {
     name: string,
     description: string
     color: string
+    status: number | null
 }
 
 export interface PatrolTypeData {
@@ -46,7 +47,7 @@ export interface PatrolTypeData {
 }
 
 export interface BaseNotification {
-    type: "activity"
+    type: "activity" | "event"
     timestamp: number
     url: string
 }
@@ -55,6 +56,11 @@ export interface ActivityNotification extends BaseNotification {
     type: "activity"
     justificationType: number
     officer: number
+}
+
+export interface EventNotification extends BaseNotification {
+    type: "event",
+    title: string
 }
 
 export interface UtilPatentsResponse extends BaseResponse {
@@ -120,6 +126,17 @@ export interface EvaluationDecision {
 
 export interface UtilEvaluationDecisionsResponse extends BaseResponse {
     data: EvaluationDecision[]
+}
+
+export interface EventType {
+    id: number
+    name: string
+    variant: "custom" | "ceremony" | "special_unit"
+    intent: string | null
+}
+
+export interface UtilEventTypesResponse extends BaseResponse {
+    data: EventType[]
 }
 
 export interface UtilLastCeremonyResponse extends BaseResponse {

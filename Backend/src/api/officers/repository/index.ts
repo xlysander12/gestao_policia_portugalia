@@ -10,9 +10,8 @@ import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/inpu
 import {getOfficerActiveJustifications} from "../subroutes/activity/justifications/repository";
 import {
     getForceDefaultPatents,
-    getForceInactiveStatus,
-    getForceInactivityJustificationType
 } from "../../../utils/config-handler";
+import {getForceInactivityTypes} from "../../util/repository";
 
 export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams) {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
@@ -39,15 +38,25 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
         // Get the officer's active justifications
         const justifications = await getOfficerActiveJustifications(force, officer.nif as number);
 
-        // Check if any of the justifications are of the "inactivity type"
-        const hasInactivityJustification: boolean = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
+        // Check if any of the justifications have an associated status
+        let justificationStatus: number |  undefined;
+        for (const justification of justifications) {
+            // Get the justification type object from the DB
+            const type = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)!;
+
+            // If the type has an associated status, store it in the variable
+            if (type.status) {
+                justificationStatus = type.status;
+                break;
+            }
+        }
 
         // Build officer data
         const officerData: MinifiedOfficerData = {
             name: officer.name as string,
             patent: officer.patent as number,
             callsign: officer.callsign as string,
-            status: hasInactivityJustification ? getForceInactiveStatus(force): officer.status as number,
+            status: justificationStatus ?? officer.status as number,
             nif: officer.nif as number,
             force: isPatrol ? officer.officerForce as string : undefined
         }
@@ -97,13 +106,22 @@ export async function getOfficerData(nif: number, force: string, former = false,
     }
 
     // * Check if the officer has any active "inactivity type" justifications
-    let hasInactivityJustification = false;
+    let justificationStatus: number |  undefined;
     if (check_justification) {
         // Get the officer's active justifications
         const justifications = await getOfficerActiveJustifications(force, nif);
 
-        // Check if any of the justifications are of the "inactivity type"
-        hasInactivityJustification = (justifications.find(justification => justification.type === getForceInactivityJustificationType(force))) !== undefined;
+        // Check if any of the justifications have an associated status
+        for (const justification of justifications) {
+            // Get the justification type object from the DB
+            const type = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)!;
+
+            // If the type has an associated status, store it in the variable
+            if (type.status) {
+                justificationStatus = type.status;
+                break;
+            }
+        }
     }
 
     // Return the officer data
@@ -111,7 +129,7 @@ export async function getOfficerData(nif: number, force: string, former = false,
         name: officerDataResult[0].name as string,
         patent: officerDataResult[0].patent as number,
         callsign: officerDataResult[0].callsign as string | null,
-        status: hasInactivityJustification ? getForceInactiveStatus(force): officerDataResult[0].status as number,
+        status: justificationStatus ?? officerDataResult[0].status as number,
         entry_date: officerDataResult[0].entry_date as Date,
         promotion_date: officerDataResult[0].promotion_date as Date | null,
         phone: officerDataResult[0].phone as number,
@@ -152,7 +170,20 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
     const validFields = ["name", "patent", "callsign", "status", "entry_date", "promotion_date", "phone", "iban", "kms", "discord", "steam"];
 
     // Check if the officer has any active inactivity justifications
-    const has_inactivity = (await getOfficerActiveJustifications(force, nif)).some(justification => justification.type === getForceInactivityJustificationType(force));
+    const officerActiveJustifications = await getOfficerActiveJustifications(force, nif);
+    let justificationStatus: number |  undefined;
+
+    // Check if any of the justifications have an associated status
+    for (const justification of officerActiveJustifications) {
+        // Get the justification type object from the DB
+        const type = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)!;
+
+        // If the type has an associated status, store it in the variable
+        if (type.status) {
+            justificationStatus = type.status;
+            break;
+        }
+    }
 
     // Build the query string and params depending on the fields that were provided
     const params: paramsTypes[] = [];
@@ -160,8 +191,8 @@ export async function updateOfficer(nif: number, force: string, changes: UpdateO
         if (changes[field as keyof UpdateOfficerRequestBody] !== undefined) {
             if (field === "entry_date" || field === "promotion_date") {
                 acc += `${field} = FROM_UNIXTIME(?), `;
-            } else if (field === "status" && changes.status === getForceInactiveStatus(force) && has_inactivity) {
-                // If the user is trying to set the status to inactive, check if the officer has an active justification. If it has, skip this field
+            } else if (field === "status" && changes.status === justificationStatus) {
+                // If the user is trying to set the status to one that is already defined by an active justification, skip this field
                 return acc;
             } else {
                 acc += `${field} = ?, `;
