@@ -1,6 +1,7 @@
 import {DateCalendar, DateCalendarProps, PickersLayoutProps, PickersLayoutRoot} from "@mui/x-date-pickers";
 import {styled} from "@mui/system";
 import {Moment} from "moment";
+import moment from "moment/moment";
 
 const styles = {
     "& .MuiDayCalendar-weekDayLabel": {
@@ -42,6 +43,8 @@ const DefaultDateCalendarStyle = styled(DateCalendar, {
 const DefaultDateCalendar = (props: DefaultDateCalendarProps) => {
     return (
         <DefaultDateCalendarStyle
+            maxDate={moment("2037-12-31")}
+            minDate={moment("2020-01-01")}
             {...props}
         />
     )

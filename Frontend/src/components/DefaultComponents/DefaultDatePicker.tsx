@@ -1,7 +1,7 @@
 import {DatePicker, DatePickerProps} from "@mui/x-date-pickers";
 import {styled} from "@mui/material/styles";
 import {DefaultTextField} from "./index.ts";
-import {Moment} from "moment";
+import moment, {Moment} from "moment";
 import {DefaultPickersLayout} from "./DefaultDateCalendar.tsx";
 
 type DefaultDatePickerProps = DatePickerProps<Moment, any> & {
@@ -26,6 +26,8 @@ const DefaultDatePickerStyle = styled(DatePicker, {
 const DefaultDatePicker = (props: DefaultDatePickerProps) => {
     return (
         <DefaultDatePickerStyle
+            maxDate={moment("2037-12-31")}
+            minDate={moment("2020-01-01")}
             {...props}
             slots={{
                 ...props.slots,
