@@ -232,7 +232,8 @@ export async function getEventTypes(force: string): Promise<EventType[]> {
         eventTypes.push({
             id: field.id as number,
             name: field.name as string,
-            variant: field.variant as "custom" | "ceremony" | "special_unit"
+            variant: field.variant as "custom" | "ceremony" | "special_unit",
+            intent: field.intent as string | null
         });
     }
 

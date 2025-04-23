@@ -5,6 +5,7 @@ import {dateToUnix} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
 import {InnerForceEvent} from "../../../types/inner-types";
+import {userHasIntents} from "../../accounts/repository";
 
 export async function getEventsService(force: string, month?: number): Promise<DefaultReturn<MinifiedEvent[]>> {
     if (!month) {
@@ -44,6 +45,15 @@ export async function createEventService(force: string, logged_user: InnerOffice
             result: false,
             status: 400,
             message: "Tipo de Evento inválido"
+        }
+    }
+
+    // Check if the logged user has the required intent to create the event
+    if (event_type.intent && !(await userHasIntents(logged_user.nif, force, event_type.intent))) {
+        return {
+            result: false,
+            status: 403,
+            message: "Não tens permissão para criar este tipo de evento"
         }
     }
 

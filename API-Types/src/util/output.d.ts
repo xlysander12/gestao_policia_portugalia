@@ -127,6 +127,7 @@ export interface EventType {
     id: number
     name: string
     variant: "custom" | "ceremony" | "special_unit"
+    intent: string | null
 }
 
 export interface UtilEventTypesResponse extends BaseResponse {
