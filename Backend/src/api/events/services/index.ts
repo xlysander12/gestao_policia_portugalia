@@ -76,6 +76,15 @@ export async function createEventService(force: string, logged_user: InnerOffice
                 message: "Unidade Especial inválida"
             }
         }
+
+        // Check if the logged user is a part of the specified Special Unit
+        if (!logged_user.special_units.some(unit => unit.id === special_unit.id)) {
+            return {
+                result: false,
+                status: 403,
+                message: "Não podes criar um evento desta Unidade Especial"
+            }
+        }
     } else if (event_type.variant === "custom" && (!event_data.title || event_data.title.trim() === "")) { // If the Event type is of the variant "custom", a title must have been given and cannot be an Empty string
         return {
             result: false,
