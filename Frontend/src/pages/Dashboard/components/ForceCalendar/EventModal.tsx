@@ -72,8 +72,8 @@ function EventModal(props: EventModalProps) {
         },
         title: "",
         description: null,
-        start: props.newEntryMoment ?? moment(),
-        end: (moment(props.newEntryMoment) ?? moment()).add(1, "hours"),
+        start: props.newEntryMoment?.set("seconds", 0) ?? moment().set("seconds", 0),
+        end: (moment(props.newEntryMoment).set("seconds", 0) ?? moment().set("seconds", 0)).add(1, "hours"),
         assignees: []
     }
 
@@ -129,8 +129,8 @@ function EventModal(props: EventModalProps) {
             title: responseJson.data.title,
             description: responseJson.data.description,
             assignees: assigness,
-            start: moment.unix(responseJson.data.start),
-            end: moment.unix(responseJson.data.end)
+            start: moment.unix(responseJson.data.start).set("seconds", 0),
+            end: moment.unix(responseJson.data.end).set("seconds", 0)
         });
 
         // Set the loading to false
@@ -387,7 +387,7 @@ function EventModal(props: EventModalProps) {
                                     }}
                                     onChange={(value) => {
                                         setEventData(draft => {
-                                            draft.start = moment(value);
+                                            draft.start = moment(value?.set("seconds", 0));
                                         });
                                     }}
                                 />
@@ -406,7 +406,7 @@ function EventModal(props: EventModalProps) {
                                     }}
                                     onChange={(value) => {
                                         setEventData(draft => {
-                                            draft.end = moment(value);
+                                            draft.end = moment(value?.set("seconds", 0));
                                         });
                                     }}
                                 />
@@ -470,12 +470,14 @@ function EventModal(props: EventModalProps) {
                                     <DefaultButton
                                         sx={{flex: 1}}
                                         buttonColor={"lightgreen"}
+                                        darkTextOnHover
                                         onClick={editEvent}
                                         disabled={
                                             (eventData.type.variant === "custom" && eventData.title === "") ||
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
-                                            (eventData.start > eventData.end)
+                                            (eventData.start > eventData.end) ||
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
                                         }
                                     >
                                         Guardar
@@ -503,7 +505,8 @@ function EventModal(props: EventModalProps) {
                                             (eventData.type.variant === "custom" && eventData.title === "") ||
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
-                                            (eventData.start > eventData.end)
+                                            (eventData.start > eventData.end) ||
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
                                         }
                                     >
                                         Criar Evento
