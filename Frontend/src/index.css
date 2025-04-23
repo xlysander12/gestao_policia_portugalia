@@ -1,5 +1,11 @@
 :root {
+  /* Toastify Colors */
   --toastify-color-dark: rgb(51, 51, 51);
+
+  /* Full Calendar colors */
+  --fc-event-bg-color: #2c3e50;
+  --fc-event-border-color: #2c3e50;
+
 
   /*Own Theme*/
   /*Background colors*/
