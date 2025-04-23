@@ -93,6 +93,15 @@ export async function createEventService(force: string, logged_user: InnerOffice
         }
     }
 
+    // Make sure the Event lasts, at least, 1 hour
+    if (event_data.end - event_data.start < 3600) {
+        return {
+            result: false,
+            status: 400,
+            message: "O Evento deve ter, no mínimo, 1 hora de duração"
+        }
+    }
+
     // If every check went positive, apply the data to the repository
     await createEvent(force, logged_user.nif, event_data);
 
@@ -113,6 +122,29 @@ export async function editEventService(force: string, event: InnerForceEvent, ch
             result: false,
             status: 400,
             message: "Não podem ser destacados Efetivos para este Evento"
+        }
+    }
+
+    // If any change was made to the start or end dates, make sure the Event lasts, at least, 1 hour
+    if (changes.start || changes.end) {
+        if ((changes.start && changes.end) && changes.end - changes.start < 3600) {
+            return {
+                result: false,
+                status: 400,
+                message: "O Evento deve ter, no mínimo, 1 hora de duração"
+            }
+        } else if ((changes.start && !changes.end) && dateToUnix(event.end) - changes.start < 3600) {
+            return {
+                result: false,
+                status: 400,
+                message: "O Evento deve ter, no mínimo, 1 hora de duração"
+            }
+        } else if ((!changes.start && changes.end) && changes.end - dateToUnix(event.start) < 3600) {
+            return {
+                result: false,
+                status: 400,
+                message: "O Evento deve ter, no mínimo, 1 hora de duração"
+            }
         }
     }
 
