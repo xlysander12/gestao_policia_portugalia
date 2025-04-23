@@ -173,6 +173,10 @@ function App() {
                         element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
                     },
                     {
+                        path: "/e/:event_id",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
+                    },
+                    {
                         path: "/efetivos",
                         children: [
                             {

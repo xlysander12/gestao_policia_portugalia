@@ -92,6 +92,7 @@ function EventModal(props: EventModalProps) {
         // If the response wasn't ok, show an error
         if (!response.ok) {
             toast.error(responseJson.message);
+            props.onClose();
             return;
         }
 

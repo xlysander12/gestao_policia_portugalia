@@ -12,6 +12,7 @@ import {make_request, RequestMethod} from "../../../../utils/requests.ts";
 import EventModal from "./EventModal.tsx";
 import {useWebSocketEvent} from "../../../../hooks";
 import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {useParams} from "react-router-dom";
 
 type InnerMinifiedEvent = Omit<MinifiedEvent, "id" | "start" | "end"> & {
     id: string
@@ -20,6 +21,9 @@ type InnerMinifiedEvent = Omit<MinifiedEvent, "id" | "start" | "end"> & {
 }
 
 function ForceCalendar() {
+    // Get the event_id from URL params
+    const {event_id} = useParams();
+
     const [loading, setLoading] = useState<boolean>(true);
 
     const [currentMonth, setCurrentMonth] = useState<number>(moment().month() + 1);
@@ -59,6 +63,21 @@ function ForceCalendar() {
     useEffect(() => {
         void fetchEvents();
     }, [currentMonth]);
+
+    // Whenever the "event_id" param changes, open the Event Modal and display the Event's information
+
+    useEffect(() => {
+        if (event_id) {
+            setSelectedEventID(event_id);
+            setIsNewEntry(false);
+            setIsModalOpen(true);
+        }
+
+        return () => {
+            setSelectedEventID(undefined);
+            setIsModalOpen(false);
+        }
+    }, [event_id]);
 
     return (
         <>
