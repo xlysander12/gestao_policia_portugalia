@@ -24,6 +24,9 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
     // Get force data from context
     const [forceData, getForceData] = useForceData();
 
+    // Controller state
+    const [updatedThroughInteraction ,setUpdateThroughInteraction] = useState<boolean>(false);
+
     // Create state that holds all the officers in the list
     const [officers, setOfficers] = useImmer<MinifiedOfficerData[]>(startingOfficers);
 
@@ -41,13 +44,19 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
 
     // Whenever the officers change, trigger the callback function to update the parent component
     useEffect(() => {
+        setUpdateThroughInteraction(true);
         changeCallback(officers);
-    }, [JSON.stringify(startingOfficers)]);
+    }, [JSON.stringify(officers)]);
 
     // Whenever the "startingOfficers" props changes, update them
     useEffect(() => {
-        setOfficers(startingOfficers);
-    }, [JSON.stringify(startingOfficers)]);
+        if (!updatedThroughInteraction) {
+            setOfficers(startingOfficers);
+        } else {
+            setUpdateThroughInteraction(false);
+        }
+
+    }, [JSON.stringify(startingOfficers), updatedThroughInteraction]);
 
     return (
         <>

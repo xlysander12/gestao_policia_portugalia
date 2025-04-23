@@ -5,7 +5,7 @@ import {make_request, RequestMethod} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {
     ActivityNotification,
-    BaseNotification,
+    BaseNotification, EventNotification,
     UtilNotificationsResponse
 } from '@portalseguranca/api-types/util/output';
 import {useNavigate} from "react-router-dom";
@@ -30,6 +30,10 @@ function isActivityNotification(notification: BaseNotification): notification is
 
 function isInnerActivityNotification(notification: BaseNotification): notification is InnerActivityNotification {
     return notification.type === "activity";
+}
+
+function isEventNotification(notification: BaseNotification): notification is EventNotification {
+    return notification.type === "event";
 }
 
 function Notifications() {
@@ -121,11 +125,22 @@ function Notifications() {
         }
     }, [loggedUser.intents["activity"]]));
 
+    useWebSocketEvent(SOCKET_EVENT.EVENTS, useCallback(() => {
+        setNeedsRefresh(true);
+    }, []));
+
     useEffect(() => {
         if (needsRefresh) {
             void updateNotifications();
         }
     }, [needsRefresh]);
+
+    // Setup a timer to refresh notification every 1 minute
+    useEffect(() => {
+        const timeout = setTimeout(() => setNeedsRefresh(true), 60000);
+
+        return () => clearTimeout(timeout);
+    }, []);
 
     return (
         <>
@@ -176,6 +191,35 @@ function Notifications() {
                                         <DefaultTypography>Pedido de {getObjectFromId(notification.justificationType, forceData.inactivity_types)!.name} Pendente</DefaultTypography>
                                         <DefaultTypography color={"gray"} fontSize={"small"}>{moment(notification.timestamp).calendar()}</DefaultTypography>
                                         <DefaultTypography color={"gray"}>{getObjectFromId(notification.officer.patent, forceData.patents)!.name} {notification.officer.name}</DefaultTypography>
+                                    </div>
+                                </MenuItem>
+
+                                <Gate show={index !== notifications.length - 1}>
+                                    <Divider variant={"middle"} sx={{borderColor: "var(--portalseguranca-color-background-light)"}}/>
+                                </Gate>
+                            </div>
+                        );
+                    } else if (isEventNotification(notification)) {
+                        return (
+                            <div
+                                key={`notification-${index}`}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        navigate(notification.url);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "5px"
+                                        }}
+                                    >
+                                        <DefaultTypography>Evento - {notification.title}</DefaultTypography>
+                                        <DefaultTypography color={"gray"} fontSize={"small"}>{moment.unix(notification.timestamp).calendar()}</DefaultTypography>
+                                        <DefaultTypography color={"gray"}></DefaultTypography>
                                     </div>
                                 </MenuItem>
 
