@@ -26,9 +26,11 @@ import {
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
-import {unixToDate} from "../../../utils/date-handler";
-import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
+import {MinifiedOfficerData, OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {getOfficerPatrol} from "../../patrols/repository";
+import {getEvent, getEvents} from "../../events/repository";
+import {getOfficerData} from "../../officers/repository";
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository
@@ -237,7 +239,7 @@ export async function notifications(force: string, nif: number): Promise<Default
     // Initialize list of Notifications
     const notifications: BaseNotification[] = []
 
-    // If the user has the "activity" intent, search for pending justifications
+    // * If the user has the "activity" intent, search for pending justifications
     if (await userHasIntents(nif, force, "activity")) {
         // Search for pending justifications
         const pending = await getPendingInactivityJustifications(force);
@@ -256,6 +258,55 @@ export async function notifications(force: string, nif: number): Promise<Default
             }
 
             notifications.push(notification);
+        }
+    }
+
+    // * Check for possible events where the user might have been assignated
+    let events = await getEvents(force, new Date().getMonth() + 1);
+    // Filter for events that are due from 1 hour or less from now or are currently active
+    events = events.filter(event =>
+        (event.end >= new Date() && event.start <= new Date()) ||
+        ((dateToUnix(event.start) - dateToUnix(new Date()) <= (60 * 60)) && event.end >= new Date())
+    );
+
+    // Loop through all events and check if the user should recieve their notification
+    for (const event of events) {
+        // Get the full type of the event
+        const full_event = (await getEvent(force, event.id, event.force))!;
+
+        // Get full event type
+        const event_type = (await getEventTypes(event.force)).find(event_type => event_type.id === full_event.type)!;
+
+        // Get the notification object react
+        const notification_object: BaseNotification = {
+            type: "event",
+            timestamp: dateToUnix(full_event.start),
+            url: `/e/${full_event.force}${full_event.id}`
+        }
+
+        // If the variant of the event is "ceremony" the user should receive the notification
+        if (event_type.variant === "ceremony") {
+            notifications.push(notification_object);
+            continue;
+        }
+
+        // If the variant of the event is "special_unit", check if the logged user is a part of that special unit
+        if (event_type.variant === "special_unit" && full_event.special_unit !== null) {
+            // Get all special units of the logged user
+            const units: OfficerUnit[] = (await getOfficerData(nif, force))?.special_units ?? [];
+
+            // If the officer is a part of the unit in the event, they should receive the notification
+            if (units.some(unit => unit.id === full_event.special_unit)) {
+                notifications.push(notification_object);
+                continue;
+            }
+        }
+
+        // If the variant of the event is "custom", check if the logged user is assigned to it
+        if (event_type.variant === "custom") {
+            if (full_event.assignees.some(assignee => assignee === nif)) {
+                notifications.push(notification_object);
+            }
         }
     }
 

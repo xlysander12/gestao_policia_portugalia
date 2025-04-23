@@ -47,7 +47,7 @@ export interface PatrolTypeData {
 }
 
 export interface BaseNotification {
-    type: "activity"
+    type: "activity" | "event"
     timestamp: number
     url: string
 }
