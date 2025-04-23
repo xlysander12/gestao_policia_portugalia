@@ -317,7 +317,7 @@ function EventModal(props: EventModalProps) {
                             textWhenDisabled={eventData.type.variant !== "custom"}
                             placeholder={eventData.type.variant !== "custom" ? "Título Automático" : undefined}
                             value={eventData.type.variant === "custom" || !props.newEntry ? eventData.title : ""}
-                            error={eventData.title === ""}
+                            error={eventData.title === "" || eventData.title.trim().length > 50}
                             onChange={(event) => {
                                 setEventData(draft => {
                                     draft.title = event.target.value;
@@ -482,7 +482,8 @@ function EventModal(props: EventModalProps) {
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
                                             (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
+                                            (eventData.title.trim().length > 50)
                                         }
                                     >
                                         Guardar
@@ -511,7 +512,8 @@ function EventModal(props: EventModalProps) {
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
                                             (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
+                                            (eventData.title.trim().length > 50)
                                         }
                                     >
                                         Criar Evento
