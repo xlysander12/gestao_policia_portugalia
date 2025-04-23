@@ -58,6 +58,11 @@ export interface ActivityNotification extends BaseNotification {
     officer: number
 }
 
+export interface EventNotification extends BaseNotification {
+    type: "event",
+    title: string
+}
+
 export interface UtilPatentsResponse extends BaseResponse {
     data: PatentData[]
 }

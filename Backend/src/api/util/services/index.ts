@@ -22,7 +22,7 @@ import {
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
-    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision, EventType
+    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision, EventType, EventNotification
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {userHasIntents} from "../../accounts/repository";
@@ -278,10 +278,11 @@ export async function notifications(force: string, nif: number): Promise<Default
         const event_type = (await getEventTypes(event.force)).find(event_type => event_type.id === full_event.type)!;
 
         // Get the notification object react
-        const notification_object: BaseNotification = {
+        const notification_object: EventNotification = {
             type: "event",
             timestamp: dateToUnix(full_event.start),
-            url: `/e/${full_event.force}${full_event.id}`
+            url: `/e/${full_event.force}${full_event.id}`,
+            title: full_event.title
         }
 
         // If the variant of the event is "ceremony" the user should receive the notification
