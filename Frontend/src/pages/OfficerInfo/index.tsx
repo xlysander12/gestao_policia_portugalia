@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, ReactNode, useContext, useEffect, useState} from "react";
+import React, {ChangeEvent, FormEvent, ReactNode, useCallback, useContext, useEffect, useState} from "react";
 import style from "./officerinfo.module.css";
 import {OfficerPicker} from "../../components/OfficerPicker";
 import {Loader} from "../../components/Loader";
@@ -182,9 +182,12 @@ function OfficerInfo() {
     const [isImportModalOpen, setImportModalOpen] = useState<boolean>(false);
 
     // Handle updates from socket
-    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, async (data) => {
+    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback((data) => {
         // If the update wasn't for the officer being viewed, return
         if (data.nif !== officerNif) return;
+
+        // If the update was triggered by the logged officer, ignore it
+        if (data.by === loggedUser.info.personal.nif) return;
 
         // If it is an officer being updated, update the info
         if (data.action === "update") {
@@ -192,7 +195,9 @@ function OfficerInfo() {
             if (editMode) return;
 
             // Fetch the officer's info again
-            return await fetchOfficerInfo(false);
+            toast.warning("O Efetivo que estavas a visualizar foi atualizado.")
+            void fetchOfficerInfo(false);
+            return;
         }
 
         // If it is an officer being deleted, inform the user, and revert to default
@@ -200,11 +205,15 @@ function OfficerInfo() {
             // Show a toast, warning the the current officer has been fired
             toast.warning("O efetivo que estavas a visualizar foi despedido.");
 
-            // Set the officer's nif to the logged user's nif
-            return setOfficerNif(loggedUser.info.personal.nif);
-        }
+            // Close all opened officer-related modals
+            setAccountModalOpen(false);
+            setFireModalOpen(false);
 
-    })
+            // Set the officer's nif to the logged user's nif
+            setOfficerNif(loggedUser.info.personal.nif);
+            return;
+        }
+    }, [officerNif, loggedUser.info.personal.nif, editMode]));
 
     // Variable that dictates whether the logged user can edit the current officer.
     const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent.id > officerInfo.professional.patent;
