@@ -48,6 +48,9 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
         navigate({
             pathname: "/efetivos"
         });
+
+        // Close the modal
+        onClose();
     }
 
     return (
