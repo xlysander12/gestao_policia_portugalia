@@ -375,7 +375,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
 
     // * After all rows from the google sheets are processed, check if there are any officers in the database that are not present in the google sheets
     // Fetch all officers from the database
-    const officers = await getOfficersList(force);
+    const officers = await getOfficersList(force, undefined, undefined, false);
 
     // Filter out the officers that are not present in the google sheets
     const non_present = officers.filter((officer) => !rows.find((row, index) => {
