@@ -329,7 +329,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         const row = rows[index] as string[];
 
         // If the index of the row doesn't match any of the patents' ranges, skip it
-        if (!isHubRowReadable(force, index)) {
+        if (!isHubRowReadable(force, index + 1)) {
             continue;
         }
 
@@ -379,7 +379,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
 
     // Filter out the officers that are not present in the google sheets
     const non_present = officers.filter((officer) => !rows.find((row, index) => {
-        if (!isHubRowReadable(force, index)) {
+        if (!isHubRowReadable(force, index + 1)) {
             return false;
         }
 

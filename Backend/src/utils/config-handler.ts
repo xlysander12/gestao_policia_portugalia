@@ -10,6 +10,10 @@ export function getDatabaseConnetionDetails() {
     return config.database;
 }
 
+export function getAllForces() {
+    return Object.keys(config.forces).filter(force => !force.startsWith("__"));
+}
+
 export function getForceDatabase(force: string) {
     return config.forces[force].database;
 }
@@ -31,16 +35,22 @@ export function getForceHubDetails(force: string) {
     };
 }
 
-export function getForceHubPatentRange(force: string, patent: number): null | {start: number, end: number} {
+export function getForceHubPatentRange(force: string, patent: number): null | {start: number, end: number} | {start: number, end: number}[] {
     const forceConfig = config.forces[force];
 
-    if (!forceConfig.hub) {
+    if (!forceConfig.hub?.ranges.patents[String(patent)]) {
         return null;
     }
 
+    if (Array.isArray(forceConfig.hub.ranges.patents[String(patent)])) {
+        return (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}[]).map(range => {
+           return {start: range.start, end: range.end} 
+        });
+    }
+    
     return {
-        start: forceConfig.hub.ranges.patents[String(patent)].start - 1,
-        end: forceConfig.hub.ranges.patents[String(patent)].end - 1
+        start: (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}).start,
+        end: (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}).end
     };
 }
 
@@ -84,9 +94,17 @@ export function isHubRowReadable(force: string, row: number): boolean {
     // Loop through all the patents present in the hub configuration in the config file
     for (const patent in forceConfig.hub.ranges.patents) {
         // If the row is in the range of the patent, return true
-        const {start, end} = getForceHubPatentRange(force, parseInt(patent))!;
-        if (row >= start && row <= end) {
-            return true;
+        const patent_range = getForceHubPatentRange(force, parseInt(patent))!;
+        if (!Array.isArray(patent_range)) {
+            if (row >= patent_range.start && row <= patent_range.end) {
+                return true;
+            }
+        } else {
+            for (const entry of patent_range) {
+                if (row >= entry.start && row <= entry.end) {
+                    return true;
+                }
+            }
         }
     }
 
