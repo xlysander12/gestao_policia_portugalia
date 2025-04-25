@@ -72,7 +72,7 @@ function EventModal(props: EventModalProps) {
         },
         title: "",
         description: null,
-        start: props.newEntryMoment?.set("seconds", 0) ?? moment().set("seconds", 0),
+        start: moment(props.newEntryMoment)?.set("seconds", 0) ?? moment().set("seconds", 0),
         end: (moment(props.newEntryMoment).set("seconds", 0) ?? moment().set("seconds", 0)).add(1, "hours"),
         assignees: []
     }
@@ -268,6 +268,14 @@ function EventModal(props: EventModalProps) {
             setEditMode(false);
         }
     }, [props.id, props.open, props.newEntry, props.newEntryMoment?.toISOString()]);
+
+    // Update the start and end date when then newEntryMoment changes
+    useEffect(() => {
+        setEventData(draft => {
+            draft.start = moment(props.newEntryMoment)?.set("seconds", 0) ?? moment().set("seconds", 0);
+            draft.end = (moment(props.newEntryMoment).set("seconds", 0) ?? moment().set("seconds", 0)).add(1, "hours");
+        })
+    }, [props.newEntryMoment?.unix()]);
 
     return (
         <>

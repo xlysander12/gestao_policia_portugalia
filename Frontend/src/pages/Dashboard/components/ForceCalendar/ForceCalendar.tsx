@@ -65,7 +65,6 @@ function ForceCalendar() {
     }, [currentMonth]);
 
     // Whenever the "event_id" param changes, open the Event Modal and display the Event's information
-
     useEffect(() => {
         if (event_id) {
             setSelectedEventID(event_id);
