@@ -74,6 +74,9 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
                 force: isPatrol ? officer.officerForce as string : undefined
             }
         }
+
+        // Push the officer's data to the list
+        officersList.push(officerData);
     }
 
     // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
