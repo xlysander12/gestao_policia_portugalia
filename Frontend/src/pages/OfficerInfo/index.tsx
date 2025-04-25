@@ -691,6 +691,7 @@ function OfficerInfo() {
             <FireModal
                 open={isFireModalOpen}
                 onClose={() => setFireModalOpen(false)}
+                onFired={() => setOfficerNif(loggedUser.info.personal.nif)}
                 officerFullName={`${getObjectFromId(officerInfo.professional.patent, forceData.patents)?.name} ${officerInfo.personal.name}`}
                 officerNif={officerNif}
             />

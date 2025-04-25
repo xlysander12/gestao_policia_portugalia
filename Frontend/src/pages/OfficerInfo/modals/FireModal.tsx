@@ -13,10 +13,11 @@ import { BaseResponse } from "@portalseguranca/api-types";
 type FireModalProps = {
     open: boolean,
     onClose: () => void,
+    onFired: () => void,
     officerFullName: string,
     officerNif: number,
 }
-function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps) {
+function FireModal({open, onClose, onFired, officerFullName, officerNif}: FireModalProps) {
     // Initialize useNavigate hook
     const navigate = useNavigate();
 
@@ -45,9 +46,7 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
 
         // After firing the officer, we can show a notification and reload the page to the officer's list
         toast(`${officerFullName} despedido com sucesso!`, {type: "success"});
-        navigate({
-            pathname: "/efetivos"
-        });
+        onFired();
 
         // Close the modal
         onClose();
