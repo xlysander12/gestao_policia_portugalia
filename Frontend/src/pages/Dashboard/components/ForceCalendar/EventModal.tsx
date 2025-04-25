@@ -275,6 +275,7 @@ function EventModal(props: EventModalProps) {
                 open={props.open}
                 onClose={props.onClose}
                 title={props.newEntry ? "Novo Evento": `Evento #${props.id!.toUpperCase()}`}
+                url={props.newEntry || loading ? undefined : `/e/${eventData.force}${eventData.id}`}
                 width={"50%"}
             >
                 <Gate show={loading}>
