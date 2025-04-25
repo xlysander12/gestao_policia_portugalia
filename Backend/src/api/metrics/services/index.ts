@@ -2,8 +2,9 @@ import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {buildBodyOfficerDetails, submitIssueToGithub} from "../utils";
 import {getErrorDetails, setErrorReported} from "../repository";
 import {dateToString} from "../../../utils/date-handler";
+import * as packageJson from "../../../../package.json"
 
-export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string): Promise<DefaultReturn<void>> {
+export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string, frontend_version?: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
     const issueTitle = `${title} - Issue Automático`;
 
@@ -12,21 +13,27 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
     issueBody += `# Detalhes do problema\n`;
     issueBody += code !== undefined ? `**Código de erro:** ${code}\n` : "";
     issueBody += "**Descrição do utilizador:**\n"
+    issueBody += body + "\n\n";
+
+
+    // Adding versioning information
+    issueBody += `# Dados da Aplicação\n`;
+    issueBody += `**Versão do Backend:** ${packageJson.version}\n`;
+    issueBody += `**Versão do Frontend:** ${frontend_version ?? "N/A"}\n\n`;
 
     // Adding the information about the error code
     if (code !== undefined) {
-        issueBody += body + "\n\n";
         issueBody += "# Detalhes do erro\n";
 
         // Fetching DB information from the error code
         const errorDetails = await getErrorDetails(loggedUser.force, code);
         if (!errorDetails) {
-            issueBody += "*Error não encontrado*"
+            issueBody += "*Erro não encontrado*"
         } else {
             issueBody += `**Rota:** ${errorDetails.method} ${errorDetails.route}\n`;
-            issueBody += `**Corpo:** ${errorDetails.body}\n`;
+            issueBody += `**Corpo:** ${errorDetails.body !== "{}" ? errorDetails.body : "N/A"}\n`;
             issueBody += `**Timestamp:** ${dateToString(errorDetails.timestamp)}\n`;
-            issueBody += `**Stack:**\n\`\`\`\n${errorDetails.stack}\n\`\`\``;
+            issueBody += `**StackTrace:**\n\`\`\`\n${errorDetails.stack}\n\`\`\``;
         }
     }
 
