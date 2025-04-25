@@ -2,7 +2,6 @@ import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {buildBodyOfficerDetails, submitIssueToGithub} from "../utils";
 import {getErrorDetails, setErrorReported} from "../repository";
 import {dateToString} from "../../../utils/date-handler";
-import * as packageJson from "../../../../package.json"
 
 export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string, frontend_version?: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
@@ -18,7 +17,7 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
 
     // Adding versioning information
     issueBody += `# Dados da Aplicação\n`;
-    issueBody += `**Versão do Backend:** ${packageJson.version}\n`;
+    issueBody += `**Versão do Backend:** ${process.env.npm_package_version}\n`;
     issueBody += `**Versão do Frontend:** ${frontend_version ?? "N/A"}\n\n`;
 
     // Adding the information about the error code
