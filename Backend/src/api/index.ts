@@ -14,6 +14,13 @@ import {
 import {loggerMiddleware} from "../middlewares";
 import {logToConsole} from "../utils/logger";
 import {websocketBroadcastMiddleware} from "../middlewares/websocket-broadcast";
+import {getAllForces} from "../utils/config-handler";
+import {ensureRowsInTables} from "../utils/db-tester";
+
+// Check force's databases
+for (const force of getAllForces()) {
+    void ensureRowsInTables(force);
+}
 
 const apiRoutes = express.Router();
 

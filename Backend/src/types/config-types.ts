@@ -16,10 +16,13 @@ const ForceHubRt = rt.Record({
     id: rt.String,
     sheetName: rt.String,
     ranges: rt.Record({
-        patents: rt.Dictionary(rt.Record({
+        patents: rt.Dictionary(rt.Union(rt.Record({
             start: rt.Number,
             end: rt.Number
-        }), rt.String.withConstraint((s) => !isNaN(parseInt(s)))),
+        }), rt.Array(rt.Record({
+            start: rt.Number,
+            end: rt.Number
+        }))), rt.String.withConstraint((s) => !isNaN(parseInt(s)))),
         inactive: rt.Record({
             start: rt.Number,
             end: rt.Number

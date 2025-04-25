@@ -55,6 +55,14 @@ async function errorHandlerMiddleware(err: Error | QueryError, req: express.Requ
             });
             return;
         }
+
+        // This error was triggered by a date too big or too short
+        if (err.errno === 1292) {
+            res.status(400).json({
+                message: "Data fornecida muito antiga ou futura"
+            });
+            return;
+        }
     }
 
     // Defining variable that holds the route

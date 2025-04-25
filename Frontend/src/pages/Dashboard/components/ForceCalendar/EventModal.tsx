@@ -72,7 +72,7 @@ function EventModal(props: EventModalProps) {
         },
         title: "",
         description: null,
-        start: props.newEntryMoment?.set("seconds", 0) ?? moment().set("seconds", 0),
+        start: moment(props.newEntryMoment)?.set("seconds", 0) ?? moment().set("seconds", 0),
         end: (moment(props.newEntryMoment).set("seconds", 0) ?? moment().set("seconds", 0)).add(1, "hours"),
         assignees: []
     }
@@ -269,12 +269,21 @@ function EventModal(props: EventModalProps) {
         }
     }, [props.id, props.open, props.newEntry, props.newEntryMoment?.toISOString()]);
 
+    // Update the start and end date when then newEntryMoment changes
+    useEffect(() => {
+        setEventData(draft => {
+            draft.start = moment(props.newEntryMoment)?.set("seconds", 0) ?? moment().set("seconds", 0);
+            draft.end = (moment(props.newEntryMoment).set("seconds", 0) ?? moment().set("seconds", 0)).add(1, "hours");
+        })
+    }, [props.newEntryMoment?.unix()]);
+
     return (
         <>
             <Modal
                 open={props.open}
                 onClose={props.onClose}
                 title={props.newEntry ? "Novo Evento": `Evento #${props.id!.toUpperCase()}`}
+                url={props.newEntry || loading ? undefined : `/e/${eventData.force}${eventData.id}`}
                 width={"50%"}
             >
                 <Gate show={loading}>
@@ -317,7 +326,7 @@ function EventModal(props: EventModalProps) {
                             textWhenDisabled={eventData.type.variant !== "custom"}
                             placeholder={eventData.type.variant !== "custom" ? "Título Automático" : undefined}
                             value={eventData.type.variant === "custom" || !props.newEntry ? eventData.title : ""}
-                            error={eventData.title === ""}
+                            error={eventData.title === "" || eventData.title.trim().length > 50}
                             onChange={(event) => {
                                 setEventData(draft => {
                                     draft.title = event.target.value;
@@ -421,8 +430,13 @@ function EventModal(props: EventModalProps) {
                             multiline
                             disabled={!editMode}
                             textWhenDisabled
-                            value={eventData.description ?? ""}
                             placeholder={"Sem descrição"}
+                            value={eventData.description ?? ""}
+                            onChange={(event) => {
+                                setEventData(draft => {
+                                   draft.description = event.target.value;
+                                });
+                            }}
                         />
                     </ModalSection>
 
@@ -477,7 +491,8 @@ function EventModal(props: EventModalProps) {
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
                                             (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
+                                            (eventData.title.trim().length > 50)
                                         }
                                     >
                                         Guardar
@@ -506,7 +521,8 @@ function EventModal(props: EventModalProps) {
                                             (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
                                             (!eventData.start.isValid() || !eventData.end.isValid()) ||
                                             (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600)
+                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
+                                            (eventData.title.trim().length > 50)
                                         }
                                     >
                                         Criar Evento

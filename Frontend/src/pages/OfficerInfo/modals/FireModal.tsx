@@ -1,10 +1,9 @@
-import {useNavigate} from "react-router-dom";
 import {make_request} from "../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {Modal, ModalSection} from "../../../components/Modal";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultOutlinedTextField} from "../../../components/DefaultComponents";
-import React, {FormEvent} from "react";
+import React, {FormEvent, useState} from "react";
 import {FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import Gate from "../../../components/Gate/gate.tsx";
 import {DeleteOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
@@ -13,15 +12,13 @@ import { BaseResponse } from "@portalseguranca/api-types";
 type FireModalProps = {
     open: boolean,
     onClose: () => void,
+    onFired: () => void,
     officerFullName: string,
     officerNif: number,
 }
-function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps) {
-    // Initialize useNavigate hook
-    const navigate = useNavigate();
-
+function FireModal({open, onClose, onFired, officerFullName, officerNif}: FireModalProps) {
     //  State that holds the firing type
-    const [firingType, setFiringType] = React.useState("resigned");
+    const [firingType, setFiringType] = useState<"resigned" | "fired">("resigned");
 
     // Initialize the variable that contains the officer's fire reason
     let fireReason: string = "";
@@ -45,9 +42,10 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
 
         // After firing the officer, we can show a notification and reload the page to the officer's list
         toast(`${officerFullName} despedido com sucesso!`, {type: "success"});
-        navigate({
-            pathname: "/efetivos"
-        });
+        onFired();
+
+        // Close the modal
+        onClose();
     }
 
     return (
@@ -62,8 +60,8 @@ function FireModal({open, onClose, officerFullName, officerNif}: FireModalProps)
                     <ModalSection title={"Dados do Despedimento"}>
                         <RadioGroup
                             name={"firingType"}
-                            defaultValue={"resigned"}
-                            onChange={(event) => setFiringType(event.target.value)}
+                            value={firingType}
+                            onChange={(event) => setFiringType(event.target.value as "fired" | "resigned")}
                         >
                             <FormControlLabel value={"resigned"} control={<Radio />} label={"Demição"} />
                             <FormControlLabel value={"fired"} control={<Radio />} label={"Despedimento"} />

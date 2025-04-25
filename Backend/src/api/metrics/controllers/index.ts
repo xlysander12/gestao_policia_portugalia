@@ -4,10 +4,10 @@ import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@port
 import {sendIssue, sendSuggestion} from "../services";
 
 export async function submitIssueController(req: express.Request, res: APIResponse) {
-    const {title, body, code} = req.body as SubmitIssueRequestBodyType;
+    const {title, body, code, version} = req.body as SubmitIssueRequestBodyType;
 
     // Call the service to report the problem
-    const result = await sendIssue(res.locals.loggedOfficer, title, body, code);
+    const result = await sendIssue(res.locals.loggedOfficer, title, body, code, version);
 
     // Return the result of the service
     res.status(result.status).json({message: result.message});

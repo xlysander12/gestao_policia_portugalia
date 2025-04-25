@@ -13,7 +13,7 @@ import {
 } from "../../../utils/config-handler";
 import {getForceInactivityTypes} from "../../util/repository";
 
-export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams) {
+export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, check_inactivity = true) {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     const useFilters = routeValidFilters && filters;
@@ -34,33 +34,48 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
     // Get the data from all the officer's and store in array
     let officersList: MinifiedOfficerData[] = [];
     for (const officer of officersListResult) {
+        let officerData: MinifiedOfficerData
+
         // * Check if the officer has any active "inactivity type" justifications
-        // Get the officer's active justifications
-        const justifications = await getOfficerActiveJustifications(force, officer.nif as number);
+        if (check_inactivity) {
+            // Get the officer's active justifications
+            const justifications = await getOfficerActiveJustifications(force, officer.nif as number);
 
-        // Check if any of the justifications have an associated status
-        let justificationStatus: number |  undefined;
-        for (const justification of justifications) {
-            // Get the justification type object from the DB
-            const type = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)!;
+            // Check if any of the justifications have an associated status
+            let justificationStatus: number |  undefined;
+            for (const justification of justifications) {
+                // Get the justification type object from the DB
+                const type = (await getForceInactivityTypes(force)).find(type => type.id === justification.type)!;
 
-            // If the type has an associated status, store it in the variable
-            if (type.status) {
-                justificationStatus = type.status;
-                break;
+                // If the type has an associated status, store it in the variable
+                if (type.status) {
+                    justificationStatus = type.status;
+                    break;
+                }
+            }
+
+            // Build officer data
+            officerData = {
+                name: officer.name as string,
+                patent: officer.patent as number,
+                callsign: officer.callsign as string,
+                status: justificationStatus ?? officer.status as number,
+                nif: officer.nif as number,
+                force: isPatrol ? officer.officerForce as string : undefined
+            }
+        } else {
+            // Build officer data
+            officerData = {
+                name: officer.name as string,
+                patent: officer.patent as number,
+                callsign: officer.callsign as string,
+                status: officer.status as number,
+                nif: officer.nif as number,
+                force: isPatrol ? officer.officerForce as string : undefined
             }
         }
 
-        // Build officer data
-        const officerData: MinifiedOfficerData = {
-            name: officer.name as string,
-            patent: officer.patent as number,
-            callsign: officer.callsign as string,
-            status: justificationStatus ?? officer.status as number,
-            nif: officer.nif as number,
-            force: isPatrol ? officer.officerForce as string : undefined
-        }
-
+        // Push the officer's data to the list
         officersList.push(officerData);
     }
 

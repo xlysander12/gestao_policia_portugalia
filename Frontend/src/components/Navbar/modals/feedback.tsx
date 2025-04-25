@@ -11,6 +11,7 @@ import {SubmitIssueRequestBodyType, SubmitSuggestionRequestBodyType} from "@port
 import {toast} from "react-toastify";
 import {UserError, UtilUserErrorsResponse} from "@portalseguranca/api-types/util/output";
 import moment, {Moment} from "moment";
+import * as packageJson from "../../../../package.json"
 
 type InnerUserError = Omit<UserError, "timestamp"> & {
     timestamp: Moment
@@ -71,7 +72,8 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
             body: {
                 code: errorCode.code !== "" ? errorCode.code: undefined,
                 title: title,
-                body: message
+                body: message,
+                version: type === "error" ? packageJson.version : undefined
             },
             errorPageOn500: false
         });
@@ -89,10 +91,7 @@ function FeedbackModal({type, open, onClose}: FeedbackModalProps) {
             setMessage("");
 
             onClose();
-        }
-
-        // If the request was not successful, show an error message
-        else {
+        } else { // If the request was not successful, show an error message
             toast.error(data.message);
         }
     }
