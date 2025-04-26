@@ -17,17 +17,15 @@ async function officerExistsMiddle(req: Request, res: OfficerInfoAPIResponse, ne
         return;
     }
 
-    // If it's not and the request URL is just to get the data of the officer, add a new officer or to restore a former officer, check if it's a former officer
-    if ((res.locals.routeDetails.notes === "get_officer" || res.locals.routeDetails.notes === "add_officer" || res.locals.routeDetails.notes === "restore_officer")) {
-        officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!, true);
+    // If it's not, check if it's a former officer
+    officerResult = await getOfficerData(Number(req.params.nif), req.header(FORCE_HEADER)!, true);
 
-        if (officerResult !== null) {
-            res.locals.targetOfficer = officerResult;
-            res.locals.targetOfficer.isFormer = true;
-            res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
-            next();
-            return;
-        }
+    if (officerResult !== null) {
+        res.locals.targetOfficer = officerResult;
+        res.locals.targetOfficer.isFormer = true;
+        res.locals.targetOfficer.force = req.header(FORCE_HEADER)!;
+        next();
+        return;
     }
 
     // If this is the endpoint to fech an officer's data and the query parameter patrol is present, go through all forces the user can patrol with and check if the officer is in any of them
