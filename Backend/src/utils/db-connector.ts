@@ -36,7 +36,7 @@ export async function queryDB(force: string, query: string, params?: paramsTypes
     // Make sure the params are an array
     if (!Array.isArray(params)) {
         // If it is a single value, convert it to an array
-        if (params) params = [params];
+        if (params !== undefined) params = [params];
 
         // If it is not set, set it to an empty array
         else params = [];
