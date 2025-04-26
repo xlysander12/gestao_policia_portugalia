@@ -107,7 +107,6 @@ function Evaluations(props: EvaluationsPageProps) {
                 nif: loggedUser.info.personal.nif
             });
             setAsAuthor(true);
-            console.log("asAuthor set to true");
             return;
         }
 
@@ -251,7 +250,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                 </div>
                                 <DefaultSearch
                                     fullWidth
-                                    callback={(options) => setFilters(options)}
+                                    placeholder={"Pesquisar por avaliação"}
                                     options={[
                                         {label: "Depois de", key: "after", type: "date"},
                                         {label: "Antes de", key: "before", type: "date"},
