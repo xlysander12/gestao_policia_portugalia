@@ -173,7 +173,7 @@ function Evaluations(props: EvaluationsPageProps) {
         return () => {
             controller.abort();
         }
-    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters), loggedUser.intents.evaluations, loggedUser.info.personal.nif]);
+    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters), loggedUser.intents.evaluations, loggedUser.info.personal.nif, page]);
 
     // Everytime the nif param changes, load the new officer's info
     useEffect(() => {
@@ -251,6 +251,10 @@ function Evaluations(props: EvaluationsPageProps) {
                                 <DefaultSearch
                                     fullWidth
                                     placeholder={"Pesquisar por avaliação"}
+                                    callback={(options) => {
+                                        setFilters(options);
+                                        setPage(1);
+                                    }}
                                     options={[
                                         {label: "Depois de", key: "after", type: "date"},
                                         {label: "Antes de", key: "before", type: "date"},
