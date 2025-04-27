@@ -4,6 +4,7 @@ on:
     branches:
       - "master"
     types: [closed]
+
   workflow_dispatch:
 
 jobs:
@@ -16,6 +17,6 @@ jobs:
           echo "${{ secrets.SERVER_SSH_KEY }}" > private_key
           chmod 600 private_key
 
-      - name: Run deploy script in staging server
+      - name: Run deploy script in production server
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/portugalia/portal_seguranca/production && ./deploy.sh -update -skip"
