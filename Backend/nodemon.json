@@ -1,0 +1,10 @@
+{
+    "ignore": [
+        "node_modules/**/node_modules"
+    ],
+    "watch": [
+        "./",
+        "../Frontend/dist/*"
+    ],
+    "ext": "js, json, env"
+}

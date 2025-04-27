@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["./tests/*", "../API-Types/*"],
+  "compilerOptions": {
+    "paths": {
+      "@portalseguranca/api-types": ["./api-types/*"],
+    }
+  }
+}

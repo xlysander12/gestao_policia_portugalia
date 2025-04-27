@@ -1,0 +1,34 @@
+.informationsDiv {
+    display: flex;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: var(--portalseguranca-color-background-dark);
+    width: 100%;
+    height: calc(100% - (5.4rem + 10px));
+    overflow-y: hidden;
+}
+
+.datesDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.membersDiv {
+    width: 100%;
+    overflow-y: auto;
+}
+
+.registerDiv {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    width: 100%;
+}

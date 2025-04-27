@@ -1,0 +1,41 @@
+.evaluationsDiv {
+    box-sizing: border-box;
+    height: calc(100% - 5.4rem);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 0.7rem 0;
+}
+
+.evaluationsDivWithTable {
+    height: calc(100% - calc(5.4rem + 70px)) !important;
+}
+
+.managementBarMain {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.managementBarLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1.6 0 0;
+    height: 100%;
+    gap: 10px;
+}
+
+.managementBarRight {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1 1.5 0;
+    height: 100%;
+    gap: 10px;
+}

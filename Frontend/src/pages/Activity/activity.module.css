@@ -1,0 +1,45 @@
+.entriesList {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - calc(4rem + 114px));
+    padding-top: 0.7rem;
+    overflow-y: auto;
+}
+
+.managementBarMainDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    background-color: var(--portalseguranca-color-background-dark);
+    color: var(--portalseguranca-color-text-light);
+}
+
+.managementBarLeftDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    flex: 1;
+}
+
+.managementBarCurrentEditingDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    gap: 5px;
+}
+
+.managementBarRightDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    flex: 1;
+    gap: 10px;
+}

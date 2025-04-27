@@ -1,0 +1,103 @@
+.mainNavbar {
+    background-color: var(--portalseguranca-color-background-dark);
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100vw;
+    height: 4rem;
+    min-height: fit-content;
+    line-height: 3.5rem;
+    padding: 5px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.leftSide {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+}
+
+.rightSide {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+}
+
+.pathsDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    height: 100%;
+}
+
+.subPathDiv {
+    height: 100%;
+}
+
+.userInfoDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.userInfoDiv:hover {
+    background-color: var(--portalseguranca-color-hover-dark);
+    cursor: pointer;
+}
+
+.officerName {
+    font-size: 20px;
+    line-height: 3.1rem;
+    margin: 0;
+    color: white;
+}
+
+.navbarRedirect:hover {
+    color: var(--portalseguranca-color-text-hover);
+}
+
+.navbarSubPathText {
+    text-decoration: none;
+    outline: none;
+    font-size: 30px;
+    margin: 0;
+    display: inline-block;
+    color: white;
+    line-height: 55px;
+}
+
+.navButtonsDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px;
+    height: 100%;
+    line-height: 3.5rem;
+}
+
+.navButton {
+    font-size: 25px;
+    outline: none;
+    color: white;
+    text-decoration: none;
+}
+
+.navButton:hover {
+    color: var(--portalseguranca-color-text-hover);
+    border-bottom: var(--portalseguranca-color-text-hover) 2px solid;
+}

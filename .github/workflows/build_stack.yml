@@ -1,0 +1,81 @@
+# This workflow will do a clean installation of the API Types, Backend and frontend, cache/restore them and build the source code across the using version of node
+
+name: Fullstack Build
+
+on:
+    push:
+        branches-ignore:
+            - "master"
+
+    pull_request:
+        types:
+            - "opened"
+            - "synchronize"
+        branches:
+            - "master"
+            - "staging"
+
+    workflow_dispatch:
+
+jobs:
+    backend:
+
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: Backend
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # Setup the API types directory
+            - name: Setup API types
+              uses: actions/setup-node@v4
+              with:
+                node-version: 22.14.0
+                cache: 'npm'
+                cache-dependency-path: 'API-Types/package-lock.json'
+            - run: npm ci
+              working-directory: 'API-Types'
+
+            # Build the backend source
+            - name: Build Backend
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.14.0
+                  cache: 'npm'
+                  cache-dependency-path: Backend/package-lock.json
+            - run: npm ci
+            - run: npm run build --if-present
+
+    frontend:
+
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: Frontend
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # Setup the API types directory
+            -   name: Setup API types
+                uses: actions/setup-node@v4
+                with:
+                    node-version: 22.14.0
+                    cache: 'npm'
+                    cache-dependency-path: 'API-Types/package-lock.json'
+            -   run: npm ci
+                working-directory: 'API-Types'
+
+            # Build the frontend source
+            - name: Build Frontend
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.14.0
+                  cache: 'npm'
+                  cache-dependency-path: Frontend/package-lock.json
+            - run: npm ci
+            - run: npm run build --if-present

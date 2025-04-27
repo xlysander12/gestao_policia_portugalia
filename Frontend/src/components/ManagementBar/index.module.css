@@ -1,0 +1,10 @@
+.mainDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% - 1.4rem);
+    height: 4rem;
+    padding: 0.7rem;
+    background-color: var(--portalseguranca-color-background-dark);
+}

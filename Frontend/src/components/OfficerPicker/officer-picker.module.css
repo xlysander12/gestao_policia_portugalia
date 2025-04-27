@@ -1,0 +1,35 @@
+.officerListMainDiv {
+    height: 100%;
+    width: 100%;
+    /*background-color: #0b0c10;*/
+    box-sizing: border-box;
+}
+
+.officerListListDiv {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    height: calc(100% - 5.4rem);
+    max-width: 100%;
+    padding: 0.7rem;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
+
+.officerListCardDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 0;
+}
+
+.officerListManagementDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    height: 100%;
+}

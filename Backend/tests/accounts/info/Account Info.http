@@ -1,0 +1,5 @@
+### GET request to see the account basic information
+GET http://localhost:8080/portugalia/portalseguranca/api/accounts/545960857
+Authorization: {{token}}
+X-PortalSeguranca-Force: psp
+###

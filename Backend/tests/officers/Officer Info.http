@@ -1,0 +1,5 @@
+### GET request to get the all the information about an officer
+GET http://localhost:8080/portugalia/portalseguranca/api/officers/668855471
+Authorization: {{token}}
+X-Portalseguranca-Force: psp
+###

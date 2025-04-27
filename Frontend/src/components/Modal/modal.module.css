@@ -1,0 +1,56 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 20px;
+    color: white;
+    padding: 5px 10px;
+}
+
+.content {
+    box-sizing: border-box;
+    width: 100%;
+    background-color: var(--portalseguranca-color-background-dark);
+    text-align: center;
+    padding: 20px 15px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.section {
+    box-sizing: border-box;
+    height: fit-content;
+    width: 100%;
+    color: white;
+    background-color: transparent;
+    padding: 10px;
+    margin: 0 0 15px;
+    border: 5px solid var(--portalseguranca-color-accent);
+    border-radius: 10px;
+    box-shadow: black 0 0 30px 0;
+    text-align: start;
+}
+
+.section > legend {
+    color: var(--portalseguranca-color-accent);
+    font-size: 1.12rem;
+    font-weight: bold;
+    /*margin: auto;*/
+}
+
+.content > .section:last-child {
+    margin: 0;
+}
+
+.confimationButtonsDiv {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}

@@ -1,0 +1,43 @@
+.outerLoginDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 4rem);
+}
+
+.innerLoginDiv {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    background-color: var(--portalseguranca-color-background-dark);
+    padding: 15px;
+    width: 25rem;
+    height: fit-content;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+.loginInput {
+    background-color: rgb(159, 163, 175);
+    display: block;
+    margin: 20px auto;
+    padding: 0 5px;
+    width: 100%;
+    box-sizing: border-box;
+    height: 2rem;
+    border: none;
+}
+
+.loginInput:focus {
+    outline-color: #25ADA5FF;
+}
+
+.loginInput[type="submit"] {
+    background: linear-gradient(180deg, rgb(37, 173, 165), rgb(33, 161, 156));
+    color: black;
+    cursor: pointer;
+    border: none;
+
+}

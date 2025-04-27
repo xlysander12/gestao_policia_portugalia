@@ -1,0 +1,5 @@
+### POST request to create an account for an existing officer
+POST http://localhost:8080/portugalia/portalseguranca/api/accounts/541565998
+X-Portalseguranca-Force: psp
+Authorization: {{token}}
+###
