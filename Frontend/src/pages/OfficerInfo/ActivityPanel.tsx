@@ -54,7 +54,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
 
         const responseJson: OfficerLastShiftResponse = await response.json();
 
-        setLastShift(moment(responseJson.data.last_shift));
+        setLastShift(moment.unix(responseJson.data.last_shift));
         setMaxDaysPassed(responseJson.meta.passed_max_days);
 
         // Set loading to false

@@ -268,6 +268,7 @@ function DefaultSearch(props: DefaultSearchProps) {
                     return (
                         <DefaultOutlinedTextField
                             alternateColor
+                            placeholder={currentValue.length === 0 ? props.placeholder : undefined}
                             // slotProps={{
                             //     input: {
                             //         ...params.InputProps,

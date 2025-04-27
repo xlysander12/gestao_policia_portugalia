@@ -206,7 +206,9 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 <Link to={"/efetivos"} className={style.navButton}>Efetivos</Link>
                                 <Link to={"/patrulhas"} className={style.navButton}>Patrulhas</Link>
                                 <Link to={"/atividade"} className={style.navButton}>Atividade</Link>
-                                <Link to={"/avaliacoes"} className={style.navButton}>Avaliações</Link>
+                                <Gate show={loggedUser.info.professional.patent.max_evaluation > 0}>
+                                    <Link to={"/avaliacoes"} className={style.navButton}>Avaliações</Link>
+                                </Gate>
                             </div>
                         </Gate>
                     </div>

@@ -106,12 +106,14 @@ function PatrolPicker(props: PatrolPickerProps) {
                     <DefaultSearch
                         fullWidth
                         disabled={loading}
+                        placeholder={"Pesquisar por patrulha"}
                         // limitTags={2}
                         callback={async (options) => {
                             const {patrols, pages} = await fetchPatrols(true, options);
 
                             setPatrols(patrols);
                             setTotalPages(pages);
+                            setPage(1);
                         }}
                         options={[
                             {label: "Depois de", key: "after", type: "date"},

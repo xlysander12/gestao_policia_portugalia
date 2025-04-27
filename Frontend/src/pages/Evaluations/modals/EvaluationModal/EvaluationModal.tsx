@@ -531,14 +531,16 @@ function EvaluationModal(props: EvaluationModalProps) {
                         }}
                         >
                             <Gate show={!editMode}>
-                                <DefaultButton
-                                    sx={{flex: 1}}
-                                    onClick={() => {
-                                        setEditMode(true);
-                                    }}
-                                >
-                                    Editar
-                                </DefaultButton>
+                                <Gate show={evaluationData.author.nif === loggedUser.info.personal.nif}>
+                                    <DefaultButton
+                                        sx={{flex: 1}}
+                                        onClick={() => {
+                                            setEditMode(true);
+                                        }}
+                                    >
+                                        Editar
+                                    </DefaultButton>
+                                </Gate>
 
                                 <DefaultButton
                                     buttonColor={"red"}
