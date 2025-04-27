@@ -15,13 +15,13 @@ databases=$(jq -r '.forces | to_entries[] | "\(.key) \(.value.database)"' "$JSON
 # Loop through each force/database
 while read -r force database; do
     # Create force-specific folder
-    FORCE_DIR="$BACKUPS_DIR/$force"
-    mkdir -p "$FORCE_DIR"
+    FORCE_BACKUP_DIR="$BACKUPS_DIR/$force/$NOW"
+    mkdir -p "$FORCE_BACKUP_DIR"
 
     # Backup file paths
-    backup_sql="$FORCE_DIR/${force}_${NOW}.sql"
+    backup_sql="$FORCE_BACKUP_DIR/${force}_${NOW}.sql"
     backup_sql_gz="$backup_sql.gz"
-    binlog_info="$FORCE_DIR/${force}_${NOW}_binlog.info"
+    binlog_info="$FORCE_BACKUP_DIR/${force}_${NOW}_binlog.info"
 
     echo "[$force] Starting backup of database '$database'..."
 
