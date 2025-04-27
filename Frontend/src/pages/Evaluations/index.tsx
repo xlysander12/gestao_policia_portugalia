@@ -34,7 +34,7 @@ import {
 import {getObjectFromId} from "../../forces-data-context.ts";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {EvaluationModal} from "./modals";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
 
 type EvaluationsPageProps = {
@@ -47,6 +47,9 @@ function Evaluations(props: EvaluationsPageProps) {
     // Get the logged user from context
     const loggedUser = useContext(LoggedUserContext);
 
+    // Initialize the navigate hook
+    const navigate = useNavigate();
+
     // Get the force's data from context
     const [forceData] = useForceData();
 
@@ -56,12 +59,12 @@ function Evaluations(props: EvaluationsPageProps) {
 
     // Current Officer State
     const [currentOfficer, setCurrentOfficer] = useState<MinifiedOfficerData>({
-            name: loggedUser.info.personal.name,
-            patent: loggedUser.info.professional.patent.id,
-            callsign: loggedUser.info.professional.callsign,
-            status: loggedUser.info.professional.status.id,
-            nif: loggedUser.info.personal.nif
-        });
+        name: loggedUser.info.personal.name,
+        patent: loggedUser.info.professional.patent.id,
+        callsign: loggedUser.info.professional.callsign,
+        status: loggedUser.info.professional.status.id,
+        nif: loggedUser.info.personal.nif
+    });
 
     // Page handling
     const [page, setPage] = useState<number>(1);
@@ -84,7 +87,6 @@ function Evaluations(props: EvaluationsPageProps) {
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
     const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
     const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null);
-
 
     // Variable that sets if the averages table should be shown
     const showAverages = !loading && !asAuthor && evaluations.length > 0;
@@ -193,6 +195,13 @@ function Evaluations(props: EvaluationsPageProps) {
 
         return () => controller.abort();
     }, [nif, entry_id]);
+
+    // If the logged user can't make evaluations, don't allow them to view this page
+    if (loggedUser.info.professional.patent.max_evaluation <= 0) {
+        toast.error("Não tens permissão para visitar esta página");
+        navigate("/");
+        return;
+    }
 
     return (
         <>
