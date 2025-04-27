@@ -36,6 +36,7 @@ while read -r force database; do
         --skip-triggers \
         --no-create-info \
         --complete-insert \
+        --replace \
         "$database" > "$backup_sql"
 
     # Unlock tables immediately after
