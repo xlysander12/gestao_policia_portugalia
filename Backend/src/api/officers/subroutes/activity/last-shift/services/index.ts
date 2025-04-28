@@ -21,7 +21,7 @@ export async function getOfficerLastShift(force: string, nif: number): Promise<D
     }
 }
 
-export async function updateOfficerLastShift(force: string, nif: number, last_shift: Date | null): Promise<DefaultReturn<void>> {
+export async function updateOfficerLastShift(force: string, nif: number, last_shift: number | null): Promise<DefaultReturn<void>> {
     // Call the repository to update the last shift of the officer
     await updateLastShift(force, nif, last_shift);
 

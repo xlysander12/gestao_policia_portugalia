@@ -34,7 +34,7 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     const {last_shift} = req.body as UpdateOfficerLastShiftBodyType;
 
     // Call the service to update the last shift
-    const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, last_shift ? new Date(last_shift): null);
+    const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, last_shift);
 
     res.status(result.status).json({message: result.message});
 }

@@ -58,7 +58,7 @@ function ForceCalendar() {
     }
 
     // Listen for websocket events
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force")]));
+    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force"), currentMonth]));
 
     useEffect(() => {
         void fetchEvents();
