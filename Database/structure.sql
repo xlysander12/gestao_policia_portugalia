@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `events` (
   CONSTRAINT `FK_events_special_unit` FOREIGN KEY (`special_unit`) REFERENCES `special_units` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_events_type` FOREIGN KEY (`type`) REFERENCES `event_types` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `CC_start_before_end` CHECK (`start` <= `end`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -186,12 +186,12 @@ CREATE TABLE IF NOT EXISTS `officers` (
   `iban` varchar(10) NOT NULL,
   `kms` int(11) NOT NULL DEFAULT 0,
   `discord` bigint(20) NOT NULL,
-  `steam` varchar(50) NOT NULL,
+  `steam` varchar(50) NOT NULL DEFAULT 'steam:0',
   `visible` tinyint(3) unsigned NOT NULL DEFAULT 1,
   `fired` tinyint(3) NOT NULL DEFAULT 0,
   `fire_reason` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`nif`),
-  UNIQUE KEY `Unique Info` (`nif`,`discord`,`iban`,`phone`,`steam`) USING BTREE,
+  UNIQUE KEY `Unique Info` (`nif`,`discord`,`iban`,`phone`) USING BTREE,
   KEY `FK_officers_patents` (`patent`),
   KEY `FK_officers_status` (`status`),
   CONSTRAINT `FK_officers_patents` FOREIGN KEY (`patent`) REFERENCES `patents` (`id`) ON UPDATE CASCADE,
@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS `officer_justifications` (
   CONSTRAINT `FK_officer_justifications_officer` FOREIGN KEY (`officer`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_officers` FOREIGN KEY (`managed_by`) REFERENCES `officers` (`nif`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_type` FOREIGN KEY (`type`) REFERENCES `inactivity_types` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS `patrols` (
   CONSTRAINT `FK_patrols_special_unit` FOREIGN KEY (`special_unit`) REFERENCES `special_units` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_patrols_type` FOREIGN KEY (`type`) REFERENCES `patrols_types` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `start_before_end` CHECK (`start` < `end`)
-) ENGINE=InnoDB AUTO_INCREMENT=1635 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 

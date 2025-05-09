@@ -58,7 +58,7 @@ export async function listOfficers(force: string, routeValidFilters: RouteFilter
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
 }
 
-export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string,
+export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string | undefined,
                                   recruit: boolean,
                                   force: string, targetOfficer: InnerOfficerData | null, isTargetOfficerFormer: boolean, overwrite: boolean): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
 
@@ -96,7 +96,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     }
 
     // Inserting the new officer into the database
-    await addOfficer(name, patent, callsign, phone, nif, iban, kms, discord, steam, force);
+    await addOfficer(force, name, patent, callsign, phone, nif, iban, kms, discord, steam);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
@@ -266,18 +266,7 @@ async function addOfficerFromHub(force: string, row: string[]): Promise<[boolean
     );
 
     try {
-        await addOfficer(
-            row[getForceHubPropertyPosition(force, "name")!],
-            patent ? patent.id : getForceDefaultPatents(force).default,
-            row[getForceHubPropertyPosition(force, "callsign")!],
-            phone ? parseInt(phone) : 0,
-            parseInt(nif!),
-            row[getForceHubPropertyPosition(force, "iban")!],
-            kms ? parseInt(kms) : 0,
-            discord ? parseInt(discord) : 0,
-            "steam:0",
-            force
-        )
+        await addOfficer(force, row[getForceHubPropertyPosition(force, "name")!], patent ? patent.id : getForceDefaultPatents(force).default, row[getForceHubPropertyPosition(force, "callsign")!], phone ? parseInt(phone) : 0, parseInt(nif!), row[getForceHubPropertyPosition(force, "iban")!], kms ? parseInt(kms) : 0, discord ? parseInt(discord) : 0, "steam:0")
 
         // After adding the officer, update the entry_date and status with the correct value
         if (entry_date || promotion_date || status) {
