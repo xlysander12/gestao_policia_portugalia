@@ -26,7 +26,7 @@ function ForceCalendar() {
 
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [currentMonth, setCurrentMonth] = useState<number>(moment().month() + 1);
+    const [currentInterval, setCurrentInterval] = useState<{start: Moment, end: Moment}>({start: moment(), end: moment()});
     const [events, setEvents] = useState<InnerMinifiedEvent[]>([]);
 
     // Modal related state
@@ -35,11 +35,11 @@ function ForceCalendar() {
     const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
     const [newEntryMoment, setNewEntryMoment] = useState<Moment>(moment());
 
-    async function fetchEvents(showLoading = true) {
+    async function fetchEvents(showLoading = true, signal?: AbortSignal) {
         if (showLoading) setLoading(true);
 
         // Fetch the events list from the backend
-        const response = await make_request(`/events?month=${currentMonth}`, RequestMethod.GET);
+        const response = await make_request(`/events?start=${currentInterval.start.unix()}&end=${currentInterval.end.unix()}`, RequestMethod.GET, {signal});
         const responseJson = await response.json() as EventsListResponse;
 
         if (!response.ok) {
@@ -58,11 +58,16 @@ function ForceCalendar() {
     }
 
     // Listen for websocket events
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force"), currentMonth]));
+    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force"), currentInterval.start.unix(), currentInterval.end.unix()]));
 
     useEffect(() => {
-        void fetchEvents();
-    }, [currentMonth]);
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        void fetchEvents(true, signal);
+
+        return () => controller.abort();
+    }, [currentInterval.start.unix(), currentInterval.end.unix()]);
 
     // Whenever the "event_id" param changes, open the Event Modal and display the Event's information
     useEffect(() => {
@@ -96,7 +101,12 @@ function ForceCalendar() {
                     center: "title",
                     right: "dayGridMonth,timeGridWeek,timeGridDay"
                 }}
-                datesSet={dates => setCurrentMonth(dates.start.getMonth() + 1)}
+                datesSet={dates => {
+                    setCurrentInterval({
+                        start: moment(dates.start),
+                        end: moment(dates.end)
+                    });
+                }}
                 eventDisplay={"block"}
                 dayMaxEventRows={2}
                 eventContent={(arg) => {

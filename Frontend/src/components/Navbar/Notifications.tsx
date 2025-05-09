@@ -62,7 +62,7 @@ function Notifications() {
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
     async function updateNotifications() {
-        // Fecth notifications from backend
+        // Fetch notifications from backend
         const response = await make_request("/util/notifications", RequestMethod.GET);
         const responseJson: UtilNotificationsResponse = await response.json();
 
