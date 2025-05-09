@@ -197,15 +197,15 @@ async function convertHubValues(force: string, patent: string, status: string, e
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert the KMs
-    const outKms = kms.replace(/\D/g, ''); // Remove all non-numeric characters
+    const outKms = String(kms).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert the discord
-    const outDiscord = discord.replace(/\D/g, ''); // Remove all non-numeric characters
+    const outDiscord = String(discord).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert nif, if present
     let outNif;
     if (nif) {
-        outNif = nif.replace(/\D/g, '');
+        outNif = String(nif).replace(/\D/g, '');
     }
 
     return {
@@ -337,7 +337,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         let nif = row[getForceHubPropertyPosition(force, "nif")!]
 
         // Remove any non-numeric characters from the NIF
-        nif = nif.replace(/\D/g, '');
+        nif = String(nif).replace(/\D/g, '');
 
         // If the NIF is an empty string or anything other than a number, skip this row
         if (nif === "" || isNaN(parseInt(nif))) {
@@ -383,7 +383,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
             return false;
         }
 
-        const nif = (row[getForceHubPropertyPosition(force, "nif")!] as string).replace(/\D/g, '');
+        const nif = String(row[getForceHubPropertyPosition(force, "nif")!]).replace(/\D/g, '');
         return officer.nif === parseInt(nif);
     }));
 
