@@ -176,10 +176,10 @@ export async function officerPatrol(force: string, officerNif: number): Promise<
 
 async function convertHubValues(force: string, patent: string, status: string, entry_date: string, promotion_date: string, phone: string, kms: string, discord: string, nif?: string) {
     // Convert Patent
-    const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent);
+    const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent.trim());
 
     // Convert status
-    const outStatus = (await getForceStatuses(force)).find((existingStatus) => existingStatus.name === status);
+    const outStatus = (await getForceStatuses(force)).find((existingStatus) => existingStatus.name === status.trim());
 
     // Convert the entry date
     // This date is in the DD/MM/YYYY format
