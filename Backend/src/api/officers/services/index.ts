@@ -11,7 +11,6 @@ import {
 } from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {
-    getForceDefaultPatents,
     getForceHubDetails, getForceHubPropertyPosition,
     getForcePromotionExpression,
     isHubRowReadable
@@ -59,7 +58,6 @@ export async function listOfficers(force: string, routeValidFilters: RouteFilter
 }
 
 export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string | undefined,
-                                  recruit: boolean,
                                   force: string, targetOfficer: InnerOfficerData | null, isTargetOfficerFormer: boolean, overwrite: boolean): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
 
     // First, check if the nif is already in use, either by an active or former officer
@@ -83,20 +81,15 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
         await eraseOfficer(nif, force);
     }
 
-    // Checking if the patent will be a recruit or not
-    const patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
-
     // * Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
-    if (patent === getForceDefaultPatents(force).default) {
-        // Get the leading char of the patent of the new officer
-        const leading_char = ((await getForcePatents(force, patent))! as PatentData).leading_char;
+    // Get the leading char of the patent of the new officer
+    const leading_char = ((await getForcePatents(force, 1))! as PatentData).leading_char;
 
-        callsign = await getNextAvailableCallsign(leading_char, force);
-    }
+    callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Inserting the new officer into the database
-    await addOfficer(force, name, patent, callsign, phone, nif, iban, kms, discord, steam);
+    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, discord, steam);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
@@ -110,7 +103,7 @@ export async function restoreOfficer(officer: InnerOfficerData, force: string): 
 
     // * Get the new officer's callsign
     // Get the leading char of the patent of the new officer
-    const leading_char = ((await getForcePatents(force, getForceDefaultPatents(force).default))! as PatentData).leading_char;
+    const leading_char = ((await getForcePatents(force, 1))! as PatentData).leading_char;
 
     const callsign = await getNextAvailableCallsign(leading_char, force);
 
@@ -266,7 +259,7 @@ async function addOfficerFromHub(force: string, row: string[]): Promise<[boolean
     );
 
     try {
-        await addOfficer(force, row[getForceHubPropertyPosition(force, "name")!], patent ? patent.id : getForceDefaultPatents(force).default, row[getForceHubPropertyPosition(force, "callsign")!], phone ? parseInt(phone) : 0, parseInt(nif!), row[getForceHubPropertyPosition(force, "iban")!], kms ? parseInt(kms) : 0, discord ? parseInt(discord) : 0, "steam:0")
+        await addOfficer(force, row[getForceHubPropertyPosition(force, "name")!], patent ? patent.id : 1, row[getForceHubPropertyPosition(force, "callsign")!], phone ? parseInt(phone) : 0, parseInt(nif!), row[getForceHubPropertyPosition(force, "iban")!], kms ? parseInt(kms) : 0, discord ? parseInt(discord) : 0, "steam:0")
 
         // After adding the officer, update the entry_date and status with the correct value
         if (entry_date || promotion_date || status) {

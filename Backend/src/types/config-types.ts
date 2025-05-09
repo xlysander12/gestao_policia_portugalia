@@ -7,11 +7,6 @@ const DatabaseType = rt.Record({
     password: rt.String
 });
 
-const DefaultPatentsRt = rt.Record({
-    recruit: rt.Number,
-    default: rt.Number
-});
-
 const ForceHubRt = rt.Record({
     id: rt.String,
     sheetName: rt.String,
@@ -37,7 +32,6 @@ const ForceRt = rt.Record({
     patrols: rt.Array(rt.String),
     database: rt.String,
     isPromotion: rt.String,
-    patents: DefaultPatentsRt,
     maximum_non_working_days: rt.Number,
     minimum_week_minutes: rt.Number,
     hub: rt.Optional(ForceHubRt)

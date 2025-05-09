@@ -73,7 +73,6 @@ export async function addOfficerController(req: express.Request, res: OfficerInf
         body.kms,
         body.discord,
         body.steam,
-        false,
         req.header(FORCE_HEADER)!,
         res.locals.targetOfficer,
         !!res.locals.targetOfficer?.isFormer,
