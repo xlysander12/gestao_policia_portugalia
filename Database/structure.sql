@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `evaluations` (
   CONSTRAINT `FK_evaluations_decision` FOREIGN KEY (`decision`) REFERENCES `evaluation_decisions` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_patrol` FOREIGN KEY (`patrol`) REFERENCES `patrols` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_target` FOREIGN KEY (`target`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `last_ceremony` (
 -- Dumping structure for table portugalia_gestao_psp.officers
 CREATE TABLE IF NOT EXISTS `officers` (
   `name` varchar(50) NOT NULL,
-  `patent` int(11) NOT NULL DEFAULT 0,
+  `patent` int(11) NOT NULL DEFAULT 1,
   `callsign` varchar(50) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 5,
   `entry_date` date NOT NULL DEFAULT current_timestamp(),
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `officer_hours` (
   KEY `FK_officer_hours_officers` (`submitted_by`),
   CONSTRAINT `FK_officer_hours_officers` FOREIGN KEY (`submitted_by`) REFERENCES `officers` (`nif`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `CC_officer_hours_start_greater_end` CHECK (`week_end` > `week_start`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS `officer_justifications` (
   CONSTRAINT `FK_officer_justifications_officer` FOREIGN KEY (`officer`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_officers` FOREIGN KEY (`managed_by`) REFERENCES `officers` (`nif`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_type` FOREIGN KEY (`type`) REFERENCES `inactivity_types` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -374,6 +374,7 @@ CREATE TABLE IF NOT EXISTS `user_intents` (
   `user` int(11) NOT NULL,
   `intent` varchar(50) NOT NULL,
   `enabled` tinyint(4) NOT NULL DEFAULT 0,
+  UNIQUE KEY `UNIQUE_intent_per_user` (`user`,`intent`),
   KEY `FK_user_intents_user` (`user`),
   KEY `FK_user_intents_intent` (`intent`),
   CONSTRAINT `FK_user_intents_intent` FOREIGN KEY (`intent`) REFERENCES `intents` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -651,19 +652,6 @@ SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISIO
 DELIMITER //
 CREATE TRIGGER `patrols_check_special_update` BEFORE UPDATE ON `patrols` FOR EACH ROW BEGIN
 	CALL CheckPatrolSpecial(NEW.type, NEW.special_unit);
-END//
-DELIMITER ;
-SET SQL_MODE=@OLDTMP_SQL_MODE;
-
--- Dumping structure for trigger portugalia_gestao_psp.users_add_intents_insert
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER `users_add_intents_insert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
-	INSERT INTO `user_intents`(`user`, `intent`)
-	SELECT 
-		NEW.nif AS `user`,
-		intents.name AS `intent`
-	FROM `intents`;
 END//
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
