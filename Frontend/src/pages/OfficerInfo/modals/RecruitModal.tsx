@@ -217,7 +217,6 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                                 onChange={(event) => setOfficerInfo(draft => {draft.steam = event.target.value})}
                                 sx={{margin: "10px 0 0 0"}}
                                 error={officerInfo.steam !== "" && !(/^steam:([0-9]|[a-z])+$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
-                                required
                                 inputProps={{
                                     name: "officerSteam",
                                     pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?://steamcommunity.com/id/.+$)"
