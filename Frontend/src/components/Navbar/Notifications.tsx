@@ -137,9 +137,9 @@ function Notifications() {
 
     // Setup a timer to refresh notification every 1 minute
     useEffect(() => {
-        const timeout = setTimeout(() => setNeedsRefresh(true), 60000);
+        const interval = setInterval(() => setNeedsRefresh(true), 60000);
 
-        return () => clearTimeout(timeout);
+        return () => clearInterval(interval);
     }, []);
 
     return (
