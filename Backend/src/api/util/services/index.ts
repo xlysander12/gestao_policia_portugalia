@@ -263,7 +263,8 @@ export async function notifications(force: string, nif: number): Promise<Default
 
     // * Check for possible events where the user might have been assignated
     const currentDate = new Date();
-    let events = await getEvents(force, currentDate.getMonth() + 1);
+    // TODO: This should properly filter in the query itself
+    let events = await getEvents(force, dateToUnix(new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-1}`)), dateToUnix(new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-30}`)));
     // Filter for events that are due from 1 hour or less from now or are currently active
     events = events.filter(event =>
         (event.end >= currentDate && event.start <= currentDate) ||

@@ -1,7 +1,8 @@
 import {Array, Null, Number, Optional, Partial, Record, Static, String, Union} from "runtypes";
 
 export const ListEventsQueryParams = Record({
-    month: String.withConstraint(s => !isNaN(parseInt(s)))
+    start: String.withConstraint(s => !isNaN(parseInt(s))),
+    end: String.withConstraint(s => !isNaN(parseInt(s)))
 });
 export type ListEventsQueryParamsType = Static<typeof ListEventsQueryParams>;
 
