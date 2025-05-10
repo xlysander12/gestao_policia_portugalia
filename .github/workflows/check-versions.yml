@@ -31,7 +31,7 @@ jobs:
 
       - name: Check for changes in ${{ matrix.package }}
         run: |
-          CHANGED=$(git diff --name-only origin/master HEAD -- ${{ matrix.project }}/)
+          CHANGED=$(git diff --name-only origin/master HEAD -- ${{ matrix.package }}/)
           echo "CHANGED=$CHANGED" >> $GITHUB_ENV
 
       - name: Compare versions if changed
