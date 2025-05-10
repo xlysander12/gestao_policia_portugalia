@@ -44,7 +44,6 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
         message: "Operação bem sucedida",
         meta: {
             former: res.locals.targetOfficer!.isFormer,
-            force: res.locals.targetOfficer!.force
         },
         data: (res.locals.targetOfficer?.isFormer && !(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "officers"))) || (res.locals.targetOfficer!.force !== req.header(FORCE_HEADER)!) ?
             {
@@ -53,6 +52,7 @@ export async function getOfficerDetailsController(req: express.Request, res: Off
                 callsign: res.locals.targetOfficer!.callsign,
                 status: res.locals.targetOfficer!.status,
                 nif: res.locals.targetOfficer!.nif,
+                force: res.locals.targetOfficer!.force
             } : {
                 ...officerData,
                 entry_date: dateToUnix(res.locals.targetOfficer!.entry_date),

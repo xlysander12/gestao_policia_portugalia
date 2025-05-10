@@ -82,11 +82,10 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     }
 
     // * Calculating what the new callsign will be, if it's not a recruit
-    let callsign = null
     // Get the leading char of the patent of the new officer
     const leading_char = ((await getForcePatents(force, 1))! as PatentData).leading_char;
 
-    callsign = await getNextAvailableCallsign(leading_char, force);
+    const callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Inserting the new officer into the database
     await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, discord, steam);

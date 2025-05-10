@@ -32,7 +32,6 @@ export interface OfficerListResponse extends BaseResponse {
 export interface OfficerInfoGetResponse extends BaseResponse {
     meta: {
         former: boolean
-        force: string
     }
     data: OfficerData | MinifiedOfficerData
 }

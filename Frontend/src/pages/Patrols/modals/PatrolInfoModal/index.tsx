@@ -129,7 +129,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
             temp.officers.push({
                 ...officerResponseJson.data,
-                force: officerResponseJson.meta.force
+                force: officerResponseJson.data.force ?? localStorage.getItem("force")!
             });
         }
 

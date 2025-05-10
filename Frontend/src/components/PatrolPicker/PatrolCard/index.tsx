@@ -58,7 +58,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                 const officerResponseJson: OfficerInfoGetResponse = await officerResponse.json();
                 temp.push({
                     ...officerResponseJson.data,
-                    force: officerResponseJson.meta.force
+                    force: officerResponseJson.data.force ?? localStorage.getItem("force")!
                 });
             }
         }
