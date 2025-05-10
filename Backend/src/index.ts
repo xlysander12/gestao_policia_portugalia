@@ -32,7 +32,7 @@ const app = express();
 const httpServer = http.createServer(app);
 
 // Set timeout to 30 seconds
-httpServer.setTimeout(30 * 1000);
+httpServer.setTimeout(60 * 1000);
 
 // Initialize the socket
 const ws = new Server(httpServer, {

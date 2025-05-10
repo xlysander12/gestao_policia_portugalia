@@ -11,7 +11,6 @@ import {
 } from "../repository";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {
-    getForceDefaultPatents,
     getForceHubDetails, getForceHubPropertyPosition,
     getForcePromotionExpression,
     isHubRowReadable
@@ -58,8 +57,7 @@ export async function listOfficers(force: string, routeValidFilters: RouteFilter
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
 }
 
-export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string,
-                                  recruit: boolean,
+export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string | undefined,
                                   force: string, targetOfficer: InnerOfficerData | null, isTargetOfficerFormer: boolean, overwrite: boolean): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
 
     // First, check if the nif is already in use, either by an active or former officer
@@ -83,20 +81,15 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
         await eraseOfficer(nif, force);
     }
 
-    // Checking if the patent will be a recruit or not
-    const patent = recruit ? getForceDefaultPatents(force).recruit: getForceDefaultPatents(force).default;
-
     // * Calculating what the new callsign will be, if it's not a recruit
     let callsign = null
-    if (patent === getForceDefaultPatents(force).default) {
-        // Get the leading char of the patent of the new officer
-        const leading_char = ((await getForcePatents(force, patent))! as PatentData).leading_char;
+    // Get the leading char of the patent of the new officer
+    const leading_char = ((await getForcePatents(force, 1))! as PatentData).leading_char;
 
-        callsign = await getNextAvailableCallsign(leading_char, force);
-    }
+    callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Inserting the new officer into the database
-    await addOfficer(name, patent, callsign, phone, nif, iban, kms, discord, steam, force);
+    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, discord, steam);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
@@ -110,7 +103,7 @@ export async function restoreOfficer(officer: InnerOfficerData, force: string): 
 
     // * Get the new officer's callsign
     // Get the leading char of the patent of the new officer
-    const leading_char = ((await getForcePatents(force, getForceDefaultPatents(force).default))! as PatentData).leading_char;
+    const leading_char = ((await getForcePatents(force, 1))! as PatentData).leading_char;
 
     const callsign = await getNextAvailableCallsign(leading_char, force);
 
@@ -176,10 +169,10 @@ export async function officerPatrol(force: string, officerNif: number): Promise<
 
 async function convertHubValues(force: string, patent: string, status: string, entry_date: string, promotion_date: string, phone: string, kms: string, discord: string, nif?: string) {
     // Convert Patent
-    const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent);
+    const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent.trim());
 
     // Convert status
-    const outStatus = (await getForceStatuses(force)).find((existingStatus) => existingStatus.name === status);
+    const outStatus = (await getForceStatuses(force)).find((existingStatus) => existingStatus.name === status.trim());
 
     // Convert the entry date
     // This date is in the DD/MM/YYYY format
@@ -197,15 +190,15 @@ async function convertHubValues(force: string, patent: string, status: string, e
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert the KMs
-    const outKms = kms.replace(/\D/g, ''); // Remove all non-numeric characters
+    const outKms = String(kms).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert the discord
-    const outDiscord = discord.replace(/\D/g, ''); // Remove all non-numeric characters
+    const outDiscord = String(discord).replace(/\D/g, ''); // Remove all non-numeric characters
 
     // Convert nif, if present
     let outNif;
     if (nif) {
-        outNif = nif.replace(/\D/g, '');
+        outNif = String(nif).replace(/\D/g, '');
     }
 
     return {
@@ -266,18 +259,7 @@ async function addOfficerFromHub(force: string, row: string[]): Promise<[boolean
     );
 
     try {
-        await addOfficer(
-            row[getForceHubPropertyPosition(force, "name")!],
-            patent ? patent.id : getForceDefaultPatents(force).default,
-            row[getForceHubPropertyPosition(force, "callsign")!],
-            phone ? parseInt(phone) : 0,
-            parseInt(nif!),
-            row[getForceHubPropertyPosition(force, "iban")!],
-            kms ? parseInt(kms) : 0,
-            discord ? parseInt(discord) : 0,
-            "steam:0",
-            force
-        )
+        await addOfficer(force, row[getForceHubPropertyPosition(force, "name")!], patent ? patent.id : 1, row[getForceHubPropertyPosition(force, "callsign")!], phone ? parseInt(phone) : 0, parseInt(nif!), row[getForceHubPropertyPosition(force, "iban")!], kms ? parseInt(kms) : 0, discord ? parseInt(discord) : 0, "steam:0")
 
         // After adding the officer, update the entry_date and status with the correct value
         if (entry_date || promotion_date || status) {
@@ -337,7 +319,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         let nif = row[getForceHubPropertyPosition(force, "nif")!]
 
         // Remove any non-numeric characters from the NIF
-        nif = nif.replace(/\D/g, '');
+        nif = String(nif).replace(/\D/g, '');
 
         // If the NIF is an empty string or anything other than a number, skip this row
         if (nif === "" || isNaN(parseInt(nif))) {
@@ -383,7 +365,7 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
             return false;
         }
 
-        const nif = (row[getForceHubPropertyPosition(force, "nif")!] as string).replace(/\D/g, '');
+        const nif = String(row[getForceHubPropertyPosition(force, "nif")!]).replace(/\D/g, '');
         return officer.nif === parseInt(nif);
     }));
 

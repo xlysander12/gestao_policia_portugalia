@@ -8,8 +8,16 @@ import {dateToUnix} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 
 export async function getEventsController(req: express.Request, res: APIResponse<EventsListResponse>) {
+    // If neither the start or end search params where given, return 400
+    if (!res.locals.queryParams.start || !res.locals.queryParams.end) {
+        res.status(400).json({
+            message: "São necessários ser passados as datas de inicio e fim"
+        });
+        return;
+    }
+
     // Call the serivce to get the Events list
-    const result = await getEventsService(req.header(FORCE_HEADER)!, res.locals.queryParams.month ? parseInt(res.locals.queryParams.month): undefined);
+    const result = await getEventsService(req.header(FORCE_HEADER)!, parseInt(res.locals.queryParams.start), parseInt(res.locals.queryParams.end));
 
     if (!result.result) {
         res.status(result.status).json({message: result.message});

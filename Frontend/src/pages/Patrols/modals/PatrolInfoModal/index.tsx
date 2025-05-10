@@ -55,6 +55,9 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
     // Handle WebSocket events
     useWebSocketEvent<ExistingPatrolSocket>(SOCKET_EVENT.PATROLS, useCallback(async (event) => {
+        // If the modal isn't open, ignore the event
+        if (!open) return;
+
         if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
 
         if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it
@@ -67,14 +70,16 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             toast.warning(`A patrulha que estavas a visualizar foi apagada!`);
 
             handleModalClose();
+            return;
         }
 
         // If the patrol gets updated, fetch the new data
         if (event.action === "update" && !editMode) { // Can't update the patrol if is being edited
             setPatrolData(await fetchPatrolData(id));
             toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
+            return;
         }
-    }, [id, editMode]));
+    }, [id, editMode, open]));
 
     // Getting the patrol force from the id
     const patrolForce = id ? id.match(/([a-z]+)(\d+)$/)![1]: "";

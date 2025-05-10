@@ -12,10 +12,6 @@
             "patrols": ["psp", "gnr"],
             "database": "database",
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
-            "patents": {
-                "recruit": 0,
-                "default": 1
-            },
             "maximum_non_working_days": 5,
             "minimum_week_minutes": 300,
             "hub": {
@@ -107,10 +103,6 @@
             "patrols": ["psp", "gnr"],
             "database": "database",
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
-            "patents": {
-                "recruit": 0,
-                "default": 1
-            },
             "inactivity_justification_type": 1,
             "inactive_status": 1,
             "maximum_non_working_days": 5,
