@@ -18,10 +18,6 @@ export function getForceDatabase(force: string) {
     return config.forces[force].database;
 }
 
-export function getForceDefaultPatents(force: string) {
-    return config.forces[force].patents;
-}
-
 export function getForceHubDetails(force: string) {
     const forceConfig = config.forces[force];
 

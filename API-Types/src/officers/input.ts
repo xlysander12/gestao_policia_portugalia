@@ -18,7 +18,7 @@ export const CreateOfficerRequestBody = Record({
     iban: String,
     kms: Number,
     discord: Number,
-    steam: String,
+    steam: Optional(String),
 });
 export type CreateOfficerRequestBody = Static<typeof CreateOfficerRequestBody>;
 

@@ -2,19 +2,32 @@ import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
 import {paramsTypes, queryDB} from "../../../utils/db-connector";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 
-export async function getEvents(force: string, month: number): Promise<InnerMinifiedEvent[]> {
+export async function getEvents(force: string, start: number, end?: number): Promise<InnerMinifiedEvent[]> {
     // Query the DB to fetch the Events
-    const result = await queryDB(
-        force,
+    const result = end ?
+        await queryDB(
+            force,
         `
             SELECT id, \`force\`, title, start, end
             FROM
                 eventsV
             WHERE
-                MONTH(start) = ? OR MONTH(end) = ?
+                start >= FROM_UNIXTIME(?)
+            AND
+                end <= FROM_UNIXTIME(?)
         `,
-        [month, month]
-    );
+        [start, end]
+    ) :
+        await queryDB(
+            force,
+            `
+                SELECT id, \`force\`, title, start, end
+                FROM
+                    eventsV
+                WHERE
+                    start >= FROM_UNIXTIME(?)
+        `,
+            [start]);
 
     // Get all values into an array
     const events: InnerMinifiedEvent[] = [];

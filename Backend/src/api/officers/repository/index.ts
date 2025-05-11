@@ -8,9 +8,6 @@ import {
 import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getOfficerActiveJustifications} from "../subroutes/activity/justifications/repository";
-import {
-    getForceDefaultPatents,
-} from "../../../utils/config-handler";
 import {getForceInactivityTypes} from "../../util/repository";
 
 export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, check_inactivity = true) {
@@ -175,8 +172,8 @@ export async function getNextAvailableCallsign(startingLetter: string, force: st
     return `${startingLetter}-${callsignNumber.toString().padStart(2, "0")}`;
 }
 
-export async function addOfficer(name: string, patent: number, callsign: string | null, phone: number, nif: number, iban: string, kms: number, discord: number, steam: string,
-                                 force: string) {
+export async function addOfficer(force: string, name: string, patent: number, callsign: string | null, phone: number, nif: number, iban: string, kms: number, discord: number,
+                                 steam = "steam:0") {
     // * Add the officer to the database
     await queryDB(force, 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, patent, callsign, phone, nif, iban, kms, discord, steam]);
 }
@@ -258,5 +255,5 @@ export async function eraseOfficer(nif: number, force: string) {
 }
 
 export async function reHireOfficer(nif: number, force: string, callsign: string) {
-    await queryDB(force, 'UPDATE officers SET fired = 0, fire_reason = NULL, patent = ?, callsign = ?, entry_date = CURRENT_TIMESTAMP WHERE nif = ?', [getForceDefaultPatents(force).default, callsign, nif]);
+    await queryDB(force, 'UPDATE officers SET fired = 0, fire_reason = NULL, patent = ?, callsign = ?, entry_date = CURRENT_TIMESTAMP WHERE nif = ?', [1, callsign, nif]);
 }

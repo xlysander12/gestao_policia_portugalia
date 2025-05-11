@@ -63,7 +63,7 @@ function FireModal({open, onClose, onFired, officerFullName, officerNif}: FireMo
                             value={firingType}
                             onChange={(event) => setFiringType(event.target.value as "fired" | "resigned")}
                         >
-                            <FormControlLabel value={"resigned"} control={<Radio />} label={"Demição"} />
+                            <FormControlLabel value={"resigned"} control={<Radio />} label={"Demissão"} />
                             <FormControlLabel value={"fired"} control={<Radio />} label={"Despedimento"} />
                         </RadioGroup>
                         <Gate show={firingType === "fired"}>

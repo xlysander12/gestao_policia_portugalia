@@ -62,7 +62,7 @@ function Notifications() {
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
     async function updateNotifications() {
-        // Fecth notifications from backend
+        // Fetch notifications from backend
         const response = await make_request("/util/notifications", RequestMethod.GET);
         const responseJson: UtilNotificationsResponse = await response.json();
 
@@ -137,9 +137,9 @@ function Notifications() {
 
     // Setup a timer to refresh notification every 1 minute
     useEffect(() => {
-        const timeout = setTimeout(() => setNeedsRefresh(true), 60000);
+        const interval = setInterval(() => setNeedsRefresh(true), 60000);
 
-        return () => clearTimeout(timeout);
+        return () => clearInterval(interval);
     }, []);
 
     return (

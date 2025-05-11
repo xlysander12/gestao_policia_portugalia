@@ -29,6 +29,13 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Skip Build if PR Merge
+              run: |
+                if git log -1 --pretty=%B | grep -qE "^Merge pull request #"; then
+                  echo "Merged PR detected. Skipping workflow"
+                  exit 0
+                fi
+
             # Setup the API types directory
             - name: Setup API types
               uses: actions/setup-node@v4
@@ -59,6 +66,12 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+            - name: Skip Build if PR Merge
+              run: |
+                if git log -1 --pretty=%B | grep -qE "^Merge pull request #"; then
+                  echo "Merged PR detected. Skipping workflow"
+                  exit 0
+                fi  
 
             # Setup the API types directory
             -   name: Setup API types

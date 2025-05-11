@@ -1,23 +1,15 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedEvent} from "@portalseguranca/api-types/events/output";
 import {createEvent, deleteEvent, editEvent, getEvents} from "../repository";
-import {dateToUnix} from "../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
 import {InnerForceEvent} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
 
-export async function getEventsService(force: string, month?: number): Promise<DefaultReturn<MinifiedEvent[]>> {
-    if (!month) {
-        return {
-            result: false,
-            status: 400,
-            message: "Deve ser fornecido um mês para a obtenção de eventos"
-        }
-    }
-
+export async function getEventsService(force: string, start: number, end: number): Promise<DefaultReturn<MinifiedEvent[]>> {
     // Call the repository to get the events
-    const result = await getEvents(force, month);
+    const result = await getEvents(force, start, end);
 
     // Return all the events
     return {

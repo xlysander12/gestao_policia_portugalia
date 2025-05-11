@@ -263,12 +263,11 @@ export async function notifications(force: string, nif: number): Promise<Default
 
     // * Check for possible events where the user might have been assignated
     const currentDate = new Date();
-    let events = await getEvents(force, currentDate.getMonth() + 1);
-    // Filter for events that are due from 1 hour or less from now or are currently active
-    events = events.filter(event =>
-        (event.end >= currentDate && event.start <= currentDate) ||
-        ((dateToUnix(event.start) - dateToUnix(currentDate) <= (60 * 60)) && event.end >= currentDate)
-    );
+
+    // Filter for events that are due from 1 hour or less from now and haven't ended yet
+    const events = (await getEvents(force, dateToUnix(currentDate) - (60 * 60))).filter(event => {
+        return event.end >= currentDate;
+    });
 
     // Loop through all events and check if the user should recieve their notification
     for (const event of events) {

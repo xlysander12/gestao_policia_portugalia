@@ -155,7 +155,7 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
 
 
     // Initializing state with the current "adding" special unit
-    const [newUnit, setNewUnit] = useImmer<OfficerUnit>({id: getAvailableSpecialUnits()[0].id, role: 0});
+    const [newUnit, setNewUnit] = useImmer<OfficerUnit>({id: getAvailableSpecialUnits().length > 0 ? getAvailableSpecialUnits()[0].id : -1, role: 1});
 
     return (
         <TableFooter>
@@ -206,16 +206,19 @@ const SpecialUnitsFooter = ({officerSpecialUnits, onAdd}: SpecialUnitsFooterProp
                 <TableCell align={"center"}>
                     <DefaultButton
                         buttonColor={"lightgreen"}
+                        darkTextOnHover
                         size={"small"}
                         sx={{minWidth: "32px", padding: "3px"}}
                         onClick={() => {
                             onAdd(newUnit)
                             setNewUnit(draft => {
-                                draft.id = getAvailableSpecialUnits().filter((unit) => unit.id !== newUnit.id)[0].id;
-                                draft.role = 0;
+                                const new_available = getAvailableSpecialUnits().filter((unit) => unit.id !== newUnit.id);
+
+                                draft.id = new_available.length > 0 ? new_available[0].id : -1;
+                                draft.role = 1;
                             });
                         }}
-                        disabled={newUnit.id === 0 || newUnit.role === 0}
+                        disabled={newUnit.id === -1 || newUnit.role === -1}
                     >
                         <AddIcon fontSize={"small"}/>
                     </DefaultButton>

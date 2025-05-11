@@ -24,8 +24,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
         iban: "",
         kms: 0,
         discord: "",
-        steam: "",
-        recruit: false
+        steam: ""
     });
 
     // State that hold the confirmation dialog
@@ -43,7 +42,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
         event.preventDefault();
 
         // Make the request to recruit the new member
-        const recruitRequest = await make_request<CreateOfficerRequestBody>(`/officers/${officerInfo.nif}${officerInfo.recruit ? "?recruit": ""}`, "PUT",
+        const recruitRequest = await make_request<CreateOfficerRequestBody>(`/officers/${officerInfo.nif}`, "PUT",
             {
                 body: {
                     name: officerInfo.name,
@@ -217,24 +216,11 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                                 onChange={(event) => setOfficerInfo(draft => {draft.steam = event.target.value})}
                                 sx={{margin: "10px 0 0 0"}}
                                 error={officerInfo.steam !== "" && !(/^steam:([0-9]|[a-z])+$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
-                                required
                                 inputProps={{
                                     name: "officerSteam",
                                     pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?://steamcommunity.com/id/.+$)"
                                 }}
                             />
-
-                            <FormControlLabel
-                                control={<Checkbox
-                                    onChange={(event) => setOfficerInfo(draft => {draft.recruit = event.target.checked})}
-                                />}
-                                label={"Recrutar como Cadete"}
-                                sx={{
-                                    margin: "10px 0 0 0",
-
-                                }}
-                            />
-
                         </div>
                     </ModalSection>
 
