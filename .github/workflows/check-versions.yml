@@ -9,8 +9,9 @@ jobs:
   check-version:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        package: [ Backend, Frontend]
+        package: [Backend, Frontend]
 
     steps:
       - name: Checkout code
