@@ -32,7 +32,11 @@ jobs:
       - name: Check for changes in ${{ matrix.package }}
         run: |
           CHANGED=$(git diff --name-only origin/master HEAD -- ${{ matrix.package }}/)
-          echo "CHANGED=$CHANGED" >> $GITHUB_ENV
+          if [[ -n "$CHANGED" ]]; then
+            echo "CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "CHANGED=false" >> $GITHUB_ENV
+          fi
 
       - name: Compare versions if changed
         run: |
@@ -40,7 +44,7 @@ jobs:
             dpkg --compare-versions "$1" "gt" "$2"
           }
 
-          if [[ -n "$CHANGED" ]]; then
+          if [[ "$CHANGED" == "true" ]]; then
             if ! is_greater "$CURRENT_VERSION" "$BASE_VERSION"; then
               echo "${{ matrix.package }} version must be incremented. Current: $CURRENT_VERSION, Base: $BASE_VERSION"
               exit 1
