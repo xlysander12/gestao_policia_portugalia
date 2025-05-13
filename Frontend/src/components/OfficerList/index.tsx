@@ -16,8 +16,9 @@ type OfficerListProps = {
     changeCallback: (officers: MinifiedOfficerData[]) => void;
     disabled?: boolean
     invisibleDisabled?: boolean
+    enableSelfDelete?: boolean
 }
-function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled}: OfficerListProps) {
+function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled, enableSelfDelete}: OfficerListProps) {
     // Get the current logged user from context
     const loggedUser = useContext(LoggedUserContext);
 
@@ -76,14 +77,14 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                                 secondaryAction={
                                     <Gate show={!invisibleDisabled}>
                                         <IconButton
-                                            disabled={officer.nif === loggedUser.info.personal.nif || disabled}
+                                            disabled={(officer.nif === loggedUser.info.personal.nif && !enableSelfDelete) || disabled}
                                             onClick={() => {
                                                 setOfficers((draft) => {
                                                     draft.splice(draft.findIndex((off) => off.nif === officer.nif), 1);
                                                 });
                                             }}
                                             sx={{
-                                                color: "red", // TODO: Ask if it looks better white or red
+                                                color: "red",
                                                 marginRight: "-10px"
                                             }}
                                         >
