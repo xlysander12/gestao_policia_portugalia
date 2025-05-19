@@ -267,8 +267,8 @@ export async function notifications(force: string, nif: number): Promise<Default
     // * Fetch all events and then filter them
     // For, reasons, fetch all events whoose start date is 7 days before the current one
     const events = (await getEvents(force, dateToUnix(currentDate) - (7 * 24 * 60 * 60))).filter(event => {
-        // Only return events that start in 1 hour or less and haven't ended yet
-        return dateToUnix(event.start) <= (dateToUnix(currentDate) - (60 * 60)) && event.end >= currentDate;
+        // Only return events that haven't ended yet and start in 1 hour or less or are already started
+        return dateToUnix(event.end) >= dateToUnix(currentDate) && dateToUnix(event.start) - dateToUnix(currentDate) <= (60 * 60);
     });
 
     // Loop through all events and check if the user should receive their notification
