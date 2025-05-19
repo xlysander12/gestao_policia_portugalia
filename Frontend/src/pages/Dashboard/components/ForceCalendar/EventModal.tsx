@@ -445,6 +445,7 @@ function EventModal(props: EventModalProps) {
                             <OfficerList
                                 invisibleDisabled={!editMode}
                                 startingOfficers={eventData.assignees}
+                                enableSelfDelete
                                 changeCallback={(officers) => {
                                     setEventData(draft => {
                                         draft.assignees = officers;

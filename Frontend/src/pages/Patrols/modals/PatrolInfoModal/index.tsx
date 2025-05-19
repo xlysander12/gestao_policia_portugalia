@@ -303,6 +303,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                 }}
                                 invisibleDisabled={!editMode}
                                 disabled={loading}
+                                enableSelfDelete
                             />
                         </div>
                     </ModalSection>
