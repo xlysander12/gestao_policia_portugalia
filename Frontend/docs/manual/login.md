@@ -1,6 +1,6 @@
 # 📘 Guia para a _Página de Login_
 
-Esta secção explicará todos os pontos importantes da página de login..
+Esta secção explicará todos os pontos importantes da página de login.
 
 ---
 
