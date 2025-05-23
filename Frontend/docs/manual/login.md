@@ -1,4 +1,4 @@
-~~~~# 📘 Guia para a _Página de Login_
+# 📘 Guia para a _Página de Login_
 
 Esta secção explicará todos os pontos importantes da página de login..
 
