@@ -50,7 +50,7 @@ import {
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
-import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
+import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
     CreateEventBody, EditEventBody,
@@ -422,6 +422,19 @@ const utilRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            }
+        }
+    },
+
+    // Route to get the top hours of a force in a week
+    "/util/top-hours$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ForceTopHoursParams
+                }
             }
         }
     }

@@ -9,7 +9,7 @@ import {
     getForcePatrolTypes,
     getForceSpecialUnits,
     getForceSpecialUnitsRoles,
-    getForceStatuses,
+    getForceStatuses, getForceTopHoursInWeek,
     getLastCeremony,
     getPendingInactivityJustifications,
     getSpecialUnitActiveMembers,
@@ -343,5 +343,23 @@ export async function errors(force: string, nif: number): Promise<DefaultReturn<
         status: 200,
         message: "Operação concluída com sucesso",
         data: errors
+    }
+}
+
+export async function forceTopHoursInWeek(force: string, week_end: Date): Promise<DefaultReturn<{rank: number, nif: number, minutes: number}[]>> {
+    // Get the top hours in the week from the repository
+    const result = await getForceTopHoursInWeek(force, week_end);
+
+    // If no results are found, return an empty array
+    if (result.length === 0) {
+        return {result: false, status: 404, message: "Não foram encontrados registos de horas"};
+    }
+
+    // Return the object
+    return {
+        result: true,
+        status: 200,
+        message: "Operação bem sucedida",
+        data: result
     }
 }

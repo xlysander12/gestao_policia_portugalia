@@ -28,6 +28,14 @@ export interface OfficerHoursResponse extends BaseResponse {
     data: OfficerSpecificHoursType[]
 }
 
+export interface ForceTopHoursInWeekResponse extends BaseResponse {
+    data: {
+        rank: number,
+        nif: number,
+        minutes: number
+    }[]
+}
+
 export type OfficerMinifiedJustification = {
     id: number,
     type: number,

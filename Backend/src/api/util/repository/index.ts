@@ -297,3 +297,26 @@ export async function getUserErrors(force: string, nif: number) {
 
     return errorsList;
 }
+
+export async function getForceTopHoursInWeek(force: string, week_end: Date): Promise<{rank: number, nif: number, minutes: number}[]> {
+    const result = await queryDB(force,
+        `
+            SELECT *
+            FROM (SELECT officer,
+                    minutes,
+                    DENSE_RANK() OVER (
+                    ORDER BY
+                        minutes DESC
+                        ) AS rank
+                FROM officer_hours
+                WHERE week_end = ?) ranked
+            WHERE RANK <= 5
+        `, week_end
+    );
+
+    return result.map(entry => ({
+        rank: entry.rank as number,
+        nif: entry.officer as number,
+        minutes: entry.minutes as number
+    }));
+}

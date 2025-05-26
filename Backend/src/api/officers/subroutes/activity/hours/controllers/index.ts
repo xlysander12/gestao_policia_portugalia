@@ -1,6 +1,9 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../types";
-import {OfficerHoursResponse, OfficerSpecificHoursResponse} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    OfficerHoursResponse,
+    OfficerSpecificHoursResponse
+} from "@portalseguranca/api-types/officers/activity/output";
 import {FORCE_HEADER} from "../../../../../../utils/constants";
 import {
     addOfficerHoursEntry,
