@@ -306,20 +306,23 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
                 <Divider/>
 
-                <MenuItem
-                    disabled
+
+                <div
+                    style={{padding: "6px 16px", opacity: "0.38"}}
                 >
                     <DefaultTypography
+                        aria-disabled={false}
                         clickable
                         fontSize={"x-small"}
                         color={"lightgray"}
+                        clickableColorHover={"white"}
                         onClick={() => {
                             window.open("https://github.com/xlysander12/gestao_policia_portugalia", "_blank"
                             )}
                         }>
                         v{packageJson.version}
                     </DefaultTypography>
-                </MenuItem>
+                </div>
             </Menu>
 
             <LastCeremonyModal open={isLastCeremonyOpen} onClose={() => setLastCeremonyOpen(false)} />
