@@ -1,9 +1,9 @@
 # 📘 Guia para a _Dashboard_
 
-Esta secção explicará todos os pontos importantes da Dashboard.</br>
+Esta secção explicará todos os pontos importantes da **Dashboard**.</br>
 A Dashboard é a página inicial da aplicação e tem as funcionalidades mais usadas.
 
-Em todo o local da Aplicação, está presente a Barra de Navegação no topo da página. Para mais informações sobre a funcionalidade da Barra de Navegação, consulta [TBD]
+Em todo o local da Aplicação, está presente a Barra de Navegação no topo da página. Para mais informações sobre a funcionalidade da Barra de Navegação, consulta o [Guia da Barra de Navegação](navbar/navbar.md).
 
 ---
 
