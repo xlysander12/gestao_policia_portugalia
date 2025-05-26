@@ -19,6 +19,8 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
 import {OfficerData, OfficerInfoGetResponse} from '@portalseguranca/api-types/officers/output';
 import { SOCKET_EVENT } from '@portalseguranca/api-types';
+import ChangePasswordModal from "./modals/change-password.tsx";
+import { AccountSocket } from '@portalseguranca/api-types/account/output';
 
 type InnerActivityNotification = Omit<ActivityNotification, "officer"> & {
     officer: OfficerData
@@ -61,6 +63,9 @@ function Notifications() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
+    // State that holds the status of the Change Password Modal
+    const [changePasswordModalOpen, setChangePasswordModalOpen] = useState<boolean>(false);
+
     async function updateNotifications() {
         // Fetch notifications from backend
         const response = await make_request("/util/notifications", RequestMethod.GET);
@@ -87,6 +92,13 @@ function Notifications() {
                 // @ts-expect-error - This is done this way so all the officer data can be stored in the object for reference
                 notification.officer = officerResponseJson.data as OfficerData;
             }
+
+            // Check if any notification is of type password
+            // If yes, and it's the first render, automatically open the Change Password Modal
+            // ! This makes it so every time the user changes locations the modal appears, which is not desired
+            /* if (notification.type === "password" && firstRender) {
+                setChangePasswordModalOpen(true);
+            } */
         }
 
         // Check if any of the notifications are new
@@ -128,6 +140,10 @@ function Notifications() {
     useWebSocketEvent(SOCKET_EVENT.EVENTS, useCallback(() => {
         setNeedsRefresh(true);
     }, []));
+
+    useWebSocketEvent<AccountSocket>(SOCKET_EVENT.ACCOUNTS, useCallback((data) => {
+        if (data.nif === loggedUser.info.personal.nif && data.action === "update") setNeedsRefresh(true);
+    }, [loggedUser.info.personal.nif]));
 
     useEffect(() => {
         if (needsRefresh) {
@@ -228,6 +244,35 @@ function Notifications() {
                                 </Gate>
                             </div>
                         );
+                    } else if (notification.type === "password") {
+                        return (
+                            <div
+                                key={`notification-${index}`}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        setChangePasswordModalOpen(true);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "5px"
+                                        }}
+                                    >
+                                        <DefaultTypography>É necessário trocar a palavra-passe padrão!</DefaultTypography>
+                                        <DefaultTypography color={"gray"} fontSize={"small"}>{moment.unix(notification.timestamp).calendar()}</DefaultTypography>
+                                        <DefaultTypography color={"gray"}></DefaultTypography>
+                                    </div>
+                                </MenuItem>
+
+                                <Gate show={index !== notifications.length - 1}>
+                                    <Divider variant={"middle"} sx={{borderColor: "var(--portalseguranca-color-background-light)"}}/>
+                                </Gate>
+                            </div>
+                        );
                     }
                 })}
 
@@ -239,6 +284,11 @@ function Notifications() {
                     </MenuItem>
                 </Gate>
             </Menu>
+
+            <ChangePasswordModal
+                open={changePasswordModalOpen}
+                onClose={() => setChangePasswordModalOpen(false)}
+            />
         </>
     );
 }
