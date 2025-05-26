@@ -25,7 +25,7 @@ import {
     StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision, EventType, EventNotification
 } from "@portalseguranca/api-types/util/output";
 import {getForcePatrolForces} from "../../../utils/config-handler";
-import {userHasIntents} from "../../accounts/repository";
+import {getAccountDetails, userHasIntents} from "../../accounts/repository";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {MinifiedOfficerData, OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {getOfficerPatrol} from "../../patrols/repository";
@@ -311,6 +311,18 @@ export async function notifications(force: string, nif: number): Promise<Default
                 notifications.push(notification_object);
             }
         }
+    }
+
+
+    // * Check if the current logged user is using the default password
+    const accountData = (await getAccountDetails(nif, force))!;
+    if (accountData.password === null) {
+        // If the user is using the default password, add a notification
+        notifications.push({
+            type: "password",
+            timestamp: dateToUnix(new Date()),
+            url: `/`
+        });
     }
 
     // * After all possible notifications have been checking, return them
