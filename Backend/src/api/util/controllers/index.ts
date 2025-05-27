@@ -24,12 +24,15 @@ import {
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
     UtilUserErrorsResponse,
-    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse, UtilSpecialUnitsActiveResponse, UtilEventTypesResponse
+    UtilEvaluationDecisionsResponse,
+    UtilLastCeremonyResponse,
+    UtilSpecialUnitsActiveResponse,
+    UtilEventTypesResponse,
+    ForceTopHoursInWeekResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {ChangeLastCeremonyRequestBodyType} from "@portalseguranca/api-types/util/input";
-import {ForceTopHoursInWeekResponse} from "@portalseguranca/api-types/officers/activity/output";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from

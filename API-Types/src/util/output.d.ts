@@ -155,3 +155,11 @@ export interface UserError {
 export interface UtilUserErrorsResponse extends BaseResponse {
     data: UserError[]
 }
+
+export interface ForceTopHoursInWeekResponse extends BaseResponse {
+    data: {
+        rank: number,
+        nif: number,
+        minutes: number
+    }[]
+}

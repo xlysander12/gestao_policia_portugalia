@@ -22,11 +22,12 @@ import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
 import moment, {Moment} from "moment"
-import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
+import {getOfficerFromNif, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import {TopHoursModal} from "./modals/TopHoursModal";
 
 
 type ActivityHoursCardProps = {
@@ -163,6 +164,7 @@ function Activity() {
     const [newHoursModalOpen, setNewHoursModalOpen] = useState<boolean>(false);
     const [justificationModalOpen, setJustificationModalOpen] = useState<boolean>(false);
     const [newJustificationModalOpen, setNewJustificationModalOpen] = useState<boolean>(false);
+    const [topHoursModalOpen, setTopHoursModalOpen] = useState<boolean>(false);
 
     // Set the states for the current working hour and justification
     const [currentHourId, setCurrentHourId] = useState<number>(0);
@@ -418,6 +420,11 @@ function Activity() {
 
                                     <Gate show={currentOfficer.name !== ""}>
                                         <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
+                                        <DefaultButton
+                                            onClick={() => setTopHoursModalOpen(true)}
+                                        >
+                                            Top Horas
+                                        </DefaultButton>
                                     </Gate>
                                 </div>
                             </div>
@@ -516,6 +523,12 @@ function Activity() {
                 officer={currentOfficer.nif}
                 entryId={currentHourId}
                 newEntry={newHoursModalOpen}
+            />
+
+            <TopHoursModal
+                open={topHoursModalOpen}
+                onClose={() => setTopHoursModalOpen(false)}
+                week_end={(officerHistory.filter(entry => "week_end" in entry).sort((a, b) => a.week_end > b.week_end ? 1 : 0)[0] ?? {week_end: moment().unix()}).week_end}
             />
         </>
     );
