@@ -57,6 +57,7 @@ import {
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
+import {ListAnnouncementsQueryParams} from "@portalseguranca/api-types/announcements/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1137,6 +1138,26 @@ const eventsRoutes: routesType = {
     },
 }
 
+const announcementsRoutes: routesType = {
+    "/announcements$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListAnnouncementsQueryParams
+                },
+                filters: {
+                    "active": {
+                        queryFunction: () => "active = ?",
+                        valueFunction: (value) => value === "true" ? 1 : 0
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1148,7 +1169,8 @@ const routes: routesType = {
     ...evaluationsRoutes,
     ...officersRoutes,
     ...patrolsRoutes,
-    ...eventsRoutes
+    ...eventsRoutes,
+    ...announcementsRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.
