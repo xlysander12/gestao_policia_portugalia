@@ -18,6 +18,7 @@ export interface PatrolHistoryResponse extends BaseResponse {
 }
 
 export interface PatrolData extends MinifiedPatrolData {
+    registrar: number
     notes: string | null
 }
 
