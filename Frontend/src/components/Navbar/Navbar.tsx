@@ -23,7 +23,6 @@ type CustomLinkProps = {
     children: ReactNode | ReactNode[]
 }
 function CustomLink(props: CustomLinkProps) {
-    console.log(location.pathname);
     if (!location.pathname.includes(props.to)) {
         return (
             <Link to={props.to} className={`${style.navButton}`}>{props.children}</Link>
