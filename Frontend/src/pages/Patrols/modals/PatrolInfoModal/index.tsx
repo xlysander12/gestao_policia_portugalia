@@ -28,7 +28,7 @@ type InnerOfficerData = MinifiedOfficerData & {
     force: string
 }
 
-type InnerPatrolData = Omit<PatrolData, "start" | "end" | "officers" | "type" | "unit"> & {
+type InnerPatrolData = Omit<PatrolData, "start" | "end" | "officers" | "type" | "unit" | "registrar"> & {
     type: PatrolTypeData
     unit: SpecialUnitData | null
     registrar: MinifiedOfficerData
