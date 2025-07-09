@@ -57,9 +57,9 @@ const DefaultTextField = (props: DefaultTextFieldProps) => {
 
     return (
         <DefaultTextFieldStyle
-            variant={"standard"}
             {...props}
-            type={showPassword ? "text" : "password"}
+            variant={"standard"}
+            type={!(showPassword || props.type === "text") ? "password" : props.type}
             InputProps={{
                 ...props.InputProps,
                 endAdornment: props.type === "password" ? (
