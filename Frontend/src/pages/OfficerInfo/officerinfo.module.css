@@ -187,3 +187,8 @@
     color: black;
     border: 0;
 }
+
+.activityPanelLabel:hover {
+    cursor: pointer;
+    opacity: 0.65;
+}
