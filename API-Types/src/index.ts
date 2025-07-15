@@ -18,5 +18,6 @@ export enum SOCKET_EVENT {
     ACTIVITY = "activity",
     PATROLS = "patrols",
     EVALUATIONS = "evaluations",
-    EVENTS = "events"
+    EVENTS = "events",
+    ANNOUNCEMENTS = "announcements"
 }

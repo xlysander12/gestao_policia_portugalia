@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -62,6 +62,9 @@ import {
     EditAnnouncementBody,
     ListAnnouncementsQueryParams
 } from "@portalseguranca/api-types/announcements/input";
+import {
+    AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
+} from "@portalseguranca/api-types/announcements/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1178,6 +1181,16 @@ const announcementsRoutes: routesType = {
                 intents: ["announcements"],
                 body: {
                     type: CreateAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: APIResponse): AnnouncementAddSocket => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
                 }
             }
         }
@@ -1194,12 +1207,36 @@ const announcementsRoutes: routesType = {
                 intents: ["announcements"],
                 body: {
                     type: EditAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementUpdateSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
                 }
             },
             DELETE: {
                 requiresToken: true,
                 requiresForce: true,
                 intents: ["announcements"],
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementDeleteSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
             }
         }
     }
