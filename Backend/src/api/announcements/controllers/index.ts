@@ -3,7 +3,9 @@ import express from "express";
 import {announcementsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
-import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
+import {AnnouncementInfoResponse, MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
+import {AnnouncementInfoAPIResponse} from "../../../types/response-types";
+import {dateToUnix} from "../../../utils/date-handler";
 
 export async function getAnnouncementsController(req: express.Request, res: APIResponse) {
     // * Call the service and get the data from it
@@ -31,5 +33,15 @@ export async function getAnnouncementsController(req: express.Request, res: APIR
         },
         message: result.message,
         data: result.data!.announcements
+    });
+}
+
+export function getAnnouncementController(_req: express.Request, res: AnnouncementInfoAPIResponse<AnnouncementInfoResponse>) {
+    res.status(200).json({
+        message: "Operação bem sucedida",
+        data: {
+            ...res.locals.announcement,
+            expiration: res.locals.announcement.expiration ? dateToUnix(res.locals.announcement.expiration) : null
+        }
     });
 }

@@ -8,9 +8,18 @@ export interface MinifiedAnnouncement {
     title: string
 }
 
+export interface Announcement extends MinifiedAnnouncement {
+    forces: string[]
+    body: string
+}
+
 export interface AnnouncementsListResponse extends BaseResponse {
     meta: {
         pages: number
     }
     data: MinifiedAnnouncement[]
+}
+
+export interface AnnouncementInfoResponse extends BaseResponse {
+    data: Announcement
 }

@@ -1169,6 +1169,14 @@ const announcementsRoutes: routesType = {
                 }
             }
         }
+    },
+    "/announcements/[a-z]+\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            }
+        }
     }
 }
 
