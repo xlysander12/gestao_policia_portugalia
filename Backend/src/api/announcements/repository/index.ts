@@ -5,7 +5,6 @@ import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/out
 import {InnerAnnouncement} from "../../../types/inner-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
-import {DefaultReturn} from "../../../types";
 
 export async function getAnnouncements(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{announcements: MinifiedAnnouncement[], pages: number}> {
     // Build the filters
