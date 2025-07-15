@@ -1,7 +1,7 @@
 import styles from "./dashboard.module.css";
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
 import ManagementBar from "../../components/ManagementBar";
-import {DefaultSelect, DefaultTypography} from "../../components/DefaultComponents";
+import {DefaultTypography} from "../../components/DefaultComponents";
 import {AnnouncementsPanel, ForceCalendar, SpecialUnitActiveMembers} from "./components";
 import {PatrolQuickCreator} from "../../components/PatrolCreator";
 import {useState} from "react";

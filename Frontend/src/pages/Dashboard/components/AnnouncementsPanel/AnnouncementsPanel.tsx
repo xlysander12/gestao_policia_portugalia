@@ -15,7 +15,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import AnnouncementModal from "./AnnouncementModal.tsx";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {SOCKET_EVENT} from "@portalseguranca/api-types";
 
 type InnerMinifiedAnnouncement = Omit<MinifiedAnnouncement, "author"> & {
     author: MinifiedOfficerData
@@ -27,7 +27,7 @@ function AnnouncementsPanel() {
     const [announcements, setAnnouncements] = useState<InnerMinifiedAnnouncement[]>([]);
 
     // Force data
-    const [forceData, getForceData] = useForceData();
+    const [_, getForceData] = useForceData();
 
     // Logged User
     const loggedUser = useContext(LoggedUserContext);
@@ -140,7 +140,7 @@ function AnnouncementsPanel() {
                                     labelValue: "Sim"
                                 }
                             ]}
-                            callback={async (options) => {
+                            callback={(options) => {
                                 setCurrentFilters(options);
                             }}
                         />

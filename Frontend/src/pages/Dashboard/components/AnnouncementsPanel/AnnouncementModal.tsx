@@ -35,7 +35,7 @@ import {
     RichTextEditor
 } from "mui-tiptap";
 import StarterKit from "@tiptap/starter-kit";
-import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
 
 
 type InnerAnnouncement = Omit<Announcement, "author" | "id"> & {
@@ -61,7 +61,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
     // * Get Force Data
     // Get forces list
     const forces = Object.keys(useContext(ForcesDataContext));
-    const [forceData, getForceData] = useForceData();
+    const [_, getForceData] = useForceData();
 
     // Get logged user from context
     const loggedUser = useContext(LoggedUserContext);
@@ -481,7 +481,6 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                         Editar
                                     </DefaultButton>
 
-                                    {/*TODO*/}
                                     <DefaultButton
                                         onClick={() => {setDeleteConfirmationOpen(true)}}
                                         buttonColor={"red"}
@@ -516,7 +515,6 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                 </Gate>
 
                                 <Gate show={!!props.newEntry}>
-                                    {/*TODO*/}
                                     <DefaultButton
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
