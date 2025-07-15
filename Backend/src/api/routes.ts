@@ -1149,8 +1149,22 @@ const announcementsRoutes: routesType = {
                 },
                 filters: {
                     "active": {
-                        queryFunction: () => "active = ?",
-                        valueFunction: (value) => value === "true" ? 1 : 0
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "expiration IS NULL OR expiration > CURRENT_TIMESTAMP()" : "expiration <= CURRENT_TIMESTAMP()",
+                    },
+                    "tags": {
+                        queryFunction: (receivedParams) => {
+                            const arr = receivedParams.tags.split(",")
+
+                            let query = "";
+                            for (const _ of arr) {
+                                query += `tags LIKE ? AND `
+                            }
+
+                            return query.slice(0, -5);
+                        },
+                        valueFunction: (value: string) => {
+                            return value.split(",").map(element => `%${element}%`)
+                        }
                     }
                 }
             }
