@@ -31,7 +31,7 @@ export async function announcementCreate(force: string, loggedUser: InnerOfficer
     if (!forceCheck.result) return forceCheck.return!;
 
     // Ensure the expiration date is after the current date
-    if (data.expiration !== null && dateToUnix(new Date()) < data.expiration) {
+    if (data.expiration !== null && dateToUnix(new Date()) > data.expiration) {
         return {
             result: false,
             status: 400,
@@ -70,7 +70,7 @@ export async function announcementEdit(loggedUser: InnerOfficerData, announcemen
     }
 
     // Ensure the expiration date is after the current date
-    if (changes.expiration !== undefined && changes.expiration !== null && dateToUnix(new Date()) < changes.expiration) {
+    if (changes.expiration !== undefined && changes.expiration !== null && dateToUnix(new Date()) > changes.expiration) {
         return {
             result: false,
             status: 400,
