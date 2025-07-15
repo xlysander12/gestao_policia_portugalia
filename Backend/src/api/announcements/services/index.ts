@@ -1,6 +1,6 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
-import {createAnnouncement, editAnnouncement, getAnnouncements} from "../repository";
+import {createAnnouncement, deleteAnnouncement, editAnnouncement, getAnnouncements} from "../repository";
 import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
 import {CreateAnnouncementBody, EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
@@ -41,6 +41,15 @@ export async function announcementCreate(force: string, loggedUser: InnerOfficer
 }
 
 export async function announcementEdit(loggedUser: InnerOfficerData, announcementData: InnerAnnouncement, changes: EditAnnouncementBody): Promise<DefaultReturn<void>> {
+    // If there were no changes, return
+    if (Object.keys(changes).length === 0) {
+        return {
+            result: false,
+            status: 400,
+            message: "Nenhuma alteração solicitada"
+        }
+    }
+
     // Check if the forces were changed
     if (changes.forces) {
         // If the forces array contains the force of the announcement, remove it
@@ -58,5 +67,16 @@ export async function announcementEdit(loggedUser: InnerOfficerData, announcemen
         result: true,
         status: 200,
         message: "Operação bem sucedida"
+    }
+}
+
+export async function announcementDelete(announcementData: InnerAnnouncement) {
+    //  Call the repository
+    await deleteAnnouncement(announcementData.force, announcementData.id);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Anúncio eliminado com sucesso"
     }
 }

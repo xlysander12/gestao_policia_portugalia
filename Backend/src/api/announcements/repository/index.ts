@@ -84,3 +84,7 @@ export async function editAnnouncement(force: string, id: number, changes: EditA
 
 
 }
+
+export async function deleteAnnouncement(force: string, id: number) {
+    await queryDB(force, `DELETE FROM announcements WHERE id = ?`, id);
+}

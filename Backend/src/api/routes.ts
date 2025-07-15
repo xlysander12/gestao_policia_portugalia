@@ -1195,6 +1195,11 @@ const announcementsRoutes: routesType = {
                 body: {
                     type: EditAnnouncementBody
                 }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
             }
         }
     }

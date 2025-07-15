@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    createAnnouncementController,
+    createAnnouncementController, deleteAnnouncementController,
     editAnnouncementController,
     getAnnouncementController,
     getAnnouncementsController
@@ -24,6 +24,9 @@ app.get("/:id", getAnnouncementController)
 
 // Route to edit the details of an announcement
 app.patch("/:id", announcementEditableMiddle, editAnnouncementController);
+
+// Route to delete an announcement
+app.delete("/:id", announcementEditableMiddle, deleteAnnouncementController);
 
 logToConsole("Announcements routes loaded successfully!", "info");
 export default app;

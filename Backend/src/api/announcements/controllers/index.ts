@@ -1,6 +1,6 @@
 import {APIResponse, DefaultReturn} from "../../../types";
 import express from "express";
-import {announcementCreate, announcementEdit, announcementsHistory} from "../services";
+import {announcementCreate, announcementDelete, announcementEdit, announcementsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {
@@ -74,6 +74,16 @@ export async function editAnnouncementController(req: express.Request, res: Anno
     const result = await announcementEdit(res.locals.loggedOfficer, res.locals.announcement, body);
 
     // Return result
+    res.status(result.status).json({
+        message: result.message
+    });
+}
+
+export async function deleteAnnouncementController(req: express.Request, res: AnnouncementInfoAPIResponse) {
+    // Call the service
+    const result = await announcementDelete(res.locals.announcement);
+
+    // Return the result
     res.status(result.status).json({
         message: result.message
     });
