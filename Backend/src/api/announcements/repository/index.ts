@@ -20,6 +20,7 @@ export async function getAnnouncements(force: string, routeFilters: RouteFilterT
             id: announcement.id as string,
             author: announcement.author as number,
             tags: JSON.parse(announcement.tags as string),
+            created: dateToUnix(announcement.created as Date),
             expiration: announcement.expiration ? dateToUnix(announcement.expiration as Date) : null,
             title: announcement.title as string,
         });
@@ -51,6 +52,7 @@ export async function getAnnouncement(force: string, id: string): Promise<InnerA
         author: result[0].author as number,
         forces: JSON.parse(result[0].forces as string) as string[],
         tags: JSON.parse(result[0].tags as string) as string[],
+        created: result[0].created as Date,
         expiration: result[0].expiration as Date | null,
         title: result[0].title as string,
         body: result[0].body as string,

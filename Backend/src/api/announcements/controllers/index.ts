@@ -49,6 +49,7 @@ export function getAnnouncementController(_req: express.Request, res: Announceme
         data: {
             ...announcementData,
             id: `${force}${id}`,
+            created: dateToUnix(res.locals.announcement.created),
             expiration: res.locals.announcement.expiration ? dateToUnix(res.locals.announcement.expiration) : null
         }
     });

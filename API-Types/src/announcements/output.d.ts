@@ -4,6 +4,7 @@ export interface MinifiedAnnouncement {
     id: string
     author: number
     tags: string[]
+    created: number
     expiration: number | null
     title: string
 }

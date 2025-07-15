@@ -5,7 +5,7 @@ import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
 import {CreateAnnouncementBody, EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
 import {InnerAnnouncement} from "../../../types/inner-types";
-import {unixToDate} from "../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {canHaveForce} from "../../../middlewares/announcement-exists";
 
 export async function announcementsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<DefaultReturn<{announcements: MinifiedAnnouncement[], pages: number}>> {
@@ -29,6 +29,15 @@ export async function announcementCreate(force: string, loggedUser: InnerOfficer
 
     const forceCheck = await canHaveForce(loggedUser, data.forces);
     if (!forceCheck.result) return forceCheck.return!;
+
+    // Ensure the expiration date is after the current date
+    if (data.expiration !== null && dateToUnix(new Date()) < data.expiration) {
+        return {
+            result: false,
+            status: 400,
+            message: "A data do fim do Anúncio não pode ser mais antiga do que a data atual"
+        }
+    }
 
     // Call the repostitory to update the database
     await createAnnouncement(force, loggedUser.nif, data.forces, data.tags, data.expiration ? unixToDate(data.expiration) : null, data.title, data.body);
@@ -58,6 +67,15 @@ export async function announcementEdit(loggedUser: InnerOfficerData, announcemen
         // Check if the user can announce to the new forces
         const forceCheck = await canHaveForce(loggedUser, changes.forces);
         if (!forceCheck.result) return forceCheck.return!;
+    }
+
+    // Ensure the expiration date is after the current date
+    if (changes.expiration !== undefined && changes.expiration !== null && dateToUnix(new Date()) < changes.expiration) {
+        return {
+            result: false,
+            status: 400,
+            message: "A data do fim do Anúncio não pode ser mais antiga do que a data atual"
+        }
     }
 
     // Apply the changes
