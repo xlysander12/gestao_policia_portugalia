@@ -57,7 +57,11 @@ import {
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
-import {CreateAnnouncementBody, ListAnnouncementsQueryParams} from "@portalseguranca/api-types/announcements/input";
+import {
+    CreateAnnouncementBody,
+    EditAnnouncementBody,
+    ListAnnouncementsQueryParams
+} from "@portalseguranca/api-types/announcements/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1183,6 +1187,14 @@ const announcementsRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: EditAnnouncementBody
+                }
             }
         }
     }

@@ -1,14 +1,18 @@
 import {APIResponse, DefaultReturn} from "../../../types";
 import express from "express";
-import {announcementCreate, announcementsHistory} from "../services";
+import {announcementCreate, announcementEdit, announcementsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
-import {AnnouncementInfoResponse, MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
+import {
+    AnnouncementInfoResponse,
+    AnnouncementsListResponse,
+    MinifiedAnnouncement
+} from "@portalseguranca/api-types/announcements/output";
 import {AnnouncementInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
-import {CreateAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
+import {CreateAnnouncementBody, EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
 
-export async function getAnnouncementsController(req: express.Request, res: APIResponse) {
+export async function getAnnouncementsController(req: express.Request, res: APIResponse<AnnouncementsListResponse>) {
     // * Call the service and get the data from it
     let result : DefaultReturn<{
         announcements: MinifiedAnnouncement[]
@@ -38,10 +42,13 @@ export async function getAnnouncementsController(req: express.Request, res: APIR
 }
 
 export function getAnnouncementController(_req: express.Request, res: AnnouncementInfoAPIResponse<AnnouncementInfoResponse>) {
+    const {id, force, ...announcementData} = res.locals.announcement;
+
     res.status(200).json({
         message: "Operação bem sucedida",
         data: {
-            ...res.locals.announcement,
+            ...announcementData,
+            id: `${force}${id}`,
             expiration: res.locals.announcement.expiration ? dateToUnix(res.locals.announcement.expiration) : null
         }
     });
@@ -54,6 +61,19 @@ export async function createAnnouncementController(req: express.Request, res: AP
     const result = await announcementCreate(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, body);
 
     // Return the result
+    res.status(result.status).json({
+        message: result.message
+    });
+}
+
+export async function editAnnouncementController(req: express.Request, res: AnnouncementInfoAPIResponse) {
+    // Get the body
+    const body = req.body as EditAnnouncementBody;
+
+    // Call the service
+    const result = await announcementEdit(res.locals.loggedOfficer, res.locals.announcement, body);
+
+    // Return result
     res.status(result.status).json({
         message: result.message
     });

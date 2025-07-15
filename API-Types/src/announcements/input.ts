@@ -14,3 +14,12 @@ export const CreateAnnouncementBody = Record({
     body: String
 });
 export type CreateAnnouncementBody = Static<typeof CreateAnnouncementBody>;
+
+export const EditAnnouncementBody = Partial({
+    forces: Array(String),
+    tags: Array(String),
+    expiration: Union(Number, Null),
+    title: String,
+    body: String
+});
+export type EditAnnouncementBody = Static<typeof EditAnnouncementBody>;

@@ -1,7 +1,12 @@
 import express from "express";
-import {createAnnouncementController, getAnnouncementController, getAnnouncementsController} from "./controllers";
+import {
+    createAnnouncementController,
+    editAnnouncementController,
+    getAnnouncementController,
+    getAnnouncementsController
+} from "./controllers";
 import {logToConsole} from "../../utils/logger";
-import announcementExistsMiddle from "../../middlewares/announcement-exists";
+import {announcementEditableMiddle, announcementExistsMiddle} from "../../middlewares/announcement-exists";
 
 const app = express.Router();
 
@@ -16,6 +21,9 @@ app.use("/:id", announcementExistsMiddle);
 
 // Route to get the details of an announcement
 app.get("/:id", getAnnouncementController)
+
+// Route to edit the details of an announcement
+app.patch("/:id", announcementEditableMiddle, editAnnouncementController);
 
 logToConsole("Announcements routes loaded successfully!", "info");
 export default app;

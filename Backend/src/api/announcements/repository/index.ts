@@ -4,6 +4,8 @@ import {queryDB} from "../../../utils/db-connector";
 import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
 import {InnerAnnouncement} from "../../../types/inner-types";
 import {dateToUnix} from "../../../utils/date-handler";
+import {EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
+import {DefaultReturn} from "../../../types";
 
 export async function getAnnouncements(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{announcements: MinifiedAnnouncement[], pages: number}> {
     // Build the filters
@@ -40,9 +42,13 @@ export async function getAnnouncement(force: string, id: string): Promise<InnerA
     // If no announcement is found, return 404
     if (result.length === 0) return null;
 
+    // Split the ID from the Database to force and number (format: {force}{id})
+    const idMatch = /([a-z]+)(\d+)$/.exec(result[0].id as string);
+
     // Build the return object
     return {
-        id: result[0].id as string,
+        id: parseInt(idMatch![2]),
+        force: idMatch![1],
         author: result[0].author as number,
         forces: JSON.parse(result[0].forces as string) as string[],
         tags: JSON.parse(result[0].tags as string) as string[],
@@ -54,4 +60,27 @@ export async function getAnnouncement(force: string, id: string): Promise<InnerA
 
 export async function createAnnouncement(force: string, author: number, forces: string[], tags: string[], expiration: Date | null, title: string, body: string) {
     await queryDB(force, `INSERT INTO announcements(author, forces, tags, expiration, title, body) VALUES (?, ?, ?, ?, ?, ?)`, [author, JSON.stringify(forces), JSON.stringify(tags), expiration, title, body]);
+}
+
+export async function editAnnouncement(force: string, id: number, changes: EditAnnouncementBody) {
+    // Build the query string and params depending on the fields that were provided
+    const params: string[] = [];
+    const updateQuery = `UPDATE announcements SET ${Object.keys(changes).reduce((acc, field) => {
+        if (field === "expiration") {
+            acc += `${field} = FROM_UNIXTIME(?), `;
+        } else {
+            acc += `${field} = ?, `;
+        }
+
+        if (field === "forces" || field === "tags") {
+            params.push(JSON.stringify(changes[field as keyof EditAnnouncementBody]));
+        } else {
+            params.push(changes[field as keyof EditAnnouncementBody] as string);
+        }
+        return acc;
+    }, "").slice(0, -2)} WHERE id = ?`;
+
+    await queryDB(force, updateQuery, [...params, id]);
+
+
 }

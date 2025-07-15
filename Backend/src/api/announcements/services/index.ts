@@ -1,12 +1,12 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
-import {createAnnouncement, getAnnouncements} from "../repository";
+import {createAnnouncement, editAnnouncement, getAnnouncements} from "../repository";
 import {RouteFilterType} from "../../routes";
 import {ReceivedQueryParams} from "../../../utils/filters";
-import {CreateAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
-import {InnerAccountData} from "../../../types/inner-types";
-import {userHasIntents} from "../../accounts/repository";
+import {CreateAnnouncementBody, EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
+import {InnerAnnouncement} from "../../../types/inner-types";
 import {unixToDate} from "../../../utils/date-handler";
+import {canHaveForce} from "../../../middlewares/announcement-exists";
 
 export async function announcementsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<DefaultReturn<{announcements: MinifiedAnnouncement[], pages: number}>> {
     // Fetch the announcements from the repository
@@ -27,21 +27,32 @@ export async function announcementCreate(force: string, loggedUser: InnerOfficer
         data.forces = data.forces.filter(e => e !== force);
     }
 
-    // If the forces array isn't empty, ensure the logged user has the "announcements" intent in all the forces
-    if (data.forces.length > 0) {
-        for (const force of data.forces) {
-            if (!(await userHasIntents(loggedUser.nif, force, "announcements"))) {
-                return {
-                    result: false,
-                    status: 403,
-                    message: `Não podes criar um anúncio para a força "${force}"`
-                }
-            }
-        }
-    }
+    const forceCheck = await canHaveForce(loggedUser, data.forces);
+    if (!forceCheck.result) return forceCheck.return!;
 
     // Call the repostitory to update the database
     await createAnnouncement(force, loggedUser.nif, data.forces, data.tags, data.expiration ? unixToDate(data.expiration) : null, data.title, data.body);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação bem sucedida"
+    }
+}
+
+export async function announcementEdit(loggedUser: InnerOfficerData, announcementData: InnerAnnouncement, changes: EditAnnouncementBody): Promise<DefaultReturn<void>> {
+    // Check if the forces were changed
+    if (changes.forces) {
+        // If the forces array contains the force of the announcement, remove it
+        changes.forces = changes.forces.filter(e => e !== announcementData.force);
+
+        // Check if the user can announce to the new forces
+        const forceCheck = await canHaveForce(loggedUser, changes.forces);
+        if (!forceCheck.result) return forceCheck.return!;
+    }
+
+    // Apply the changes
+    await editAnnouncement(announcementData.force, announcementData.id, changes);
 
     return {
         result: true,

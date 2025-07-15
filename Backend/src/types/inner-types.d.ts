@@ -55,7 +55,9 @@ export interface InnerForceEvent extends Omit<ForceEvent, "start" | "end"> {
     end: Date
 }
 
-export interface InnerAnnouncement extends Omit<Announcement, "expiration"> {
+export interface InnerAnnouncement extends Omit<Announcement, "expiration" | "id"> {
+    id: number
+    force: string
     expiration: Date | null
 }
 
