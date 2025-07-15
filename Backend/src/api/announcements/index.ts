@@ -1,5 +1,5 @@
 import express from "express";
-import {getAnnouncementController, getAnnouncementsController} from "./controllers";
+import {createAnnouncementController, getAnnouncementController, getAnnouncementsController} from "./controllers";
 import {logToConsole} from "../../utils/logger";
 import announcementExistsMiddle from "../../middlewares/announcement-exists";
 
@@ -7,6 +7,9 @@ const app = express.Router();
 
 // Route to get all announcements
 app.get("/", getAnnouncementsController);
+
+// Route to create an announcement
+app.post("/", createAnnouncementController);
 
 // * From this point, an announcement should exist
 app.use("/:id", announcementExistsMiddle);

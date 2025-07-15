@@ -1,11 +1,12 @@
 import {APIResponse, DefaultReturn} from "../../../types";
 import express from "express";
-import {announcementsHistory} from "../services";
+import {announcementCreate, announcementsHistory} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
 import {AnnouncementInfoResponse, MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/output";
 import {AnnouncementInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
+import {CreateAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
 
 export async function getAnnouncementsController(req: express.Request, res: APIResponse) {
     // * Call the service and get the data from it
@@ -43,5 +44,17 @@ export function getAnnouncementController(_req: express.Request, res: Announceme
             ...res.locals.announcement,
             expiration: res.locals.announcement.expiration ? dateToUnix(res.locals.announcement.expiration) : null
         }
+    });
+}
+
+export async function createAnnouncementController(req: express.Request, res: APIResponse) {
+    const body = req.body as CreateAnnouncementBody;
+
+    // Call the service to create the announcement
+    const result = await announcementCreate(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, body);
+
+    // Return the result
+    res.status(result.status).json({
+        message: result.message
     });
 }

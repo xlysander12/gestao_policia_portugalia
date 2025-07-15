@@ -51,3 +51,7 @@ export async function getAnnouncement(force: string, id: string): Promise<InnerA
         body: result[0].body as string,
     };
 }
+
+export async function createAnnouncement(force: string, author: number, forces: string[], tags: string[], expiration: Date | null, title: string, body: string) {
+    await queryDB(force, `INSERT INTO announcements(author, forces, tags, expiration, title, body) VALUES (?, ?, ?, ?, ?, ?)`, [author, JSON.stringify(forces), JSON.stringify(tags), expiration, title, body]);
+}

@@ -57,7 +57,7 @@ import {
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
-import {ListAnnouncementsQueryParams} from "@portalseguranca/api-types/announcements/input";
+import {CreateAnnouncementBody, ListAnnouncementsQueryParams} from "@portalseguranca/api-types/announcements/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1166,6 +1166,14 @@ const announcementsRoutes: routesType = {
                             return value.split(",").map(element => `%${element}%`)
                         }
                     }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: CreateAnnouncementBody
                 }
             }
         }
