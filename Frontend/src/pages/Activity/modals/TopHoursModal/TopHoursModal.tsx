@@ -45,14 +45,13 @@ function TopHoursModal(props: TopHoursModalProps) {
         }
 
         // For every top, fetch the Officer's information and add to the list
-        const tops: Tops = [];
-        for (const top of responseJson.data) {
+        const tops: Tops = await Promise.all(responseJson.data.map(async top => {
             // Fetch the officer's information
             const officerResponse = await make_request(`/officers/${top.nif}`, RequestMethod.GET, {signal});
             const officerResponseJson = await officerResponse.json() as OfficerInfoGetResponse;
 
             if (!officerResponse.ok) {
-                tops.push({
+                return {
                     rank: top.rank,
                     officer: {
                         name: `Desconhecido (#${top.nif})`,
@@ -63,15 +62,15 @@ function TopHoursModal(props: TopHoursModalProps) {
                         force: localStorage.getItem("force")!
                     },
                     minutes: top.minutes
-                });
+                }
             } else {
-                tops.push({
+                return {
                     rank: top.rank,
                     officer: {...officerResponseJson.data, name: `${officerResponseJson.data.name} (#${top.rank} - ${top.minutes} mins)`},
                     minutes: top.minutes
-                });
+                }
             }
-        }
+        }));
 
         // Apply the tops list to the state
         setTops(tops);
