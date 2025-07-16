@@ -101,7 +101,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         const registrarResponseJson: OfficerInfoGetResponse = await registrarResponse.json();
 
         if (!registrarResponse.ok) {
-            toast.error(responseJson.message);
+            toast.error(registrarResponseJson.message);
             return null;
         }
 
