@@ -32,7 +32,7 @@ const MiddleComponentSelectStyle = styled(Select)(() => ({
 }))
 
 function Dashboard() {
-    const [middleComponent, setMiddleComponent] = useState<"units" | "announcements">("announcements");
+    const [middleComponent, setMiddleComponent] = useState<"units" | "announcements">(localStorage.getItem("dashboardMiddleComponent") as "units" | "announcements" ?? "announcements");
 
     return (
         <ScreenSplit
@@ -82,7 +82,8 @@ function Dashboard() {
                                     fullWidth
                                     value={middleComponent}
                                     onChange={(event) => {
-                                        setMiddleComponent(event.target.value as "units" | "announcements")
+                                        setMiddleComponent(event.target.value as "units" | "announcements");
+                                        localStorage.setItem("dashboardMiddleComponent", event.target.value as "units" | "announcements");
                                     }}
                                     sx={{
                                         textAlign: "center"
