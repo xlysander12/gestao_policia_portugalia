@@ -63,18 +63,16 @@ function PatrolQuickCreator() {
 
     // State that holds the patrol information
     const [patrolData, setPatrolData] = useImmer<InnerPatrolType>(DEFAULT_PATROL);
-    const [previousNotes, setPreviousNotes] = useState<string | null>(patrolData.notes);
+    const [firstRender, setFirstRender] = useState<boolean>(true);
     const [patrolDuration, setPatrolDuration] = useState<number>(0);
 
-    const [needsUpdate, setNeedsUpdate] = useState<boolean>(false);
-
-    async function fetchCurrentPatrol(showLoading = true) {
+    async function fetchCurrentPatrol(showLoading = true, signal?: AbortSignal) {
         // Set the loading to true
         if (showLoading)
             setLoading(true);
 
         // Query the server and fetch the officer's current patrol
-        const response = await make_request(`/officers/${loggedUser.info.personal.nif}/patrol`, RequestMethod.GET);
+        const response = await make_request(`/officers/${loggedUser.info.personal.nif}/patrol`, RequestMethod.GET, {signal});
         const responseJson = await response.json() as PatrolInfoResponse;
 
         // If no patrol was found, let the values be the default ones
@@ -88,36 +86,43 @@ function PatrolQuickCreator() {
         const patrolForce = responseJson.data.id.match(/([a-z]+)(\d+)$/)![1];
 
         // * Get the information of all officers in the patrol
-        const officers: MinifiedOfficerData[] = [{
-            name: loggedUser.info.personal.name,
-            patent: loggedUser.info.professional.patent.id,
-            callsign: loggedUser.info.professional.callsign,
-            status: loggedUser.info.professional.status.id,
-            nif: loggedUser.info.personal.nif,
-            force: localStorage.getItem("force")!
-        }];
-
-        for (const officerNif of responseJson.data.officers) {
-            // Skip the logged officer
-            if (officerNif === loggedUser.info.personal.nif) continue;
+        const officers: MinifiedOfficerData[] = await Promise.all(responseJson.data.officers.map(async officerNif => {
+            // Return the logged officer from context
+            if (officerNif === loggedUser.info.personal.nif) {
+                return {
+                    name: loggedUser.info.personal.name,
+                    patent: loggedUser.info.professional.patent.id,
+                    callsign: loggedUser.info.professional.callsign,
+                    status: loggedUser.info.professional.status.id,
+                    nif: loggedUser.info.personal.nif,
+                    force: localStorage.getItem("force")!
+                }
+            }
 
             const officerResponse = await make_request(`/officers/${officerNif}?patrol=true`, RequestMethod.GET);
             const officerResponseJson = await officerResponse.json() as OfficerInfoGetResponse;
 
             if (!officerResponse.ok) {
                 console.error("Patrulha com efetivo desconhecido");
-                return;
+                return {
+                    name: "Efetivo desconhecido",
+                    patent: forceData.patents[0].id,
+                    callsign: "N/A",
+                    status: forceData.statuses[0].id,
+                    nif: officerNif,
+                    force: localStorage.getItem("force")!
+                };
             }
 
-            officers.push({
+            return {
                 name: officerResponseJson.data.name,
                 patent: officerResponseJson.data.patent,
                 callsign: officerResponseJson.data.callsign,
                 status: officerResponseJson.data.status,
                 nif: officerResponseJson.data.nif,
                 force: officerResponseJson.data.force,
-            });
-        }
+            }
+        }));
 
         // If a patrol was found, update the state
         setPatrolData({
@@ -205,7 +210,7 @@ function PatrolQuickCreator() {
 
     // Everytime an update to a patrol happens, refresh this component
     useWebSocketEvent<SocketResponse>(SOCKET_EVENT.PATROLS, useCallback((data) => {
-        // If the event was triggered by the logged userm diregard it
+        // If the event was triggered by the logged user disregard it
         if (data.by === loggedUser.info.personal.nif) return;
 
         // If there isn't a patrol stored and the event is an "add" event, refresh the component
@@ -223,8 +228,36 @@ function PatrolQuickCreator() {
 
     // Load the current officer's patrol when the component mounts
     useEffect(() => {
-        void fetchCurrentPatrol();
-    }, []);
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        if (firstRender) {
+            void fetchCurrentPatrol(true, signal);
+        }
+
+        return () => {
+            controller.abort();
+        }
+    }, [firstRender]);
+
+    // Every time the notes or the officers change, wait 2 seconds and, if no more changes were made, update the patrol
+    useEffect(() => {
+        // Ignore if no patrol is started
+        if (patrolData.id === "-1") return;
+
+        // Ignore if it's the first render
+        if (firstRender) {
+            setFirstRender(false);
+            return
+        }
+
+        const timeout = setTimeout(updatePatrol, 2000);
+
+        return () => {
+            // If another change was detected, clear the timeout and start again
+            clearTimeout(timeout);
+        }
+    }, [patrolData.id, patrolData.notes?.trim(), JSON.stringify(patrolData.officers.map(officer => officer.nif))]);
 
     // Create a loop to keep counting the elapsed time of the patrol
     useEffect(() => {
@@ -241,15 +274,6 @@ function PatrolQuickCreator() {
             clearInterval(loop);
         }
     }, [patrolData.id, patrolData.start.unix()]);
-
-    // Every time the officers of the patrol update and the patrol exists, call the "updatePatrol" method
-    useEffect(() => {
-        if (!needsUpdate) return;
-        if (patrolData.id === "-1") return;
-
-        setNeedsUpdate(false);
-        void updatePatrol();
-    }, [patrolData.id, needsUpdate]);
 
     return (
         <>
@@ -373,12 +397,6 @@ function PatrolQuickCreator() {
                             draft.notes = event.target.value.trim() !== "" ? event.target.value : null;
                         });
                     }}
-                    onBlur={() => {
-                        if (patrolData.notes === previousNotes) return;
-
-                        setPreviousNotes(patrolData.notes);
-                        void updatePatrol();
-                    }}
                 />
 
                 <Divider flexItem sx={{margin: "5px 0 10px 0"}} />
@@ -392,7 +410,6 @@ function PatrolQuickCreator() {
                         setPatrolData((draft) => {
                             draft.officers = officers
                         });
-                        setNeedsUpdate(true);
                     }}
                 />
             </div>
