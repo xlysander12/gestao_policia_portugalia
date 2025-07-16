@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -50,13 +50,21 @@ import {
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
-import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
+import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
     CreateEventBody, EditEventBody,
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
+import {
+    CreateAnnouncementBody,
+    EditAnnouncementBody,
+    ListAnnouncementsQueryParams
+} from "@portalseguranca/api-types/announcements/input";
+import {
+    AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
+} from "@portalseguranca/api-types/announcements/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -422,6 +430,19 @@ const utilRoutes: routesType = {
             GET: {
                 requiresToken: true,
                 requiresForce: true
+            }
+        }
+    },
+
+    // Route to get the top hours of a force in a week
+    "/util/top-hours$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ForceTopHoursParams
+                }
             }
         }
     }
@@ -1124,6 +1145,103 @@ const eventsRoutes: routesType = {
     },
 }
 
+const announcementsRoutes: routesType = {
+    "/announcements$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListAnnouncementsQueryParams
+                },
+                filters: {
+                    "active": {
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "expiration IS NULL OR expiration > CURRENT_TIMESTAMP()" : "expiration <= CURRENT_TIMESTAMP()",
+                    },
+                    "tags": {
+                        queryFunction: (receivedParams) => {
+                            const arr = receivedParams.tags.split(",")
+
+                            let query = "";
+                            for (const _ of arr) {
+                                query += `tags LIKE ? AND `
+                            }
+
+                            return query.slice(0, -5);
+                        },
+                        valueFunction: (value: string) => {
+                            return value.split(",").map(element => `%${element}%`)
+                        }
+                    }
+                }
+            },
+            POST: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: CreateAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: APIResponse): AnnouncementAddSocket => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            }
+        }
+    },
+    "/announcements/[a-z]+\\d+$": {
+        methods: {
+            GET: {
+                requiresToken: true,
+                requiresForce: true
+            },
+            PATCH: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: EditAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementUpdateSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            },
+            DELETE: {
+                requiresToken: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementDeleteSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            }
+        }
+    }
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1135,7 +1253,8 @@ const routes: routesType = {
     ...evaluationsRoutes,
     ...officersRoutes,
     ...patrolsRoutes,
-    ...eventsRoutes
+    ...eventsRoutes,
+    ...announcementsRoutes
 }
 
 // ! Make sure there are no routes that require a token but don't require a force.

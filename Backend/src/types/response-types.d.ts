@@ -1,7 +1,7 @@
 import express from "express";
 import {routeMethodType} from "../api/routes";
 import {
-    InnerAccountData, InnerForceEvent,
+    InnerAccountData, InnerAnnouncement, InnerForceEvent,
     InnerOfficerData,
     InnerOfficerEvaluation,
     InnerOfficerJustificationData,
@@ -58,5 +58,11 @@ export type PatrolInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
 export type EventInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
     locals: {
         event: InnerForceEvent
+    }
+}
+
+export type AnnouncementInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+    locals: {
+        announcement: InnerAnnouncement
     }
 }

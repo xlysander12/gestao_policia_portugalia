@@ -10,6 +10,7 @@ import {useForceData} from "../../hooks";
 import {useImmer} from "use-immer";
 import {OfficerPickerModal} from "../OfficerPicker";
 import Gate from "../Gate/gate.tsx";
+import {BASE_URL} from "../../utils/constants.ts";
 
 type OfficerListProps = {
     startingOfficers: MinifiedOfficerData[]
@@ -101,6 +102,8 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                                     primary={
                                         <DefaultTypography
                                             fontSize={"0.9rem"}
+                                            clickable
+                                            onClick={() => window.open(`${BASE_URL}/efetivos/${officer.nif}`)}
                                         >
                                             [{officer.callsign}] {getObjectFromId(officer.patent, officerForceData.patents)!.name} {officer.name}
                                         </DefaultTypography>

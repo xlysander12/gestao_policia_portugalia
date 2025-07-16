@@ -63,6 +63,7 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
         type: patrol.type as number,
         unit: patrol.special_unit as number | null,
         officers: JSON.parse(patrol.officers as string) as number[],
+        registrar: patrol.registrar as number,
         start: patrol.start as Date,
         end: patrol.end as Date | null,
         canceled: patrol.canceled === 1,
@@ -129,9 +130,9 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
     return await getPatrol(force, result[0].id as string);
 }
 
-export async function createPatrol(force: string, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
+export async function createPatrol(force: string, registrar: number, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
     // Insert the patrol into the database
-    await queryDB(force, `INSERT INTO patrols (type, special_unit, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?)`, [type, specialUnit, JSON.stringify(officers), start, end, notes]);
+    await queryDB(force, `INSERT INTO patrols (type, special_unit, registrar, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`, [type, specialUnit, registrar, JSON.stringify(officers), start, end, notes]);
 }
 
 export async function editPatrol(force: string, id: number, changes: EditPatrolBody, canceled?: boolean) {

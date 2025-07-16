@@ -15,7 +15,7 @@ export const PLACEHOLDER_OFFICER_DATA: {minified: MinifiedOfficerData, complete:
         kms: -1,
         phone: -1,
         steam: "",
-        discord: -1,
+        discord: "",
         entry_date: -1,
         special_units: []
     },

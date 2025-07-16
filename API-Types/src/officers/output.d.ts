@@ -17,7 +17,7 @@ export interface OfficerData extends MinifiedOfficerData {
     phone: number,
     iban: string
     kms: number,
-    discord: number,
+    discord: string,
     steam: string,
     entry_date: number,
     promotion_date: number | null,

@@ -67,55 +67,95 @@ function App() {
         }
 
         // Fetching the last ceremony
-        const lastCeremonyResponse = await make_request("/util/last-ceremony", "GET");
-        forceTempData.last_ceremony = moment.unix((await lastCeremonyResponse.json() as UtilLastCeremonyResponse).data);
+        async function fetchLastCeremony() {
+            console.log("called");
+            const lastCeremonyResponse = await make_request("/util/last-ceremony", "GET");
+            forceTempData.last_ceremony = moment.unix((await lastCeremonyResponse.json() as UtilLastCeremonyResponse).data);
+        }
+
 
         // Fetching the patents
-        const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});
-        forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
+        async function fetchPatents() {
+            const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});
+            forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
+        }
+
 
         // Fetching the statuses
-        const statusesResponse = await make_request("/util/statuses", "GET", {force: forceName});
-        forceTempData.statuses = ((await statusesResponse.json()) as UtilStatusesResponse).data;
+        async function fetchStatuses() {
+            const statusesResponse = await make_request("/util/statuses", "GET", {force: forceName});
+            forceTempData.statuses = ((await statusesResponse.json()) as UtilStatusesResponse).data;
+        }
 
         // Fetching the intents
-        const intentsResponse = await make_request("/util/intents", "GET", {force: forceName});
-        forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+        async function fetchIntents() {
+            const intentsResponse = await make_request("/util/intents", "GET", {force: forceName});
+            forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+        }
 
         // Fetching the inactivity types
-        const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET", {force: forceName});
-        forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
+        async function fetchInativityTypes() {
+            const inactivityTypesResponse = await make_request("/util/inactivity-types", "GET", {force: forceName});
+            forceTempData.inactivity_types = ((await inactivityTypesResponse.json()) as UtilInactivityTypesResponse).data;
+        }
 
         // Fetching the patrol types
-        const patrolTypesResponse = await make_request("/util/patrol-types", "GET", {force: forceName});
-        forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
+        async function fetchPatrolTypes() {
+            const patrolTypesResponse = await make_request("/util/patrol-types", "GET", {force: forceName});
+            forceTempData.patrol_types = ((await patrolTypesResponse.json()) as UtilPatrolTypesResponse).data;
+        }
 
         // Fetching the evaluation grades
-        const evaluationGradesResponse = await make_request("/util/evaluation-grades", "GET", {force: forceName});
-        forceTempData.evaluation_grades = ((await evaluationGradesResponse.json()) as UtilEvaluationGradesResponse).data;
+        async function fetchEvaluationGrades() {
+            const evaluationGradesResponse = await make_request("/util/evaluation-grades", "GET", {force: forceName});
+            forceTempData.evaluation_grades = ((await evaluationGradesResponse.json()) as UtilEvaluationGradesResponse).data;
+        }
 
         // Fetching the evaluation fields
-        const evaluationFieldsResponse = await make_request("/util/evaluation-fields", "GET", {force: forceName});
-        forceTempData.evaluation_fields = ((await evaluationFieldsResponse.json()) as UtilEvaluationFieldsResponse).data;
+        async function fetchEvaluationFields() {
+            const evaluationFieldsResponse = await make_request("/util/evaluation-fields", "GET", {force: forceName});
+            forceTempData.evaluation_fields = ((await evaluationFieldsResponse.json()) as UtilEvaluationFieldsResponse).data;
+        }
 
-        // Fetching the evaluation fields
-        const evaluationDecisionsResponse = await make_request("/util/evaluation-decisions", "GET", {force: forceName});
-        forceTempData.evaluation_decisions = ((await evaluationDecisionsResponse.json()) as UtilEvaluationDecisionsResponse).data;
+
+        // Fetching the evaluation decisions
+        async function fetchEvaluationDecisions() {
+            const evaluationDecisionsResponse = await make_request("/util/evaluation-decisions", "GET", {force: forceName});
+            forceTempData.evaluation_decisions = ((await evaluationDecisionsResponse.json()) as UtilEvaluationDecisionsResponse).data;
+        }
 
         // Fetching the event types
-        const eventTypesResponse = await make_request("/util/event-types", "GET", {force: forceName});
-        forceTempData.event_types = (await eventTypesResponse.json() as UtilEventTypesResponse).data;
+        async function fetchEventTypes() {
+            const eventTypesResponse = await make_request("/util/event-types", "GET", {force: forceName});
+            forceTempData.event_types = (await eventTypesResponse.json() as UtilEventTypesResponse).data;
+        }
 
         // Fetching the special units
-        const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
-        const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
+        async function fetchSpecialUnits() {
+            const specialUnitsResponse = await make_request("/util/special-units", "GET", {force: forceName});
+            const specialUnitsJson: UtilSpecialUnitsResponse = ((await specialUnitsResponse.json()) as UtilSpecialUnitsResponse);
 
-        // Store the special units in the temp object
-        forceTempData.special_units = specialUnitsJson.data.units;
+            // Store the special units in the temp object
+            forceTempData.special_units = specialUnitsJson.data.units;
 
-        // Store the special units roles in the temp object
-        forceTempData.special_unit_roles = specialUnitsJson.data.roles;
+            // Store the special units roles in the temp object
+            forceTempData.special_unit_roles = specialUnitsJson.data.roles;
+        }
 
+        // Fetch all data paralely
+        await Promise.all([
+            fetchLastCeremony(),
+            fetchPatents(),
+            fetchStatuses(),
+            fetchIntents(),
+            fetchInativityTypes(),
+            fetchPatrolTypes(),
+            fetchEvaluationGrades(),
+            fetchEvaluationFields(),
+            fetchEvaluationDecisions(),
+            fetchEventTypes(),
+            fetchSpecialUnits()
+        ]);
 
         // Return the force's data
         return forceTempData;
@@ -139,14 +179,21 @@ function App() {
             }
 
             // For each force, fetch it's data and put it on the state
-            for (const forceName of patrolForces) {
-                // Get the force's data
-                const forceData = await fetchForceData(forceName);
+            // Create a function to fetch the force's data and append to state
+            async function appendData(force: string) {
+                const result = await fetchForceData(force);
 
                 setForceData(draft => {
-                    draft[forceName] = forceData;
-                });
+                    draft[force] = result
+                })
             }
+            const promiseList: Promise<unknown>[] = [];
+            for (const forceName of patrolForces) {
+                promiseList.push(appendData(forceName));
+            }
+
+            // Fetch all data form all forces paralely
+            await Promise.all(promiseList);
 
             // After fetching all forces' data, set the canLoad to true
             setCanLoad(true);

@@ -148,7 +148,7 @@ export async function getOfficerData(nif: number, force: string, former = false,
         nif: officerDataResult[0].nif as number,
         iban: officerDataResult[0].iban as string,
         kms: officerDataResult[0].kms as number,
-        discord: officerDataResult[0].discord as number,
+        discord: String(officerDataResult[0].discord),
         steam: officerDataResult[0].steam as string,
         special_units: await getOfficerUnits(force, nif),
         isFormer: former,
@@ -172,7 +172,7 @@ export async function getNextAvailableCallsign(startingLetter: string, force: st
     return `${startingLetter}-${callsignNumber.toString().padStart(2, "0")}`;
 }
 
-export async function addOfficer(force: string, name: string, patent: number, callsign: string | null, phone: number, nif: number, iban: string, kms: number, discord: number,
+export async function addOfficer(force: string, name: string, patent: number, callsign: string | null, phone: number, nif: number, iban: string, kms: number, discord: number | bigint,
                                  steam = "steam:0") {
     // * Add the officer to the database
     await queryDB(force, 'INSERT INTO officers (name, patent, callsign, phone, nif, iban, kms, discord, steam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, patent, callsign, phone, nif, iban, kms, discord, steam]);

@@ -44,6 +44,11 @@ export async function ensureRowsInTables(force: string) {
         throw new Error(`Force ${force} doesn't have Patents`);
     }
 
+    // Special Unit Roles
+    if ((await queryDB(force ,"SELECT * FROM specialunits_roles")).length === 0) {
+        throw new Error(`Force ${force} doesn't have Special Unit Roles`);
+    }
+
     // Patrol Types
     if ((await queryDB(force, "SELECT * FROM patrols_types")).length === 0) {
         throw new Error(`Force ${force} doesn't have Patrol Types`);

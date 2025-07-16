@@ -57,7 +57,7 @@ export async function listOfficers(force: string, routeValidFilters: RouteFilter
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: officerList};
 }
 
-export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number, steam: string | undefined,
+export async function hireOfficer(name: string, phone: number, iban: string, nif: number, kms: number, discord: number | string, steam: string | undefined,
                                   force: string, targetOfficer: InnerOfficerData | null, isTargetOfficerFormer: boolean, overwrite: boolean): Promise<DefaultReturn<void>> { // TODO: There must be a way to manually set the entry date
 
     // First, check if the nif is already in use, either by an active or former officer
@@ -88,7 +88,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     const callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Inserting the new officer into the database
-    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, discord, steam);
+    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, typeof discord === "string" ? BigInt(discord) : discord, steam);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};

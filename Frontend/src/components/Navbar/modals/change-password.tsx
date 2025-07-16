@@ -52,7 +52,13 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
 
         if (response.ok) {
             onClose();
+            return
         }
+
+        // If the request wasn't successful, reset the fields
+        setOldPassword("");
+        setNewPassword("");
+        setRepeatPassword("");
     }
 
     return (
@@ -120,8 +126,9 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                 <ModalSection title={"Ações"}>
                     <DefaultButton
                         buttonColor={"lightGreen"}
+                        darkTextOnHover
                         fullWidth
-                        disabled={loading}
+                        disabled={loading || !newPassword || !oldPassword || newPassword !== repeatPassword}
                         onClick={() => setConfirmModalOpen(true)}
                     >
                         Confirmar

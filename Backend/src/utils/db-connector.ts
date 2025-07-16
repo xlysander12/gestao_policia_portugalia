@@ -16,6 +16,7 @@ for (const force of getForcesList()) {
         database: forceDB,
         connectionLimit: 10,
         connectTimeout: 100000,
+        supportBigNumbers: true
     }
 
     pools[force] = createPool(options);
@@ -27,7 +28,7 @@ for (const force of getForcesList()) {
 }
 
 // Function used by the backend to query the database
-export type paramsTypes = string | number | null | Date | undefined;
+export type paramsTypes = string | number | bigint | null | Date | undefined;
 export async function queryDB(force: string, query: string, params?: paramsTypes | paramsTypes[]): Promise<RowDataPacket[]> {
     // If the force parameter is not set, return
     if (!force || !getForcesList().includes(force))

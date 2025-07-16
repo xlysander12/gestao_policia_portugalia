@@ -281,6 +281,7 @@ function PatrolQuickCreator() {
                     <DefaultButton
                         disabled={loading}
                         buttonColor={"lightgreen"}
+                        darkTextOnHover
                         onClick={startPatrol}
                     >
                         Iniciar

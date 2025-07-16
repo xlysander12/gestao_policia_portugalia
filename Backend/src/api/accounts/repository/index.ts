@@ -163,6 +163,17 @@ export async function updateAccountPassword(nif: number, hash: string, currentTo
 
 export async function addAccount(nif: number, force: string): Promise<void> {
     await queryDB(force, 'INSERT INTO users (nif) VALUES (?)', nif);
+
+    // If the user has an account in any other force with a set password, copy that password to the new account
+    const userForces = await getUserForces(nif, true);
+    for (const userForce of userForces) {
+        if (userForce.name === force) continue; // Skip the current force
+
+        if (userForce.password) {
+            await queryDB(force, 'UPDATE users SET password = ? WHERE nif = ?', [userForce.password, nif]);
+            break;
+        }
+    }
 }
 
 export async function clearAccountTokens(nif: number, force: string, exclude?: string): Promise<void> {

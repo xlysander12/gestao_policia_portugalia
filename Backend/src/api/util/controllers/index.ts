@@ -10,7 +10,7 @@ import {
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits, forceSpecialUnitsActiveMembers,
-    forceStatuses, lastCeremony, notifications
+    forceStatuses, forceTopHoursInWeek, lastCeremony, notifications
 } from "../services";
 import {
     UtilInactivityTypesResponse,
@@ -24,10 +24,14 @@ import {
     UtilEvaluationGradesResponse,
     UtilEvaluationFieldsResponse,
     UtilUserErrorsResponse,
-    UtilEvaluationDecisionsResponse, UtilLastCeremonyResponse, UtilSpecialUnitsActiveResponse, UtilEventTypesResponse
+    UtilEvaluationDecisionsResponse,
+    UtilLastCeremonyResponse,
+    UtilSpecialUnitsActiveResponse,
+    UtilEventTypesResponse,
+    ForceTopHoursInWeekResponse
 } from "@portalseguranca/api-types/util/output";
-import {APIResponse, ExpressResponse} from "../../../types/response-types";
-import {dateToUnix} from "../../../utils/date-handler";
+import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {ChangeLastCeremonyRequestBodyType} from "@portalseguranca/api-types/util/input";
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
@@ -231,5 +235,23 @@ export async function getUserErrorsController(req: express.Request, res: APIResp
             code: error.code,
             timestamp: dateToUnix(error.timestamp)
         }))
+    });
+}
+
+export async function getForceTopHoursInWeekController(req: express.Request, res: OfficerInfoAPIResponse<ForceTopHoursInWeekResponse>) {
+    const {week_end} = req.query;
+
+    // Call the service to get the top hours in the week
+    const result = await forceTopHoursInWeek(req.header(FORCE_HEADER)!, unixToDate(parseInt(week_end as string)));
+
+    // Return the result of the service
+    if (!result.result) {
+        res.status(result.status).json({message: result.message});
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data!
     });
 }

@@ -101,3 +101,14 @@
     color: var(--portalseguranca-color-text-hover);
     border-bottom: var(--portalseguranca-color-text-hover) 2px solid;
 }
+
+.navButtonDisabled {
+    composes: navButton;
+    color: darkgray !important;
+}
+
+.navButtonDisabled:hover {
+    color: initial;
+    border: 0;
+    cursor: not-allowed !important;
+}

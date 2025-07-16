@@ -21,6 +21,8 @@ import {useForceData} from "../../hooks";
 import moment, {Moment} from "moment";
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useNavigate } from "react-router-dom";
+import styles from "./officerinfo.module.css";
 
 type LastShiftPairProps = {
     officer: number
@@ -312,9 +314,17 @@ type ActivityPanelProps = {
     nif: number
 }
 export const ActivityPanel = ({nif}: ActivityPanelProps) => {
+    // Initialize useNavigate Hook
+    const navigate = useNavigate();
+
     return (
         <fieldset>
-            <legend>Atividade</legend>
+            <legend
+                className={styles.activityPanelLabel}
+                onClick={() => navigate(`/atividade/${nif}`)}
+            >
+                Atividade
+            </legend>
             <div className={style.officerInfoInnerFieldsetDiv}>
                 <ActiveJustificationPair officer={nif} />
                 <Divider/>

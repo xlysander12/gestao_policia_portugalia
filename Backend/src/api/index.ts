@@ -5,6 +5,7 @@ import accountRoutes from "./accounts";
 import officerInfoRoutes from "./officers";
 import patrolsRoutes from "./patrols";
 import eventsRoutes from "./events";
+import announcementsRoutes from "./announcements";
 import {
     assureBodyFields,
     assureRouteBasicInfo,
@@ -58,6 +59,9 @@ apiRoutes.use("/patrols", patrolsRoutes);
 
 // Import Events routes
 apiRoutes.use("/events", eventsRoutes);
+
+// Import Announcements routes
+apiRoutes.use("/announcements", announcementsRoutes);
 
 // * Middleware to handle errors
 apiRoutes.use(errorHandlerMiddleware);

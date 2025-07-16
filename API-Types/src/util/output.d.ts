@@ -47,7 +47,7 @@ export interface PatrolTypeData {
 }
 
 export interface BaseNotification {
-    type: "activity" | "event"
+    type: "activity" | "event" | "password"
     timestamp: number
     url: string
 }
@@ -154,4 +154,12 @@ export interface UserError {
 
 export interface UtilUserErrorsResponse extends BaseResponse {
     data: UserError[]
+}
+
+export interface ForceTopHoursInWeekResponse extends BaseResponse {
+    data: {
+        rank: number,
+        nif: number,
+        minutes: number
+    }[]
 }
