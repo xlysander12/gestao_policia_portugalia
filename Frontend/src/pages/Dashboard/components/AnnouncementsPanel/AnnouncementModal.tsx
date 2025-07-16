@@ -178,7 +178,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
         }
 
         // If it worked, close the modal
-        toast.success("Evento Criado com sucesso");
+        toast.success("Anúncio Criado com sucesso");
         props.onClose();
     }
 
@@ -369,7 +369,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                 value={announcementData.expiration !== null ? moment.unix(announcementData.expiration) : null}
                                 onChange={(value) => {
                                     setAnnouncementData(draft => {
-                                        draft.expiration = value === null ? null : draft.expiration = value.unix()
+                                        draft.expiration = value ? value.unix() : null;
                                     });
                                 }}
                             />
