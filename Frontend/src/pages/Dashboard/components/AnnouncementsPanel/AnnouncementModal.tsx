@@ -262,6 +262,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                 open={props.open}
                 onClose={props.onClose}
                 title={props.newEntry ? "Novo Anúncio" : `Anúncio #${props.id?.toUpperCase()}`}
+                url={!props.newEntry ? `/a/${props.id}` : undefined}
                 width={"70%"}
             >
                 <Gate show={loading}>

@@ -224,6 +224,10 @@ function App() {
                         element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard/>}/>
                     },
                     {
+                        path: "/a/:announcement_id",
+                        element: <PrivateRoute handleForceChange={handleForceChange} element={<Dashboard />} />
+                    },
+                    {
                         path: "/efetivos",
                         children: [
                             {

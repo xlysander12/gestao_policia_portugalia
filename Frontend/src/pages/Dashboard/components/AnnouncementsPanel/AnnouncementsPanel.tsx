@@ -16,12 +16,16 @@ import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import AnnouncementModal from "./AnnouncementModal.tsx";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {useParams} from "react-router-dom";
 
 type InnerMinifiedAnnouncement = Omit<MinifiedAnnouncement, "author"> & {
     author: MinifiedOfficerData
 }
 
 function AnnouncementsPanel() {
+    // Get the announcement_id from URL params
+    const {announcement_id} = useParams();
+
     const [loading, setLoading] = useState<boolean>(true);
     const [currentFilters, setCurrentFilters] = useState<{key: string, value: string}[]>([]);
     const [announcements, setAnnouncements] = useState<InnerMinifiedAnnouncement[]>([]);
@@ -102,6 +106,20 @@ function AnnouncementsPanel() {
             controller.abort();
         }
     }, [JSON.stringify(currentFilters)]);
+
+    // Whenever the "announcement_id" changes, open the Announcement Modal and display the information
+    useEffect(() => {
+        if (announcement_id) {
+            setActiveId(announcement_id);
+            setNewEntry(false);
+            setModalOpen(true);
+        }
+
+        return () => {
+            setActiveId(undefined);
+            setModalOpen(false);
+        }
+    }, [announcement_id]);
 
     return (
         <>
