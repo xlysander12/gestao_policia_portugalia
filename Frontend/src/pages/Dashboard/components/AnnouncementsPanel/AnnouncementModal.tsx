@@ -383,6 +383,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                 disabled={!editMode}
                                 textWhenDisabled
                                 value={announcementData.title}
+                                error={announcementData.title.trim() === ""}
                                 onChange={(event) => {
                                     setAnnouncementData(draft => {
                                         draft.title = event.target.value;
@@ -433,6 +434,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                 )}
                                 editable={editMode}
                                 content={announcementData.body}
+                                emitContentError={announcementData.body.trim() === "" || announcementData.body.trim() === "<p></p>"}
                                 onUpdate={(event) => {
                                     setAnnouncementData(draft => {
                                         draft.body = event.editor.getHTML();
@@ -496,6 +498,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={editAnnouncement}
+                                        disabled={announcementData.title.trim() === "" || announcementData.body.trim() === "" || announcementData.body.trim() === "<p></p>"}
                                         sx={{
                                             flex: 1
                                         }}
@@ -520,6 +523,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={createAnnouncement}
+                                        disabled={announcementData.title.trim() === "" || announcementData.body.trim() === "" || announcementData.body.trim() === "<p></p>"}
                                         sx={{
                                             flex: 1
                                         }}

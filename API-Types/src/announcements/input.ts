@@ -10,8 +10,8 @@ export const CreateAnnouncementBody = Record({
     forces: Array(String),
     tags: Array(String),
     expiration: Union(Number, Null),
-    title: String,
-    body: String
+    title: String.withConstraint(s => s.trim() !== ""),
+    body: String.withConstraint(s => s.trim() !== "")
 });
 export type CreateAnnouncementBody = Static<typeof CreateAnnouncementBody>;
 
@@ -19,7 +19,7 @@ export const EditAnnouncementBody = Partial({
     forces: Array(String),
     tags: Array(String),
     expiration: Union(Number, Null),
-    title: String,
-    body: String
+    title: String.withConstraint(s => s.trim() !== ""),
+    body: String.withConstraint(s => s.trim() !== "")
 });
 export type EditAnnouncementBody = Static<typeof EditAnnouncementBody>;
