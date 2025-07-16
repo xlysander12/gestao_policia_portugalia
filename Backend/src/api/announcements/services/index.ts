@@ -70,11 +70,11 @@ export async function announcementEdit(loggedUser: InnerOfficerData, announcemen
     }
 
     // Ensure the expiration date is after the current date
-    if (changes.expiration !== undefined && changes.expiration !== null && dateToUnix(new Date()) > changes.expiration) {
+    if (changes.expiration !== undefined && changes.expiration !== null && dateToUnix(announcementData.created) > changes.expiration) {
         return {
             result: false,
             status: 400,
-            message: "A data do fim do Anúncio não pode ser mais antiga do que a data atual"
+            message: "A data do fim do Anúncio não pode ser mais antiga do que a data de criação"
         }
     }
 
