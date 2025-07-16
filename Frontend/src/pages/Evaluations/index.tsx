@@ -246,7 +246,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                         }
                                         control={<Switch onChange={(event) => setAsAuthor(event.target.checked)}/>}
                                         labelPlacement={"end"}
-                                        label={"Autoria"}
+                                        label={"Feito por"}
                                         checked={asAuthor}
                                         slotProps={{
                                             typography: {
@@ -307,6 +307,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                     showFirstButton
                                     page={page}
                                     count={totalPages}
+                                    siblingCount={1}
 
                                     onChange={(_, page) => setPage(page)}
                                 />
