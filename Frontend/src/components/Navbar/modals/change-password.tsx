@@ -40,22 +40,24 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                 oldPassword: oldPassword,
                 newPassword: newPassword,
                 confirmPassword: repeatPassword
-            }
+            },
+            redirectToLoginOn401: false
         });
         const responseJson: BaseResponse = await response.json();
 
         // Show toast with the response
         toast(responseJson.message, {type: response.ok ? "success" : "error"});
 
-        // Set the loading to false
-        setLoading(false);
-
         if (response.ok) {
             onClose();
             return
         }
 
-        // If the request wasn't successful, reset the fields
+        // * Since the request wasn't successful, reset everything
+        // Set the loading to false
+        setLoading(false);
+
+        // Reset the fields
         setOldPassword("");
         setNewPassword("");
         setRepeatPassword("");
@@ -80,6 +82,7 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                             alternateColor
                             fullWidth
                             disabled={loading}
+                            value={oldPassword}
                             onChange={(event) => setOldPassword(event.target.value)}
                         />
 
@@ -101,6 +104,7 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                             fullWidth
                             error={newPassword !== repeatPassword}
                             disabled={loading}
+                            value={newPassword}
                             onChange={(event) => setNewPassword(event.target.value)}
                         />
 
@@ -119,6 +123,7 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
                             fullWidth
                             error={newPassword !== repeatPassword}
                             disabled={loading}
+                            value={repeatPassword}
                             onChange={(event) => setRepeatPassword(event.target.value)}
                         />
                     </div>
