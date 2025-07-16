@@ -126,19 +126,21 @@ function AnnouncementsPanel() {
             <ManagementBar>
                 <div
                     style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: "10px",
+                        boxSizing: "border-box",
                         width: "100%"
                     }}
                 >
+                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Pesquisa:</DefaultTypography>
                     <div
                         style={{
-                            flex: 1
+                            boxSizing: "border-box",
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: "10px",
+                            width: "100%"
                         }}
                     >
-                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Pesquisa:</DefaultTypography>
                         {/*TODO: Free-entered strings must be read as tags and search by them*/}
                         <DefaultSearch
                             size={"small"}
@@ -161,21 +163,23 @@ function AnnouncementsPanel() {
                             callback={(options) => {
                                 setCurrentFilters(options);
                             }}
-                        />
-                    </div>
-
-                    <Gate show={loggedUser.intents.announcements}>
-                        <DefaultButton
-                            onClick={() => {
-                                setActiveId(undefined);
-                                setNewEntry(true);
-                                setModalOpen(true);
+                            sx={{
+                                flex: 1
                             }}
-                            sx={{flex: 0.5}}
-                        >
-                            Criar Anúncio
-                        </DefaultButton>
-                    </Gate>
+                        />
+                        <Gate show={loggedUser.intents.announcements}>
+                            <DefaultButton
+                                onClick={() => {
+                                    setActiveId(undefined);
+                                    setNewEntry(true);
+                                    setModalOpen(true);
+                                }}
+                                sx={{flex: 0.3}}
+                            >
+                                Novo
+                            </DefaultButton>
+                        </Gate>
+                    </div>
                 </div>
             </ManagementBar>
 
