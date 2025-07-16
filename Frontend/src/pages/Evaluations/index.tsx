@@ -158,7 +158,7 @@ function Evaluations(props: EvaluationsPageProps) {
         if ((data.target === currentOfficer.nif && !asAuthor) || (data.author === currentOfficer.nif && asAuthor)) {
             await fetchEvaluations(false);
         }
-    }, [currentOfficer.nif, asAuthor]));
+    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]));
 
     // Everytime any settings change, reload the evaluations
     useEffect(() => {
