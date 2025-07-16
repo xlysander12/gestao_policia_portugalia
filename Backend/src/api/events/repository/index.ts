@@ -12,11 +12,11 @@ export async function getEvents(force: string, start: number, end?: number): Pro
             FROM
                 eventsV
             WHERE
-                start >= FROM_UNIXTIME(?)
+                start <= FROM_UNIXTIME(?)
             AND
-                end <= FROM_UNIXTIME(?)
+                end >= FROM_UNIXTIME(?)
         `,
-        [start, end]
+        [end, start]
     ) :
         await queryDB(
             force,
