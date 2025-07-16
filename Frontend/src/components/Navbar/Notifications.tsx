@@ -95,10 +95,10 @@ function Notifications() {
 
             // Check if any notification is of type password
             // If yes, and it's the first render, automatically open the Change Password Modal
-            // ! This makes it so every time the user changes locations the modal appears, which is not desired
-            /* if (notification.type === "password" && firstRender) {
+            if (notification.type === "password" && firstRender && sessionStorage.getItem("askedPassword") !== "true") {
                 setChangePasswordModalOpen(true);
-            } */
+                sessionStorage.setItem("askedPassword", "true");
+            }
         }
 
         // Check if any of the notifications are new
