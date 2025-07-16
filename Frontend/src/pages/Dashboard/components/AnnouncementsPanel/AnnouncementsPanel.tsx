@@ -88,7 +88,7 @@ function AnnouncementsPanel() {
         const list = await fetchAnnouncements(false);
 
         setAnnouncements(list);
-    }, []));
+    }, [JSON.stringify(currentFilters)]));
 
     useEffect(() => {
         const controller = new AbortController();
@@ -192,6 +192,16 @@ function AnnouncementsPanel() {
                 </Gate>
 
                 <Gate show={!loading}>
+                    <Gate show={announcements.length === 0}>
+                        <div style={{
+                                textAlign: "center"
+                            }}
+                        >
+                            <DefaultTypography fontSize={"x-large"} color={"var(--portalseguranca-color-text-dark)"}>Sem resultados</DefaultTypography>
+                        </div>
+
+                    </Gate>
+
                     {announcements.map(announcement => {
                         return (
                             <InformationCard
