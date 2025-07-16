@@ -48,16 +48,15 @@ function ChangePasswordModal({open, onClose}: ChangePasswordModalProps) {
         // Show toast with the response
         toast(responseJson.message, {type: response.ok ? "success" : "error"});
 
+        // Set the loading to false
+        setLoading(false);
+
         if (response.ok) {
             onClose();
             return
         }
 
         // * Since the request wasn't successful, reset everything
-        // Set the loading to false
-        setLoading(false);
-
-        // Reset the fields
         setOldPassword("");
         setNewPassword("");
         setRepeatPassword("");

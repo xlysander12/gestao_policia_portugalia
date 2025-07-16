@@ -238,7 +238,7 @@ function PatrolQuickCreator() {
         return () => {
             controller.abort();
         }
-    }, [firstRender]);
+    }, []);
 
     // Every time the notes or the officers change, wait 2 seconds and, if no more changes were made, update the patrol
     useEffect(() => {
