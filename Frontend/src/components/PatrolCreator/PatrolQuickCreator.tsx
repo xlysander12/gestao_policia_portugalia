@@ -248,7 +248,7 @@ function PatrolQuickCreator() {
         // Ignore if it's the first render
         if (firstRender) {
             setFirstRender(false);
-            return
+            return;
         }
 
         const timeout = setTimeout(updatePatrol, 2000);
