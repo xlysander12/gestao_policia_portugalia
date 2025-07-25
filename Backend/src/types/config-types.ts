@@ -4,7 +4,8 @@ const DatabaseType = rt.Record({
     host: rt.String,
     port: rt.Number,
     user: rt.String,
-    password: rt.String
+    password: rt.String,
+    allowed_users: rt.Optional(rt.Array(rt.Number))
 });
 
 const ForceHubRt = rt.Record({

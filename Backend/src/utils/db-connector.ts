@@ -1,10 +1,10 @@
 import {createPool, Pool, PoolOptions, RowDataPacket} from "mysql2/promise";
-import {getDatabaseConnetionDetails, getForceDatabase, getForcesList} from "./config-handler";
+import {getDatabaseDetails, getForceDatabase, getForcesList} from "./config-handler";
 type poolsType = Record<string, Pool>;
 const pools: poolsType = {};
 
 // Database configuration
-const databaseConfig = getDatabaseConnetionDetails();
+const {allowed_users, ...databaseConfig} = getDatabaseDetails();
 
 // For every force present in the config file, create a pool using the credentials in that same file
 for (const force of getForcesList()) {

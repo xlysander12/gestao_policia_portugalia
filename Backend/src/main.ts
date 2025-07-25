@@ -3,7 +3,7 @@ import express, {Router} from "express";
 import serveIndex from "serve-index";
 
 // Load the config file
-import {getForcesList, loadConfig} from "./utils/config-handler";
+import {getDatabaseDetails, getForcesList, loadConfig} from "./utils/config-handler";
 loadConfig();
 
 // Initialize the log file
@@ -41,27 +41,20 @@ app.use("/db", async (req, res, next) => {
         }
     }
 
-    if (!loggedUser.valid) { // Token is invalid
-        res.status(401).send("Unauthorized");
+    // Session is invalid, AKA, doesn't exit
+    // Redirect to the login screen
+    if (!loggedUser.valid) {
+        res.redirect("/portugalia/portalseguranca/login?redirect=/db");
         return;
     }
 
-    // * Check if the user has the right patent
-    const loggedNif = loggedUser.nif;
+    // * Check if the user is in the "allowed_users" list of the database
+    const loggedNif = loggedUser.nif!;
 
-    // Fecth patent from database
-    const result = await queryDB(loggedUser.force, "SELECT patent FROM officers WHERE nif = ?", loggedNif);
-
-    // Check if the patent is valid
-    if (result.length === 0) {
-        res.status(401).send("Unauthorized");
-        return;
-    }
-
-    // Check if the user has the right patent
-    // TODO: This needs to use an intent, not a patent
-    if (result[0].patent < 9) {
-        res.status(403).send("Forbidden");
+    // Fetch the database details
+    const db_details = getDatabaseDetails();
+    if (!db_details.allowed_users?.includes(loggedNif)) {
+        res.status(403).redirect("/portugalia/portalseguranca");
         return;
     }
 
