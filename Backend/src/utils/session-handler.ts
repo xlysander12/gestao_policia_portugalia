@@ -19,7 +19,7 @@ export async function generateSessionId() {
 
         let exists = false;
         for (const force of getForcesList()) {
-            const result = await queryDB(force, 'SELECT * FROM sessions WHERE session = ?', hashed);
+            const result = await queryDB(force, 'SELECT 1 FROM sessions WHERE session = ?', hashed);
             if (result.length !== 0) {
                 exists = true;
                 break;
