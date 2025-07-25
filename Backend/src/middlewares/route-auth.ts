@@ -15,7 +15,7 @@ import {isSessionValid} from "../utils/session-handler";
  * Middleware to check if the request has basic necessary information
  * This includes:
  * - If the route requires a force, check if the force is present and valid
- * - If the route requires a token, check if the token is present and valid
+ * - If the route requires a session, check if the session is present and valid
  * - If the route requires intents, check if the user has the required intents
  */
 async function assureRouteAuth(req: express.Request, res: APIResponse, next: NextFunction) {
@@ -44,11 +44,11 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
 
     }
 
-    // Check if this route requires a token
+    // Check if this route requires a session
     const sessionId: string | undefined = req.header("authorization") ?? req.cookies.sid as string | undefined;
     if (res.locals.routeDetails.requiresSession) {
         // Since it requires a valid session, check if the sessionId is present
-        if (!sessionId) { // If it requires a token, but it's not present, return 400
+        if (!sessionId) { // If it requires a session, but it's not present, return 400
             const response: RequestError = {
                 message: "Autenticação inválida"
             }
@@ -59,7 +59,7 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
 
         // Check if the session is valid
         const sessionValidity = await isSessionValid(sessionId, req.header(FORCE_HEADER));
-        if (!sessionValidity.valid) { // If the token is not valid, return 400
+        if (!sessionValidity.valid) { // If the session is not valid, return 400
             const response: RequestError = {
                 message: "Autenticação inválida"
             }
@@ -68,9 +68,9 @@ async function assureRouteAuth(req: express.Request, res: APIResponse, next: Nex
             return;
         }
 
-        // * Since the token is valid, update the last time the token was used and the last time the user interacted
+        // * Since the session is valid, update the last time the session was used and the last time the user interacted
         res.locals.loggedOfficer = ((await getOfficerData(sessionValidity.nif!, req.header(FORCE_HEADER)!))!); // Store the user's information in locals
-        // Update the last time the token was used
+        // Update the last time the session was used
         void updateLastTimeSessionUsed(sessionId); // No need to wait for this to finish
         // Update the last time the user has interacted
         void updateLastTimeUserInteracted(res.locals.loggedOfficer.nif); // No need to wait for this to finish

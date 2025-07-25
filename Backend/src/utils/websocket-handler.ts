@@ -10,15 +10,15 @@ export default function setupSocketEvents(ws: Server) {
     ws.use(async (socket, next) => {
         let {token, force} = socket.handshake.auth;
 
-        // If token is undefined, check if it is present in the cookie
-        token ??= socket.handshake.headers.cookie?.split("; ").find((c) => c.startsWith("sessionToken="))?.split("=")[1];
+        // If sid is undefined, check if it is present in the cookie
+        token ??= socket.handshake.headers.cookie?.split("; ").find((c) => c.startsWith("sid="))?.split("=")[1];
 
         // If force is undefined, check if it is present in the headers
         force ??= socket.handshake.headers[FORCE_HEADER];
 
         if (!token) {
-            logToConsole(`Socket connection ${socket.id} with no token present`, "warning");
-            next(new Error("No token present"));
+            logToConsole(`Socket connection ${socket.id} with no session id present`, "warning");
+            next(new Error("No session id present"));
             return;
         }
 
@@ -31,7 +31,7 @@ export default function setupSocketEvents(ws: Server) {
         // If the cookie is present, check if it is valid
         // If it is not, disconnect the user
         if (!((await isSessionValid(token as string, force as string)).valid)) {
-            logToConsole(`Socket connection ${socket.id} with invalid token`, "warning");
+            logToConsole(`Socket connection ${socket.id} with invalid session`, "warning");
             next(new Error("Unauthorized"));
             return;
         }

@@ -136,7 +136,7 @@ export async function clearAccountTokens(nif: number, force: string, exclude?: s
     if (exclude === undefined) {
         await queryDB(force, 'DELETE FROM sessions WHERE nif = ?', nif);
     } else {
-        await queryDB(force, 'DELETE FROM sessions WHERE nif = ? AND session != ?', [nif, exclude]);
+        await queryDB(force, 'DELETE FROM sessions WHERE nif = ? AND session != ?', [nif, hashSessionId(exclude)]);
     }
 }
 

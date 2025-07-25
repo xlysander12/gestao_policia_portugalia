@@ -34,7 +34,7 @@ app.use("/db", async (req, res, next) => {
     };
 
     for (const force of getForcesList()) {
-        const isValid = await isSessionValid(req.cookies.sessionToken, force);
+        const isValid = await isSessionValid(req.cookies.sid, force);
         if (isValid.valid) {
             loggedUser = {...isValid, force: force};
             break;

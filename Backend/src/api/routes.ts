@@ -1270,12 +1270,12 @@ const routes: routesType = {
     ...announcementsRoutes
 }
 
-// ! Make sure there are no routes that require a token but don't require a force.
+// ! Make sure there are no routes that require a session but don't require a force.
 // ! If there are, throw an error and stop the server from starting
 for (const route of Object.keys(routes)) {
     for (const method of Object.keys(routes[route].methods)) {
         if (routes[route].methods[method as methodType]!.requiresSession && !routes[route].methods[method as methodType]!.requiresForce) {
-            throw new Error(`Route '${route}' requires a token but doesn't require a force`);
+            throw new Error(`Route '${route}' requires a session but doesn't require a force`);
         }
     }
 }
