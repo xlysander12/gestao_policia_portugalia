@@ -8,7 +8,7 @@ import {
     getAccountForcesController,
     getUserAccountDetailsController,
     loginUserController, logoutUserController, resetPasswordController,
-    validateTokenController
+    validateSessionController
 } from "./controllers";
 
 import {accountExistsMiddle} from "../../middlewares";
@@ -16,8 +16,9 @@ import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
-// Endpoint to validate a Token and check if the user has the correct permissions
-app.post("/validate-token", validateTokenController);
+// Endpoint to validate a Session and check if the user has the correct permissions
+app.post("/validate-token", validateSessionController);
+app.post("/validate-session", validateSessionController);
 
 // Endpoint to login an user
 app.post("/login", loginUserController);

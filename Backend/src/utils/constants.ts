@@ -5,5 +5,6 @@ export const ENVIRONMENT_FIELDS = [
     "GH_APP_ID",
     "GH_APP_INSTALLATION_ID",
     "GH_REPO_OWNER",
-    "GH_REPO_NAME"
+    "GH_REPO_NAME",
+    "SESSION_SECRET"
 ]

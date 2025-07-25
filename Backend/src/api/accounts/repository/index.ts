@@ -2,23 +2,7 @@ import {queryDB} from "../../../utils/db-connector";
 import {getForcesList} from "../../../utils/config-handler";
 import {InnerAccountData} from "../../../types/inner-types";
 import {getForceIntents} from "../../util/repository";
-
-export async function isTokenValid(token: string | undefined, force: string | undefined): Promise<{valid: boolean, status: number, nif?: number}> {
-    // If token is undefined, return false as the token is invalid
-    if (token === undefined) return {valid: false, status: 401};
-
-    // If the force is undefined, check all forces for the token
-    if (force === undefined) {
-        return {valid: false, status: 400};
-    }
-
-    // Query the database to check if the token exists
-    const result = await queryDB(force, 'SELECT nif FROM tokens WHERE token = ?', token);
-    if (result.length === 0) return {valid: false, status: 401};
-
-    // Return true and the corresponding user if the token exists
-    return {valid: true, status: 200, nif: result[0].nif as number};
-}
+import {hashSessionId} from "../../../utils/session-handler";
 
 export async function userHasIntents(nif: number, force: string, intent: string | string[]) {
     // Check if it is just one intent or an array of them
@@ -63,9 +47,9 @@ export async function getUserForces(nif: number, return_passwords = false): Prom
     return user_forces;
 }
 
-export async function updateLastTimeTokenUsed(token: string) {
+export async function updateLastTimeSessionUsed(sessionId: string) {
     for (const force of getForcesList()) {
-        await queryDB(force, 'UPDATE tokens SET last_used = ? WHERE token = ?', [new Date(), token]);
+        await queryDB(force, 'UPDATE sessions SET last_used = ? WHERE session = ?', [new Date(), hashSessionId(sessionId)]);
     }
 }
 
@@ -110,43 +94,15 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
     return details;
 }
 
-export async function generateAccountToken() {
-    // Repeat the generation process until an unique token is generated
-    let unique = false;
-    let token = "";
-    while (!unique) {
-        // Generate a random token
-        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (let i = 0; i < 32; i++) {
-            token += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-
-        // After generating the token, check if it already exists
-        let exists = false;
-        for (const force of getForcesList()) {
-            const result = await queryDB(force, 'SELECT * FROM tokens WHERE token = ?', token);
-            if (result.length !== 0) {
-                exists = true;
-            }
-        }
-
-        // If the token doesn't exist, set unique to true
-        unique = !exists;
-    }
-
-    // Return the token
-    return token;
+export async function addAccountSession(force: string, nif: number, session_id: string, persistent: boolean) {
+    await queryDB(force, 'INSERT INTO sessions (session, nif, persistent) VALUES (?, ?, ?)', [hashSessionId(session_id), nif, persistent ? 1: 0]);
 }
 
-export async function addAccountToken(force: string, nif: number, token: string, persistent: boolean) {
-    await queryDB(force, 'INSERT INTO tokens (token, nif, persistent) VALUES (?, ?, ?)', [token, nif, persistent ? 1: 0]);
+export async function deleteAccountSession(force: string, nif: number, session_id: string) {
+    await queryDB(force, 'DELETE FROM sessions WHERE nif = ? AND session = ?', [nif, hashSessionId(session_id)]);
 }
 
-export async function deleteAccountToken(force: string, nif: number, token: string) {
-    await queryDB(force, 'DELETE FROM tokens WHERE nif = ? AND token = ?', [nif, token]);
-}
-
-export async function updateAccountPassword(nif: number, hash: string, currentToken: string) {
+export async function updateAccountPassword(nif: number, hash: string, current_session: string) {
     // Get the list of forces the user belongs to
     const userForces = await getUserForces(nif);
 
@@ -155,9 +111,9 @@ export async function updateAccountPassword(nif: number, hash: string, currentTo
         await queryDB(force.name, 'UPDATE users SET password = ? WHERE nif = ?', [hash, nif]);
     }
 
-    // Delete all tokens from the user except the current one
+    // Delete all sessions from the user except the current one
     for (const force of userForces) {
-        await queryDB(force.name, 'DELETE FROM tokens WHERE nif = ? AND token != ?', [nif, currentToken]);
+        await queryDB(force.name, 'DELETE FROM sessions WHERE nif = ? AND session != ?', [nif, hashSessionId(current_session)]);
     }
 }
 
@@ -178,9 +134,9 @@ export async function addAccount(nif: number, force: string): Promise<void> {
 
 export async function clearAccountTokens(nif: number, force: string, exclude?: string): Promise<void> {
     if (exclude === undefined) {
-        await queryDB(force, 'DELETE FROM tokens WHERE nif = ?', nif);
+        await queryDB(force, 'DELETE FROM sessions WHERE nif = ?', nif);
     } else {
-        await queryDB(force, 'DELETE FROM tokens WHERE nif = ? AND token != ?', [nif, exclude]);
+        await queryDB(force, 'DELETE FROM sessions WHERE nif = ? AND session != ?', [nif, hashSessionId(exclude)]);
     }
 }
 

@@ -134,7 +134,7 @@ export async function logRequestToFile(res: ExpressResponse | APIResponse) {
     builder += `Force: ${(res as APIResponse).locals.routeDetails.requiresForce ? (res.req.header(FORCE_HEADER) ? res.req.header(FORCE_HEADER)!.toUpperCase(): "Force not Present"): "N/A"}\n`;
 
     // Add the line with the Logged User, if applicable
-    builder += `Logged User: ${(res as APIResponse).locals.routeDetails.requiresToken ? (res.locals.loggedOfficer ? (res as APIResponse).locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
+    builder += `Logged User: ${(res as APIResponse).locals.routeDetails.requiresSession ? (res.locals.loggedOfficer ? (res as APIResponse).locals.loggedOfficer.nif: "User not Logged In"): "N/A"}\n`;
 
     // Add the headers of the request to the log
     builder += "Headers:\n";
