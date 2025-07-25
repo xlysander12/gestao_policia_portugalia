@@ -12,8 +12,8 @@ initializeLogFile();
 
 import apiRoutes from "./api";
 import {queryDB} from "./utils/db-connector";
-import {isTokenValid} from "./api/accounts/repository";
 import {join} from "path";
+import {isSessionValid} from "./utils/session-handler";
 
 const app = Router(); // This app is a router to compartimentalize routes
 
@@ -34,7 +34,7 @@ app.use("/db", async (req, res, next) => {
     };
 
     for (const force of getForcesList()) {
-        const isValid = await isTokenValid(req.cookies.sessionToken, force);
+        const isValid = await isSessionValid(req.cookies.sessionToken, force);
         if (isValid.valid) {
             loggedUser = {...isValid, force: force};
             break;

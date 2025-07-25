@@ -1,7 +1,6 @@
 import {
     addAccount,
-    addAccountToken, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountToken,
-    generateAccountToken,
+    addAccountSession, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
     getAccountDetails,
     getUserForces, resetAccountPassword,
     updateAccountPassword,
@@ -14,8 +13,9 @@ import {InnerAccountData} from "../../../types/inner-types";
 import {getOfficerData} from "../../officers/repository";
 import { AccountInfo } from "@portalseguranca/api-types/account/output";
 import {dateToUnix} from "../../../utils/date-handler";
+import {generateSessionId} from "../../../utils/session-handler";
 
-export async function validateToken(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
+export async function validateSession(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
     if (intents) { // If intents were provided, check if the user has them
         const hasIntents = await userHasIntents(user, force, intents);
@@ -64,7 +64,7 @@ export async function getAccountForces(requestingNif: number, nif: number): Prom
     return {result: true, status: 200, message: "Operação bem sucedida", data: response};
 }
 
-export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<{token: string, forces: string[]}>> {
+export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<{session_id: string, forces: string[]}>> {
     // Check if the user exists (it's needed to check on all forces databases)
     const user_forces = await getUserForces(nif, true);
 
@@ -102,26 +102,26 @@ export async function loginUser(nif: number, password: string, persistent: boole
         return {result: false, status: 403, message: "Esta conta encontra-se suspensa."};
     }
 
-    // If everything is correct, generate a token
-    const token = await generateAccountToken();
+    // If everything is correct, generate a session id and hash it
+    const session_id = await generateSessionId();
 
-    // After generating the token, store it in the databases of all the forces the user belongs to
+    // After generating the session id, store it in the databases of all the forces the user belongs to
     for (const force of user_forces) {
-        await addAccountToken(force.name, nif, token, persistent ?? false);
+        await addAccountSession(force.name, nif, session_id, persistent ?? false);
     }
 
     // Return the data to the Controller
     // * The "forces" field must only include the forces the user is not suspended in
-    return {result: true, status: 200, message: "Operação bem sucedida", data: {token, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
+    return {result: true, status: 200, message: "Operação bem sucedida", data: {session_id: session_id, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
 }
 
-export async function logoutUser(nif: number, token: string): Promise<DefaultReturn<void>> {
+export async function logoutUser(nif: number, session_id: string): Promise<DefaultReturn<void>> {
     // Get all the forces the user belongs to
     const forces = await getUserForces(nif);
 
-    // Delete the token from all forces
+    // Delete the session_id from all forces
     for (const force of forces) {
-        await deleteAccountToken(force.name, nif, token);
+        await deleteAccountSession(force.name, nif, session_id);
     }
 
     // Return success

@@ -19,16 +19,16 @@ import {
     deleteUser,
     getUserDetails,
     loginUser, logoutUser, resetUserPassword,
-    validateToken
+    validateSession
 } from "../services";
 import {getAccountForces} from "../services";
 import {AccountInfoAPIResponse} from "../../../types/response-types";
 
-export async function validateTokenController (req: express.Request, res: APIResponse<ValidateTokenResponse>): Promise<void> {
+export async function validateSessionController(req: express.Request, res: APIResponse<ValidateTokenResponse>): Promise<void> {
     const {intents} = req.body as ValidateTokenRequestBodyType;
 
     // Call the service
-    const isTokenValid = await validateToken(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, intents);
+    const isTokenValid = await validateSession(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, intents);
 
     // Check the result of the service
     if (!isTokenValid.result) { // The result was negative, user doesn't have requested intents
@@ -96,13 +96,13 @@ export async function loginUserController(req: express.Request, res: APIResponse
     }
 
     // Append the cookie to the response
-    res.cookie("sessionToken", loginData.data!.token, cookieOptions);
+    res.cookie("sid", loginData.data!.session_id, cookieOptions);
 
     // Send the token to the user
     res.status(200).json({
         message: "Operação bem sucedida",
         data: {
-            token: loginData.data!.token,
+            sessionId: loginData.data!.session_id,
             forces: loginData.data!.forces
         }
     });

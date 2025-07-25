@@ -1,8 +1,8 @@
 import {Server} from "socket.io";
-import {isTokenValid} from "../api/accounts/repository";
 import {FORCE_HEADER} from "./constants";
 import {logToConsole} from "./logger";
 import pc from "picocolors";
+import {isSessionValid} from "./session-handler";
 
 export default function setupSocketEvents(ws: Server) {
     // Make sure there is the sessionToken cookie and the force header
@@ -30,7 +30,7 @@ export default function setupSocketEvents(ws: Server) {
 
         // If the cookie is present, check if it is valid
         // If it is not, disconnect the user
-        if (!((await isTokenValid(token as string, force as string)).valid)) {
+        if (!((await isSessionValid(token as string, force as string)).valid)) {
             logToConsole(`Socket connection ${socket.id} with invalid token`, "warning");
             next(new Error("Unauthorized"));
             return;
