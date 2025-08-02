@@ -3,7 +3,10 @@
         "host": "host",
         "port": 3306,
         "user": "username",
-        "password": "password"
+        "password": "password",
+        "allowed_users": [
+            668855471
+        ]
     },
     "forces": {
         "psp": {

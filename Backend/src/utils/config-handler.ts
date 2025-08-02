@@ -7,7 +7,7 @@ import {logToConsole} from "./logger";
 // Making sure the sample config is correct
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 
-export function getDatabaseConnetionDetails() {
+export function getDatabaseDetails() {
     return config.database;
 }
 

@@ -110,10 +110,10 @@ export async function loginUserController(req: express.Request, res: APIResponse
 
 export async function logoutUserController(req: express.Request, res: APIResponse) {
     // Call the service to remove the token from the database
-    const result = await logoutUser(res.locals.loggedOfficer.nif, req.cookies.sessionToken as string | undefined | null ?? req.header("Authorization")!);
+    const result = await logoutUser(res.locals.loggedOfficer.nif, req.cookies.sid as string | undefined | null ?? req.header("Authorization")!);
 
     // Clear the cookie
-    res.clearCookie("sessionToken");
+    res.clearCookie("sid");
 
     // Return the result
     res.status(result.status).json({message: result.message});
@@ -122,7 +122,7 @@ export async function logoutUserController(req: express.Request, res: APIRespons
 export async function changeUserPasswordController(req: express.Request, res: APIResponse) {
     const {oldPassword, newPassword, confirmPassword} = req.body as ChangePasswordRequestBodyType;
 
-    const serviceResult = await changeUserPassword(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies.sessionToken as string | undefined | null ?? req.header("Authorization")!);
+    const serviceResult = await changeUserPassword(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, oldPassword, newPassword, confirmPassword, req.cookies.sid as string | undefined | null ?? req.header("Authorization")!);
 
     res.status(serviceResult.status).json({message: serviceResult.message});
 }

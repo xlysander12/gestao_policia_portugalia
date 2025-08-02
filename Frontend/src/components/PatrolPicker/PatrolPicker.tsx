@@ -23,7 +23,7 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
-    const [currentFilters, setCurrentFilters] = useState<{key: string, value: string}[]>([]);
+    const [currentFilters, setCurrentFilters] = useState<{key: string, value: string}[]>(props.filters ?? []);
 
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(10);
