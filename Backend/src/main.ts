@@ -11,7 +11,6 @@ import {initializeLogFile, logToConsole} from "./utils/logger";
 initializeLogFile();
 
 import apiRoutes from "./api";
-import {queryDB} from "./utils/db-connector";
 import {join} from "path";
 import {isSessionValid} from "./utils/session-handler";
 
@@ -54,7 +53,7 @@ app.use("/db", async (req, res, next) => {
     // Fetch the database details
     const db_details = getDatabaseDetails();
     if (!db_details.allowed_users?.includes(loggedNif)) {
-        res.status(403).redirect("/portugalia/portalseguranca");
+        res.redirect(403, "/portugalia/portalseguranca");
         return;
     }
 
