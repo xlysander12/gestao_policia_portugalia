@@ -20,6 +20,9 @@ const app = Router(); // This app is a router to compartimentalize routes
 // * React Static
 app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));
 
+// * Force Titles
+app.use("/titles", express.static(join(__dirname, "titles"), {extensions: ["svg"]}))
+
 // * Import the API routes
 app.use("/api", apiRoutes);
 
