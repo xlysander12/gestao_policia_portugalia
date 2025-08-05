@@ -11,7 +11,7 @@ import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-t
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useWebSocketEvent} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Notifications from "./Notifications.tsx";
@@ -68,6 +68,9 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Set other useful hooks
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Get Force Data
+    const [forceData] = useForceData();
 
     // Set the state that holds if the account menu is open
     const [accountMenuOpen, setAccountMenuOpen] = useState<boolean>(false);
@@ -162,8 +165,9 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     return (
         <>
-            <div className={style.mainNavbar}>
-
+            <div className={style.mainNavbar} style={{
+                backgroundColor: forceData.colors.base
+            }}>
                 <ScreenSplit leftSideComponent={(
                     <div className={style.leftSide}>
                         {/*Add the div that will hold the paths*/}
