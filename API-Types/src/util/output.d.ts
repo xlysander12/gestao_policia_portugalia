@@ -1,6 +1,11 @@
 import {BaseResponse} from "../index";
 import {MinifiedOfficerData} from "../officers/output";
 
+export interface ForceColors {
+    base: string,
+    text: string | null
+}
+
 export interface PatentData {
     id: number,
     name: string,
@@ -61,6 +66,10 @@ export interface ActivityNotification extends BaseNotification {
 export interface EventNotification extends BaseNotification {
     type: "event",
     title: string
+}
+
+export interface UtilColorsResponse extends BaseResponse {
+    data: ForceColors
 }
 
 export interface UtilPatentsResponse extends BaseResponse {

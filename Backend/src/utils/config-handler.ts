@@ -3,6 +3,7 @@ import {join} from "path";
 
 import {ConfigTypes, StaticConfigTypes} from "../types";
 import {logToConsole} from "./logger";
+import {ForceColors} from "@portalseguranca/api-types/util/output";
 
 // Making sure the sample config is correct
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
@@ -13,6 +14,13 @@ export function getDatabaseDetails() {
 
 export function getAllForces() {
     return Object.keys(config.forces).filter(force => !force.startsWith("__"));
+}
+
+export function getForceColors(force: string): ForceColors {
+    return {
+        base: config.forces[force].colors.base,
+        text: config.forces[force].colors.text ?? null
+    }
 }
 
 export function getForceDatabase(force: string) {

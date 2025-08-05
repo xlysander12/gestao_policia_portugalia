@@ -18,19 +18,37 @@ import {
 } from "../repository";
 import {
     InactivityTypeData,
-    IntentData, BaseNotification,
-    PatentData, PatrolTypeData,
+    IntentData,
+    BaseNotification,
+    PatentData,
+    PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
-    StatusData, ActivityNotification, EvaluationGrade, EvaluationField, EvaluationDecision, EventType, EventNotification
+    StatusData,
+    ActivityNotification,
+    EvaluationGrade,
+    EvaluationField,
+    EvaluationDecision,
+    EventType,
+    EventNotification,
+    ForceColors
 } from "@portalseguranca/api-types/util/output";
-import {getForcePatrolForces} from "../../../utils/config-handler";
+import {getForceColors, getForcePatrolForces} from "../../../utils/config-handler";
 import {getAccountDetails, userHasIntents} from "../../accounts/repository";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {MinifiedOfficerData, OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {getOfficerPatrol} from "../../patrols/repository";
 import {getEvent, getEvents} from "../../events/repository";
 import {getOfficerData} from "../../officers/repository";
+
+export function forceColors(force: string): DefaultReturn<ForceColors> {
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: getForceColors(force)
+    }
+}
 
 export async function forcePatents(force: string): Promise<DefaultReturn<PatentData[]>> {
     // Get the list from the repository

@@ -24,6 +24,10 @@ const ForceHubRt = rt.Record({
 const ForceRt = rt.Record({
     name: rt.String,
     acronym: rt.String,
+    colors: rt.Record({
+        base: rt.String,
+        text: rt.Optional(rt.String)
+    }),
     patrols: rt.Array(rt.String),
     database: rt.String,
     isPromotion: rt.String,

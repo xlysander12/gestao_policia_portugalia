@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-    changeLastCeremonyController,
+    changeLastCeremonyController, getColorsController,
     getEvaluationDecisionsController,
     getEvaluationFieldsController,
     getEvaluationGradesController, getEventTypesController, getForceTopHoursInWeekController,
@@ -14,6 +14,8 @@ import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
+
+app.get("/colors", getColorsController);
 
 app.get("/patents", getPatentsController);
 

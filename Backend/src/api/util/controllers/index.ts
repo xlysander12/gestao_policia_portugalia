@@ -4,7 +4,7 @@ import {
     changeLastCeremony,
     errors, evaluationDecisions,
     evaluationFields,
-    evaluationGrades, eventTypes,
+    evaluationGrades, eventTypes, forceColors,
     forceInactivityTypes,
     forceIntents,
     forcePatents, forcePatrolForces,
@@ -28,11 +28,27 @@ import {
     UtilLastCeremonyResponse,
     UtilSpecialUnitsActiveResponse,
     UtilEventTypesResponse,
-    ForceTopHoursInWeekResponse
+    ForceTopHoursInWeekResponse, UtilColorsResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {ChangeLastCeremonyRequestBodyType} from "@portalseguranca/api-types/util/input";
+
+export function getColorsController(req: express.Request, res: ExpressResponse<UtilColorsResponse>) {
+    // Call the service
+    const result = forceColors(req.header(FORCE_HEADER)!);
+
+    if (!result.result) {
+        res.status(result.status).json({
+            message: result.message
+        });
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: result.data
+    });
+}
 
 export async function getPatentsController(req: express.Request, res: ExpressResponse<UtilPatentsResponse>) {
     // Get what force the user is trying to get the patents from
