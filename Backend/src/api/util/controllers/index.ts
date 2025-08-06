@@ -42,6 +42,7 @@ export function getColorsController(req: express.Request, res: ExpressResponse<U
         res.status(result.status).json({
             message: result.message
         });
+        return;
     }
 
     res.status(result.status).json({
