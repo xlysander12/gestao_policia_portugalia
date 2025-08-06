@@ -187,7 +187,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                                 <Gate show={!isLoginPage && hasTitle}>
                                     <img
                                         className={style.titleSvg}
-                                        src={`${BASE_URL}/titles/${localStorage.getItem("force")!}`}
+                                        src={`${BASE_URL}/titles/${localStorage.getItem("force")!}.png`}
                                         alt={"Retornar à dashboard"}
                                         onError={() => setHasTitle(false)}
                                         onLoad={() => setHasTitle(true)}
