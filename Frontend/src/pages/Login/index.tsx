@@ -112,7 +112,7 @@ function Login({onLoginCallback}: LoginPageProps) {
                         alternateColor
                         fullWidth
                         size={"small"}
-                        label={"Password"}
+                        label={"Palavra-Passe"}
                         type={"password"}
                         onChange={(event) => setPassword(event.target.value)}
                         value={password}
