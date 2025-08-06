@@ -54,7 +54,7 @@ function App() {
         // Creating a temp variable to store the force data
         const forceTempData: ForceData = {
             last_ceremony: moment(),
-            colors: {base: "#fffff", text: null},
+            colors: {base: "#ffffff", text: null},
             patents: [],
             statuses: [],
             intents: [],
