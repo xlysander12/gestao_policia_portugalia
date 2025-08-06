@@ -11,6 +11,7 @@ import OfficerInfo from "./pages/OfficerInfo";
 import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
+    UtilColorsResponse,
     UtilEvaluationDecisionsResponse,
     UtilEvaluationFieldsResponse,
     UtilEvaluationGradesResponse, UtilEventTypesResponse,
@@ -53,6 +54,7 @@ function App() {
         // Creating a temp variable to store the force data
         const forceTempData: ForceData = {
             last_ceremony: moment(),
+            colors: {base: "#ffffff", text: null},
             patents: [],
             statuses: [],
             intents: [],
@@ -68,18 +70,21 @@ function App() {
 
         // Fetching the last ceremony
         async function fetchLastCeremony() {
-            console.log("called");
             const lastCeremonyResponse = await make_request("/util/last-ceremony", "GET");
             forceTempData.last_ceremony = moment.unix((await lastCeremonyResponse.json() as UtilLastCeremonyResponse).data);
         }
 
+        // Fetching the colors
+        async function fetchColors() {
+            const patentsResponse = await make_request("/util/colors", "GET", {force: forceName});
+            forceTempData.colors = ((await patentsResponse.json()) as UtilColorsResponse).data;
+        }
 
         // Fetching the patents
         async function fetchPatents() {
             const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});
             forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
         }
-
 
         // Fetching the statuses
         async function fetchStatuses() {
@@ -117,7 +122,6 @@ function App() {
             forceTempData.evaluation_fields = ((await evaluationFieldsResponse.json()) as UtilEvaluationFieldsResponse).data;
         }
 
-
         // Fetching the evaluation decisions
         async function fetchEvaluationDecisions() {
             const evaluationDecisionsResponse = await make_request("/util/evaluation-decisions", "GET", {force: forceName});
@@ -145,6 +149,7 @@ function App() {
         // Fetch all data paralely
         await Promise.all([
             fetchLastCeremony(),
+            fetchColors(),
             fetchPatents(),
             fetchStatuses(),
             fetchIntents(),

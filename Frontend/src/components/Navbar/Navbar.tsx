@@ -1,6 +1,6 @@
 import {ReactNode, useContext, useEffect, useState} from "react";
 import style from "./navbar.module.css";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
@@ -11,12 +11,13 @@ import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-t
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useWebSocketEvent} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Notifications from "./Notifications.tsx";
 import packageJson from "../../../package.json";
 import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
+import {BASE_URL} from "../../utils/constants.ts";
 
 type CustomLinkProps = {
     to: string
@@ -53,7 +54,7 @@ const ForceSelectStyle = styled(Select)(() => ({
 
     // Darken background when hovering
     "&:hover": {
-        backgroundColor: "var(--portalseguranca-color-hover-dark)"
+        backgroundColor: "rgba(0, 0, 0, 0.2)"
     }
 }))
 
@@ -66,8 +67,13 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const loggedUser = useContext(LoggedUserContext);
 
     // Set other useful hooks
-    const location = useLocation();
     const navigate = useNavigate();
+
+    // Get Force Data
+    const [forceData] = useForceData();
+
+    // State that holds the existence of SVG title for force
+    const [hasTitle, setHasTitle] = useState<boolean>(true);
 
     // Set the state that holds if the account menu is open
     const [accountMenuOpen, setAccountMenuOpen] = useState<boolean>(false);
@@ -162,20 +168,35 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     return (
         <>
-            <div className={style.mainNavbar}>
-
+            <div className={style.mainNavbar} style={!isLoginPage ? {
+                backgroundColor: forceData.colors.base
+            } : undefined}>
                 <ScreenSplit leftSideComponent={(
                     <div className={style.leftSide}>
                         {/*Add the div that will hold the paths*/}
-                        <div className={style.pathsDiv}>
-                            <div className={style.subPathDiv}>
-                                <Link
-                                    className={`${style.navbarSubPathText} ${style.navbarRedirect}`}
-                                    to={"/"}
-                                    reloadDocument={location.pathname === "/login"}>
+                        <div className={style.titleDiv}>
+                            <Link
+                                className={style.titleText}
+                                to={"/"}
+                                reloadDocument={isLoginPage}
+                            >
+                                <Gate show={isLoginPage || !hasTitle}>
                                     Portal Segurança
-                                </Link>
-                            </div>
+                                </Gate>
+
+                                <Gate show={!isLoginPage && hasTitle}>
+                                    <img
+                                        className={style.titleSvg}
+                                        src={`${BASE_URL}/titles/${localStorage.getItem("force")!}.png`}
+                                        alt={"Retornar à dashboard"}
+                                        onError={() => setHasTitle(false)}
+                                        onLoad={() => setHasTitle(true)}
+                                        style={{
+                                            height: "100%"
+                                        }}
+                                    />
+                                </Gate>
+                            </Link>
                         </div>
 
                         <Gate show={!isLoginPage}>
@@ -248,6 +269,14 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
                     <Divider/>
                 </Gate>
+
+                <MenuItem
+                    onClick={() => {
+                        window.open("https://docs.google.com/presentation/d/1XOaUvmvrCQazbobvyvAW8gRd8kJKxFFQ2lHnB_7NWFw/edit?slide=id.g37184f451c4_0_139#slide=id.g37184f451c4_0_139");
+                    }}
+                >
+                    Manual de Utilização
+                </MenuItem>
 
                 <MenuItem
                     onClick={() => {

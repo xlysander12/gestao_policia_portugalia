@@ -289,6 +289,16 @@ const metricsRoutes: routesType = {
 }
 
 const utilRoutes: routesType = {
+    // Route to the colors of a force
+    "/util/colors": {
+        methods: {
+            GET: {
+                requiresSession: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all patents of a force
     "/util/patents$": {
         methods: {

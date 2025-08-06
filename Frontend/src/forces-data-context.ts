@@ -2,7 +2,7 @@ import {createContext} from "react";
 import {
     EvaluationDecision,
     EvaluationField,
-    EvaluationGrade, EventType,
+    EvaluationGrade, EventType, ForceColors,
     InactivityTypeData,
     IntentData,
     PatentData, PatrolTypeData,
@@ -13,6 +13,7 @@ import {Moment} from "moment";
 
 export type ForceData = {
     last_ceremony: Moment
+    colors: ForceColors
     patents: PatentData[]
     statuses: StatusData[]
     intents: IntentData[]

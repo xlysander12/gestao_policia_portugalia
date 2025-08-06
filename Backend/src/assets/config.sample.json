@@ -12,6 +12,9 @@
         "psp": {
             "name": "Polícia de Segurança Pública",
             "acronym": "PSP",
+            "colors": {
+                "base": "#4a86e8"
+            },
             "patrols": ["psp", "gnr"],
             "database": "database",
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
@@ -51,6 +54,9 @@
         "gnr": {
             "name": "Guarda Nacional Republicana",
             "acronym": "GNR",
+            "colors": {
+                "base": "#006633"
+            },
             "patrols": ["psp", "gnr"],
             "database": "database",
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
