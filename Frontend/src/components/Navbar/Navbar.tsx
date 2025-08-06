@@ -272,7 +272,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
                 <MenuItem
                     onClick={() => {
-                        window.open("https://docs.google.com/presentation/d/1XOaUvmvrCQazbobvyvAW8gRd8kJKxFFQ2lHnB_7NWFw/edit?slide=id.g37184f451c4_0_139#slide=id.g37184f451c4_0_139");
+                        window.open(`${BASE_URL}/manual`);
                     }}
                 >
                     Manual de Utilização

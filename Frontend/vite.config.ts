@@ -31,6 +31,10 @@ export default defineConfig({
     base: BASE_URL,
     server: {
         proxy: {
+            [`${BASE_URL}/manual`]: {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+            },
             [`${BASE_URL}/titles`]: {
                 target: 'http://localhost:8080',
                 changeOrigin: true,

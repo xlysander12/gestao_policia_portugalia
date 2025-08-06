@@ -23,6 +23,11 @@ app.use(express.static(join(__dirname, "..", "..", "Frontend", "dist")));
 // * Force Titles
 app.use("/titles", express.static(join(__dirname, "titles"), {extensions: ["svg"]}))
 
+// * User Manual
+app.use("/manual", (_, res) => {
+   res.sendFile(join(__dirname, "assets", "user-manual.pdf"));
+});
+
 // * Import the API routes
 app.use("/api", apiRoutes);
 
