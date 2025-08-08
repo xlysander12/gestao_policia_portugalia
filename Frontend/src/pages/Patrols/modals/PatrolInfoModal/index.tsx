@@ -97,7 +97,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         }
 
         // Get the data of the registrar of the patrol
-        const registrarResponse = await make_request(`/officers/${responseJson.data.registrar}`, RequestMethod.GET);
+        const registrarResponse = await make_request(`/officers/${responseJson.data.registrar}?patrol=true`, RequestMethod.GET);
         const registrarResponseJson: OfficerInfoGetResponse = await registrarResponse.json();
 
         if (!registrarResponse.ok) {
