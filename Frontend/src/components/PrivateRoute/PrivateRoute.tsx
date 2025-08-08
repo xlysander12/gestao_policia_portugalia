@@ -47,7 +47,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         }
     }
 
-    const checkToken = async (): Promise<{valid: boolean, nif: number}> => {
+    const checkToken = async (signal?: AbortSignal): Promise<{valid: boolean, nif: number}> => {
         // Check if there is a force in the local storage. If there isn't, return to login
         if (!localStorage.getItem("force")) {
             redirectLogin();
@@ -55,7 +55,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         }
 
         // Since there's a force in local storage, check if the token stored in the cookies is valid for that force
-        const response = await make_request("/accounts/validate-token", "POST", {redirectToLoginOn401: false});
+        const response = await make_request("/accounts/validate-token", "POST", {redirectToLoginOn401: false, signal});
 
         // If the request returned status 401, the token isn't valid and the user should be redirected to login
         if (response.status === 401) {
@@ -70,8 +70,8 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         return {valid: true, nif: (await response.json() as ValidateTokenResponse).data};
     }
 
-    const fetchLoggedUserInfo = async (nif: number): Promise<LoggedUserContextType> => {
-        const userResponse = await make_request(`/officers/${nif}`, "GET");
+    const fetchLoggedUserInfo = async (nif: number, signal?: AbortSignal): Promise<LoggedUserContextType> => {
+        const userResponse = await make_request(`/officers/${nif}`, "GET", {signal});
 
         // Get the data from the response
         const responseJson: OfficerInfoGetResponse = await userResponse.json();
@@ -109,19 +109,19 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         
 
         // Fetch the user's intents
-        const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");
+        const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET", {signal});
         const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
         tempLoggedUser.intents = accountInfoData.data.intents;
 
         // Fetch all forces the user belongs to
-        const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET");
+        const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET", {signal});
         const accountForcesData = (await accountForcesResponse.json()) as UserForcesResponse;
         tempLoggedUser.forces = accountForcesData.data.forces;
 
         return tempLoggedUser;
     }
 
-    const updateValues = async (checkAuth = true, showLoading = true) => {
+    const updateValues = async (checkAuth = true, showLoading = true, signal?: AbortSignal) => {
         // First, set the authorized state to false, if required
         if (checkAuth && showLoading) {
             setAuthorized(false);
@@ -131,7 +131,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
         // Checking if the token is valid
         if (checkAuth) {
-            const result = await checkToken();
+            const result = await checkToken(signal);
 
             if (!result.valid) return; // Redirecting to login page is handled by the upper function
 
@@ -141,7 +141,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
 
         // Fetch the Logged User's information
-        const userInfo = await fetchLoggedUserInfo(nif);
+        const userInfo = await fetchLoggedUserInfo(nif, signal);
 
         // Set the logged user with the data fetched
         setLoggedUser({...userInfo});
@@ -177,11 +177,18 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
     useEffect(() => {
+        // Create Abort Controller
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         // Call the function to check the authentication only if we're not in the login page
         if (!isLoginPage) {
-            void updateValues();
+            void updateValues(true, true, signal);
         }
 
+        return () => {
+            controller.abort();
+        }
     }, [isLoginPage, element]);
 
     // Create the websocket connection when not in the login page

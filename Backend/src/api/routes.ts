@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -50,13 +50,21 @@ import {
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
-import {ChangeLastCeremonyRequestBody} from "@portalseguranca/api-types/util/input";
+import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
     CreateEventBody, EditEventBody,
     ListEventsQueryParams
 } from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
+import {
+    CreateAnnouncementBody,
+    EditAnnouncementBody,
+    ListAnnouncementsQueryParams
+} from "@portalseguranca/api-types/announcements/input";
+import {
+    AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
+} from "@portalseguranca/api-types/announcements/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -66,7 +74,7 @@ export type RouteFilterType = Record<string, {
     }>
 
 export interface routeMethodType {
-    requiresToken: boolean
+    requiresSession: boolean
     requiresForce: boolean
     intents?: string[]
     filters?: RouteFilterType
@@ -95,11 +103,24 @@ export interface routeType {
 export type routesType = Record<string, routeType>;
 
 const accountRoutes: routesType = {
-    // Route to validate a token
+    // Route to validate a token @deprecated - use "/accounts/validate-session"
     "/accounts/validate-token$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
+                requiresForce: true,
+                body: {
+                    type: ValidateTokenRequestBody
+                }
+            }
+        }
+    },
+
+    // Route to validate a session
+    "/accounts/validate-session$": {
+        methods: {
+            POST: {
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: ValidateTokenRequestBody
@@ -112,7 +133,7 @@ const accountRoutes: routesType = {
     "/accounts/login$": {
         methods: {
             POST: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: false,
                 body: {
                     type: LoginRequestBody
@@ -125,7 +146,7 @@ const accountRoutes: routesType = {
     "/accounts/logout$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -135,7 +156,7 @@ const accountRoutes: routesType = {
     "/accounts/change-password$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: ChangePasswordRequestBody
@@ -158,7 +179,7 @@ const accountRoutes: routesType = {
     "/accounts/\\d+/reset-password$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["accounts"],
                 broadcast: {
@@ -179,7 +200,7 @@ const accountRoutes: routesType = {
     "/accounts/\\d+/forces$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -190,20 +211,20 @@ const accountRoutes: routesType = {
         methods: {
             // Route to get information about an account
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
 
             // Route to create an account for an existing officer
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["accounts"]
             },
 
             // Route to update an account's permissions and suspended state
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["accounts"],
                 body: {
@@ -221,7 +242,7 @@ const accountRoutes: routesType = {
                 }
             },
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["accounts"],
                 broadcast: {
@@ -244,7 +265,7 @@ const metricsRoutes: routesType = {
     "/metrics/issue$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: SubmitIssueRequestBody
@@ -257,7 +278,7 @@ const metricsRoutes: routesType = {
     "/metrics/suggestion$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: SubmitIssueRequestBody
@@ -268,11 +289,21 @@ const metricsRoutes: routesType = {
 }
 
 const utilRoutes: routesType = {
+    // Route to the colors of a force
+    "/util/colors": {
+        methods: {
+            GET: {
+                requiresSession: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all patents of a force
     "/util/patents$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -282,7 +313,7 @@ const utilRoutes: routesType = {
     "/util/statuses$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -292,7 +323,7 @@ const utilRoutes: routesType = {
     "/util/special-units$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -302,7 +333,7 @@ const utilRoutes: routesType = {
     "/util/special-units/\\d+/active": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -312,7 +343,7 @@ const utilRoutes: routesType = {
     "/util/intents$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -322,7 +353,7 @@ const utilRoutes: routesType = {
     "/util/inactivity-types$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -332,7 +363,7 @@ const utilRoutes: routesType = {
     "/util/patrol-types$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -342,7 +373,7 @@ const utilRoutes: routesType = {
     "/util/patrol-forces$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -352,7 +383,7 @@ const utilRoutes: routesType = {
     "/util/evaluation-grades$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -362,7 +393,7 @@ const utilRoutes: routesType = {
     "/util/evaluation-fields$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -372,7 +403,7 @@ const utilRoutes: routesType = {
     "/util/evaluation-decisions$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -382,7 +413,7 @@ const utilRoutes: routesType = {
     "/util/event-types$": {
         methods: {
             GET: {
-                requiresToken: false,
+                requiresSession: false,
                 requiresForce: true
             }
         }
@@ -393,11 +424,11 @@ const utilRoutes: routesType = {
         methods: {
             GET: {
                 requiresForce: true,
-                requiresToken: false
+                requiresSession: false
             },
             PUT: {
                 requiresForce: true,
-                requiresToken: true,
+                requiresSession: true,
                 intents: ["evaluations"],
                 body: {
                     type: ChangeLastCeremonyRequestBody
@@ -410,7 +441,7 @@ const utilRoutes: routesType = {
     "/util/notifications$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -420,8 +451,21 @@ const utilRoutes: routesType = {
     "/util/errors$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
+            }
+        }
+    },
+
+    // Route to get the top hours of a force in a week
+    "/util/top-hours$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ForceTopHoursParams
+                }
             }
         }
     }
@@ -432,7 +476,7 @@ const officersRoutes: routesType = {
     "^/officers$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListOfficersQueryParams,
@@ -455,7 +499,7 @@ const officersRoutes: routesType = {
     "/officers/import$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["officers"],
                 broadcast: {
@@ -477,7 +521,7 @@ const officersRoutes: routesType = {
         methods: {
             // Route to get an officer's information
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: GetOfficerQueryParams
@@ -487,7 +531,7 @@ const officersRoutes: routesType = {
 
             // Route to create an officer
             PUT: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["officers"],
                 body: {
@@ -508,7 +552,7 @@ const officersRoutes: routesType = {
 
             // Route to update an officer's information
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["officers"],
                 body: {
@@ -528,7 +572,7 @@ const officersRoutes: routesType = {
 
             // Route to delete an officer
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["officers"],
                 body: {
@@ -553,7 +597,7 @@ const officersRoutes: routesType = {
     "/officers/\\d+/restore$": {
         methods: {
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["officers"],
                 notes: "restore_officer",
@@ -575,7 +619,7 @@ const officersRoutes: routesType = {
     "/officers/\\d+/patrol$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -586,11 +630,11 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/last-shift$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
             PUT: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["activity"],
                 body: {
@@ -614,7 +658,7 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/hours$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListOfficerHoursQueryParams
@@ -631,7 +675,7 @@ const activityRoutes: routesType = {
                 }
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["activity"],
                 body: {
@@ -654,7 +698,7 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/hours/last$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -662,11 +706,11 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/hours/\\d+$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["activity"],
                 broadcast: {
@@ -688,7 +732,7 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/justifications$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListOfficerJustificationsQueryParams
@@ -713,7 +757,7 @@ const activityRoutes: routesType = {
                 }
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: AddOfficerJustificationBody
@@ -735,7 +779,7 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/justifications/active": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             }
         }
@@ -743,11 +787,11 @@ const activityRoutes: routesType = {
     "/officers/\\d+/activity/justifications/\\d+$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["activity"],
                 body: {
@@ -767,7 +811,7 @@ const activityRoutes: routesType = {
                 }
             },
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: ChangeOfficerJustificationBody
@@ -786,7 +830,7 @@ const activityRoutes: routesType = {
                 }
             },
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 broadcast: {
                     event: SOCKET_EVENT.ACTIVITY,
@@ -810,7 +854,7 @@ const evaluationsRoutes: routesType = {
     "/officers/\\d+/evaluations$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListEvaluationsQueryParams
@@ -838,7 +882,7 @@ const evaluationsRoutes: routesType = {
                 }
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: CreateEvaluationBody
@@ -862,7 +906,7 @@ const evaluationsRoutes: routesType = {
     "/officers/\\d+/evaluations/author": {
         methods: {
             "GET": {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListAuthoredEvaluationsQueryParams
@@ -896,11 +940,11 @@ const evaluationsRoutes: routesType = {
     "/officers/\\d+/evaluations/\\d+$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: EditEvaluationBody
@@ -919,7 +963,7 @@ const evaluationsRoutes: routesType = {
                 }
             },
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 broadcast: {
                     event: SOCKET_EVENT.EVALUATIONS,
@@ -942,7 +986,7 @@ const patrolsRoutes: routesType = {
     "/patrols$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                   type: ListPatrolsQueryParams
@@ -985,7 +1029,7 @@ const patrolsRoutes: routesType = {
                 }
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: CreatePatrolBody
@@ -1008,12 +1052,12 @@ const patrolsRoutes: routesType = {
     "/patrols/[a-z]+\\d+$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
 
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 broadcast: {
                     event: SOCKET_EVENT.PATROLS,
@@ -1030,7 +1074,7 @@ const patrolsRoutes: routesType = {
             },
 
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 intents: ["patrols"],
                 broadcast: {
@@ -1055,14 +1099,14 @@ const eventsRoutes: routesType = {
     "/events$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 queryParams: {
                     type: ListEventsQueryParams
                 }
             },
             POST: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: CreateEventBody
@@ -1084,11 +1128,11 @@ const eventsRoutes: routesType = {
     "/events/\\D+\\d+$": {
         methods: {
             GET: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true
             },
             PATCH: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 body: {
                     type: EditEventBody
@@ -1106,7 +1150,7 @@ const eventsRoutes: routesType = {
                 }
             },
             DELETE: {
-                requiresToken: true,
+                requiresSession: true,
                 requiresForce: true,
                 broadcast: {
                     event: SOCKET_EVENT.EVENTS,
@@ -1124,6 +1168,103 @@ const eventsRoutes: routesType = {
     },
 }
 
+const announcementsRoutes: routesType = {
+    "/announcements$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListAnnouncementsQueryParams
+                },
+                filters: {
+                    "active": {
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "expiration IS NULL OR expiration > CURRENT_TIMESTAMP()" : "expiration <= CURRENT_TIMESTAMP()",
+                    },
+                    "tags": {
+                        queryFunction: (receivedParams) => {
+                            const arr = receivedParams.tags.split(",")
+
+                            let query = "";
+                            for (const _ of arr) {
+                                query += `tags LIKE ? AND `
+                            }
+
+                            return query.slice(0, -5);
+                        },
+                        valueFunction: (value: string) => {
+                            return value.split(",").map(element => `%${element}%`)
+                        }
+                    }
+                }
+            },
+            POST: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: CreateAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: APIResponse): AnnouncementAddSocket => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            }
+        }
+    },
+    "/announcements/[a-z]+\\d+$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true
+            },
+            PATCH: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                body: {
+                    type: EditAnnouncementBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementUpdateSocket => {
+                        return {
+                            action: "update",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            },
+            DELETE: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["announcements"],
+                broadcast: {
+                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    body: (_, res: AnnouncementInfoAPIResponse): AnnouncementDeleteSocket => {
+                        return {
+                            action: "delete",
+                            id: res.locals.announcement.id,
+                            force: res.locals.announcement.force,
+                            by: res.locals.loggedOfficer.nif
+                        }
+                    },
+                    patrol: true
+                }
+            }
+        }
+    }
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1135,15 +1276,16 @@ const routes: routesType = {
     ...evaluationsRoutes,
     ...officersRoutes,
     ...patrolsRoutes,
-    ...eventsRoutes
+    ...eventsRoutes,
+    ...announcementsRoutes
 }
 
-// ! Make sure there are no routes that require a token but don't require a force.
+// ! Make sure there are no routes that require a session but don't require a force.
 // ! If there are, throw an error and stop the server from starting
 for (const route of Object.keys(routes)) {
     for (const method of Object.keys(routes[route].methods)) {
-        if (routes[route].methods[method as methodType]!.requiresToken && !routes[route].methods[method as methodType]!.requiresForce) {
-            throw new Error(`Route '${route}' requires a token but doesn't require a force`);
+        if (routes[route].methods[method as methodType]!.requiresSession && !routes[route].methods[method as methodType]!.requiresForce) {
+            throw new Error(`Route '${route}' requires a session but doesn't require a force`);
         }
     }
 }

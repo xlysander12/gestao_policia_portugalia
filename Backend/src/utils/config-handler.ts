@@ -3,15 +3,24 @@ import {join} from "path";
 
 import {ConfigTypes, StaticConfigTypes} from "../types";
 import {logToConsole} from "./logger";
+import {ForceColors} from "@portalseguranca/api-types/util/output";
 
+// Making sure the sample config is correct
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 
-export function getDatabaseConnetionDetails() {
+export function getDatabaseDetails() {
     return config.database;
 }
 
 export function getAllForces() {
     return Object.keys(config.forces).filter(force => !force.startsWith("__"));
+}
+
+export function getForceColors(force: string): ForceColors {
+    return {
+        base: config.forces[force].colors.base,
+        text: config.forces[force].colors.text ?? null
+    }
 }
 
 export function getForceDatabase(force: string) {
@@ -28,25 +37,6 @@ export function getForceHubDetails(force: string) {
     return {
         id: forceConfig.hub.id,
         sheet: forceConfig.hub.sheetName
-    };
-}
-
-export function getForceHubPatentRange(force: string, patent: number): null | {start: number, end: number} | {start: number, end: number}[] {
-    const forceConfig = config.forces[force];
-
-    if (!forceConfig.hub?.ranges.patents[String(patent)]) {
-        return null;
-    }
-
-    if (Array.isArray(forceConfig.hub.ranges.patents[String(patent)])) {
-        return (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}[]).map(range => {
-           return {start: range.start, end: range.end} 
-        });
-    }
-    
-    return {
-        start: (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}).start,
-        end: (forceConfig.hub.ranges.patents[String(patent)] as {start: number, end: number}).end
     };
 }
 
@@ -87,21 +77,12 @@ export function isHubRowReadable(force: string, row: number): boolean {
         return false;
     }
 
-    // Loop through all the patents present in the hub configuration in the config file
-    for (const patent in forceConfig.hub.ranges.patents) {
-        // If the row is in the range of the patent, return true
-        const patent_range = getForceHubPatentRange(force, parseInt(patent))!;
-        if (!Array.isArray(patent_range)) {
-            if (row >= patent_range.start && row <= patent_range.end) {
-                return true;
-            }
-        } else {
-            for (const entry of patent_range) {
-                if (row >= entry.start && row <= entry.end) {
-                    return true;
-                }
-            }
-        }
+    // Loop through all the row ranges present in the config file
+    for (const readableRange of forceConfig.hub.ranges.patents) {
+        // readableRange can either be an Array with 2 or 1 element
+        if (readableRange.length === 1) {
+            if (row === readableRange[0]) return true;
+        } else if (row >= readableRange[0] && row <= readableRange[1]) return true;
     }
 
     // If it's not in any of the patents, check if it is in the inactive section

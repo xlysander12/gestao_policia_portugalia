@@ -1,7 +1,6 @@
-import {useContext, useEffect, useState} from "react";
+import {ReactNode, useContext, useEffect, useState} from "react";
 import style from "./navbar.module.css";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {BASE_URL} from "../../utils/constants";
+import {Link, useNavigate} from "react-router-dom";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
@@ -12,41 +11,27 @@ import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-t
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
-import {useWebSocketEvent} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultTypography} from "../DefaultComponents";
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Notifications from "./Notifications.tsx";
 import packageJson from "../../../package.json";
 import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
+import {BASE_URL} from "../../utils/constants.ts";
 
-type SubPathProps = {
-    path?: string,
-    name: string,
-    only?: boolean
+type CustomLinkProps = {
+    to: string
+    children: ReactNode | ReactNode[]
 }
-const SubPath = ({path, name, only}: SubPathProps) => {
-    // useLocation
-    const location = useLocation();
-
-    // Not a redirect
-    if (path === undefined || path === "") {
+function CustomLink(props: CustomLinkProps) {
+    if (!location.pathname.includes(props.to)) {
         return (
-            <div className={style.subPathDiv}>
-                <p className={style.navbarSubPathText}>{name}</p>
-            </div>
+            <Link to={props.to} className={`${style.navButton}`}>{props.children}</Link>
         );
     }
 
     return (
-        <>
-            <div className={style.subPathDiv}>
-                <Link className={`${style.navbarSubPathText} ${style.navbarRedirect}`} to={path}
-                      reloadDocument={location.pathname === "/login"}>{name}</Link>
-            </div>
-            <div className={style.subPathDiv}>
-                <p className={style.navbarSubPathText}>{only ? "" : "»"}</p>
-            </div>
-        </>
+        <div className={style.navButtonDisabled}>{props.children}</div>
     );
 }
 
@@ -69,7 +54,7 @@ const ForceSelectStyle = styled(Select)(() => ({
 
     // Darken background when hovering
     "&:hover": {
-        backgroundColor: "var(--portalseguranca-color-hover-dark)"
+        backgroundColor: "rgba(0, 0, 0, 0.2)"
     }
 }))
 
@@ -82,8 +67,13 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const loggedUser = useContext(LoggedUserContext);
 
     // Set other useful hooks
-    const location = useLocation();
     const navigate = useNavigate();
+
+    // Get Force Data
+    const [forceData] = useForceData();
+
+    // State that holds the existence of SVG title for force
+    const [hasTitle, setHasTitle] = useState<boolean>(true);
 
     // Set the state that holds if the account menu is open
     const [accountMenuOpen, setAccountMenuOpen] = useState<boolean>(false);
@@ -107,20 +97,6 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const status = {
         color: officerPatrol ? "lightBlue": loggedUser.info.professional.status.color,
         name: officerPatrol ? "Em Patrulha": loggedUser.info.professional.status.name
-    }
-
-    // Create the array of elements for the pathsdiv
-    const paths = [];
-
-    // Get the current path minus the base url
-    const currentPath = location.pathname.replace(`${BASE_URL}`, "").replace("/", "").split("/")[0];
-
-    // First thing that needs to be done is to add the main title to the navbar
-    paths.push(<SubPath key={"navbarMainPath"} path={"/"} name={"Portal Segurança"} only={currentPath === "" || currentPath === "e"}/>);
-
-    // If we're in a path different than the main one, add the main path to the paths array
-    if (currentPath !== "" && currentPath !== "e") {
-        paths.push(<SubPath key={`navbarPath${currentPath}`} name={currentPath[0].toUpperCase() + currentPath.slice(1)}/>);
     }
 
     async function getOfficerPatrol(): Promise<PatrolData | null> {
@@ -192,22 +168,44 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
     return (
         <>
-            <div className={style.mainNavbar}>
-
+            <div className={style.mainNavbar} style={!isLoginPage ? {
+                backgroundColor: forceData.colors.base
+            } : undefined}>
                 <ScreenSplit leftSideComponent={(
                     <div className={style.leftSide}>
                         {/*Add the div that will hold the paths*/}
-                        <div className={style.pathsDiv}>
-                            {paths}
+                        <div className={style.titleDiv}>
+                            <Link
+                                className={style.titleText}
+                                to={"/"}
+                                reloadDocument={isLoginPage}
+                            >
+                                <Gate show={isLoginPage || !hasTitle}>
+                                    Portal Segurança
+                                </Gate>
+
+                                <Gate show={!isLoginPage && hasTitle}>
+                                    <img
+                                        className={style.titleSvg}
+                                        src={`${BASE_URL}/titles/${localStorage.getItem("force")!}.png`}
+                                        alt={"Retornar à dashboard"}
+                                        onError={() => setHasTitle(false)}
+                                        onLoad={() => setHasTitle(true)}
+                                        style={{
+                                            height: "100%"
+                                        }}
+                                    />
+                                </Gate>
+                            </Link>
                         </div>
 
                         <Gate show={!isLoginPage}>
                             <div className={style.navButtonsDiv}>
-                                <Link to={"/efetivos"} className={style.navButton}>Efetivos</Link>
-                                <Link to={"/patrulhas"} className={style.navButton}>Patrulhas</Link>
-                                <Link to={"/atividade"} className={style.navButton}>Atividade</Link>
+                                <CustomLink to={"/efetivos"}>Efetivos</CustomLink>
+                                <CustomLink to={"/patrulhas"}>Patrulhas</CustomLink>
+                                <CustomLink to={"/atividade"}>Atividade</CustomLink>
                                 <Gate show={loggedUser.info.professional.patent.max_evaluation > 0}>
-                                    <Link to={"/avaliacoes"} className={style.navButton}>Avaliações</Link>
+                                    <CustomLink to={"/avaliacoes"}>Avaliações</CustomLink>
                                 </Gate>
                             </div>
                         </Gate>
@@ -274,6 +272,14 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
                 <MenuItem
                     onClick={() => {
+                        window.open(`${BASE_URL}/manual`);
+                    }}
+                >
+                    Manual de Utilização
+                </MenuItem>
+
+                <MenuItem
+                    onClick={() => {
                         setAccountMenuOpen(false);
                         setFeedbackOpen({open: true, type: "error"})
                     }}
@@ -306,20 +312,23 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
                 <Divider/>
 
-                <MenuItem
-                    disabled
+
+                <div
+                    style={{padding: "6px 16px", opacity: "0.38"}}
                 >
                     <DefaultTypography
+                        aria-disabled={false}
                         clickable
                         fontSize={"x-small"}
                         color={"lightgray"}
+                        clickableColorHover={"white"}
                         onClick={() => {
                             window.open("https://github.com/xlysander12/gestao_policia_portugalia", "_blank"
                             )}
                         }>
                         v{packageJson.version}
                     </DefaultTypography>
-                </MenuItem>
+                </div>
             </Menu>
 
             <LastCeremonyModal open={isLastCeremonyOpen} onClose={() => setLastCeremonyOpen(false)} />

@@ -23,6 +23,7 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     const [loading, setLoading] = useState<boolean>(true);
     const [patrols, setPatrols] = useState<MinifiedPatrolData[]>([]);
+    const [currentFilters, setCurrentFilters] = useState<{key: string, value: string}[]>(props.filters ?? []);
 
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(10);
@@ -45,7 +46,7 @@ function PatrolPicker(props: PatrolPickerProps) {
 
         const execute = async () => {
             // Fetch the patrols from the API
-            const {patrols, pages} = await fetchPatrols(true, undefined, signal);
+            const {patrols, pages} = await fetchPatrols(true, signal);
 
             // Set the patrols and set loading to false
             setPatrols(patrols);
@@ -55,29 +56,15 @@ function PatrolPicker(props: PatrolPickerProps) {
         void execute();
 
         return () => controller.abort();
-    }, [page]);
+    }, [page, JSON.stringify(currentFilters)]);
 
-    async function fetchPatrols(showLoading?: boolean, filters?: {key: string, value: string}[], signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+    async function fetchPatrols(showLoading?: boolean, signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
         if (showLoading) {
             setLoading(true);
         }
 
-        let result;
+        const result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...currentFilters], signal});
 
-        // If there were filters passed to the props of the component, ensure they are in the object
-        if (props.filters) {
-            if (!filters) {
-                filters = props.filters;
-            } else {
-                filters = {...filters, ...props.filters};
-            }
-        }
-
-        if (filters) {
-            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...filters], signal});
-        } else {
-            result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}], signal});
-        }
 
         const patrols: PatrolHistoryResponse | RequestError = await result.json();
 
@@ -108,12 +95,8 @@ function PatrolPicker(props: PatrolPickerProps) {
                         disabled={loading}
                         placeholder={"Pesquisar por patrulha"}
                         // limitTags={2}
-                        callback={async (options) => {
-                            const {patrols, pages} = await fetchPatrols(true, options);
-
-                            setPatrols(patrols);
-                            setTotalPages(pages);
-                            setPage(1);
+                        callback={(options) => {
+                            setCurrentFilters(options);
                         }}
                         options={[
                             {label: "Depois de", key: "after", type: "date"},

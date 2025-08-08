@@ -352,7 +352,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                         setLoading(true);
 
                         // Make the request to reset the password
-                        const response = await make_request(`/accounts/${officerNif}/resetpassword`, "POST");
+                        const response = await make_request(`/accounts/${officerNif}/reset-password`, "POST");
                         if (!response.ok) {
                             return toast(`Erro ao redefinir a palavra-passe:\n${((await response.json()) as RequestError).message}`, {type: "error"});
                         }

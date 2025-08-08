@@ -4,20 +4,15 @@ const DatabaseType = rt.Record({
     host: rt.String,
     port: rt.Number,
     user: rt.String,
-    password: rt.String
+    password: rt.String,
+    allowed_users: rt.Optional(rt.Array(rt.Number))
 });
 
 const ForceHubRt = rt.Record({
     id: rt.String,
     sheetName: rt.String,
     ranges: rt.Record({
-        patents: rt.Dictionary(rt.Union(rt.Record({
-            start: rt.Number,
-            end: rt.Number
-        }), rt.Array(rt.Record({
-            start: rt.Number,
-            end: rt.Number
-        }))), rt.String.withConstraint((s) => !isNaN(parseInt(s)))),
+        patents: rt.Array(rt.Array(rt.Number)),
         inactive: rt.Record({
             start: rt.Number,
             end: rt.Number
@@ -29,6 +24,10 @@ const ForceHubRt = rt.Record({
 const ForceRt = rt.Record({
     name: rt.String,
     acronym: rt.String,
+    colors: rt.Record({
+        base: rt.String,
+        text: rt.Optional(rt.String)
+    }),
     patrols: rt.Array(rt.String),
     database: rt.String,
     isPromotion: rt.String,

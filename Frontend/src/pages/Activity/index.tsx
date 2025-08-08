@@ -22,11 +22,12 @@ import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
 import moment, {Moment} from "moment"
-import {getOfficerFromNif, padToTwoDigits, toHoursAndMinutes} from "../../utils/misc.ts";
+import {getOfficerFromNif, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
-import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
-import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {TopHoursModal} from "./modals/TopHoursModal";
 
 
 type ActivityHoursCardProps = {
@@ -163,14 +164,15 @@ function Activity() {
     const [newHoursModalOpen, setNewHoursModalOpen] = useState<boolean>(false);
     const [justificationModalOpen, setJustificationModalOpen] = useState<boolean>(false);
     const [newJustificationModalOpen, setNewJustificationModalOpen] = useState<boolean>(false);
+    const [topHoursModalOpen, setTopHoursModalOpen] = useState<boolean>(false);
 
     // Set the states for the current working hour and justification
     const [currentHourId, setCurrentHourId] = useState<number>(0);
     const [currentJustificationId, setCurrentJustificationId] = useState<number>(0);
 
     // Function to fetch the Officer's hours registry
-    const fetchHours = async () => {
-        const response = await make_request(`/officers/${currentOfficer.nif}/activity/hours`, "GET");
+    const fetchHours = async (signal?: AbortSignal) => {
+        const response = await make_request(`/officers/${currentOfficer.nif}/activity/hours`, "GET", {signal});
         const responseJson: OfficerHoursResponse = await response.json();
         if (!response.ok) { // Make sure the request was successful
             toast(responseJson.message, {type: "error"});
@@ -181,8 +183,8 @@ function Activity() {
     }
 
     // Function to fetch the Officer's Justifications
-    const fetchJustifications = async () => {
-        const response = await make_request(`/officers/${currentOfficer.nif}/activity/justifications`, "GET");
+    const fetchJustifications = async (signal?: AbortSignal) => {
+        const response = await make_request(`/officers/${currentOfficer.nif}/activity/justifications`, "GET", {signal});
         const responseJson: OfficerJustificationsHistoryResponse = await response.json();
         if (!response.ok) { // Make sure the request was successful
             toast(responseJson.message, {type: "error"});
@@ -251,7 +253,7 @@ function Activity() {
     }
 
     // Function to fetch the officer's activity
-    const fetchActivity = async (showLoading: boolean = true, fetchHoursRegistry: boolean = true, fetchJustificationsHistory: boolean = true) => {
+    const fetchActivity = async (signal?: AbortSignal, showLoading: boolean = true, fetchHoursRegistry: boolean = true, fetchJustificationsHistory: boolean = true, clearAll: boolean = false) => {
         // Set the loading state to true
         if (showLoading) {
             setLoading(true);
@@ -260,25 +262,27 @@ function Activity() {
         // Create a variable to store the officer's data
         let officerData: (OfficerSpecificHoursType | InnerMinifiedOfficerJustification)[] = officerHistory;
 
+        if (clearAll) officerData = [];
+
         // * If one type of activity is being fetched, we must clear the officer's data relative to that type
         // If we're fetching the hours registry, we must clear all existing hours registry
-        if (fetchHoursRegistry) {
+        if (fetchHoursRegistry && !clearAll) {
             officerData = officerData.filter(entry => !("minutes" in entry));
         }
 
         // If we're fetching the justifications, we must clear all existing justifications
-        if (fetchJustificationsHistory) {
+        if (fetchJustificationsHistory && !clearAll) {
             officerData = officerData.filter(entry => "minutes" in entry);
         }
 
         // * Fetch the officer's hours
         if (fetchHoursRegistry) {
-            officerData.push(...(await fetchHours()) as OfficerSpecificHoursType[]);
+            officerData.push(...(await fetchHours(signal)) as OfficerSpecificHoursType[]);
         }
 
         // * Fetch the officer's justifications
         if (fetchJustificationsHistory) {
-            const justifications = await fetchJustifications();
+            const justifications = await fetchJustifications(signal);
             if (!justifications) {
                 return;
             }
@@ -295,11 +299,22 @@ function Activity() {
                         managed_by: ""
                     });
                 } else {
-                    const officer = await getOfficerFromNif(justification.managed_by!);
+                    const managedByResponse = await make_request(`/officers/${justification.managed_by!}`, "GET", {signal});
+                    const managedByResponseJson: OfficerInfoGetResponse = await managedByResponse.json();
+
+                    if (!managedByResponse.ok) {
+                        toast(managedByResponseJson.message, {type: "error"});
+                        justificationsManagedBy.push({
+                            ...justification,
+                            managed_by: `${forceData.patents[0].name} Desconhecido`
+                        });
+
+                        continue;
+                    }
 
                     justificationsManagedBy.push({
                         ...justification,
-                        managed_by: `${getObjectFromId(officer.patent, forceData.patents)?.name} ${officer.name}`
+                        managed_by: `${getObjectFromId(managedByResponseJson.data.patent, forceData.patents)?.name} ${managedByResponseJson.data.name}`
                     });
                 }
             }
@@ -314,13 +329,14 @@ function Activity() {
         setOfficerHistory(officerData);
 
         // Set the loading state to false
-        if (showLoading) {
-            setLoading(false);
-        }
+        setLoading(false);
     }
 
     // Everytime the currentOfficer changes, we will fetch the data from the API
     useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         const execute = async () => {
             // Before doing anything, check if the currentOfficer state is fully built
             if (currentOfficer.name === "") {
@@ -337,11 +353,13 @@ function Activity() {
                 });
             }
 
-            await fetchActivity();
+            await fetchActivity(signal, true, true, currentOfficer.nif === loggedUser.info.personal.nif || loggedUser.intents.activity, true);
         }
 
         void execute();
-    }, [currentOfficer.nif]);
+
+        return () => controller.abort();
+    }, [currentOfficer.nif, loggedUser.intents.activity]);
 
     // Everytime the nif in the params changes, we will update the currentOfficer state
     useEffect(() => {
@@ -387,7 +405,7 @@ function Activity() {
         // If the update wasn't for the current officer, don't update the data
         if (data.nif !== currentOfficer.nif) return;
 
-        return await fetchActivity(false, data.type === "hours", data.type === "justification");
+        return await fetchActivity(undefined, false, data.type === "hours", data.type === "justification");
     });
 
     return (
@@ -395,7 +413,7 @@ function Activity() {
             <ScreenSplit
                 leftSideComponent={
                     <OfficerPicker
-                        disabled={!loggedUser.intents["activity"] || loading}
+                        disabled={loading}
                         callback={setCurrentOfficer}
                     />
                 }
@@ -418,6 +436,11 @@ function Activity() {
 
                                     <Gate show={currentOfficer.name !== ""}>
                                         <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
+                                        <DefaultButton
+                                            onClick={() => setTopHoursModalOpen(true)}
+                                        >
+                                            Top Horas
+                                        </DefaultButton>
                                     </Gate>
                                 </div>
                             </div>
@@ -516,6 +539,12 @@ function Activity() {
                 officer={currentOfficer.nif}
                 entryId={currentHourId}
                 newEntry={newHoursModalOpen}
+            />
+
+            <TopHoursModal
+                open={topHoursModalOpen}
+                onClose={() => setTopHoursModalOpen(false)}
+                week_end={(officerHistory.filter(entry => "week_end" in entry).sort((a, b) => a.week_end > b.week_end ? 1 : 0)[0] ?? {week_end: moment().unix()}).week_end}
             />
         </>
     );

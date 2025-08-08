@@ -122,7 +122,7 @@ function OfficerInfo() {
             phone: number,
             iban: string,
             kms: number,
-            discord: number,
+            discord: string,
             steam: string
         },
         professional: {
@@ -157,7 +157,7 @@ function OfficerInfo() {
     const [officerNif, setOfficerNif] = useState<number>((nif ? Number(nif): false) || loggedUser.info.personal.nif);
     const [officerInfo, setOfficerInfo] = useImmer<OfficerInfoState>({
         personal: {
-            discord: 0,
+            discord: "",
             iban: "",
             kms: 0,
             name: "",
@@ -252,7 +252,7 @@ function OfficerInfo() {
                 phone: data.phone,
                 iban: data.iban,
                 kms: data.kms,
-                discord: data.discord,
+                discord: String(data.discord),
                 steam: data.steam
            },
            professional: {
@@ -542,8 +542,9 @@ function OfficerInfo() {
                                 label={"Discord:"}
                                 value={officerInfo.personal.discord}
                                 editMode={editMode}
+                                pattern={/^[0-9]+$/}
                                 onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                    draft.personal.discord = Number(event.target.value)
+                                    draft.personal.discord = String(event.target.value)
                                 })}
                             />
                             <Divider flexItem/>

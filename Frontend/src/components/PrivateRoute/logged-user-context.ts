@@ -16,7 +16,7 @@ export type LoggedUserContextType = {
             phone: number,
             iban: string,
             kms: number,
-            discord: number,
+            discord: string,
             steam: string
         },
         professional: {
@@ -40,7 +40,7 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
             phone: 0,
             iban: "",
             kms: 0,
-            discord: 0,
+            discord: "",
             steam: ""
         },
         professional: {

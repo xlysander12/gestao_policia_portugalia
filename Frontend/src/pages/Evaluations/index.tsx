@@ -158,7 +158,7 @@ function Evaluations(props: EvaluationsPageProps) {
         if ((data.target === currentOfficer.nif && !asAuthor) || (data.author === currentOfficer.nif && asAuthor)) {
             await fetchEvaluations(false);
         }
-    }, [currentOfficer.nif, asAuthor]));
+    }, [currentOfficer.nif, asAuthor, JSON.stringify(filters)]));
 
     // Everytime any settings change, reload the evaluations
     useEffect(() => {
@@ -246,7 +246,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                         }
                                         control={<Switch onChange={(event) => setAsAuthor(event.target.checked)}/>}
                                         labelPlacement={"end"}
-                                        label={"Autoria"}
+                                        label={"Feito por"}
                                         checked={asAuthor}
                                         slotProps={{
                                             typography: {
@@ -307,6 +307,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                     showFirstButton
                                     page={page}
                                     count={totalPages}
+                                    siblingCount={1}
 
                                     onChange={(_, page) => setPage(page)}
                                 />

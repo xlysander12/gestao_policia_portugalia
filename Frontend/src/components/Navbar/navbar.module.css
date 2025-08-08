@@ -32,12 +32,15 @@
     height: 100%;
 }
 
-.pathsDiv {
+.titleDiv {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
+    flex-direction: column;
+    justify-content: center;
     height: 100%;
+}
+
+.titleSvg:hover {
+    filter: brightness(50%);
 }
 
 .subPathDiv {
@@ -56,7 +59,7 @@
 }
 
 .userInfoDiv:hover {
-    background-color: var(--portalseguranca-color-hover-dark);
+    background-color: rgba(0, 0, 0, 0.2);
     cursor: pointer;
 }
 
@@ -67,11 +70,7 @@
     color: white;
 }
 
-.navbarRedirect:hover {
-    color: var(--portalseguranca-color-text-hover);
-}
-
-.navbarSubPathText {
+.titleText {
     text-decoration: none;
     outline: none;
     font-size: 30px;
@@ -79,6 +78,11 @@
     display: inline-block;
     color: white;
     line-height: 55px;
+    height: 100%;
+}
+
+.titleText:hover {
+    color: var(--portalseguranca-color-text-hover);
 }
 
 .navButtonsDiv {
@@ -100,4 +104,15 @@
 .navButton:hover {
     color: var(--portalseguranca-color-text-hover);
     border-bottom: var(--portalseguranca-color-text-hover) 2px solid;
+}
+
+.navButtonDisabled {
+    composes: navButton;
+    color: darkgray !important;
+}
+
+.navButtonDisabled:hover {
+    color: initial;
+    border: 0;
+    cursor: not-allowed !important;
 }

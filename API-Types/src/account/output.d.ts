@@ -17,7 +17,7 @@ export interface AccountInfoResponse extends BaseResponse {
 
 export interface LoginResponse extends BaseResponse {
     data: {
-        token: string,
+        sessionId: string,
         forces: string[]
     }
 }

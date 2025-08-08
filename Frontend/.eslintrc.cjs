@@ -34,6 +34,7 @@ module.exports = {
         "@typescript-eslint/no-unnecessary-type-assertion": "warn",
         "@typescript-eslint/require-await": "warn",
         "@typescript-eslint/no-redundant-type-constituents": "warn",
-        "@typescript-eslint/no-unsafe-argument": "off"
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off"
     },
 }

@@ -1,9 +1,9 @@
 import express from 'express';
 import {
-    changeLastCeremonyController,
+    changeLastCeremonyController, getColorsController,
     getEvaluationDecisionsController,
     getEvaluationFieldsController,
-    getEvaluationGradesController, getEventTypesController,
+    getEvaluationGradesController, getEventTypesController, getForceTopHoursInWeekController,
     getInactivityTypesController,
     getIntentsController, getLastCeremonyController, getNotificationsController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
@@ -14,6 +14,8 @@ import {logToConsole} from "../../utils/logger";
 
 const app = express.Router();
 
+
+app.get("/colors", getColorsController);
 
 app.get("/patents", getPatentsController);
 
@@ -46,6 +48,8 @@ app.put("/last-ceremony", changeLastCeremonyController);
 app.get("/notifications", getNotificationsController);
 
 app.get("/errors", getUserErrorsController);
+
+app.get("/top-hours", getForceTopHoursInWeekController);
 
 logToConsole("Util routes loaded successfully", "info");
 

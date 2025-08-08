@@ -147,6 +147,7 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
 
     // Since all officers exist, create the patrol
     await createPatrol(force,
+        requestingOfficer,
         patrolData.type,
         patrolData.special_unit ?? null,
         patrolData.officers,

@@ -1,7 +1,7 @@
 import {DefaultReturn, InnerOfficerData} from "../../../types";
 import {MinifiedEvent} from "@portalseguranca/api-types/events/output";
 import {createEvent, deleteEvent, editEvent, getEvents} from "../repository";
-import {dateToUnix, unixToDate} from "../../../utils/date-handler";
+import {dateToUnix} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
 import {InnerForceEvent} from "../../../types/inner-types";

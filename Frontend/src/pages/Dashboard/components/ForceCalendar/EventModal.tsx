@@ -211,7 +211,7 @@ function EventModal(props: EventModalProps) {
             return;
         }
 
-        // If the creation went OK, disable loading state and close the modal
+        // If the deletion went OK, disable loading state and close the modal
         toast.success("Evento apagado com sucesso");
         setLoading(false);
 

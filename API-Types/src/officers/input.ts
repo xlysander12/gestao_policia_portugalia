@@ -1,4 +1,4 @@
-import {Array, Number, Optional, Partial, Record, Static, String} from "runtypes";
+import {Array, Number, BigInt, Optional, Partial, Record, Static, String, Union} from "runtypes";
 
 export const ListOfficersQueryParams = Partial({
     search: String,
@@ -17,7 +17,7 @@ export const CreateOfficerRequestBody = Record({
     phone: Number.withConstraint(n => n.toString().length === 9),
     iban: String,
     kms: Number,
-    discord: Number,
+    discord: Union(Number, String),
     steam: Optional(String),
 });
 export type CreateOfficerRequestBody = Static<typeof CreateOfficerRequestBody>;
@@ -32,7 +32,7 @@ export const UpdateOfficerRequestBody = Partial({
     phone: Number,
     iban: String,
     kms: Number,
-    discord: Number,
+    discord: Union(Number, String),
     steam: String,
     special_units: Array(Record({
         id: Number,

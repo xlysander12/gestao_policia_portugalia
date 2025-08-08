@@ -2,7 +2,7 @@ import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-
 import {ExistingPatrolSocket, PatrolData, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import moment, {Moment} from "moment";
 import {useImmer} from "use-immer";
-import {make_request} from "../../../../utils/requests.ts";
+import {make_request, RequestMethod} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
@@ -28,9 +28,10 @@ type InnerOfficerData = MinifiedOfficerData & {
     force: string
 }
 
-type InnerPatrolData = Omit<PatrolData, "start" | "end" | "officers" | "type" | "unit"> & {
+type InnerPatrolData = Omit<PatrolData, "start" | "end" | "officers" | "type" | "unit" | "registrar"> & {
     type: PatrolTypeData
     unit: SpecialUnitData | null
+    registrar: MinifiedOfficerData
     start: Moment
     end: Moment | null
     officers: InnerOfficerData[],
@@ -95,10 +96,20 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             return null;
         }
 
+        // Get the data of the registrar of the patrol
+        const registrarResponse = await make_request(`/officers/${responseJson.data.registrar}`, RequestMethod.GET);
+        const registrarResponseJson: OfficerInfoGetResponse = await registrarResponse.json();
+
+        if (!registrarResponse.ok) {
+            toast.error(registrarResponseJson.message);
+            return null;
+        }
+
         // Create a temp var to store the data
         const temp: InnerPatrolData = {
             ...responseJson.data,
             type: getObjectFromId(responseJson.data.type, getForceData(patrolForce).patrol_types)!,
+            registrar: registrarResponseJson.data,
             start: moment.unix(responseJson.data.start),
             end: responseJson.data.end ? moment.unix(responseJson.data.end) : null,
             officers: [],
@@ -238,6 +249,11 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                         <div className={style.mainDiv}>
                             <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo:</DefaultTypography>
                             <DefaultTypography>{patrolData.type.name}</DefaultTypography>
+
+                            <Divider flexItem sx={{marginBottom: "10px"}} />
+
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Registrada por:</DefaultTypography>
+                            <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolForce).patents)!.name} {patrolData.registrar.name}</DefaultTypography>
 
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
