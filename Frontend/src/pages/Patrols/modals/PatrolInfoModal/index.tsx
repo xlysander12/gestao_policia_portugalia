@@ -252,7 +252,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Registrada por:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Registada por:</DefaultTypography>
                             <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolForce).patents)!.name} {patrolData.registrar.name}</DefaultTypography>
 
                             <Divider flexItem sx={{marginBottom: "10px"}} />
