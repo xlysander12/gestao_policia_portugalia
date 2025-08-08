@@ -47,7 +47,7 @@ type PatrolInfoModalProps = {
 function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const loggedUser = useContext(LoggedUserContext);
 
-    const [, getForceData] = useForceData();
+    const [forceData, getForceData] = useForceData();
     
     const [patrolData, setPatrolData] = useImmer<InnerPatrolData | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -143,6 +143,8 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                 force: officerResponseJson.data.force ?? localStorage.getItem("force")!
             });
         }
+
+        console.log(temp);
 
         return temp;
     }
@@ -253,7 +255,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
                             <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Registada por:</DefaultTypography>
-                            <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolForce).patents)!.name} {patrolData.registrar.name}</DefaultTypography>
+                            <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolData.registrar.force ?? patrolForce).patents)?.name ?? getObjectFromId(patrolData.registrar.patent, forceData.patents)?.name} {patrolData.registrar.name}</DefaultTypography>
 
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
