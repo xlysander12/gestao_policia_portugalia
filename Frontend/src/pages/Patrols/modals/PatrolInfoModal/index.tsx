@@ -144,8 +144,6 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             });
         }
 
-        console.log(temp);
-
         return temp;
     }
 
