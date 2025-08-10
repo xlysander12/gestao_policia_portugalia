@@ -305,6 +305,17 @@ export async function notifications(force: string, nif: number): Promise<Default
             title: full_event.title
         }
 
+        // If the variant of the event is "custom", check if the logged user is assigned to it
+        if (event_type.variant === "custom") {
+            if (full_event.assignees.some(assignee => assignee === nif)) {
+                notifications.push(notification_object);
+                continue;
+            }
+        }
+
+        // * From this point, ensure the event is from the same force as the logged officer
+        if (full_event.force !== force) continue;
+
         // If the variant of the event is "ceremony" the user should receive the notification
         if (event_type.variant === "ceremony") {
             notifications.push(notification_object);
@@ -313,19 +324,13 @@ export async function notifications(force: string, nif: number): Promise<Default
 
         // If the variant of the event is "special_unit", check if the logged user is a part of that special unit
         if (event_type.variant === "special_unit" && full_event.special_unit !== null) {
+            // Check if the
+
             // Get all special units of the logged user
             const units: OfficerUnit[] = (await getOfficerData(nif, force))?.special_units ?? [];
 
             // If the officer is a part of the unit in the event, they should receive the notification
             if (units.some(unit => unit.id === full_event.special_unit)) {
-                notifications.push(notification_object);
-                continue;
-            }
-        }
-
-        // If the variant of the event is "custom", check if the logged user is assigned to it
-        if (event_type.variant === "custom") {
-            if (full_event.assignees.some(assignee => assignee === nif)) {
                 notifications.push(notification_object);
             }
         }
