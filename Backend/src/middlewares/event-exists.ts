@@ -39,17 +39,28 @@ export async function eventExistsMiddleware(req: express.Request, res: EventInfo
 /**
  * For an Event to be editable, one of 2 things must be true:*
  * 1 - The Logged User is the author of the Event
- * 2 - The Logged User has the "events" intent AND belongs to the force of the Event
+ * 2 - The Logged User has the "events" intent
+ *
+ * Besides that, this must always be true
+ * - The request was made in the force of the Event
 **/
 export async function isEventEditableMiddleware(req: express.Request, res: EventInfoAPIResponse, next: express.NextFunction) {
+    // First, check if the request was made from the Event's force
+    if (req.header(FORCE_HEADER) !== res.locals.event.force) {
+        res.status(400).json({
+            message: "Este evento não pertence a esta força"
+        });
+        return;
+    }
+
     // First, check if the Logged Officer is the author of the Event
     if (res.locals.loggedOfficer.nif === res.locals.event.author) {
         next();
         return;
     }
     
-    // Since the Logged Officer isn't the author, check if the request was made using the same force as the Event and their intents
-    if (req.header(FORCE_HEADER) === res.locals.event.force && await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "events")) {
+    // Since the Logged Officer isn't the author, check their intents
+    if (await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "events")) {
         next();
         return;
     }

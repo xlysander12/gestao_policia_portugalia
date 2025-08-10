@@ -8,7 +8,7 @@ import {EditAnnouncementBody} from "@portalseguranca/api-types/announcements/inp
 
 export async function getAnnouncements(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{announcements: MinifiedAnnouncement[], pages: number}> {
     // Build the filters
-    const filtersResult = buildFiltersQuery(routeFilters, filters);
+    const filtersResult = buildFiltersQuery(force, routeFilters, filters);
 
     // Get the announcements from the Database
     const result = await queryDB(force, `SELECT * FROM announcementsV ${filtersResult.query} LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}`, filtersResult.values);

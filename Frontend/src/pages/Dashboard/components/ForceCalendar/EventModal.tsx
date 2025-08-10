@@ -82,6 +82,13 @@ function EventModal(props: EventModalProps) {
 
     const author_full_name = `[${eventData?.author?.callsign}] ${getObjectFromId(eventData.author.patent, getForceData(eventData.author.force ?? localStorage.getItem("force")!).patents)!.name} ${eventData.author.name}`;
 
+    const canSave = !((eventData.type.variant === "custom" && eventData.title === "") ||
+                            (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
+                            (!eventData.start.isValid() || !eventData.end.isValid()) ||
+                            (eventData.start > eventData.end) ||
+                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
+                            (eventData.title.trim().length > 255));
+
     async function fetchEvent(showLoading = true, signal?: AbortSignal) {
         if (showLoading) setLoading(true);
 
@@ -455,7 +462,7 @@ function EventModal(props: EventModalProps) {
                         </ModalSection>
                     </Gate>
 
-                    <Gate show={eventData.author.nif === loggedUser.info.personal.nif || loggedUser.intents.events}>
+                    <Gate show={(eventData.author.nif === loggedUser.info.personal.nif || loggedUser.intents.events) && eventData.force === localStorage.getItem("force")}>
                         <ModalSection title={"Ações"}>
                             <div
                                 style={{
@@ -487,14 +494,7 @@ function EventModal(props: EventModalProps) {
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={editEvent}
-                                        disabled={
-                                            (eventData.type.variant === "custom" && eventData.title === "") ||
-                                            (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
-                                            (!eventData.start.isValid() || !eventData.end.isValid()) ||
-                                            (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
-                                            (eventData.title.trim().length > 50)
-                                        }
+                                        disabled={!canSave}
                                     >
                                         Guardar
                                     </DefaultButton>
@@ -517,14 +517,7 @@ function EventModal(props: EventModalProps) {
                                         buttonColor={"lightgreen"}
                                         darkTextOnHover
                                         onClick={createEvent}
-                                        disabled={
-                                            (eventData.type.variant === "custom" && eventData.title === "") ||
-                                            (eventData.type.variant === "special_unit" && !eventData.special_unit) ||
-                                            (!eventData.start.isValid() || !eventData.end.isValid()) ||
-                                            (eventData.start > eventData.end) ||
-                                            (eventData.end.diff(eventData.start, "seconds") < 3600) ||
-                                            (eventData.title.trim().length > 50)
-                                        }
+                                        disabled={!canSave}
                                     >
                                         Criar Evento
                                     </DefaultButton>

@@ -18,7 +18,7 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
     pages: number
 }> {
     // Build the filters from the route
-    const filtersResult = buildFiltersQuery(routeFilters, filters);
+    const filtersResult = buildFiltersQuery(force, routeFilters, filters);
 
     // Get the patrols from the database
     const result = await queryDB(force, `SELECT * FROM patrolsV ${filtersResult.query} LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}`, filtersResult.values);
