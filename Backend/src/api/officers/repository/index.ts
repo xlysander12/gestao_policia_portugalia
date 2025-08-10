@@ -15,7 +15,7 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
 
     const useFilters = routeValidFilters && filters;
 
-    const filtersResult = useFilters ? buildFiltersQuery(routeValidFilters, filters) : null;
+    const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters) : null;
 
     // Check if the "patrol" query param is present
     const isPatrol = useFilters ? isQueryParamPresent("patrol", filters) && filters.patrol === "true" : false;
