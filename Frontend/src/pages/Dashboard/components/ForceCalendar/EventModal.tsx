@@ -462,7 +462,7 @@ function EventModal(props: EventModalProps) {
                         </ModalSection>
                     </Gate>
 
-                    <Gate show={eventData.author.nif === loggedUser.info.personal.nif || loggedUser.intents.events}>
+                    <Gate show={(eventData.author.nif === loggedUser.info.personal.nif || loggedUser.intents.events) && eventData.force === localStorage.getItem("force")}>
                         <ModalSection title={"Ações"}>
                             <div
                                 style={{
