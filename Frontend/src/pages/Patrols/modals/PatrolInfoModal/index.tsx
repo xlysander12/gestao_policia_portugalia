@@ -31,7 +31,7 @@ type InnerOfficerData = MinifiedOfficerData & {
 type InnerPatrolData = Omit<PatrolData, "start" | "end" | "officers" | "type" | "unit" | "registrar"> & {
     type: PatrolTypeData
     unit: SpecialUnitData | null
-    registrar: MinifiedOfficerData
+    registrar: InnerOfficerData
     start: Moment
     end: Moment | null
     officers: InnerOfficerData[],
@@ -47,7 +47,7 @@ type PatrolInfoModalProps = {
 function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     const loggedUser = useContext(LoggedUserContext);
 
-    const [forceData, getForceData] = useForceData();
+    const [, getForceData] = useForceData();
     
     const [patrolData, setPatrolData] = useImmer<InnerPatrolData | null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -109,7 +109,10 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         const temp: InnerPatrolData = {
             ...responseJson.data,
             type: getObjectFromId(responseJson.data.type, getForceData(patrolForce).patrol_types)!,
-            registrar: registrarResponseJson.data,
+            registrar: {
+                ...registrarResponseJson.data,
+                force: registrarResponseJson.data.force ?? localStorage.getItem("force")!
+            },
             start: moment.unix(responseJson.data.start),
             end: responseJson.data.end ? moment.unix(responseJson.data.end) : null,
             officers: [],
@@ -253,7 +256,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
                             <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Registada por:</DefaultTypography>
-                            <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolData.registrar.force ?? patrolForce).patents)?.name ?? getObjectFromId(patrolData.registrar.patent, forceData.patents)?.name} {patrolData.registrar.name}</DefaultTypography>
+                            <DefaultTypography>{getObjectFromId(patrolData.registrar.patent, getForceData(patrolData.registrar.force).patents)?.name} {patrolData.registrar.name}</DefaultTypography>
 
                             <Divider flexItem sx={{marginBottom: "10px"}} />
 
