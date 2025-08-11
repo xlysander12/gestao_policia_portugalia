@@ -113,7 +113,6 @@ const InformationPair = ({required = true, label, value, type = "text", pattern,
 
 }
 
-
 function OfficerInfo() {
     // Type declaration for the OfficerInfo state
     type OfficerInfoState = {
@@ -245,6 +244,13 @@ function OfficerInfo() {
 
         const data = responseJson.data as OfficerData;
 
+        // Sort special units
+        data.special_units = data.special_units.sort((a, b) => {
+           if (a.role !== b.role) return a.role < b.role ? 1 : -1;
+
+           return a.id < b.id ? 1 : -1;
+        });
+
         // Apply the data to the officerInfo object
         setOfficerInfo({
             personal: {
@@ -255,14 +261,14 @@ function OfficerInfo() {
                 discord: String(data.discord),
                 steam: data.steam
            },
-           professional: {
-               patent: data.patent,
-               callsign: data.callsign,
-               entry_date: moment.unix(data.entry_date),
-               promotion_date: data.promotion_date ? moment.unix(data.promotion_date) : null,
-               status: data.status,
-               special_units: data.special_units,
-               fire_reason: data.fire_reason
+            professional: {
+                patent: data.patent,
+                callsign: data.callsign,
+                entry_date: moment.unix(data.entry_date),
+                promotion_date: data.promotion_date ? moment.unix(data.promotion_date) : null,
+                status: data.status,
+                special_units: data.special_units,
+                fire_reason: data.fire_reason
            },
            former: responseJson.meta.former
         });
