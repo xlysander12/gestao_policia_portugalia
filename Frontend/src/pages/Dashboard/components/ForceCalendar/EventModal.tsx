@@ -14,7 +14,7 @@ import {
     DefaultTextField,
     DefaultTypography
 } from "../../../../components/DefaultComponents";
-import {Divider, MenuItem} from "@mui/material";
+import {Divider, MenuItem, Stack, Tooltip} from "@mui/material";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import OfficerList from "../../../../components/OfficerList";
@@ -23,6 +23,7 @@ import {EventType, SpecialUnitData} from "@portalseguranca/api-types/util/output
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {useImmer} from "use-immer";
 import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import HelpIcon from "@mui/icons-material/Help";
 
 type InnerForceEvent = Omit<ForceEvent, "type" | "special_unit" | "author" | "start" | "end" | "assignees"> & {
     type: EventType
@@ -284,6 +285,7 @@ function EventModal(props: EventModalProps) {
         })
     }, [props.newEntryMoment?.unix()]);
 
+
     return (
         <>
             <Modal
@@ -333,7 +335,7 @@ function EventModal(props: EventModalProps) {
                             textWhenDisabled={eventData.type.variant !== "custom"}
                             placeholder={eventData.type.variant !== "custom" ? "Título Automático" : undefined}
                             value={eventData.type.variant === "custom" || !props.newEntry ? eventData.title : ""}
-                            error={eventData.title === "" || eventData.title.trim().length > 50}
+                            error={eventData.title === "" || eventData.title.trim().length > 255}
                             onChange={(event) => {
                                 setEventData(draft => {
                                     draft.title = event.target.value;
@@ -411,21 +413,45 @@ function EventModal(props: EventModalProps) {
 
                             <div>
                                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Fim:</DefaultTypography>
-                                <DefaultDateTimePicker
-                                    disabled={!editMode}
-                                    textWhenDisabled
-                                    value={eventData.end}
-                                    slotProps={{
-                                        textField: {
-                                            error: !eventData.end.isValid() || eventData.start > eventData.end
-                                        }
-                                    }}
-                                    onChange={(value) => {
-                                        setEventData(draft => {
-                                            draft.end = moment(value?.set("seconds", 0));
-                                        });
-                                    }}
-                                />
+                                <Stack
+                                    direction={"row"}
+                                    gap={"10px"}
+                                >
+                                    <DefaultDateTimePicker
+                                        disabled={!editMode}
+                                        textWhenDisabled
+                                        value={eventData.end}
+                                        slotProps={{
+                                            textField: {
+                                                error: !eventData.end.isValid() || eventData.start > eventData.end || eventData.end.diff(eventData.start, "hours") < 1
+                                            }
+                                        }}
+                                        onChange={(value) => {
+                                            setEventData(draft => {
+                                                draft.end = moment(value?.set("seconds", 0));
+                                            });
+                                        }}
+                                    />
+
+                                    <Gate show={eventData.end.diff(eventData.start, "hours") < 1}>
+                                        <Tooltip
+                                            title={"Um evento tem que ter, no mínimo, 1 hora de duração!"}
+                                            arrow
+                                            describeChild
+                                            placement={"right"}
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        whiteSpace: "pre-line",
+                                                        fontSize: "14px"
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            <HelpIcon />
+                                        </Tooltip>
+                                    </Gate>
+                                </Stack>
                             </div>
                         </div>
 
