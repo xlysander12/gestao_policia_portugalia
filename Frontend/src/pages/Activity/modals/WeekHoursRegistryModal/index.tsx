@@ -1,6 +1,5 @@
 import {FormEvent, useContext, useEffect, useState} from "react";
 import {
-    OfficerHoursResponse,
     OfficerSpecificHoursResponse,
     OfficerSpecificHoursType
 } from "@portalseguranca/api-types/officers/activity/output";
@@ -47,16 +46,17 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
     const loggedUser = useContext(LoggedUserContext);
 
     // Set the loading state
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Set the state that holds the registry data
     const [entryData, setEntryData] = useImmer<InnerOfficerHoursType>({
         id: 0,
-        week_start: null,
-        week_end: null,
+        week_start: moment().day(moment().day() >= 5 ? 5 : -2).subtract(7, "days"),
+        week_end: moment().day(moment().day() >= 5 ? 5 : -2),
         minutes: 0,
         submitted_by: 0
     });
+
 
     // Set the state that holds if the officer did the minimum hours
     const [didMinimumHours, setDidMinimumHours] = useState<boolean>(false);
@@ -169,8 +169,8 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
             if (!newEntry) {
                 setEntryData({
                     id:  0,
-                    week_start: null,
-                    week_end: null,
+                    week_start: moment().day(moment().day() >= 5 ? 5 : -2).subtract(7, "days"),
+                    week_end: moment().day(moment().day() >= 5 ? 5 : -2),
                     minutes: 0,
                     submitted_by: 0
                 });
@@ -180,40 +180,12 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
 
     // * Fetch the last entry of the officer when the modal is opened - New entry only
     useEffect(() => {
-        async function execute() {
-            // Make sure the loading state is true
-            setLoading(true);
-
-            // Fetch all entries of the officer
-            const response = await make_request(`/officers/${officer}/activity/hours`, "GET");
-            const data: RequestError | OfficerHoursResponse = await response.json();
-
-            // If the request wasn't successful, show an error message
-            if (!response.ok) {
-                toast((data as RequestError).message, {type: "error"});
-                return;
-            }
-
-            // Get the most recent entry - The one with biggest week_end
-            const mostRecentEntry = response.ok ?
-                (data as OfficerHoursResponse).data.sort((a: OfficerSpecificHoursType, b: OfficerSpecificHoursType) => new Date(b.week_end).getTime() - new Date(a.week_end).getTime())[0] :
-                null;
-
-            // Get the date 7 days after the week_end of the most recent entry
-            const weekEnd = moment.unix(mostRecentEntry ? mostRecentEntry.week_end : moment().unix()).add(7, "days")
-
+        if (open && newEntry) {
             // Set the registry data with default values
             setEntryData((draft) => {
-                draft.week_start = moment(mostRecentEntry ? moment.unix(mostRecentEntry.week_end) : moment());
-                draft.week_end = weekEnd;
+                draft.week_start = moment().day(moment().day() >= 5 ? 5 : -2).subtract(7, "days");
+                draft.week_end = moment().day(moment().day() >= 5 ? 5 : -2);
             });
-
-            // Set the loading state to false
-            setLoading(false);
-        }
-
-        if (open && newEntry) {
-            void execute();
         }
     }, [open]);
 
