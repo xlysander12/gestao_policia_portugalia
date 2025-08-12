@@ -162,7 +162,7 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     }
 }
 
-export async function patrolEdit(force: string, userData: InnerOfficerData, patrolData: InnerPatrolData, changes: EditPatrolBody): Promise<DefaultReturn<void>> {
+export async function patrolEdit(force: string, patrolData: InnerPatrolData, changes: EditPatrolBody): Promise<DefaultReturn<void>> {
     // First of all, check if the user can edit this patrol
     if (!patrolData.editable) {
         return {

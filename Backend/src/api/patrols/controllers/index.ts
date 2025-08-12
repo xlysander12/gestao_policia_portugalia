@@ -76,7 +76,7 @@ export async function editPatrolController(req: express.Request, res: PatrolInfo
     const body = req.body as EditPatrolBody;
 
     // Call the service to edit the patrol
-    const result = await patrolEdit(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.patrol, body);
+    const result = await patrolEdit(req.header(FORCE_HEADER)!, res.locals.patrol, body);
 
     // Return the result
     res.status(result.status).json({
