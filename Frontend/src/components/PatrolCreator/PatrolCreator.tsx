@@ -165,6 +165,11 @@ function PatrolCreator() {
                                     draft.end = date;
                                 });
                             }}
+                            slotProps={{
+                                textField: {
+                                    error: (newPatrolData.end !== null && newPatrolData.start > newPatrolData.end)
+                                }
+                            }}
                         />
                     </div>
                 </div>
@@ -208,7 +213,7 @@ function PatrolCreator() {
                     />
 
                     <DefaultButton
-                        disabled={loading}
+                        disabled={loading || (newPatrolData.end !== null && newPatrolData.start > newPatrolData.end)}
                         darkTextOnHover
                         fullWidth
                         buttonColor={"lightgreen"}
