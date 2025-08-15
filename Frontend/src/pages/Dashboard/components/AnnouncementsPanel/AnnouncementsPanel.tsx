@@ -144,6 +144,8 @@ function AnnouncementsPanel() {
                         {/*TODO: Free-entered strings must be read as tags and search by them*/}
                         <DefaultSearch
                             size={"small"}
+                            freeSolo
+                            freeKey={"tags"}
                             fullWidth
                             options={[
                                 {

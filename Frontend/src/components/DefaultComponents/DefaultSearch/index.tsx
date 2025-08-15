@@ -34,6 +34,11 @@ function DefaultSearch(props: DefaultSearchProps) {
         }
     }
 
+    // If the "freeSolo" prop is present, make sure the "freeKey" is also present
+    if (props.freeSolo && !props.freeKey) {
+        throw new Error("'freeKey' prop must be passed if 'freeSolo' is true")
+    }
+
 
     const [options, setOptions] = useState<DefaultSearchOption[]>(props.options)
     const [currentOption, setCurrentOption] = useState<DefaultSearchOption | null>(null);
@@ -262,7 +267,7 @@ function DefaultSearch(props: DefaultSearchProps) {
         <>
             <StyledDefaultSearch
                 multiple
-                freeSolo={currentOption && currentOption.type === "text"}
+                freeSolo={(currentOption && currentOption.type === "text") || props.freeSolo}
                 disableCloseOnSelect
                 renderInput={(params) => {
                     return (
@@ -307,6 +312,11 @@ function DefaultSearch(props: DefaultSearchProps) {
                             // Set the current editing option in state
                             const newOption: DefaultSearchOption = details!.option;
                             setCurrentOption(newOption);
+
+                            // If there isn't a type in this option, and the freeSolo prop is true, assume a free-entered string
+                            if (newOption.type === undefined && props.freeSolo) {
+
+                            }
 
                             // Change the label of the option to appear a ":" at the end, if it's not a standalone option
                             if (newOption.type !== "standalone") {
