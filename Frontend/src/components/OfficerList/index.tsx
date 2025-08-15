@@ -39,9 +39,6 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
         setOfficers((draft) => {
             draft.push(officer)
         });
-
-        // Close the officer picker modal
-        setOfficerPickerModalOpen(false);
     }
 
     // Whenever the officers change, trigger the callback function to update the parent component
@@ -135,6 +132,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                 filter={(officer) => {
                     return !officers.map((off) => off.nif).includes(officer.nif);
                 }}
+                keepOpen
             />
         </>
     );
