@@ -224,6 +224,29 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
                             </DefaultTypography>
                         </ModalSection>
                     </Gate>
+
+                    <ModalSection title={"Ações"}>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                            }}
+                        >
+
+                        </div>
+                        <DefaultButton
+                            fullWidth
+                            sx={{
+                                flex: 1
+                            }}
+                            onClick={() => {
+                                setImportOutput(null);
+                                setDoImport(undefined);
+                            }}
+                        >
+                            Nova Importação
+                        </DefaultButton>
+                    </ModalSection>
                 </Gate>
             </Modal>
         </>
