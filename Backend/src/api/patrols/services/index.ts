@@ -9,7 +9,7 @@ import {getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
 import {sortOfficers} from "../../officers/services";
-import {unixToDate} from "../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {couldOfficerPatrolDueToJustificationInDate} from "../../officers/subroutes/activity/justifications/repository";
 
 export async function sortPatrolOfficers(force: string, officers: number[]) {
@@ -122,6 +122,16 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
             result: false,
             status: 400,
             message: "Unidade especial obrigatória"
+        }
+    }
+
+    // * Check if the dates of the patrol make sense
+    // Dates can't be from future
+    if (patrolData.start > dateToUnix(new Date()) || (patrolData.end !== undefined && patrolData.end > dateToUnix(new Date()))) {
+        return {
+            result: false,
+            status: 400,
+            message: "Não podes criar uma patrulha no futuro"
         }
     }
 
