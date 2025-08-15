@@ -150,6 +150,12 @@ function PatrolCreator() {
                                     draft.start = date!;
                                 });
                             }}
+                            slotProps={{
+                                textField: {
+                                    error: !newPatrolData.start.isValid() ||
+                                        newPatrolData.start.isAfter(moment())
+                                }
+                            }}
                         />
                     </div>
 
@@ -167,7 +173,12 @@ function PatrolCreator() {
                             }}
                             slotProps={{
                                 textField: {
-                                    error: (newPatrolData.end !== null && newPatrolData.start > newPatrolData.end)
+                                    error: newPatrolData.end !== null &&
+                                        (
+                                            newPatrolData.start > newPatrolData.end ||
+                                            !newPatrolData.end.isValid() ||
+                                            newPatrolData.end.isAfter(moment())
+                                        )
                                 }
                             }}
                         />
@@ -213,7 +224,18 @@ function PatrolCreator() {
                     />
 
                     <DefaultButton
-                        disabled={loading || (newPatrolData.end !== null && newPatrolData.start > newPatrolData.end)}
+                        disabled={
+                            loading ||
+                            !newPatrolData.start.isValid() ||
+                            newPatrolData.start.isAfter(moment()) ||
+                            (newPatrolData.end !== null &&
+                                (
+                                    newPatrolData.start > newPatrolData.end ||
+                                    !newPatrolData.end.isValid() ||
+                                    newPatrolData.end.isAfter(moment())
+                                )
+                            )
+                        }
                         darkTextOnHover
                         fullWidth
                         buttonColor={"lightgreen"}
