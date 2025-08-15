@@ -6,7 +6,7 @@ export interface Filters {
     query: string,
     values: paramsTypes[]
 }
-function buildFiltersQuery(routeValidFilters: RouteFilterType, queryParams: ReceivedQueryParams = {}, suffix?: {subquery: string, value: paramsTypes | paramsTypes[]}): Filters {
+function buildFiltersQuery(force: string, routeValidFilters: RouteFilterType, queryParams: ReceivedQueryParams = {}, suffix?: {subquery: string, value: paramsTypes | paramsTypes[]}): Filters {
     // Start the query string
     const subqueries: string[] = [];
     const values: paramsTypes[] = [];
@@ -22,11 +22,11 @@ function buildFiltersQuery(routeValidFilters: RouteFilterType, queryParams: Rece
         const filterFunctions = routeValidFilters[param];
 
         // Append the result of the filter function to the query
-        const query = filterFunctions.queryFunction(queryParams);
+        const query = filterFunctions.queryFunction(queryParams, force);
         if (query === "") {
             continue;
         }
-        subqueries.push(filterFunctions.queryFunction(queryParams));
+        subqueries.push(filterFunctions.queryFunction(queryParams, force));
 
         // If the filter has a function, run it and append the result to the values array
         if (filterFunctions.valueFunction) {

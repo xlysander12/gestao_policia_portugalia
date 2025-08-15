@@ -69,7 +69,7 @@ import {
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type RouteFilterType = Record<string, {
-        queryFunction: (receivedParams: ReceivedQueryParams) => string,
+        queryFunction: (receivedParams: ReceivedQueryParams, force: string) => string,
         valueFunction?: (value: string) => paramsTypes | paramsTypes[]
     }>
 
@@ -1019,11 +1019,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     type: {
-                        queryFunction: () => `type = ?`,
+                        queryFunction: (_, force) => `type = ? AND id LIKE '${force}%'`,
                         valueFunction: (value) => value
                     },
                     unit: {
-                        queryFunction: () => `special_unit = ?`,
+                        queryFunction: (_, force) => `special_unit = ? AND id LIKE '${force}%'`,
                         valueFunction: (value) => value
                     }
                 }

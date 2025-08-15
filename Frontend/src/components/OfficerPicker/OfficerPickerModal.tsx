@@ -8,9 +8,9 @@ type OfficerListModalProps = {
     callback: (officer: MinifiedOfficerData) => void
     filter?: (officer: MinifiedOfficerData) => boolean
     patrol?: boolean
+    keepOpen?: boolean
 }
-function OfficerPickerModal({open, onClose, callback, filter, patrol}: OfficerListModalProps) {
-
+function OfficerPickerModal({open, onClose, callback, filter, patrol, keepOpen}: OfficerListModalProps) {
     return (
         <Modal
             title={"Escolhe um Efetivo"}
@@ -26,7 +26,11 @@ function OfficerPickerModal({open, onClose, callback, filter, patrol}: OfficerLi
                 padding: "10px",
                 height: "100%"
             }}>
-                <OfficerPicker patrol={patrol} filter={filter} callback={callback} />
+                <OfficerPicker patrol={patrol} filter={filter} callback={(officer) => {
+                    callback(officer);
+
+                    if (!keepOpen) onClose();
+                }} />
             </div>
         </Modal>
     );

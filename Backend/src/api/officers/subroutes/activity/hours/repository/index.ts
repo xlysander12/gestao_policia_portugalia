@@ -10,7 +10,7 @@ export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" 
 }
 export async function fetchHoursHistory(force: string, nif: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<OfficerHoursEntryType[]> {
     // Build the filters from the route
-    const filtersResult = buildFiltersQuery(routeValidFilters, filters, {subquery: "officer = ?", value: nif});
+    const filtersResult = buildFiltersQuery(force, routeValidFilters, filters, {subquery: "officer = ?", value: nif});
 
     // Get the hours of the Officer from the database
     const result = await queryDB(force, `SELECT * FROM officer_hours ${filtersResult.query} ORDER BY week_end DESC LIMIT 100`, filtersResult.values);

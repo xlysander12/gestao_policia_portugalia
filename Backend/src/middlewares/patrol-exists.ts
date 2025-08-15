@@ -16,13 +16,20 @@ async function patrolExistsMiddle(req: express.Request, res: PatrolInfoAPIRespon
         return;
     }
 
+    const isOfficerPartOfPatrol = patrol.officers.some((officer) => officer === res.locals.loggedOfficer.nif);
+
     // * Check if the patrol is editable by the logged officer
     // First, check if the logged user has the "patrols" intent
     if (await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "patrols")) {
-        patrol.editable = true;
+        // If the user has the intent, check if is a part of the patrol
+        if (isOfficerPartOfPatrol) {
+            patrol.editable = true;
+        } else { // If is not part of the Patrol, check if the patrol is from the same force, if not, it's not editable
+            patrol.editable = patrol.force === req.header(FORCE_HEADER)!;
+        }
     } else {
         // Now, check if the officer is appart of the patrol
-        if (patrol.officers.some((officer) => officer === res.locals.loggedOfficer.nif)) {
+        if (isOfficerPartOfPatrol) {
             // Check if the patrol has ended for more than 30 minutes. If so, set the patrol as not editable
             patrol.editable = !(patrol.end !== null && Date.now() - patrol.end.getTime() > (30 * 60 * 1000));
         } else { // If not, set the patrol as not editable

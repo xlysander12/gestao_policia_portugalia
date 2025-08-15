@@ -7,10 +7,9 @@ import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patro
 import {getOfficerData} from "../../officers/repository";
 import {getForcePatrolForces} from "../../../utils/config-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
-import {userHasIntents} from "../../accounts/repository";
 import {getForcePatrolTypes, getForceStatuses} from "../../util/repository";
 import {sortOfficers} from "../../officers/services";
-import {unixToDate} from "../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../utils/date-handler";
 import {couldOfficerPatrolDueToJustificationInDate} from "../../officers/subroutes/activity/justifications/repository";
 
 export async function sortPatrolOfficers(force: string, officers: number[]) {
@@ -91,7 +90,6 @@ export async function patrolsHistory(force: string, validFilters: RouteFilterTyp
         patrol.officers = await sortPatrolOfficers(force, patrol.officers);
     }
 
-
     // Return the list
     return {
         result: true,
@@ -124,6 +122,16 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
             result: false,
             status: 400,
             message: "Unidade especial obrigatória"
+        }
+    }
+
+    // * Check if the dates of the patrol make sense
+    // Dates can't be from future
+    if (patrolData.start > dateToUnix(new Date()) || (patrolData.end !== undefined && patrolData.end > dateToUnix(new Date()))) {
+        return {
+            result: false,
+            status: 400,
+            message: "Não podes criar uma patrulha no futuro"
         }
     }
 
@@ -164,28 +172,15 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     }
 }
 
-export async function patrolEdit(force: string, userData: InnerOfficerData, patrolData: InnerPatrolData, changes: EditPatrolBody): Promise<DefaultReturn<void>> {
-    // First of all, check if the user is in said patrol or if they have the "patrols" intent
-    const userHasIntentsResult = await userHasIntents(userData.nif, force, "patrols");
-
-    if (!userHasIntentsResult && !patrolData.officers.includes(userData.nif)) {
+export async function patrolEdit(force: string, patrolData: InnerPatrolData, changes: EditPatrolBody): Promise<DefaultReturn<void>> {
+    // First of all, check if the user can edit this patrol
+    if (!patrolData.editable) {
         return {
             result: false,
             status: 403,
             message: "Não tem permissões para editar esta patrulha"
         }
     }
-
-    // First, if the patrol has already ended for longer than 30 minutes and the user doesn't have the "patrols" intent, return an error
-    if (patrolData.end && (Date.now() - patrolData.end.getTime() > (30 * 60 * 1000)) && !(userHasIntentsResult)) {
-        return {
-            result: false,
-            status: 400,
-            message: "Não podes editar uma patrulha que já terminou há mais de 30 minutos"
-        }
-    }
-
-    // * If the above doesn't apply, the patrol is editable
 
     // Loop through all the officers and check if they exist and aren't in antoher patrol or inactive
     if (changes.officers) {

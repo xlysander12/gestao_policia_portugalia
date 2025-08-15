@@ -150,6 +150,12 @@ function PatrolCreator() {
                                     draft.start = date!;
                                 });
                             }}
+                            slotProps={{
+                                textField: {
+                                    error: !newPatrolData.start.isValid() ||
+                                        newPatrolData.start.isAfter(moment())
+                                }
+                            }}
                         />
                     </div>
 
@@ -164,6 +170,16 @@ function PatrolCreator() {
                                 setNewPatrolData((draft) => {
                                     draft.end = date;
                                 });
+                            }}
+                            slotProps={{
+                                textField: {
+                                    error: newPatrolData.end !== null &&
+                                        (
+                                            newPatrolData.start > newPatrolData.end ||
+                                            !newPatrolData.end.isValid() ||
+                                            newPatrolData.end.isAfter(moment())
+                                        )
+                                }
                             }}
                         />
                     </div>
@@ -208,7 +224,18 @@ function PatrolCreator() {
                     />
 
                     <DefaultButton
-                        disabled={loading}
+                        disabled={
+                            loading ||
+                            !newPatrolData.start.isValid() ||
+                            newPatrolData.start.isAfter(moment()) ||
+                            (newPatrolData.end !== null &&
+                                (
+                                    newPatrolData.start > newPatrolData.end ||
+                                    !newPatrolData.end.isValid() ||
+                                    newPatrolData.end.isAfter(moment())
+                                )
+                            )
+                        }
                         darkTextOnHover
                         fullWidth
                         buttonColor={"lightgreen"}

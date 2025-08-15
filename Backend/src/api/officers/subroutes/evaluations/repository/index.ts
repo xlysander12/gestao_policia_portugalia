@@ -14,7 +14,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
-    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: all ? "target = ? AND author.patent <= requester.patent" : "target = ? AND author = ?", value: all ? target : [target, requester.nif]});
+    const filtersResult = buildFiltersQuery(force, routeValidFilters!, filters, {subquery: all ? "target = ? AND author.patent <= requester.patent" : "target = ? AND author = ?", value: all ? target : [target, requester.nif]});
 
     // Query the database to get the evaluations
     const query = all ? `
@@ -97,7 +97,7 @@ export async function getAuthoredEvaluations(force: string, officer: number, rou
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
-    const filtersResult = buildFiltersQuery(routeValidFilters!, filters, {subquery: "author = ?", value: officer});
+    const filtersResult = buildFiltersQuery(force, routeValidFilters!, filters, {subquery: "author = ?", value: officer});
 
     // Query the database to get the evaluations
     const result = await queryDB(force, `SELECT id, target, author, decision, timestamp FROM evaluationsV ${filtersResult.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult.values);

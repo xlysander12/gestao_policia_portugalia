@@ -1,5 +1,5 @@
 import {
-    MinifiedOfficerData, OfficerData,
+    MinifiedOfficerData,
     OfficerImportResponse,
     OfficerImportReturn, OfficerInfoGetResponse
 } from "@portalseguranca/api-types/officers/output";
@@ -65,8 +65,8 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
                     nif
                 });
             } else {
-                const officerData: OfficerData = await officerResponse.json();
-                import_errors.push(officerData);
+                const officerData: OfficerInfoGetResponse = await officerResponse.json();
+                import_errors.push(officerData.data);
             }
         }
 
@@ -224,6 +224,29 @@ function ImportOfficersModal({open, onClose}: ImportOfficersModalProps) {
                             </DefaultTypography>
                         </ModalSection>
                     </Gate>
+
+                    <ModalSection title={"Ações"}>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                            }}
+                        >
+
+                        </div>
+                        <DefaultButton
+                            fullWidth
+                            sx={{
+                                flex: 1
+                            }}
+                            onClick={() => {
+                                setImportOutput(null);
+                                setDoImport(undefined);
+                            }}
+                        >
+                            Nova Importação
+                        </DefaultButton>
+                    </ModalSection>
                 </Gate>
             </Modal>
         </>
