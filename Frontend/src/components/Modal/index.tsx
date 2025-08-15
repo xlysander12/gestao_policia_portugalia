@@ -2,10 +2,11 @@ import styled from "styled-components";
 import Popup from "reactjs-popup";
 import React, {ReactElement, useEffect, useRef} from "react";
 import style from "./modal.module.css";
-import {Button, Divider} from "@mui/material";
+import {Button, Divider, IconButton} from "@mui/material";
 import {DefaultTypography} from "../DefaultComponents";
 import Gate from "../Gate/gate";
 import ShareButton from "../ShareButton";
+import CloseIcon from '@mui/icons-material/Close';
 
 const ModalStyle = styled(Popup)<{ width?: string }>`
     @keyframes anvil {
@@ -104,6 +105,16 @@ export function Modal({open, onClose, width, height, title, disableScroll, url, 
                         color={"white"}
                     />
                 </Gate>
+                <IconButton
+                    onClick={onClose}
+                    sx={{
+                        position: "absolute",
+                        right: "0",
+                        color: "white",
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
             </div>
 
             <Divider
