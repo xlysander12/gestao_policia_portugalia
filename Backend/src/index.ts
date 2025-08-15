@@ -31,7 +31,7 @@ const app = express();
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 const httpServer = http.createServer(app);
 
-// Set timeout to 30 seconds
+// Set timeout to 60 seconds
 httpServer.setTimeout(60 * 1000);
 
 // Initialize the socket
