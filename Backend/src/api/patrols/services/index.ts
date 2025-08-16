@@ -126,8 +126,8 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     }
 
     // * Check if the dates of the patrol make sense
-    // Dates can't be from future
-    if (patrolData.start > dateToUnix(new Date()) || (patrolData.end !== undefined && patrolData.end > dateToUnix(new Date()))) {
+    // Dates can't be from future (add a 1 minute leaneancy to account offset devices)
+    if (patrolData.start > dateToUnix(new Date()) + 60 || (patrolData.end !== undefined && patrolData.end > dateToUnix(new Date()) + 60)) {
         return {
             result: false,
             status: 400,
