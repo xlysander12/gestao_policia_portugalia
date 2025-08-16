@@ -19,7 +19,7 @@ import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patro
 import {toast} from "react-toastify";
 import OfficerList from "../OfficerList";
 import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
-import moment, {Moment} from "moment";
+import moment, {Moment} from "moment-timezone";
 import {ExistingPatrolSocket, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Gate from "../Gate/gate.tsx";
 
@@ -147,7 +147,7 @@ function PatrolQuickCreator() {
                 type: patrolData.type.id,
                 special_unit: patrolData.type.isSpecial ? patrolData.special_unit.id: undefined,
                 officers: patrolData.officers.map((officer) => officer.nif),
-                start: moment().unix(),
+                start: moment.tz(moment(), "Europe/Lisbon").unix(),
                 notes: patrolData.notes ? patrolData.notes: undefined
             }
         });

@@ -593,7 +593,7 @@ function OfficerInfo() {
                             <InformationPair
                                 label={"CallSign:"}
                                 value={officerInfo.professional.callsign ?? ""}
-                                pattern={/^[A-Z]+-([0-9]){2}$/}
+                                pattern={/^[A-Z]+(-\d{2})?$/}
                                 editMode={editMode}
                                 onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
                                     draft.professional.callsign = event.target.value

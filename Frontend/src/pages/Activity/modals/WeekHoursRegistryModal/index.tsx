@@ -95,6 +95,9 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
         // Show a success message
         toast("Registo criado com sucesso", {type: "success"});
 
+        // Set loading to false
+        setLoading(false);
+
         // Close the modal
         onClose();
     }
