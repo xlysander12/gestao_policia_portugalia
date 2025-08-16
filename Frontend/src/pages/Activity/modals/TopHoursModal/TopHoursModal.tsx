@@ -9,6 +9,7 @@ import { ForceTopHoursInWeekResponse } from "@portalseguranca/api-types/util/out
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {useForceData} from "../../../../hooks";
+import {toHoursAndMinutes} from "../../../../utils/misc.ts";
 type Tops = {
     rank: number,
     officer: MinifiedOfficerData,
@@ -66,7 +67,7 @@ function TopHoursModal(props: TopHoursModalProps) {
             } else {
                 return {
                     rank: top.rank,
-                    officer: {...officerResponseJson.data, name: `${officerResponseJson.data.name} (#${top.rank} - ${top.minutes} mins)`},
+                    officer: {...officerResponseJson.data, name: `${officerResponseJson.data.name} | #${top.rank} - ${toHoursAndMinutes(top.minutes)} (${top.minutes} mins)`},
                     minutes: top.minutes
                 }
             }
