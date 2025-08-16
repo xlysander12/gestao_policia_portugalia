@@ -12,7 +12,7 @@
     "copy-assets:linux": "copyfiles -u 1 'src/assets/**/*' dist && copyfiles -u 1 'src/titles/**/*' dist && copyfiles -u 3 '../API-Types/dist/**/*' dist/node_modules/@portalseguranca/api-types",
     "build": "npm run build-api-types && npm run clean && npm run compile && npm run copy-assets",
     "dev": "nodemon --config nodemon.dev.json src/index.ts",
-    "start": "nodemon dist/index.js",
+    "start": "pm2 start dist/index.js --name Portal-Seguranca --no-daemon",
     "test": "jest --watch"
   },
   "repository": {
@@ -39,6 +39,7 @@
     "mysql2": "^3.6.5",
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",
+    "pm2": "^6.0.8",
     "runtypes": "^6.7.0",
     "serve-index": "^1.9.1",
     "socket.io": "^4.8.1"
