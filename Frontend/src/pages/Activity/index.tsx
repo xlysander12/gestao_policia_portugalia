@@ -544,7 +544,7 @@ function Activity() {
             <TopHoursModal
                 open={topHoursModalOpen}
                 onClose={() => setTopHoursModalOpen(false)}
-                week_end={(officerHistory.filter(entry => "week_end" in entry).sort((a, b) => a.week_end > b.week_end ? 1 : 0)[0] ?? {week_end: moment().unix()}).week_end}
+                week_end={(officerHistory.filter(entry => "week_end" in entry).sort((a, b) => a.week_end > b.week_end ? -1 : 1)[0] ?? {week_end: moment().unix()}).week_end}
             />
         </>
     );
