@@ -73,5 +73,6 @@ fi
 # Restart the server if arg is present
 if [[ $RESTART_PM2 == true ]]; then
   echo "Restarting server..."
-  pm2 restart Portal-Seguranca --update-env
+  cd Backend || exit
+  npm run restart
 fi
