@@ -6,8 +6,21 @@ import {APIResponse} from "../types";
 import {formatDateTime} from "./date-handler";
 import {FORCE_HEADER} from "./constants";
 import {ExpressResponse} from "../types/response-types";
+import {pino} from "pino";
 
 let logFile: string;
+const logger = pino({
+    level: process.env.LOG_LEVEL ?? "info",
+    transport: {
+        target: "pino-pretty",
+        options: {
+            colorize: pc.isColorSupported,
+            translateTime: "SYS:yyyy-mm-dd @ HH:MM:ss",
+            customColors: "message:reset",
+            useOnlyCustomProps: false
+        }
+    }
+});
 
 export function initializeLogFile() {
     // Make sure the logs directory exists
@@ -48,10 +61,6 @@ export function initializeLogFile() {
     logFile = latestLogPath;
 }
 
-function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 export function colorFromMethod(method: string) {
     switch (method) {
         case "GET":
@@ -83,25 +92,35 @@ export function colorFromHTTPCode(code: number) {
     }
 }
 
-function logTypeColorFromString(type: "info" | "warning" | "error") {
+function logWithType(type: "debug" | "info" | "warning" | "error" |"fatal", message: string): void {
     switch (type) {
+        case "debug":
+            logger.debug(message);
+            return;
         case "info":
-            return pc.blueBright;
+            logger.info(message);
+            return;
         case "warning":
-            return pc.yellowBright;
+            logger.warn(message);
+            return;
         case "error":
-            return pc.redBright;
+            logger.error(message);
+            return;
+        case "fatal":
+            logger.fatal(message);
+            return;
         default:
-            return pc.white;
+            logger.trace(message);
+            return;
     }
 
 }
 
-export function logToConsole(message: string, type?: "info" | "warning" | "error", outputToFile = false) {
-    const finalMessage = `${pc.blue("[Portal Segurança]")} [${formatDateTime(new Date())}]${type ? ` [${logTypeColorFromString(type)(capitalizeFirstLetter(type))}]`: ""} ${message}`;
+export function logToConsole(message: string, type?: "debug" | "info" | "warning" | "error" | "fatal", outputToFile?: boolean) {
+    const finalMessage = message;
     const finalMessageNoColors = finalMessage.replace(/\u001b\[.*?m/g, "");
 
-    console.log(pc.isColorSupported ? finalMessage: finalMessageNoColors);
+    logWithType(type ?? "info", pc.isColorSupported ? finalMessage : finalMessageNoColors);
 
     if (outputToFile) {
         // logToConsole("Outputting to file is DISABLED", "warning");

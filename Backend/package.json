@@ -40,6 +40,8 @@
     "mysql2": "^3.6.5",
     "nodemon": "^3.1.4",
     "picocolors": "^1.1.1",
+    "pino": "^9.9.0",
+    "pino-pretty": "^13.1.1",
     "pm2": "^6.0.8",
     "runtypes": "^6.7.0",
     "serve-index": "^1.9.1",
