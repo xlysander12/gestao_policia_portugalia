@@ -76,4 +76,4 @@ app.get(/\/.*/, (_req, res) => {
 
 export default app;
 
-logToConsole(`Portal Segurança v${process.env.npm_package_version} has been fully loaded!`, "info");
+logToConsole(`Portal Seguranca v${process.env.npm_package_version} has been fully loaded!`, "info");
