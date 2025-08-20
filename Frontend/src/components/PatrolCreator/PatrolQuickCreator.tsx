@@ -147,7 +147,7 @@ function PatrolQuickCreator() {
                 type: patrolData.type.id,
                 special_unit: patrolData.type.isSpecial ? patrolData.special_unit.id: undefined,
                 officers: patrolData.officers.map((officer) => officer.nif),
-                start: moment.tz(moment(), "Europe/Lisbon").unix(),
+                start: "now",
                 notes: patrolData.notes ? patrolData.notes: undefined
             }
         });
@@ -192,7 +192,7 @@ function PatrolQuickCreator() {
 
         const response = await make_request<EditPatrolBody>(`/patrols/${patrolData.id}`, RequestMethod.PATCH, {
             body: {
-                end: moment().unix(),
+                end: "now",
             }
         });
         const responseJson = await response.json() as BaseResponse;
