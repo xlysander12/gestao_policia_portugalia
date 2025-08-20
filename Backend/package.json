@@ -12,7 +12,7 @@
     "copy-assets:linux": "copyfiles -u 1 'src/assets/**/*' dist && copyfiles -u 1 'src/titles/**/*' dist && copyfiles -u 3 '../API-Types/dist/**/*' dist/node_modules/@portalseguranca/api-types",
     "build": "npm run build-api-types && npm run clean && npm run compile && npm run copy-assets",
     "dev": "nodemon --config nodemon.dev.json src/index.ts",
-    "start": "pm2 start ecosystem.config.js --no-daemon",
+    "start": "pm2 start ecosystem.config.js",
     "restart": "pm2 restart ecosystem.config.js --update-env",
     "test": "jest --watch"
   },
