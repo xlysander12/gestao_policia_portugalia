@@ -125,9 +125,19 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
         }
     }
 
+    // * Convert the patrolData dates to current DateTime if value is "now"
+    if (patrolData.start === "now") {
+        patrolData.start = dateToUnix(new Date());
+    }
+
+    if (patrolData.end === "now") {
+        patrolData.end = dateToUnix(new Date());
+    }
+
     // * Check if the dates of the patrol make sense
     // Dates can't be from future (add a 1 minute leaneancy to account offset devices)
-    if (patrolData.start > dateToUnix(new Date()) + 60 || (patrolData.end !== undefined && patrolData.end > dateToUnix(new Date()) + 60)) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if ((patrolData.start > dateToUnix(new Date()) + 60) || (patrolData.end !== undefined && patrolData.end > (dateToUnix(new Date()) + 60))) {
         return {
             result: false,
             status: 400,
@@ -180,6 +190,15 @@ export async function patrolEdit(force: string, patrolData: InnerPatrolData, cha
             status: 403,
             message: "Não tem permissões para editar esta patrulha"
         }
+    }
+
+    // * Convert the patrolData dates to current DateTime if value is "now"
+    if (changes.start === "now") {
+        changes.start = dateToUnix(new Date());
+    }
+
+    if (changes.end === "now") {
+        changes.end = dateToUnix(new Date());
     }
 
     // Loop through all the officers and check if they exist and aren't in antoher patrol or inactive

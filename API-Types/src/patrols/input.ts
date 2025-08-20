@@ -28,15 +28,15 @@ export const CreatePatrolBody = rt.Record({
     type: rt.Number,
     special_unit: rt.Optional(rt.Number),
     officers: rt.Array(rt.Number),
-    start: rt.Number,
-    end: rt.Optional(rt.Number),
+    start: rt.Union(rt.Number, rt.Literal("now")),
+    end: rt.Optional(rt.Union(rt.Number, rt.Literal("now"))),
     notes: rt.Optional(rt.String)
 });
 export type CreatePatrolBody = rt.Static<typeof CreatePatrolBody>;
 
 export const EditPatrolBody = rt.Partial({
-    start: rt.Number,
-    end: rt.Union(rt.Number, rt.Null),
+    start: rt.Union(rt.Number, rt.Literal("now")),
+    end: rt.Union(rt.Union(rt.Number, rt.Literal("now")), rt.Null),
     officers: rt.Array(rt.Number),
     notes: rt.Union(rt.String, rt.Null)
 });
