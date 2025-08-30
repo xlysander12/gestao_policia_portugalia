@@ -1179,7 +1179,7 @@ const announcementsRoutes: routesType = {
                 },
                 filters: {
                     "active": {
-                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "expiration IS NULL OR expiration > CURRENT_TIMESTAMP()" : "expiration <= CURRENT_TIMESTAMP()",
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "(expiration IS NULL OR expiration > CURRENT_TIMESTAMP())" : "expiration <= CURRENT_TIMESTAMP()",
                     },
                     "tags": {
                         queryFunction: (receivedParams) => {
