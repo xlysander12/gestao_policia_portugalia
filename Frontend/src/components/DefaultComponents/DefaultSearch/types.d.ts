@@ -36,6 +36,7 @@ type DefaultSearchOption = DefaultSearchStandaloneOption
 type DefaultSearchProps = Omit<AutocompleteProps<any, any, any, any>, "renderInput" | "multiple" | "options"> & {
     options: DefaultSearchOption[]
     callback: (options: {key: string, value: any}[]) => void
+    freeKey?: string
     defaultFilters?: {key: string, value: any, label: string, labelValue: string}[]
     placeholder?: string
 };
