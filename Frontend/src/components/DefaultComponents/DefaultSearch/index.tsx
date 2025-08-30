@@ -40,7 +40,8 @@ function DefaultSearch(props: DefaultSearchProps) {
     }
 
 
-    const [options, setOptions] = useState<DefaultSearchOption[]>(props.options)
+    const [options, setOptions] = useState<DefaultSearchOption[]>(props.options);
+    const [freeOptions, setFreeOptions] = useImmer<string[]>([]);
     const [currentOption, setCurrentOption] = useState<DefaultSearchOption | null>(null);
     const [currentValue, setCurrentValue] = useImmer<{label: string, key: string, value: any, labelValue: string}[]>([]);
 
@@ -63,7 +64,7 @@ function DefaultSearch(props: DefaultSearchProps) {
             builder.push(`${item.label}: ${item.labelValue}`);
         }
 
-        return builder;
+        return builder.concat(freeOptions);
     }
 
     const triggerCallback = () => {
@@ -74,6 +75,11 @@ function DefaultSearch(props: DefaultSearchProps) {
                 key: item.key,
                 value: item.value
             })
+        }
+
+        // If the freeSolo prop is true, build the solo key-value pair
+        if (props.freeSolo && freeOptions.length > 0) {
+            returnObject.push({key: props.freeKey!, value: freeOptions.join(",")});
         }
 
         props.callback(returnObject);
@@ -160,7 +166,23 @@ function DefaultSearch(props: DefaultSearchProps) {
 
     const handleOptionDelete = (optionFullText: string) => {
         // Find in wich index the option is
-        const index = currentValue.findIndex((item) => item.label === optionFullText.split(":")[0]);
+        let index = currentValue.findIndex((item) => item.label === optionFullText.split(":")[0]);
+
+
+        // If the resulting index is "-1" and the freeSolo prop is true, remove that entry from the freeOptions array
+        if (index === -1 && props.freeSolo) {
+            // Update the index based on the freeOptions array
+            index = freeOptions.findIndex(item => item === optionFullText);
+
+            // Remove the item from the array
+            setFreeOptions(draft => {
+                draft.splice(index, 1);
+            });
+
+            // Trigger the callback
+            setToCallCallback(true);
+            return;
+        }
 
         // If "currentOption" isn't null and the index is the last one, cancel the option
         if (currentOption !== null && index === currentValue.length - 1) {
@@ -267,7 +289,7 @@ function DefaultSearch(props: DefaultSearchProps) {
         <>
             <StyledDefaultSearch
                 multiple
-                freeSolo={(currentOption && currentOption.type === "text") || props.freeSolo}
+                freeSolo={(currentOption && currentOption.type === "text") || (props.freeSolo && !currentOption)}
                 disableCloseOnSelect
                 renderInput={(params) => {
                     return (
@@ -303,20 +325,30 @@ function DefaultSearch(props: DefaultSearchProps) {
 
                     if (!details && reason !== "clear") return; // ? Not sure how to handle this
 
-                    // Handle new input
+                    // * Handle new input
                     if (reason === "selectOption" || reason === "createOption") {
                         if (currentOption === null) { // New option is getting added
                             // First, make sure an option with the same key isn't already added
                             if (currentValue.find((item) => item.key === (details!.option as DefaultSearchOption).key)) return;
 
-                            // Set the current editing option in state
+
+                            // Get the selected option
                             const newOption: DefaultSearchOption = details!.option;
-                            setCurrentOption(newOption);
 
                             // If there isn't a type in this option, and the freeSolo prop is true, assume a free-entered string
                             if (newOption.type === undefined && props.freeSolo) {
+                                // Add the newly entered string to the free options array
+                                setFreeOptions(draft => {
+                                    draft.push(newOption);
+                                });
 
+                                // Call the Callback
+                                setToCallCallback(true);
+                                return;
                             }
+
+                            // Set the current editing option in state
+                            setCurrentOption(newOption);
 
                             // Change the label of the option to appear a ":" at the end, if it's not a standalone option
                             if (newOption.type !== "standalone") {
@@ -373,6 +405,9 @@ function DefaultSearch(props: DefaultSearchProps) {
 
                         // Clear the current value
                         setCurrentValue([]);
+
+                        // Clear the freeSolo Options
+                        setFreeOptions([]);
 
                         // Trigger the callback
                         setToCallCallback(true);
