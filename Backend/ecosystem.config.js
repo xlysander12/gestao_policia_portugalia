@@ -1,7 +1,16 @@
-const name = require("./pm2.appname").default;
+const fs = require("fs");
+
+function getAppName() {
+    try {
+        return fs.readFileSync("pm2.appname.txt", "utf8");
+    } catch (err) {
+        return "Portal-Seguranca";
+    }
+}
+
 module.exports = {
   apps : [{
-    name   : name,
+    name   : getAppName(),
     script : "./dist/index.js"
   }]
 }
