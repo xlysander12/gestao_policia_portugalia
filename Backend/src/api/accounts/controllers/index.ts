@@ -1,11 +1,11 @@
 import {APIResponse} from "../../../types";
 import {
     ChangeAccountInfoRequestBodyType,
-    ChangePasswordRequestBodyType,
+    ChangePasswordRequestBodyType, LoginDiscordRequestBody,
     LoginRequestBodyType,
     ValidateTokenRequestBodyType
 } from "@portalseguranca/api-types/account/input";
-import {FORCE_HEADER} from "../../../utils/constants";
+import {DEFAULT_ENTRY_URL, FORCE_HEADER} from "../../../utils/constants";
 import {
     AccountInfoResponse, LoginResponse,
     UserForcesResponse,
@@ -18,7 +18,7 @@ import {
     createAccount,
     deleteUser,
     getUserDetails,
-    loginUser, logoutUser, resetUserPassword,
+    loginUser, loginUserDiscord, logoutUser, resetUserPassword,
     validateSession
 } from "../services";
 import {getAccountForces} from "../services";
@@ -104,6 +104,28 @@ export async function loginUserController(req: express.Request, res: APIResponse
         data: {
             sessionId: loginData.data!.session_id,
             forces: loginData.data!.forces
+        }
+    });
+}
+
+export async function loginUserDiscordController(req: express.Request, res: APIResponse<LoginResponse>) {
+    const {code} = req.body as LoginDiscordRequestBody;
+
+    // Call the service
+    const result = await loginUserDiscord(code, `${req.protocol}://${req.host}${DEFAULT_ENTRY_URL}/login`);
+
+    if (!result.result) {
+        res.status(result.status).json({
+            message: result.message
+        });
+        return;
+    }
+
+    res.status(result.status).json({
+        message: result.message,
+        data: {
+            sessionId: result.data!.session_id,
+            forces: result.data!.forces
         }
     });
 }

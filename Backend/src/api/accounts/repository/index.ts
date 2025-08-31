@@ -25,7 +25,7 @@ export async function userHasIntents(nif: number, force: string, intent: string 
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-type userForcesReturn = {name: string, password?: string | null, suspended: boolean}[];
+export type userForcesReturn = {name: string, password?: string | null, suspended: boolean}[];
 export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
     const user_forces: userForcesReturn = [];
 

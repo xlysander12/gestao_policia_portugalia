@@ -157,6 +157,14 @@ export async function getOfficerData(nif: number, force: string, former = false,
     };
 }
 
+export async function getOfficerNifFromDiscord(force: string, discord: string): Promise<number | null> {
+    const result = await queryDB(force, "SELECT nif FROM officersV WHERE discord = ? LIMIT 1", discord);
+
+    if (result.length === 0) return null;
+
+    return result[0].nif;
+}
+
 export async function getNextAvailableCallsign(startingLetter: string, force: string) {
     // * Get the data from the database
     const callsignsResult = await queryDB(force, `SELECT callsign

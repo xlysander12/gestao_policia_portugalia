@@ -33,11 +33,12 @@ const ForceRt = rt.Record({
     isPromotion: rt.String,
     maximum_non_working_days: rt.Number,
     minimum_week_minutes: rt.Number,
-    hub: rt.Optional(ForceHubRt)
+    hub: rt.Optional(ForceHubRt),
+    discord_role: rt.Optional(rt.Number)
 });
 
 const ForcesRt = rt.Dictionary(ForceRt, rt.String);
 
-export const ConfigTypes = rt.Record({ database: DatabaseType, forces: ForcesRt });
+export const ConfigTypes = rt.Record({ discord_guild: rt.Optional(rt.Number), database: DatabaseType, forces: ForcesRt });
 
 export type StaticConfigTypes = rt.Static<typeof ConfigTypes>

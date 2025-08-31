@@ -7,7 +7,7 @@ import {
     changeUserPasswordController, createAccountController, deleteAccountController,
     getAccountForcesController,
     getUserAccountDetailsController,
-    loginUserController, logoutUserController, resetPasswordController,
+    loginUserController, loginUserDiscordController, logoutUserController, resetPasswordController,
     validateSessionController
 } from "./controllers";
 
@@ -22,6 +22,9 @@ app.post("/validate-session", validateSessionController);
 
 // Endpoint to login an user
 app.post("/login", loginUserController);
+
+// Endpoint to login an user via discord
+app.post("/login/discord", loginUserDiscordController);
 
 // Endpoint to logout an user
 app.post("/logout", logoutUserController);

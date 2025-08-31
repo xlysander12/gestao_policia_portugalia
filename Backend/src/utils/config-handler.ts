@@ -8,6 +8,10 @@ import {ForceColors} from "@portalseguranca/api-types/util/output";
 // Making sure the sample config is correct
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
 
+export function getDiscordGuild() {
+    return config.discord_guild;
+}
+
 export function getDatabaseDetails() {
     return config.database;
 }
