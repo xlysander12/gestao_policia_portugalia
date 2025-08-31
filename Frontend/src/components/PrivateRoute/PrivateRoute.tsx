@@ -189,7 +189,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         return () => {
             controller.abort();
         }
-    }, [isLoginPage, element]);
+    }, [element]);
 
     // Create the websocket connection when not in the login page
     useEffect(() => {
