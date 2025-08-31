@@ -2,11 +2,12 @@ import style from "./login.module.css";
 import {useNavigate} from "react-router-dom";
 import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents";
 import React, {FormEvent, useState} from "react";
-import {Checkbox, FormControlLabel} from "@mui/material";
+import {Button, Checkbox, Divider, FormControlLabel} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import { LoginRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 import { LoginResponse } from "@portalseguranca/api-types/account/output";
+import DiscordIcon from "../../components/DiscordIcon";
 
 type LoginPageProps = {
     onLoginCallback: () => void
@@ -151,7 +152,33 @@ function Login({onLoginCallback}: LoginPageProps) {
                         fullWidth
                         type={"submit"}
                         disabled={loading}
-                    >Entrar</DefaultButton>
+                    >
+                        Entrar
+                    </DefaultButton>
+
+                    <Divider flexItem/>
+
+                    <Button
+                        fullWidth
+                        variant={"contained"}
+                        startIcon={
+                            <DiscordIcon sx={{fontSize: "30px"}}/>
+                        }
+                        sx={{
+                            backgroundColor: "#5865f2",
+
+                            "&:hover": {
+                                backgroundColor: "#5865f2",
+                                opacity: 0.7
+                            }
+                        }}
+                        onClick={() => {
+                            console.log(window.location);
+                            window.location.href = `https://discord.com/oauth2/authorize?client_id=1398775040983695400&response_type=code&redirect_uri=${encodeURIComponent(window.location.href)}&scope=identify`
+                        }}
+                    >
+                        Entrar com Discord
+                    </Button>
             </div>
         </form>
 </div>
