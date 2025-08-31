@@ -112,7 +112,7 @@ export async function loginUserDiscordController(req: express.Request, res: APIR
     const {code} = req.body as LoginDiscordRequestBody;
 
     // Call the service
-    const result = await loginUserDiscord(code, `${req.protocol}://${req.host}${DEFAULT_ENTRY_URL}/login`);
+    const result = await loginUserDiscord(code, `${req.header("origin")}${DEFAULT_ENTRY_URL}/login`);
 
     if (!result.result) {
         res.status(result.status).json({
@@ -121,6 +121,17 @@ export async function loginUserDiscordController(req: express.Request, res: APIR
         return;
     }
 
+    // Build the Cookie Options
+    const cookieOptions: CookieOptions = {
+        httpOnly: true,
+        secure: process.env.PS_IS_PRODUCTION === "true",
+        maxAge: 1000 * 60 * 60 * 24 * 400 // 400 days
+    }
+
+    // Append the cookie to the response
+    res.cookie("sid", result.data!.session_id, cookieOptions);
+
+    // Send the response
     res.status(result.status).json({
         message: result.message,
         data: {
