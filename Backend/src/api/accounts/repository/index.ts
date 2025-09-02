@@ -141,13 +141,18 @@ export async function clearAccountTokens(nif: number, force: string, exclude?: s
 }
 
 export async function changeAccountSuspendedStatus(nif: number, force: string, suspended: boolean): Promise<void> {
-    // Set the suspended status to true in the database
+    // Set the suspended status in the database
     await queryDB(force, 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? 1 : 0, nif]);
 
     // Clear all tokens of the account, if it being suspended
     if (suspended) {
         await clearAccountTokens(nif, force);
     }
+}
+
+export async function changeAccountDiscordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
+    // Set the status in the database
+    await queryDB(force, 'UPDATE users SET discord_enabled = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
 }
 
 export async function changeAccountIntent(nif: number, force: string, intent: string, enabled: boolean): Promise<void> {

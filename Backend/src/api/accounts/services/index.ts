@@ -1,6 +1,7 @@
 import {
     addAccount,
-    addAccountSession, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
+    addAccountSession,
+    changeAccountDiscordLogin, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
     getAccountDetails,
     getUserForces, resetAccountPassword,
     updateAccountPassword, userForcesReturn,
@@ -351,6 +352,15 @@ export async function changeUserSuspendedStatus(nif: number, force: string, susp
 
     // Return success
     return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
+}
+
+export async function changeUserDiscordLogin(nif: number, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+    // Update the suspended status in the database
+    await changeAccountDiscordLogin(nif, force, enabled);
+
+    // Return success
+    return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
+
 }
 
 export async function deleteUser(nif: number, force: string): Promise<DefaultReturn<void>> {

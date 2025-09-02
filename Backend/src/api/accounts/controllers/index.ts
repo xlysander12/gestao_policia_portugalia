@@ -13,6 +13,7 @@ import {
 } from "@portalseguranca/api-types/account/output";
 import express, {CookieOptions} from "express";
 import {
+    changeUserDiscordLogin,
     changeUserPassword, changeUserPermissions,
     changeUserSuspendedStatus,
     createAccount,
@@ -170,13 +171,25 @@ export async function createAccountController(req: express.Request, res: APIResp
     res.status(serviceResult.status).json({message: serviceResult.message});
 }
 
-export async function changeAccountDetailsController(req: express.Request, res: APIResponse) {
-    const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
+export async function changeAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse) {
+    const {discord_login, suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
 
-    // * First, check if 'suspended' is present
+    // Check if "discord_login" is present
+    if (discord_login !== undefined) {
+        // Call the service to change the discord login status
+        const discordService = await changeUserDiscordLogin(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!, discord_login);
+
+        // Check if the service was successful
+        if (!discordService.result) {
+            res.status(discordService.status).json({message: discordService.message});
+            return;
+        }
+    }
+
+    // Check if 'suspended' is present
     if (suspended !== undefined) {
         // Call the service to change the suspended status
-        const suspendedService = await changeUserSuspendedStatus(Number(req.params.nif), req.header(FORCE_HEADER)!, suspended);
+        const suspendedService = await changeUserSuspendedStatus(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!, suspended);
 
         // Check if the service was successful
         if (!suspendedService.result) {
@@ -185,7 +198,7 @@ export async function changeAccountDetailsController(req: express.Request, res: 
         }
     }
 
-    // * Second, check if 'intents' is present
+    // Check if 'intents' is present
     if (intents !== undefined) {
         // Call the service to change the user permissions
         const intentsService = await changeUserPermissions(Number(req.params.nif), req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, intents);
