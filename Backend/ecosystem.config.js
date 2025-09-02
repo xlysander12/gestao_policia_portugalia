@@ -10,7 +10,10 @@ function getAppName() {
 
 module.exports = {
   apps : [{
-    name   : getAppName(),
-    script : "./dist/index.js"
+      name   : getAppName(),
+      script : "./dist/index.js",
+      args: [
+          "--color"
+      ]
   }]
 }
