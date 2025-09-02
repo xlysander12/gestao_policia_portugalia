@@ -25,22 +25,20 @@ export async function userHasIntents(nif: number, force: string, intent: string 
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-export type userForcesReturn = {name: string, password?: string | null, suspended: boolean}[];
-export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
-    const user_forces: userForcesReturn = [];
+export type InnerForceAccountData = InnerAccountData & { name: string };
+export async function getUserForces(nif: number, return_passwords = false): Promise<InnerForceAccountData[]> {
+    const user_forces: InnerForceAccountData[] = [];
 
     // Loop through all forces and see which of them have an account for this user
     for (const force of getForcesList()) {
-        const queryResult = await queryDB(force, 'SELECT password, suspended FROM users WHERE nif = ?', nif);
-        if (queryResult.length !== 0 ) { // This user exists in this force
-            const to_push: {name: string, password?: string | null, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
-
-            if (return_passwords) { // If the option to retrieve passwords is true, add the password to the object
-                to_push.password = queryResult[0].password as string | null;
-            }
-
+        const accountData = await getAccountDetails(nif, force);
+        if (accountData !== null ) { // This user exists in this force
             // Push the object to the final array
-            user_forces.push(to_push);
+            user_forces.push({
+                ...accountData,
+                password: return_passwords ? accountData.password : null,
+                name: force
+            });
         }
     }
 

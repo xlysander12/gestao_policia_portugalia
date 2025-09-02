@@ -3,8 +3,8 @@ import {
     addAccountSession,
     changeAccountDiscordLogin, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
     getAccountDetails,
-    getUserForces, resetAccountPassword,
-    updateAccountPassword, userForcesReturn,
+    getUserForces, InnerForceAccountData, resetAccountPassword,
+    updateAccountPassword,
     userHasIntents
 } from "../repository";
 import {DefaultReturn} from "../../../types";
@@ -73,18 +73,26 @@ interface loginReturn {
     forces: string[]
 }
 
-export async function canLogin(user_forces: userForcesReturn): Promise<loginReturn | string> {
-    // Check if the user is suspended in all forces they belong to
-    let valid = false;
+export async function canLogin(user_forces: InnerForceAccountData[], isDiscordLogin?: boolean): Promise<loginReturn | string> {
+    // Check if the user is suspended in all forces they belong to and if discord_login is enabled in at least one force
+    let active = false;
+    let discord = false;
     for (const force of user_forces) {
         if (!force.suspended) { // If the user is not suspended in, at least, 1 force, the login is valid
-            valid = true;
-            break;
+            active = true;
+            if (!isDiscordLogin) break;
         }
+
+        if (isDiscordLogin) discord = force.discord_login;
+
     }
 
-    if (!valid) { // If the user is suspended in all forces, return 403
+    if (!active) { // If the user is suspended in all forces, return 403
         return "Esta conta encontra-se suspensa.";
+    }
+
+    if (isDiscordLogin && !discord) { // If the user is trying to login via discord but discord login isn't enabled in any force, return 401
+        return "Login via Discord está desativado nesta conta.";
     }
 
     // If everything is correct, generate a session id and hash it
@@ -235,7 +243,7 @@ export async function loginUserDiscord(code: string, source_uri: string): Promis
     }
 
     // Call function to ensure user can login
-    const resultCanLogin = await canLogin(user_forces);
+    const resultCanLogin = await canLogin(user_forces, true);
 
     if (typeof resultCanLogin === "string") {
         return {
