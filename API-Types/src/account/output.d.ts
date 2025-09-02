@@ -6,6 +6,7 @@ export interface ValidateTokenResponse extends BaseResponse {
 
 export interface AccountInfo {
     defaultPassword: boolean,
+    discord_login: boolean,
     suspended: boolean,
     lastUsed: number | null,
     intents: {[key: string]: boolean}

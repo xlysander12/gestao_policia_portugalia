@@ -15,6 +15,7 @@ export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "prom
 export interface InnerAccountData {
     nif: number,
     password: string | null,
+    discord_login: boolean,
     suspended: boolean,
     last_interaction: Date | null,
     intents: Record<string, boolean>

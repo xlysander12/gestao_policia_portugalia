@@ -72,6 +72,7 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
     const details: InnerAccountData = {
         nif: result[0].nif as number,
         password: result[0].password as string | null,
+        discord_login: result[0].discord_login === 1,
         suspended: result[0].suspended === 1,
         last_interaction: result[0].last_interaction as Date | null,
         intents: {}
@@ -152,7 +153,7 @@ export async function changeAccountSuspendedStatus(nif: number, force: string, s
 
 export async function changeAccountDiscordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
     // Set the status in the database
-    await queryDB(force, 'UPDATE users SET discord_enabled = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
+    await queryDB(force, 'UPDATE users SET discord_login = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
 }
 
 export async function changeAccountIntent(nif: number, force: string, intent: string, enabled: boolean): Promise<void> {
