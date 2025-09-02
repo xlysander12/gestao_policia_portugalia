@@ -1,10 +1,8 @@
 import {useContext, useEffect, useState} from 'react'
 import './App.css'
-import "react-toastify/dist/ReactToastify.css";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
 import {Dashboard} from "./pages/Dashboard";
-import {Bounce, ToastContainer} from "react-toastify";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 import OfficerInfo from "./pages/OfficerInfo";
@@ -34,6 +32,8 @@ import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
 import Evaluations from "./pages/Evaluations";
 import moment from 'moment';
+import {DefaultToastContainer} from "./components/DefaultComponents";
+import Gate from "./components/Gate/gate.tsx";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -166,46 +166,46 @@ function App() {
         return forceTempData;
     }
 
-    const handleLogin = () => {
-        setForce(localStorage.getItem("force")!);
+    const updateForceData = async () => {
+        // Make sure the page is loading
+        setCanLoad(false);
+
+        // Get all forces current force can patrol with
+        const patrolForces = await fetchPatrolForces();
+
+        // To the list of forces, add the current force, if not already present
+        if (!patrolForces.includes(force)) {
+            patrolForces.push(force);
+        }
+
+        // For each force, fetch it's data and put it on the state
+        // Create a function to fetch the force's data and append to state
+        async function appendData(force: string) {
+            const result = await fetchForceData(force);
+
+            setForceData(draft => {
+                draft[force] = result
+            })
+        }
+        const promiseList: Promise<unknown>[] = [];
+        for (const forceName of patrolForces) {
+            promiseList.push(appendData(forceName));
+        }
+
+        // Fetch all data form all forces paralely
+        await Promise.all(promiseList);
+
+        // After fetching all forces' data, set the canLoad to true
+        setCanLoad(true);
+    }
+
+    const handleLogin = (force: string) => {
+        setForce(force);
     }
 
     useEffect(() => {
-        async function execute() {
-            // Make sure the page is loading
-            setCanLoad(false);
-
-            // Get all forces current force can patrol with
-            const patrolForces = await fetchPatrolForces();
-
-            // To the list of forces, add the current force, if not already present
-            if (!patrolForces.includes(force)) {
-                patrolForces.push(force);
-            }
-
-            // For each force, fetch it's data and put it on the state
-            // Create a function to fetch the force's data and append to state
-            async function appendData(force: string) {
-                const result = await fetchForceData(force);
-
-                setForceData(draft => {
-                    draft[force] = result
-                })
-            }
-            const promiseList: Promise<unknown>[] = [];
-            for (const forceName of patrolForces) {
-                promiseList.push(appendData(forceName));
-            }
-
-            // Fetch all data form all forces paralely
-            await Promise.all(promiseList);
-
-            // After fetching all forces' data, set the canLoad to true
-            setCanLoad(true);
-        }
-
-        if (localStorage.getItem("force") && !(location.pathname.includes(`${BASE_URL}/erro`))) {
-            void execute();
+        if (localStorage.getItem("force") !== null && !(location.pathname.includes(`${BASE_URL}/erro`))) {
+            void updateForceData();
         } else {
             setCanLoad(true);
         }
@@ -308,33 +308,25 @@ function App() {
 
 
     const defaultTheme = createTheme(defaultThemeData);
-    if (!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))) {
-        return (
-            <Loader fullPage/>
-        )
-    }
-
     return (
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-            <ThemeProvider theme={defaultTheme}>
-                <ForcesDataContext.Provider value={forceData}>
-                    <RouterProvider router={router} />
-                </ForcesDataContext.Provider>
+        <>
+            <Gate show={!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
+                <Loader fullPage/>
+            </Gate>
 
-                <ToastContainer
-                    position={"top-right"}
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    pauseOnHover
-                    theme={"dark"}
-                    transition={Bounce}
-                />
-            </ThemeProvider>
-        </LocalizationProvider>
-      )
+            <Gate show={canLoad && ((force === "" || forceData[force] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <ThemeProvider theme={defaultTheme}>
+                        <ForcesDataContext.Provider value={forceData}>
+                            <RouterProvider router={router} />
+                        </ForcesDataContext.Provider>
+                    </ThemeProvider>
+                </LocalizationProvider>
+            </Gate>
+
+            <DefaultToastContainer />
+        </>
+    );
 }
 
 export default App

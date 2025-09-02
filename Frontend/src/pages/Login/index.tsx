@@ -9,8 +9,10 @@ import {LoginDiscordRequestBody, LoginRequestBodyType} from "@portalseguranca/ap
 import { LoginResponse } from "@portalseguranca/api-types/account/output";
 import DiscordIcon from "../../components/DiscordIcon";
 
+let isLoggingInDiscord = false;
+
 type LoginPageProps = {
-    onLoginCallback: () => void
+    onLoginCallback: (force: string) => void
 }
 function Login({onLoginCallback}: LoginPageProps) {
     // Set the useNavigate hook
@@ -27,8 +29,23 @@ function Login({onLoginCallback}: LoginPageProps) {
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
 
-    // TODO: When logging in with discord, the "logged" toast doesn't appear and, sometimes, the page doesn't change (can't replicate consistently)
-    const onLogin = async (event?: FormEvent<HTMLFormElement>, signal?: AbortSignal) => {
+    // State for discord login
+    const [discordLoginAccepted, setDiscordLoginAccepted] = useState(sessionStorage.getItem("discord_login") === "true");
+
+    function redirectAfterLogin() {
+        // Ensure discord login session param is cleared
+        sessionStorage.removeItem("discord_login");
+
+        // If there's a redirect query param in the URL, redirect the user to that page
+        if (searchParams.get("redirect")) {
+            navigate(searchParams.get("redirect")!);
+            return;
+        }
+
+        navigate("/");
+    }
+
+    const onLogin = async (event?: FormEvent<HTMLFormElement>, discord?: boolean) => {
         // Disable page reload
         event?.preventDefault();
 
@@ -38,23 +55,21 @@ function Login({onLoginCallback}: LoginPageProps) {
         // * Make the request to the server
         let loginResponse: Response;
         // If the discord login isn't being used, authenticate normally
-        if (!searchParams.get("code")) {
+        if (!discord) {
             loginResponse = await make_request<LoginRequestBodyType>("/accounts/login", "POST", {
                 body: {
                     nif: Number(nif),
                     password: password,
                     persistent: remember
                 },
-                redirectToLoginOn401: false,
-                signal
+                redirectToLoginOn401: false
             });
         } else { // If discord login is being used, make that request
             loginResponse = await make_request<LoginDiscordRequestBody>("/accounts/login/discord", "POST", {
                 body: {
                     code: searchParams.get("code")!
                 },
-                redirectToLoginOn401: false,
-                signal
+                redirectToLoginOn401: false
             });
         }
 
@@ -74,12 +89,12 @@ function Login({onLoginCallback}: LoginPageProps) {
         localStorage.setItem("force", loginJson.data.forces[0]);
 
         // Set the last_login nif in the local storage if the remind be checkbox is checked and the login wasn't with discord
-        if (remember && !searchParams.get("code")) {
+        if (!discord) {
             localStorage.setItem("last_login", nif.toString());
         }
 
-        // Disable the loading flag
-        setLoading(false);
+        // Handle the login logic in the App core
+        onLoginCallback(loginJson.data.forces[0]);
 
         // Clear all existing toasts
         toast.dismiss();
@@ -87,27 +102,31 @@ function Login({onLoginCallback}: LoginPageProps) {
         // Show toast informing logic successful
         toast.success("Login realizado com sucesso. A redirecionar...");
 
-        // Handle the login logic in the App core
-        onLoginCallback();
-
         // Redirect the user to the desired page
-        // If there's a redirect query param in the URL, redirect the user to that page
-        if (searchParams.get("redirect")) {
-            navigate(searchParams.get("redirect")!);
-            return;
+        // ! Only make this this way if not authenticating with discord -- Otherwise, use the useEffect below
+        if (!discord) redirectAfterLogin()
+        else {
+            // Set the state of discord login to accepted
+            setDiscordLoginAccepted(true);
+            sessionStorage.setItem("discord_login", "true");
         }
-
-        navigate("/");
     }
 
+    // Start login process imediatly if the code search param is present and the process hasn't started yet
+    const code = searchParams.get("code");
     useEffect(() => {
-        const controller = new AbortController;
-        const signal = controller.signal;
+        if (code && !isLoggingInDiscord) {
+            isLoggingInDiscord = true;
+            void onLogin(undefined, true);
+        }
+    }, [code, isLoggingInDiscord]);
 
-        if (searchParams.get("code") !== null) void onLogin(undefined, signal);
-
-        return () => controller.abort();
-    }, [searchParams.get("code")]);
+    // Use effect to redirect the user after login when the discordLoginAccepted state changes to true
+    useEffect(() => {
+        if (discordLoginAccepted) {
+            redirectAfterLogin();
+        }
+    }, [discordLoginAccepted]);
 
     return (
         <div className={style.outerLoginDiv}>
@@ -181,6 +200,7 @@ function Login({onLoginCallback}: LoginPageProps) {
 
                     <Button
                         fullWidth
+                        disableRipple
                         variant={"contained"}
                         startIcon={
                             <DiscordIcon sx={{fontSize: "30px"}}/>
