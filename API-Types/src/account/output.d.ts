@@ -25,7 +25,7 @@ export interface LoginResponse extends BaseResponse {
 }
 
 interface UserForce {
-    name: string,
+    name: string
     suspended: boolean
 }
 

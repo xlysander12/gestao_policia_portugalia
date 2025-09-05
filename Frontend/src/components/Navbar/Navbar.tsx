@@ -18,6 +18,7 @@ import Notifications from "./Notifications.tsx";
 import packageJson from "../../../package.json";
 import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
 import {BASE_URL} from "../../utils/constants.ts";
+import AuthenticationMethodsModal from "./modals/AuthenticationMethodsModal.tsx";
 
 type CustomLinkProps = {
     to: string
@@ -86,6 +87,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const [isChangePasswordOpen, setChangePasswordOpen] = useState<boolean>(false);
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
     const [isLastCeremonyOpen, setLastCeremonyOpen] = useState<boolean>(false);
+    const [isAuthenticationMethodsOpen, setAuthenticationMethodsOpen] = useState<boolean>(false);
 
     // Set the state with the status of the officer
     const [officerPatrol, setOfficerPatrol] = useState<PatrolData | null>(null);
@@ -299,6 +301,12 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 <Divider/>
 
                 <MenuItem
+                    onClick={() => {setAccountMenuOpen(false); setAuthenticationMethodsOpen(true)}}
+                >
+                    Métodos de Autenticação
+                </MenuItem>
+
+                <MenuItem
                     onClick={() => {setAccountMenuOpen(false); setChangePasswordOpen(true)}}
                 >
                     Alterar Palavra-Passe
@@ -334,6 +342,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
             <LastCeremonyModal open={isLastCeremonyOpen} onClose={() => setLastCeremonyOpen(false)} />
 
             <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
+            <AuthenticationMethodsModal open={isAuthenticationMethodsOpen} onClose={() => setAuthenticationMethodsOpen(false)} />
+
             <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>
 
             <FeedbackModal type={isFeedbackOpen.type} open={isFeedbackOpen.open} onClose={() => setFeedbackOpen({open: false, type: "error"})} />

@@ -28,6 +28,10 @@ export type LoggedUserContextType = {
             special_units: OfficerSpecialUnitType[]
         }
     },
+    authentication: {
+        password: boolean,
+        discord: boolean
+    },
     intents: {[key: string]: boolean},
     forces: UserForce[]
 }
@@ -61,6 +65,10 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
             promotion_date: moment(),
             special_units: []
         }
+    },
+    authentication: {
+        password: false,
+        discord: false
     },
     intents: {
         officers: false,
