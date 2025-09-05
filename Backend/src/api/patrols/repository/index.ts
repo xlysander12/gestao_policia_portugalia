@@ -110,7 +110,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
                                                     )
                                                  OR 
                                                     (
-                                                        (? > start)    
+                                                        (? > start AND end IS NUll)    
                                                     )
                                                  )`, [`%${officerNif}%`, start, end, start, end, start, end, end]);
     }
