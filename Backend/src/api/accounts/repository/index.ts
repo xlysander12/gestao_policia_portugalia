@@ -70,6 +70,7 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
     const details: InnerAccountData = {
         nif: result[0].nif as number,
         password: result[0].password as string | null,
+        password_login: result[0].password_login === 1,
         discord_login: result[0].discord_login === 1,
         suspended: result[0].suspended === 1,
         last_interaction: result[0].last_interaction as Date | null,

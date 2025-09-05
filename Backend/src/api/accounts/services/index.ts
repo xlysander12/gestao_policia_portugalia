@@ -76,22 +76,27 @@ interface loginReturn {
 export async function canLogin(user_forces: InnerForceAccountData[], isDiscordLogin?: boolean): Promise<loginReturn | string> {
     // Check if the user is suspended in all forces they belong to and if discord_login is enabled in at least one force
     let active = false;
-    let discord = false;
+    let password_login = false;
+    let discord_login = false;
+
     for (const force of user_forces) {
         if (!force.suspended) { // If the user is not suspended in, at least, 1 force, the login is valid
             active = true;
-            if (!isDiscordLogin) break;
         }
 
-        if (isDiscordLogin) discord = force.discord_login;
-
+        if (!password_login) password_login = force.password_login;
+        if (!discord_login) discord_login = force.discord_login;
     }
 
     if (!active) { // If the user is suspended in all forces, return 403
         return "Esta conta encontra-se suspensa.";
     }
 
-    if (isDiscordLogin && !discord) { // If the user is trying to login via discord but discord login isn't enabled in any force, return 401
+    if (!isDiscordLogin && !password_login) {// If the user is trying to login via password but password login isn't enabled in any force, return 401
+        return "Login via Password está desativado nesta conta.";
+    }
+
+    if (isDiscordLogin && !discord_login) { // If the user is trying to login via discord but discord login isn't enabled in any force, return 401
         return "Login via Discord está desativado nesta conta.";
     }
 
