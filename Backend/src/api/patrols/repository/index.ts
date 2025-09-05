@@ -72,33 +72,47 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
     };
 }
 
-export async function isOfficerInPatrol(force: string, officerNif: number, start?: Date, end?: Date | null, patrolId?: string): Promise<boolean> {
-    if ((start && end === undefined) || (start === undefined && end)) {
-        throw new Error("Both start and end must be provided");
-    }
-
+export async function isOfficerInPatrol(force: string, officerNif: number, start: Date, end?: Date | null, patrolId?: string): Promise<boolean> {
     let result: RowDataPacket[];
 
-    // Alter the query depending if the start and end are provided
-    if (!start && !end) {
+    // Alter the query depending if the end is provided
+    if (!end) {
         result = await queryDB(force, `SELECT *
                                          FROM patrolsV
                                          WHERE officers LIKE ?
-                                           AND end IS NULL`, [`%${officerNif}%`]);
+                                           AND (
+                                                   end IS NULL 
+                                                       OR 
+                                                   end > ?
+                                               )`, [`%${officerNif}%`, start]);
     } else {
-        if (end === null) {
-            result = await queryDB(force, `SELECT *
+        /**
+         * Cases to check
+         * 1. The start of the new patrol is between the start and end of an existing patrol
+         * 2. The end of the new patrol is between the start and end of an existing patrol
+         * 3. The new patrol starts before an existing patrol and ends after it
+         * 4. The new patrol starts after an existing patrol but the existing patrol has no end date (Ongoing)
+         */
+        result = await queryDB(force, `SELECT *
                                            FROM patrolsV
                                            WHERE officers LIKE ?
-                                             AND ((? BETWEEN patrolsV.start AND patrolsV.end) OR
-                                                  patrolsV.end IS NULL)`, [`%${officerNif}%`, start]);
-        } else {
-            result = await queryDB(force, `SELECT *
-                                         FROM patrolsV
-                                         WHERE officers LIKE ?
-                                           AND start <= ?
-                                           AND end >= ?`, [`%${officerNif}%`, end, start]);
-        }
+                                             AND (
+                                                    (? BETWEEN start and end)
+                                                 OR 
+                                                    (? BETWEEN start and end)
+                                                 OR 
+                                                    (
+                                                        (
+                                                                (start BETWEEN ? AND ?)
+                                                            AND
+                                                                (end BETWEEN ? AND ?)
+                                                        )
+                                                    )
+                                                 OR 
+                                                    (
+                                                        (? > start)    
+                                                    )
+                                                 )`, [`%${officerNif}%`, start, end, start, end, start, end, end]);
     }
 
     // If no patrols were found, the officer is not in a patrol
