@@ -553,19 +553,6 @@ function OfficerInfo() {
                                     draft.personal.discord = String(event.target.value)
                                 })}
                             />
-                            <Divider flexItem/>
-
-                            {/*Steam pair*/}
-                            {/*Pattern Unit tests: https://regex101.com/r/cZ5DjR/2*/}
-                            <InformationPair
-                                label={"Steam:"}
-                                value={officerInfo.personal.steam}
-                                pattern={/(^steam:([0-9]|[a-z])+$)|(^http(s)?:\/\/steamcommunity\.com\/id\/.+$)/}
-                                editMode={editMode}
-                                onChangeCallback={(event: ChangeEvent<HTMLInputElement>) => setOfficerInfo(draft => {
-                                    draft.personal.steam = event.target.value
-                                })}
-                            />
                         </div>
                     </fieldset>
 

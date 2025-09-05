@@ -6,7 +6,6 @@ import {toast} from "react-toastify";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import modalsStyle from "./officerinfomodals.module.css";
 import {DefaultButton, DefaultTextField} from "../../../components/DefaultComponents";
-import {Checkbox, FormControlLabel} from "@mui/material";
 import {OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import { CreateOfficerRequestBody } from "@portalseguranca/api-types/officers/input.ts";
 import { BaseResponse } from "@portalseguranca/api-types";
@@ -23,8 +22,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
         phone: "",
         iban: "",
         kms: 0,
-        discord: "",
-        steam: ""
+        discord: ""
     });
 
     // State that hold the confirmation dialog
@@ -49,8 +47,7 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                     phone: Number(officerInfo.phone),
                     iban: officerInfo.iban,
                     kms: officerInfo.kms,
-                    discord: Number(officerInfo.discord),
-                    steam: officerInfo.steam
+                    discord: Number(officerInfo.discord)
                 }
             });
         const recruit_json = await recruitRequest.json() as BaseResponse;
@@ -206,19 +203,6 @@ function RecruitModal({open, onClose}: RecruitModalProps): ReactElement {
                                 required
                                 inputProps={{
                                     name: "officerDiscord"
-                                }}
-                            />
-
-                            <DefaultTextField
-                                fullWidth
-                                label={"Steam ID / URL"}
-                                type={"text"}
-                                onChange={(event) => setOfficerInfo(draft => {draft.steam = event.target.value})}
-                                sx={{margin: "10px 0 0 0"}}
-                                error={officerInfo.steam !== "" && !(/^steam:([0-9]|[a-z])+$/.test(officerInfo.steam)) && !(/^http(s)?:\/\/steamcommunity.com\/id\/.+/.test(officerInfo.steam))}
-                                inputProps={{
-                                    name: "officerSteam",
-                                    pattern: "(^steam:([0-9]|[a-z])+$)|(^http(s)?://steamcommunity.com/id/.+$)"
                                 }}
                             />
                         </div>
