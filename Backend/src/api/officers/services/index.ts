@@ -88,7 +88,7 @@ export async function hireOfficer(name: string, phone: number, iban: string, nif
     const callsign = await getNextAvailableCallsign(leading_char, force);
 
     // Inserting the new officer into the database
-    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, typeof discord === "string" ? BigInt(discord) : discord, steam);
+    await addOfficer(force, name, 1, callsign, phone, nif, iban, kms, discord, steam);
 
     // If everything went according to plan, return a 200 status code
     return {result: true, status: 201, message: "Efetivo contratado com sucesso."};
@@ -235,7 +235,7 @@ async function updateOfficerFromHub(force: string, nif: number, row: string[]): 
             phone: phone === "" || isNaN(parseInt(phone)) ? parseInt(phone) : undefined,
             iban: row[getForceHubPropertyPosition(force, "iban")!],
             kms: kms !== "" && !isNaN(parseInt(kms)) ? parseInt(kms) : undefined,
-            discord: discord === "" || isNaN(parseInt(discord)) ? parseInt(discord): undefined
+            discord: discord !== "" && !isNaN(parseInt(discord)) ? discord: undefined
         }, false);
 
         return true;
@@ -258,7 +258,16 @@ async function addOfficerFromHub(force: string, row: string[]): Promise<[boolean
     );
 
     try {
-        await addOfficer(force, row[getForceHubPropertyPosition(force, "name")!], patent ? patent.id : 1, row[getForceHubPropertyPosition(force, "callsign")!], phone ? parseInt(phone) : 0, parseInt(nif!), row[getForceHubPropertyPosition(force, "iban")!], kms ? parseInt(kms) : 0, discord ? parseInt(discord) : 0, "steam:0")
+        await addOfficer(force,
+            row[getForceHubPropertyPosition(force, "name")!],
+            patent ? patent.id : 1,
+            row[getForceHubPropertyPosition(force, "callsign")!],
+            phone ? parseInt(phone) : 0,
+            parseInt(nif!),
+            row[getForceHubPropertyPosition(force, "iban")!],
+            kms ? parseInt(kms) : 0,
+            discord
+        );
 
         // After adding the officer, update the entry_date and status with the correct value
         if (entry_date || promotion_date || status) {
