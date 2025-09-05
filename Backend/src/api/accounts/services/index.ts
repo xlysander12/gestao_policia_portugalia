@@ -48,6 +48,7 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
         message: "Operação bem sucedida",
         data: {
             defaultPassword: requestedAccount.password === null,
+            password_login: requestedAccount.password_login,
             discord_login: requestedAccount.discord_login,
             suspended: requestedAccount.suspended,
             lastUsed: requestedAccount.last_interaction ? dateToUnix(requestedAccount.last_interaction): null,
