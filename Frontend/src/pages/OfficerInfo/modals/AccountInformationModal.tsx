@@ -50,6 +50,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     const [accountInfo, setAccountInfo] = useImmer<InnerAccountInfo>({
         defaultPassword: false,
+        password_login: false,
         discord_login: false,
         suspended: false,
         lastUsed: null,
@@ -102,6 +103,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
         setAccountInfo(draft => {
             draft.defaultPassword = accountInfoJson.data.defaultPassword;
+            draft.password_login = accountInfoJson.data.password_login;
             draft.discord_login = accountInfoJson.data.discord_login;
             draft.suspended = accountInfoJson.data.suspended;
             draft.lastUsed = accountInfoJson.data.lastUsed ? moment.unix(accountInfoJson.data.lastUsed): null;
@@ -242,8 +244,36 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                 <ModalSection title={"Autenticação"}>
                     <div className={modalsStyle.informationInnerSectionDiv}>
                         <FormControlLabel
+                            label={"Autenticação via Palavra-Passe"}
+                            disabled={loading || !accountInfo.discord_login}
+                            control={
+                                <Switch
+                                    checked={accountInfo.password_login}
+                                    onChange={async (event) => {
+                                        // Set loading to true
+                                        setLoading(true);
+
+                                        // Make request to backend
+                                        const response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
+                                            body: {
+                                                password_login: event.target.checked
+                                            }
+                                        });
+                                        const responseJson = await response.json() as BaseResponse;
+
+                                        if (!response.ok) {
+                                            toast.error(responseJson.message);
+                                        }
+
+                                        // Set the state to refres the page
+                                        setNeedsRefresh(true);
+                                    }}
+                                />
+                            }
+                        />
+                        <FormControlLabel
                             label={"Autenticação via Discord"}
-                            disabled={loading}
+                            disabled={loading || !accountInfo.password_login}
                             control={
                                 <Switch
                                     checked={accountInfo.discord_login}
@@ -297,8 +327,6 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                                     }
                                                 });
                                                 setNeedsRefresh(true);
-
-                                                // ! Loading will be disabled by the refresh
                                             }}
                                         />
                                     }
