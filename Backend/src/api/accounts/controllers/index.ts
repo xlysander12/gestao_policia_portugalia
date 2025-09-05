@@ -14,7 +14,7 @@ import {
 import express, {CookieOptions} from "express";
 import {
     changeUserDiscordLogin,
-    changeUserPassword, changeUserPermissions,
+    changeUserPassword, changeUserPasswordLogin, changeUserPermissions,
     changeUserSuspendedStatus,
     createAccount,
     deleteUser,
@@ -172,12 +172,24 @@ export async function createAccountController(req: express.Request, res: APIResp
 }
 
 export async function changeAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse) {
-    const {discord_login, suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
+    const {discord_login, password_login, suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
+
+    // Check if "password_login" is present
+    if (password_login !== undefined) {
+        // Call the service to change the password login status
+        const passwordService = await changeUserPasswordLogin(res.locals.targetAccount, req.header(FORCE_HEADER)!, password_login);
+
+        // Check if the service was successful
+        if (!passwordService.result) {
+            res.status(passwordService.status).json({message: passwordService.message});
+            return;
+        }
+    }
 
     // Check if "discord_login" is present
     if (discord_login !== undefined) {
         // Call the service to change the discord login status
-        const discordService = await changeUserDiscordLogin(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!, discord_login);
+        const discordService = await changeUserDiscordLogin(res.locals.targetAccount, req.header(FORCE_HEADER)!, discord_login);
 
         // Check if the service was successful
         if (!discordService.result) {

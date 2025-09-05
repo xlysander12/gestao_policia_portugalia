@@ -150,6 +150,11 @@ export async function changeAccountSuspendedStatus(nif: number, force: string, s
     }
 }
 
+export async function changeAccountPasswordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
+    // Set the status in the database
+    await queryDB(force, 'UPDATE users SET password_login = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
+}
+
 export async function changeAccountDiscordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
     // Set the status in the database
     await queryDB(force, 'UPDATE users SET discord_login = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);

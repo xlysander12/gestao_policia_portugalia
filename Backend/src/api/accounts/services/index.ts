@@ -1,7 +1,8 @@
 import {
     addAccount,
     addAccountSession,
-    changeAccountDiscordLogin, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
+    changeAccountDiscordLogin, changeAccountIntent,
+    changeAccountPasswordLogin, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
     getAccountDetails,
     getUserForces, InnerForceAccountData, resetAccountPassword,
     updateAccountPassword,
@@ -368,12 +369,31 @@ export async function changeUserSuspendedStatus(nif: number, force: string, susp
     return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
 }
 
-export async function changeUserDiscordLogin(nif: number, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+export async function changeUserPasswordLogin(account: InnerAccountData, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+    // Ensure that at least one login method is always enabled
+    if (!enabled && !account.discord_login) {
+        return {result: false, status: 400, message: "Deve haver, pelo menos, um método de login ativo"};
+    }
+
     // Update the suspended status in the database
-    await changeAccountDiscordLogin(nif, force, enabled);
+    await changeAccountPasswordLogin(account.nif, force, enabled);
 
     // Return success
-    return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
+    return {result: true, status: 200, message: "Login via Password alterado com sucesso"};
+
+}
+
+export async function changeUserDiscordLogin(account: InnerAccountData, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+    // Ensure that at least one login method is always enabled
+    if (!enabled && !account.password_login) {
+        return {result: false, status: 400, message: "Deve haver, pelo menos, um método de login ativo"};
+    }
+
+    // Update the suspended status in the database
+    await changeAccountDiscordLogin(account.nif, force, enabled);
+
+    // Return success
+    return {result: true, status: 200, message: "Login via Discord alterado com sucesso"};
 
 }
 

@@ -21,6 +21,7 @@ export const ChangePasswordRequestBody = Record({
 export type ChangePasswordRequestBodyType = Static<typeof ChangePasswordRequestBody>;
 
 export const ChangeAccountInfoRequestBody = Partial({
+    password_login: Boolean,
     discord_login: Boolean,
     suspended: Boolean,
     intents: Dictionary(Boolean, String)
