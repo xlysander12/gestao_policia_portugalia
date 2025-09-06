@@ -201,7 +201,7 @@ export async function loginUserDiscord(code: string, source_uri: string): Promis
     });
     const userDetailsJson = (await userDetailsResponse.json()) as APIUser;
 
-    // If the resposne was anythign else, other than ok, return an error
+    // If the response was anythigng else, other than ok, return an error
     if (!userDetailsResponse.ok) {
         // If the response to this request is 404, the user isn't in the liked guild
         if (userDetailsResponse.status === 404) {
