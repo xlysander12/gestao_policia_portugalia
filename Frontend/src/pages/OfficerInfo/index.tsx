@@ -183,10 +183,11 @@ function OfficerInfo() {
     // Handle updates from socket
     useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback((data) => {
         // If the update wasn't for the officer being viewed, return
-        if (data.nif !== officerNif) return;
+        // If nif is 0, then this update came from an import from Google Sheets
+        if (data.nif !== officerNif && data.nif !== 0) return;
 
-        // If the update was triggered by the logged officer, ignore it
-        if (data.by === loggedUser.info.personal.nif) return;
+        // If the update was triggered by the logged officer, ignore it, only if it wasn't an import from Google Sheets
+        if (data.by === loggedUser.info.personal.nif && data.nif !== 0) return;
 
         // If it is an officer being updated, update the info
         if (data.action === "update") {
