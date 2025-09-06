@@ -30,10 +30,7 @@ async function patrolExistsMiddle(req: express.Request, res: PatrolInfoAPIRespon
     } else {
         // Now, check if the officer is appart of the patrol
         if (isOfficerPartOfPatrol) {
-            // Check if the patrol has ended for more than 30 minutes. If so, set the patrol as not editable
-            patrol.editable = !(patrol.end !== null && Date.now() - patrol.end.getTime() > (30 * 60 * 1000));
-        } else { // If not, set the patrol as not editable
-            patrol.editable = false;
+            patrol.editable = true;
         }
     }
 

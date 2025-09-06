@@ -160,7 +160,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback(data => {
-        if (data.nif === loggedUser.info.personal.nif) {
+        if (data.nif === loggedUser.info.personal.nif || data.nif === 0) { // If nif is 0, all users were affected
             void updateValues(false);
         }
     }, [socket?.id, loggedUser.info.personal.nif]), socket);

@@ -279,7 +279,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                         >
                             <Gate show={!props.newEntry}>
                                 <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Author:</DefaultTypography>
-                                <DefaultTypography>{getObjectFromId(announcementData.author.patent, getForceData(announcementData.force).patents)!.name} {announcementData.author.name}</DefaultTypography>
+                                <DefaultTypography>{getObjectFromId(announcementData.author.patent, getForceData(announcementData.author.force ?? localStorage.getItem("force")!).patents)!.name} {announcementData.author.name}</DefaultTypography>
 
                                 <Divider sx={{marginBottom: "5px"}}/>
                             </Gate>

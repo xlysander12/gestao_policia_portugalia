@@ -339,9 +339,24 @@ function Activity() {
 
         const execute = async () => {
             // Before doing anything, check if the currentOfficer state is fully built
+            let officer;
             if (currentOfficer.name === "") {
                 // Since it's not fully built, we must fetch the officer's data from the nif
-                const officer = await getOfficerFromNif(currentOfficer.nif);
+                try {
+                    officer = await getOfficerFromNif(currentOfficer.nif, signal);
+                } catch (e) { // If something went wrong, we will set the officer to the logged user, forcing a re-render
+                    if (signal.aborted) throw e; // If the error was due to the request being aborted, rethrow it
+
+                    setCurrentOfficer({
+                        name: loggedUser.info.personal.name,
+                        patent: loggedUser.info.professional.patent.id,
+                        callsign: loggedUser.info.professional.callsign,
+                        status: loggedUser.info.professional.status.id,
+                        nif: loggedUser.info.personal.nif
+                    });
+                    return;
+                }
+
 
                 // Update the state with the officer's data
                 setCurrentOfficer({

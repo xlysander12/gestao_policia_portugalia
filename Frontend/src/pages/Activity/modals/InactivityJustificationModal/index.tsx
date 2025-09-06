@@ -258,6 +258,9 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
 
     // Handle websocket events
     useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback((data) => {
+        // If this modal isn't open, it doesn't matter
+        if (!open) return;
+
         // If the event is not about inactivity justifications, it doesn't matter
         if (data.type !== "justification") return;
 
@@ -287,7 +290,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
             // Show toast with the message
             toast.warning("A justificação que estavas a visualizar foi apagada!");
         }
-    }, [justificationId, loggedUser.info.personal.nif]));
+    }, [open, justificationId, loggedUser.info.personal.nif]));
 
     return (
         <>

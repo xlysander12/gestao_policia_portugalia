@@ -16,8 +16,8 @@ export function getTimeDelta(start: Date, end: Date): string {
     return toHoursAndMinutes(Math.floor((end.getTime() - start.getTime()) / 60000));
 }
 
-export async function getOfficerFromNif(nif: number): Promise<OfficerData | MinifiedOfficerData> {
-    const response = await make_request(`/officers/${nif}`, "GET");
+export async function getOfficerFromNif(nif: number, signal?: AbortSignal): Promise<OfficerData | MinifiedOfficerData> {
+    const response = await make_request(`/officers/${nif}`, "GET", {signal});
     const responseJson: RequestError | OfficerInfoGetResponse = await response.json();
 
     if (!response.ok) {
