@@ -25,22 +25,20 @@ export async function userHasIntents(nif: number, force: string, intent: string 
     return result.length !== 0 && result[0].enabled === 1;
 }
 
-type userForcesReturn = {name: string, password?: string | null, suspended: boolean}[];
-export async function getUserForces(nif: number, return_passwords = false): Promise<userForcesReturn> {
-    const user_forces: userForcesReturn = [];
+export type InnerForceAccountData = InnerAccountData & { name: string };
+export async function getUserForces(nif: number, return_passwords = false): Promise<InnerForceAccountData[]> {
+    const user_forces: InnerForceAccountData[] = [];
 
     // Loop through all forces and see which of them have an account for this user
     for (const force of getForcesList()) {
-        const queryResult = await queryDB(force, 'SELECT password, suspended FROM users WHERE nif = ?', nif);
-        if (queryResult.length !== 0 ) { // This user exists in this force
-            const to_push: {name: string, password?: string | null, suspended: boolean} = {name: force, suspended: queryResult[0].suspended === 1}
-
-            if (return_passwords) { // If the option to retrieve passwords is true, add the password to the object
-                to_push.password = queryResult[0].password as string | null;
-            }
-
+        const accountData = await getAccountDetails(nif, force);
+        if (accountData !== null ) { // This user exists in this force
             // Push the object to the final array
-            user_forces.push(to_push);
+            user_forces.push({
+                ...accountData,
+                password: return_passwords ? accountData.password : null,
+                name: force
+            });
         }
     }
 
@@ -72,6 +70,8 @@ export async function getAccountDetails(nif: number, force: string): Promise<Inn
     const details: InnerAccountData = {
         nif: result[0].nif as number,
         password: result[0].password as string | null,
+        password_login: result[0].password_login === 1,
+        discord_login: result[0].discord_login === 1,
         suspended: result[0].suspended === 1,
         last_interaction: result[0].last_interaction as Date | null,
         intents: {}
@@ -141,13 +141,23 @@ export async function clearAccountTokens(nif: number, force: string, exclude?: s
 }
 
 export async function changeAccountSuspendedStatus(nif: number, force: string, suspended: boolean): Promise<void> {
-    // Set the suspended status to true in the database
+    // Set the suspended status in the database
     await queryDB(force, 'UPDATE users SET suspended = ? WHERE nif = ?', [suspended ? 1 : 0, nif]);
 
     // Clear all tokens of the account, if it being suspended
     if (suspended) {
         await clearAccountTokens(nif, force);
     }
+}
+
+export async function changeAccountPasswordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
+    // Set the status in the database
+    await queryDB(force, 'UPDATE users SET password_login = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
+}
+
+export async function changeAccountDiscordLogin(nif: number, force: string, enabled: boolean): Promise<void> {
+    // Set the status in the database
+    await queryDB(force, 'UPDATE users SET discord_login = ? WHERE nif = ?', [enabled ? 1 : 0, nif]);
 }
 
 export async function changeAccountIntent(nif: number, force: string, intent: string, enabled: boolean): Promise<void> {

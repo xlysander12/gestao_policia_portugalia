@@ -113,6 +113,12 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
         tempLoggedUser.intents = accountInfoData.data.intents;
 
+        // Piggy-back the last request to check their authentication methods
+        tempLoggedUser.authentication = {
+            password: accountInfoData.data.password_login,
+            discord: accountInfoData.data.discord_login
+        }
+
         // Fetch all forces the user belongs to
         const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET", {signal});
         const accountForcesData = (await accountForcesResponse.json()) as UserForcesResponse;
@@ -189,7 +195,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         return () => {
             controller.abort();
         }
-    }, [isLoginPage, element]);
+    }, [element]);
 
     // Create the websocket connection when not in the login page
     useEffect(() => {

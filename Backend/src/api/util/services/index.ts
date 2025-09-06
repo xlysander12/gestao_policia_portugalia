@@ -338,8 +338,9 @@ export async function notifications(force: string, nif: number): Promise<Default
 
 
     // * Check if the current logged user is using the default password
+    // ! This should only be sent if the current user has password-login enabled
     const accountData = (await getAccountDetails(nif, force))!;
-    if (accountData.password === null) {
+    if (accountData.password === null && accountData.password_login) {
         // If the user is using the default password, add a notification
         notifications.push({
             type: "password",

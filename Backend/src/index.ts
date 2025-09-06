@@ -23,6 +23,7 @@ requiredFilesExist();
 import endpoint from "./main";
 import {ExpressResponse} from "./types/response-types";
 import setupSocketEvents from "./utils/websocket-handler";
+import {DEFAULT_ENTRY_URL} from "./utils/constants";
 
 // Create the app
 const app = express();
@@ -36,7 +37,7 @@ httpServer.setTimeout(60 * 1000);
 
 // Initialize the socket
 const ws = new Server(httpServer, {
-    path: "/portugalia/portalseguranca/ws",
+    path: `${DEFAULT_ENTRY_URL}/ws`,
     cors: {
         origin: "http://localhost:5173",
         methods: ["GET", "POST"],
@@ -64,7 +65,7 @@ app.use((_req, res: ExpressResponse, next) => {
 });
 
 // Include all routes
-app.use("/portugalia/portalseguranca", endpoint);
+app.use(DEFAULT_ENTRY_URL, endpoint);
 
 httpServer.listen(process.env.HTTP_PORT, () => {
    logToConsole(`Server started on port ${process.env.HTTP_PORT}`, "info");

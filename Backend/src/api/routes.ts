@@ -1,6 +1,6 @@
 import {
     ChangeAccountInfoRequestBody,
-    ChangePasswordRequestBody,
+    ChangePasswordRequestBody, LoginDiscordRequestBody,
     LoginRequestBody,
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
@@ -137,6 +137,19 @@ const accountRoutes: routesType = {
                 requiresForce: false,
                 body: {
                     type: LoginRequestBody
+                }
+            }
+        }
+    },
+
+    // Route to login a user via discord
+    "/accounts/login/discord$": {
+        methods: {
+            POST: {
+                requiresSession: false,
+                requiresForce: false,
+                body: {
+                    type: LoginDiscordRequestBody
                 }
             }
         }

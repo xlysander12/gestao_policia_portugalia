@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useContext, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
 import {Loader} from "../../../components/Loader";
@@ -17,7 +17,7 @@ import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/acc
 import {useForceData, useWebSocketEvent} from "../../../hooks";
 import moment, {Moment} from "moment";
 
-type InnerAcountInfo = Omit<AccountInfo, "lastUsed"> & {
+type InnerAccountInfo = Omit<AccountInfo, "lastUsed"> & {
     lastUsed: Moment | null
 }
 
@@ -39,13 +39,19 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
 
     // Initialize the state that contains the officer's account information
     // // Create an object with all intents and set them to false
-    const intentsObject: {[key: string]: boolean} = {};
-    for (const intent of forceData.intents) {
-        intentsObject[intent.name] = false;
-    }
+    const intentsObject: {[key: string]: boolean} = useMemo(() => {
+        const temp: {[key: string]: boolean} = {};
+        for (const intent of forceData.intents) {
+            temp[intent.name] = false;
+        }
+        return temp;
+    }, []);
+    
 
-    const [accountInfo, setAccountInfo] = useImmer<InnerAcountInfo>({
+    const [accountInfo, setAccountInfo] = useImmer<InnerAccountInfo>({
         defaultPassword: false,
+        password_login: false,
+        discord_login: false,
         suspended: false,
         lastUsed: null,
         intents: intentsObject
@@ -69,7 +75,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         document.body.style.cursor = "default";
     }
 
-    const lastUsedString = accountInfo.lastUsed?.format("DD/MM/YYYY @ HH:mm") ?? "Nunca utilizada";
+    const lastUsedString = useMemo(() => accountInfo.lastUsed?.format("DD/MM/YYYY @ HH:mm") ?? "Nunca utilizada", [accountInfo.lastUsed]);
 
     async function fetchAccountInfo() {
         // Set the loading flag to true
@@ -97,6 +103,8 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         const accountInfoJson: AccountInfoResponse = await accountInfoResponse.json();
         setAccountInfo(draft => {
             draft.defaultPassword = accountInfoJson.data.defaultPassword;
+            draft.password_login = accountInfoJson.data.password_login;
+            draft.discord_login = accountInfoJson.data.discord_login;
             draft.suspended = accountInfoJson.data.suspended;
             draft.lastUsed = accountInfoJson.data.lastUsed ? moment.unix(accountInfoJson.data.lastUsed): null;
             draft.intents = accountInfoJson.data.intents;
@@ -233,6 +241,67 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                     </div>
                 </ModalSection>
 
+                <ModalSection title={"Autenticação"}>
+                    <div className={modalsStyle.informationInnerSectionDiv}>
+                        <FormControlLabel
+                            label={"Autenticação via Palavra-Passe"}
+                            disabled={loading || !accountInfo.discord_login}
+                            control={
+                                <Switch
+                                    checked={accountInfo.password_login}
+                                    onChange={async (event) => {
+                                        // Set loading to true
+                                        setLoading(true);
+
+                                        // Make request to backend
+                                        const response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
+                                            body: {
+                                                password_login: event.target.checked
+                                            }
+                                        });
+                                        const responseJson = await response.json() as BaseResponse;
+
+                                        if (!response.ok) {
+                                            toast.error(responseJson.message);
+                                        }
+
+                                        // Set the state to refresh the page
+                                        setNeedsRefresh(true);
+                                    }}
+                                />
+                            }
+                        />
+                        <FormControlLabel
+                            label={"Autenticação via Discord"}
+                            disabled={loading || !accountInfo.password_login}
+                            control={
+                                <Switch
+                                    checked={accountInfo.discord_login}
+                                    onChange={async (event) => {
+                                        // Set loading to true
+                                        setLoading(true);
+
+                                        // Make request to backend
+                                        const response = await make_request<ChangeAccountInfoRequestBodyType>(`/accounts/${officerNif}`, "PATCH", {
+                                            body: {
+                                                discord_login: event.target.checked
+                                            }
+                                        });
+                                        const responseJson = await response.json() as BaseResponse;
+
+                                        if (!response.ok) {
+                                            toast.error(responseJson.message);
+                                        }
+
+                                        // Set the state to refresh the page
+                                        setNeedsRefresh(true);
+                                    }}
+                                />
+                            }
+                        />
+                    </div>
+                </ModalSection>
+
                 <ModalSection title={"Permissões"}>
                     <div className={modalsStyle.informationInnerSectionDiv}>
                         {forceData.intents.map((intent) => {
@@ -258,8 +327,6 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                                     }
                                                 });
                                                 setNeedsRefresh(true);
-
-                                                // ! Loading will be disabled by the refresh
                                             }}
                                         />
                                     }
