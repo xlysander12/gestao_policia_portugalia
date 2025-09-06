@@ -265,7 +265,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                             toast.error(responseJson.message);
                                         }
 
-                                        // Set the state to refres the page
+                                        // Set the state to refresh the page
                                         setNeedsRefresh(true);
                                     }}
                                 />
@@ -293,7 +293,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                                             toast.error(responseJson.message);
                                         }
 
-                                        // Set the state to refres the page
+                                        // Set the state to refresh the page
                                         setNeedsRefresh(true);
                                     }}
                                 />

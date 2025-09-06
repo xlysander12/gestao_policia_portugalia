@@ -112,7 +112,7 @@ function Login({onLoginCallback}: LoginPageProps) {
         }
     }
 
-    // Start login process imediatly if the code search param is present and the process hasn't started yet
+    // Start login process immediately if the code search param is present and the process hasn't started yet
     const code = searchParams.get("code");
     useEffect(() => {
         if (code && !isLoggingInDiscord) {
