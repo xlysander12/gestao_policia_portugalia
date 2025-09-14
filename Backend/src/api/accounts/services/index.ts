@@ -1,8 +1,10 @@
 import {
     addAccount,
-    addAccountSession, changeAccountIntent, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
+    addAccountSession,
+    changeAccountDiscordLogin, changeAccountIntent,
+    changeAccountPasswordLogin, changeAccountSuspendedStatus, deleteAccount, deleteAccountSession,
     getAccountDetails,
-    getUserForces, resetAccountPassword,
+    getUserForces, InnerForceAccountData, resetAccountPassword,
     updateAccountPassword,
     userHasIntents
 } from "../repository";
@@ -10,10 +12,12 @@ import {DefaultReturn} from "../../../types";
 import {compare, hash} from "bcrypt";
 import {PASSWORD_SALT_ROUNDS} from "../../../utils/constants";
 import {InnerAccountData} from "../../../types/inner-types";
-import {getOfficerData} from "../../officers/repository";
+import {getOfficerData, getOfficerNifFromDiscord} from "../../officers/repository";
 import { AccountInfo } from "@portalseguranca/api-types/account/output";
 import {dateToUnix} from "../../../utils/date-handler";
 import {generateSessionId} from "../../../utils/session-handler";
+import {getForcesList} from "../../../utils/config-handler";
+import {APIUser} from "discord-api-types/v10";
 
 export async function validateSession(user: number, force: string, intents: string[] | undefined): Promise<DefaultReturn<void>> {
     // Check if intents were provided
@@ -44,6 +48,8 @@ export async function getUserDetails(requestingNif: number, requestedAccount: In
         message: "Operação bem sucedida",
         data: {
             defaultPassword: requestedAccount.password === null,
+            password_login: requestedAccount.password_login,
+            discord_login: requestedAccount.discord_login,
             suspended: requestedAccount.suspended,
             lastUsed: requestedAccount.last_interaction ? dateToUnix(requestedAccount.last_interaction): null,
             intents: requestedAccount.intents
@@ -64,7 +70,48 @@ export async function getAccountForces(requestingNif: number, nif: number): Prom
     return {result: true, status: 200, message: "Operação bem sucedida", data: response};
 }
 
-export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<{session_id: string, forces: string[]}>> {
+interface loginReturn {
+    session_id: string
+    forces: string[]
+}
+
+export async function canLogin(user_forces: InnerForceAccountData[], isDiscordLogin?: boolean): Promise<loginReturn | string> {
+    // Check if the user is suspended in all forces they belong to and if discord_login is enabled in at least one force
+    let active = false;
+    let password_login = false;
+    let discord_login = false;
+
+    for (const force of user_forces) {
+        if (!force.suspended) { // If the user is not suspended in, at least, 1 force, the login is valid
+            active = true;
+        }
+
+        if (!password_login) password_login = force.password_login;
+        if (!discord_login) discord_login = force.discord_login;
+    }
+
+    if (!active) { // If the user is suspended in all forces, return 403
+        return "Esta conta encontra-se suspensa.";
+    }
+
+    if (!isDiscordLogin && !password_login) {// If the user is trying to login via password but password login isn't enabled in any force, return 401
+        return "Login via Password está desativado nesta conta.";
+    }
+
+    if (isDiscordLogin && !discord_login) { // If the user is trying to login via discord but discord login isn't enabled in any force, return 401
+        return "Login via Discord está desativado nesta conta.";
+    }
+
+    // If everything is correct, generate a session id and hash it
+    const session_id = await generateSessionId();
+
+    return {
+        session_id: session_id,
+        forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)
+    }
+}
+
+export async function loginUser(nif: number, password: string, persistent: boolean | undefined): Promise<DefaultReturn<loginReturn>> {
     // Check if the user exists (it's needed to check on all forces databases)
     const user_forces = await getUserForces(nif, true);
 
@@ -89,30 +136,143 @@ export async function loginUser(nif: number, password: string, persistent: boole
         return {result: false, status: 401, message: "NIF ou password errados."};
     }
 
-    // Check if the user is suspended in all forces they belong to
-    let valid = false;
-    for (const force of user_forces) {
-        if (!force.suspended) { // If the user is not suspended in, at least, 1 force, the login is valid
-            valid = true;
-            break;
+    // Call function to ensure user can login
+    const resultCanLogin = await canLogin(user_forces);
+
+    if (typeof resultCanLogin === "string") {
+        return {
+            result: false,
+            status: 401,
+            message: resultCanLogin
         }
     }
 
-    if (!valid) { // If the user is suspended in all forces, return 403
-        return {result: false, status: 403, message: "Esta conta encontra-se suspensa."};
-    }
-
-    // If everything is correct, generate a session id and hash it
-    const session_id = await generateSessionId();
-
     // After generating the session id, store it in the databases of all the forces the user belongs to
     for (const force of user_forces) {
-        await addAccountSession(force.name, nif, session_id, persistent ?? false);
+        await addAccountSession(force.name, nif, resultCanLogin.session_id, persistent ?? false);
     }
 
     // Return the data to the Controller
     // * The "forces" field must only include the forces the user is not suspended in
-    return {result: true, status: 200, message: "Operação bem sucedida", data: {session_id: session_id, forces: user_forces.filter((force) => !force.suspended).map((force) => force.name)}};
+    return {
+        result: true,
+        status: 200,
+        message: "Operação bem sucedida",
+        data: resultCanLogin
+    }
+}
+
+export async function loginUserDiscord(code: string, source_uri: string): Promise<DefaultReturn<loginReturn>> {
+    // * Exchange the received code for a token
+    // Make an API call to discord's server to exchange the data
+    // Required scopes: identify, guilds, guilds.members.read
+    const tokenResponse = await fetch("https://discord.com/api/v10/oauth2/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            grant_type: "authorization_code",
+            code,
+            client_id: process.env.DISCORD_CLIENT_ID!,
+            client_secret: process.env.DISCORD_CLIENT_SECRET!,
+            redirect_uri: source_uri
+        }),
+    });
+    const tokenResponseData = await tokenResponse.json();
+
+    // If the response from Discord wasn't positive, return here
+    if (!tokenResponse.ok) {
+        return {
+            result: false,
+            status: 401,
+            message: tokenResponseData.error_description
+        }
+    }
+
+    // Get the token from the response
+    const token = tokenResponseData.access_token as string;
+
+    // * Get the user's data from discord
+    const userDetailsResponse = await fetch(`https://discord.com/api/v10/users/@me`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    const userDetailsJson = (await userDetailsResponse.json()) as APIUser;
+
+    // If the response was anythigng else, other than ok, return an error
+    if (!userDetailsResponse.ok) {
+        // If the response to this request is 404, the user isn't in the liked guild
+        if (userDetailsResponse.status === 404) {
+            return {
+                result: false,
+                status: 401,
+                message: "Autenticação Inválida"
+            }
+        }
+
+        // Otherwise
+        return {
+            result: false,
+            status: 401,
+            // @ts-expect-error idk yet, still to find out
+            message: userDetailsJson.error_description
+        }
+    }
+
+    // * Fetch the officer data using the discord id
+    // This needs to be looped between each avaliable force until one is found, at least
+    let nif = null;
+    for (const force of getForcesList()) {
+        nif = await getOfficerNifFromDiscord(force, userDetailsJson.id);
+
+        if (nif !== null) break;
+    }
+
+    // If, after the loop, nif is still `null`, no officer was found
+    if (nif === null) {
+        return {
+            result: false,
+            status: 401,
+            message: "Nenhuma conta com esse Discord associado encontrada"
+        }
+    }
+
+    // Get user forces
+    const user_forces = await getUserForces(nif);
+    if (user_forces.length === 0) {
+        return {
+            result: false,
+            status: 401,
+            message: "Nenhuma conta com esse Discord associado encontrada"
+        }
+    }
+
+    // Call function to ensure user can login
+    const resultCanLogin = await canLogin(user_forces, true);
+
+    if (typeof resultCanLogin === "string") {
+        return {
+            result: false,
+            status: 401,
+            message: resultCanLogin
+        }
+    }
+
+    // After generating the session id, store it in the databases of all the forces the user belongs to
+    for (const force of user_forces) {
+        await addAccountSession(force.name, nif, resultCanLogin.session_id, true);
+    }
+
+    // Return the data to the Controller
+    // * The "forces" field must only include the forces the user is not suspended in
+    return {
+        result: true,
+        status: 200,
+        message: "Operação bem sucedida",
+        data: resultCanLogin
+    }
 }
 
 export async function logoutUser(nif: number, session_id: string): Promise<DefaultReturn<void>> {
@@ -208,6 +368,34 @@ export async function changeUserSuspendedStatus(nif: number, force: string, susp
 
     // Return success
     return {result: true, status: 200, message: "Estado de suspensão alterado com sucesso"};
+}
+
+export async function changeUserPasswordLogin(account: InnerAccountData, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+    // Ensure that at least one login method is always enabled
+    if (!enabled && !account.discord_login) {
+        return {result: false, status: 400, message: "Deve haver, pelo menos, um método de login ativo"};
+    }
+
+    // Update the suspended status in the database
+    await changeAccountPasswordLogin(account.nif, force, enabled);
+
+    // Return success
+    return {result: true, status: 200, message: "Login via Password alterado com sucesso"};
+
+}
+
+export async function changeUserDiscordLogin(account: InnerAccountData, force: string, enabled: boolean): Promise<DefaultReturn<void>> {
+    // Ensure that at least one login method is always enabled
+    if (!enabled && !account.password_login) {
+        return {result: false, status: 400, message: "Deve haver, pelo menos, um método de login ativo"};
+    }
+
+    // Update the suspended status in the database
+    await changeAccountDiscordLogin(account.nif, force, enabled);
+
+    // Return success
+    return {result: true, status: 200, message: "Login via Discord alterado com sucesso"};
+
 }
 
 export async function deleteUser(nif: number, force: string): Promise<DefaultReturn<void>> {

@@ -1,6 +1,6 @@
 import {
     ChangeAccountInfoRequestBody,
-    ChangePasswordRequestBody,
+    ChangePasswordRequestBody, LoginDiscordRequestBody,
     LoginRequestBody,
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
@@ -137,6 +137,19 @@ const accountRoutes: routesType = {
                 requiresForce: false,
                 body: {
                     type: LoginRequestBody
+                }
+            }
+        }
+    },
+
+    // Route to login a user via discord
+    "/accounts/login/discord$": {
+        methods: {
+            POST: {
+                requiresSession: false,
+                requiresForce: false,
+                body: {
+                    type: LoginDiscordRequestBody
                 }
             }
         }
@@ -1179,7 +1192,7 @@ const announcementsRoutes: routesType = {
                 },
                 filters: {
                     "active": {
-                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "expiration IS NULL OR expiration > CURRENT_TIMESTAMP()" : "expiration <= CURRENT_TIMESTAMP()",
+                        queryFunction: (receivedParams) => receivedParams.active === "true" ? "(expiration IS NULL OR expiration > CURRENT_TIMESTAMP())" : "expiration <= CURRENT_TIMESTAMP()",
                     },
                     "tags": {
                         queryFunction: (receivedParams) => {

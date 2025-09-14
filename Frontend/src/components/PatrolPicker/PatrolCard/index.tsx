@@ -23,6 +23,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [officers, setOfficers] = useState<(MinifiedOfficerData & {force: string})[] >([]);
     const [addEtc, setAddEtc] = useState<boolean>(false);
+    const [patrolDuration, setPatrolDuration] = useState<number>(0);
 
     // Getting the patrol force from the id
     const patrolForce = patrolInfo.id.match(/([a-z]+)(\d+)$/)![1];
@@ -78,6 +79,20 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
         void exec();
     }, [patrolInfo.id]);
 
+    // Loop to keep updating the duration of ongoing patrols
+    useEffect(() => {
+        if (patrolInfo.end !== null) return;
+
+        const loop = setInterval(() => {
+           setPatrolDuration(moment().diff(moment.unix(patrolInfo.start)));
+        }, 500);
+
+        return () => {
+            setPatrolDuration(0);
+            clearInterval(loop);
+        }
+    }, [patrolInfo.start]);
+
     return (
         <InformationCard
             statusColor={patrolInfo.canceled ? "gray": (patrolInfo.end ? "red" : "lightgreen")}
@@ -90,7 +105,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                     </DefaultTypography>
 
                     <DefaultTypography color={"gray"}>{getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
-                    <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? moment.duration(moment.unix(patrolInfo.end).diff(moment.unix(patrolInfo.start))).format("hh[h]mm", {trim: false}): "N/A"}</DefaultTypography>
+                    <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? moment.duration(moment.unix(patrolInfo.end).diff(moment.unix(patrolInfo.start))).format("hh[h]mm", {trim: false}): moment.duration(patrolDuration).format("hh:mm:ss", {trim: false})}</DefaultTypography>
                 </div>
                 <div className={style.patrolCardMiddle}>
                     <Gate show={loading}>

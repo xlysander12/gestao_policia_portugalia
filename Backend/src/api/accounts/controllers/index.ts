@@ -1,11 +1,11 @@
 import {APIResponse} from "../../../types";
 import {
     ChangeAccountInfoRequestBodyType,
-    ChangePasswordRequestBodyType,
+    ChangePasswordRequestBodyType, LoginDiscordRequestBody,
     LoginRequestBodyType,
     ValidateTokenRequestBodyType
 } from "@portalseguranca/api-types/account/input";
-import {FORCE_HEADER} from "../../../utils/constants";
+import {DEFAULT_ENTRY_URL, FORCE_HEADER} from "../../../utils/constants";
 import {
     AccountInfoResponse, LoginResponse,
     UserForcesResponse,
@@ -13,12 +13,13 @@ import {
 } from "@portalseguranca/api-types/account/output";
 import express, {CookieOptions} from "express";
 import {
-    changeUserPassword, changeUserPermissions,
+    changeUserDiscordLogin,
+    changeUserPassword, changeUserPasswordLogin, changeUserPermissions,
     changeUserSuspendedStatus,
     createAccount,
     deleteUser,
     getUserDetails,
-    loginUser, logoutUser, resetUserPassword,
+    loginUser, loginUserDiscord, logoutUser, resetUserPassword,
     validateSession
 } from "../services";
 import {getAccountForces} from "../services";
@@ -108,6 +109,39 @@ export async function loginUserController(req: express.Request, res: APIResponse
     });
 }
 
+export async function loginUserDiscordController(req: express.Request, res: APIResponse<LoginResponse>) {
+    const {code} = req.body as LoginDiscordRequestBody;
+
+    // Call the service
+    const result = await loginUserDiscord(code, `${req.header("origin")}${DEFAULT_ENTRY_URL}/login`);
+
+    if (!result.result) {
+        res.status(result.status).json({
+            message: result.message
+        });
+        return;
+    }
+
+    // Build the Cookie Options
+    const cookieOptions: CookieOptions = {
+        httpOnly: true,
+        secure: process.env.PS_IS_PRODUCTION === "true",
+        maxAge: 1000 * 60 * 60 * 24 * 400 // 400 days
+    }
+
+    // Append the cookie to the response
+    res.cookie("sid", result.data!.session_id, cookieOptions);
+
+    // Send the response
+    res.status(result.status).json({
+        message: result.message,
+        data: {
+            sessionId: result.data!.session_id,
+            forces: result.data!.forces
+        }
+    });
+}
+
 export async function logoutUserController(req: express.Request, res: APIResponse) {
     // Call the service to remove the token from the database
     const result = await logoutUser(res.locals.loggedOfficer.nif, req.cookies.sid as string | undefined | null ?? req.header("Authorization")!);
@@ -137,13 +171,37 @@ export async function createAccountController(req: express.Request, res: APIResp
     res.status(serviceResult.status).json({message: serviceResult.message});
 }
 
-export async function changeAccountDetailsController(req: express.Request, res: APIResponse) {
-    const {suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
+export async function changeAccountDetailsController(req: express.Request, res: AccountInfoAPIResponse) {
+    const {discord_login, password_login, suspended, intents} = req.body as ChangeAccountInfoRequestBodyType;
 
-    // * First, check if 'suspended' is present
+    // Check if "password_login" is present
+    if (password_login !== undefined) {
+        // Call the service to change the password login status
+        const passwordService = await changeUserPasswordLogin(res.locals.targetAccount, req.header(FORCE_HEADER)!, password_login);
+
+        // Check if the service was successful
+        if (!passwordService.result) {
+            res.status(passwordService.status).json({message: passwordService.message});
+            return;
+        }
+    }
+
+    // Check if "discord_login" is present
+    if (discord_login !== undefined) {
+        // Call the service to change the discord login status
+        const discordService = await changeUserDiscordLogin(res.locals.targetAccount, req.header(FORCE_HEADER)!, discord_login);
+
+        // Check if the service was successful
+        if (!discordService.result) {
+            res.status(discordService.status).json({message: discordService.message});
+            return;
+        }
+    }
+
+    // Check if 'suspended' is present
     if (suspended !== undefined) {
         // Call the service to change the suspended status
-        const suspendedService = await changeUserSuspendedStatus(Number(req.params.nif), req.header(FORCE_HEADER)!, suspended);
+        const suspendedService = await changeUserSuspendedStatus(res.locals.targetAccount.nif, req.header(FORCE_HEADER)!, suspended);
 
         // Check if the service was successful
         if (!suspendedService.result) {
@@ -152,7 +210,7 @@ export async function changeAccountDetailsController(req: express.Request, res: 
         }
     }
 
-    // * Second, check if 'intents' is present
+    // Check if 'intents' is present
     if (intents !== undefined) {
         // Call the service to change the user permissions
         const intentsService = await changeUserPermissions(Number(req.params.nif), req.header(FORCE_HEADER)!, res.locals.loggedOfficer.nif, intents);

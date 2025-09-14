@@ -6,6 +6,8 @@ export interface ValidateTokenResponse extends BaseResponse {
 
 export interface AccountInfo {
     defaultPassword: boolean,
+    password_login: boolean,
+    discord_login: boolean,
     suspended: boolean,
     lastUsed: number | null,
     intents: {[key: string]: boolean}
@@ -23,7 +25,7 @@ export interface LoginResponse extends BaseResponse {
 }
 
 interface UserForce {
-    name: string,
+    name: string
     suspended: boolean
 }
 

@@ -39,10 +39,6 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
 }
 
 async function canOfficerBeInPatrol(force: string, officerNif: number, patrolStart: Date, patrolEnd: Date | null, patrolId?: string): Promise<[boolean, string]> {
-    if (await isOfficerInPatrol(force, officerNif, patrolStart, patrolEnd, patrolId)) {
-        return [false, `O efetivo de NIF ${officerNif} já está em patrulha`];
-    }
-
     // First, check if the officer exists, either in the current force or in any of the forces the current force has patrols with
     let officerData: InnerOfficerData | null = null;
     let officerForce: string = force;
@@ -62,17 +58,21 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
         return [false, `O efetivo de NIF ${officerNif} não existe`];
     }
 
+    if (await isOfficerInPatrol(force, officerData.nif, patrolStart, patrolEnd, patrolId)) {
+        return [false, `O efetivo ${officerData.name} já está em patrulha`];
+    }
+
     // Fetch the current's officer status
     const officerStatus = (await getForceStatuses(officerForce)).find(status => status.id === officerData.status)!;
 
     // Since the officer exists, check if they are / were inactive on the start of the patrol
     if (await couldOfficerPatrolDueToJustificationInDate(force, officerNif, patrolStart)) {
-        return [false, `O efetivo de NIF ${officerNif} está inativo`];
+        return [false, `O efetivo ${officerData.name} está inativo`];
     }
 
     // Check if the status of the officer prevents patrols (Inactivity only appears here if forcefully set)
     if (!officerStatus.canPatrol) {
-        return [false, `O efetivo de NIF ${officerNif} não pode patrulhar`];
+        return [false, `O efetivo ${officerData.name} não pode patrulhar`];
     }
 
     return [true, ""];
@@ -136,7 +136,6 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
 
     // * Check if the dates of the patrol make sense
     // Dates can't be from future (add a 1 minute leaneancy to account offset devices)
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if ((patrolData.start > dateToUnix(new Date()) + 60) || (patrolData.end !== undefined && patrolData.end > (dateToUnix(new Date()) + 60))) {
         return {
             result: false,
