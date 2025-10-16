@@ -322,6 +322,16 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all patent categories of a force
+    "/util/patent-categories$": {
+        methods: {
+            GET: {
+                requiresSession: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all statuses of a force
     "/util/statuses$": {
         methods: {

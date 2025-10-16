@@ -2,7 +2,7 @@
 -- Host:                         mysql.crunchypi.xyz
 -- Server version:               10.11.13-MariaDB-0ubuntu0.24.04.1-log - Ubuntu 24.04
 -- Server OS:                    debian-linux-gnu
--- HeidiSQL Version:             12.11.0.7065
+-- HeidiSQL Version:             12.12.0.7122
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `evaluations` (
   CONSTRAINT `FK_evaluations_decision` FOREIGN KEY (`decision`) REFERENCES `evaluation_decisions` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_patrol` FOREIGN KEY (`patrol`) REFERENCES `patrols` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_target` FOREIGN KEY (`target`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `officer_justifications` (
   CONSTRAINT `FK_officer_justifications_officer` FOREIGN KEY (`officer`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_officers` FOREIGN KEY (`managed_by`) REFERENCES `officers` (`nif`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_type` FOREIGN KEY (`type`) REFERENCES `inactivity_types` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -277,10 +277,22 @@ CREATE TABLE IF NOT EXISTS `officer_last_shift` (
 -- Dumping structure for table portugalia_gestao_psp_staging.patents
 CREATE TABLE IF NOT EXISTS `patents` (
   `id` int(11) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
+  `name` varchar(50) NOT NULL,
+  `category` int(11) NOT NULL,
   `max_evaluation` int(11) NOT NULL DEFAULT -2,
   `leading_char` varchar(1) DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `FK_patents_category` (`category`),
+  CONSTRAINT `FK_patents_category` FOREIGN KEY (`category`) REFERENCES `patent_categories` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table portugalia_gestao_psp_staging.patent_categories
+CREATE TABLE IF NOT EXISTS `patent_categories` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
@@ -304,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `patrols` (
   CONSTRAINT `FK_patrols_special_unit` FOREIGN KEY (`special_unit`) REFERENCES `special_units` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_patrols_type` FOREIGN KEY (`type`) REFERENCES `patrols_types` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `start_before_end` CHECK (`start` < `end`)
-) ENGINE=InnoDB AUTO_INCREMENT=1728 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1738 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 

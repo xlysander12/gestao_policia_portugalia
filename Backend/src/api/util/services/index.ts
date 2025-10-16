@@ -4,7 +4,7 @@ import {
     getEvaluationFields,
     getEvaluationGrades, getEventTypes,
     getForceInactivityTypes,
-    getForceIntents,
+    getForceIntents, getForcePatentCategories,
     getForcePatents,
     getForcePatrolTypes,
     getForceSpecialUnits,
@@ -31,7 +31,7 @@ import {
     EvaluationDecision,
     EventType,
     EventNotification,
-    ForceColors
+    ForceColors, PatentCategoryData
 } from "@portalseguranca/api-types/util/output";
 import {getForceColors, getForcePatrolForces} from "../../../utils/config-handler";
 import {getAccountDetails, userHasIntents} from "../../accounts/repository";
@@ -60,6 +60,19 @@ export async function forcePatents(force: string): Promise<DefaultReturn<PatentD
         status: 200,
         message: "Operação concluída com sucesso",
         data: patents
+    }
+}
+
+export async function forcePatentCategories(force: string): Promise<DefaultReturn<PatentCategoryData[]>> {
+    // Get the list from the repository
+    const categories: PatentCategoryData[] = await getForcePatentCategories(force);
+
+    // Return 200
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: categories
     }
 }
 

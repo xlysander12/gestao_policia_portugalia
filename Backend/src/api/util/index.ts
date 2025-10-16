@@ -5,7 +5,7 @@ import {
     getEvaluationFieldsController,
     getEvaluationGradesController, getEventTypesController, getForceTopHoursInWeekController,
     getInactivityTypesController,
-    getIntentsController, getLastCeremonyController, getNotificationsController,
+    getIntentsController, getLastCeremonyController, getNotificationsController, getPatentCategoriesController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
     getSpecialUnitsController,
     getStatusesController, getUserErrorsController
@@ -18,6 +18,8 @@ const app = express.Router();
 app.get("/colors", getColorsController);
 
 app.get("/patents", getPatentsController);
+
+app.get("/patent-categories", getPatentCategoriesController);
 
 app.get("/statuses", getStatusesController);
 

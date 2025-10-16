@@ -6,7 +6,7 @@ import {
     evaluationFields,
     evaluationGrades, eventTypes, forceColors,
     forceInactivityTypes,
-    forceIntents,
+    forceIntents, forcePatentCategories,
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits, forceSpecialUnitsActiveMembers,
@@ -28,7 +28,7 @@ import {
     UtilLastCeremonyResponse,
     UtilSpecialUnitsActiveResponse,
     UtilEventTypesResponse,
-    ForceTopHoursInWeekResponse, UtilColorsResponse
+    ForceTopHoursInWeekResponse, UtilColorsResponse, UtilPatentCategoriesResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
@@ -57,6 +57,16 @@ export async function getPatentsController(req: express.Request, res: ExpressRes
 
     // Call the service to get the patents
     const result = await forcePatents(force);
+
+    res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getPatentCategoriesController(req: express.Request, res: ExpressResponse<UtilPatentCategoriesResponse>) {
+    // Get what force the user is trying to get the patents from
+    const force = req.header(FORCE_HEADER)!;
+
+    // Call the service to get the patents
+    const result = await forcePatentCategories(force);
 
     res.status(result.status).json({message: result.message, data: result.data!});
 }
