@@ -515,7 +515,7 @@ const officersRoutes: routesType = {
                     },
                     patent: {
                         queryFunction: (receivedParams, force) => {
-                            if (!isQueryParamPresent("patrol", receivedParams)) {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
                                 return "patent = ?";
                             }
 
@@ -525,7 +525,7 @@ const officersRoutes: routesType = {
                     },
                     "patent-category": {
                         queryFunction: (receivedParams, force) => {
-                            if (!isQueryParamPresent("patrol", receivedParams)) {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
                                 return "patentCategory = ?";
                             }
 
