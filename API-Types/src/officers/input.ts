@@ -5,6 +5,7 @@ export const ListOfficersQueryParams = Partial({
     force: String,
     patent: String.withConstraint(s => !isNaN(parseInt(s))),
     "patent-category": String.withConstraint(s => !isNaN(parseInt(s))),
+    status: String.withConstraint(s => !isNaN(parseInt(s))),
     patrol: String.withConstraint(s => s === "true" || s === "false")
 });
 export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;

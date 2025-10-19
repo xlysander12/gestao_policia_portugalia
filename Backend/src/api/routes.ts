@@ -532,6 +532,16 @@ const officersRoutes: routesType = {
                             return `patentCategory = ? AND officerForce = '${force}'`
                         },
                         valueFunction: (value) => value
+                    },
+                    status: {
+                        queryFunction: (receivedParams, force) => {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
+                                return "status = ?";
+                            }
+
+                            return `status = ? AND officerForce = '${force}'`
+                        },
+                        valueFunction: (value) => value
                     }
                 }
             }
