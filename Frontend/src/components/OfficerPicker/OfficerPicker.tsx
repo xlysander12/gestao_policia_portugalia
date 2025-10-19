@@ -29,9 +29,10 @@ type OfficerCardProps = {
     statusColor: string
     callback: (nif: number) => void
     disabled: boolean
+    selected?: boolean
 }
 
-function OfficerCard({name, nif, statusColor, callback, disabled}: OfficerCardProps): ReactElement {
+function OfficerCard({name, nif, statusColor, callback, disabled, selected}: OfficerCardProps): ReactElement {
     const handleDivClick = () => {
         if (disabled)
             return;
@@ -42,6 +43,7 @@ function OfficerCard({name, nif, statusColor, callback, disabled}: OfficerCardPr
     return(
         <InformationCard
             disabled={disabled}
+            selected={selected}
             statusColor={statusColor}
             callback={handleDivClick}
         >
@@ -59,9 +61,10 @@ type OfficerListProps = {
     filter?: (officer: MinifiedOfficerData) => boolean
     disabled?: boolean
     patrol?: boolean
+    selected?: number
 }
 
-function OfficerPicker({callback, filter = () => true, disabled = false, patrol = false}: OfficerListProps) {
+function OfficerPicker({callback, filter = () => true, disabled = false, patrol = false, selected}: OfficerListProps) {
     // Get the force's data from Context
     const [forceData, getForceData, forces] = useForceData();
 
@@ -238,6 +241,7 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
                                     statusColor={statusColor}
                                     callback={handleClick}
                                     disabled={disabled}
+                                    selected={selected === officer.nif}
                                 />
                             )
                         })}

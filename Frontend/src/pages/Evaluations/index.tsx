@@ -209,6 +209,7 @@ function Evaluations(props: EvaluationsPageProps) {
                 leftSideComponent={
                     <OfficerPicker
                         disabled={loading}
+                        selected={currentOfficer.nif}
                         callback={(officer) => {
                             // Set the current page to 1
                             setPage(1);

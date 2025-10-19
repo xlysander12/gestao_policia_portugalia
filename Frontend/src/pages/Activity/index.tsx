@@ -430,6 +430,7 @@ function Activity() {
                     <OfficerPicker
                         disabled={loading}
                         callback={setCurrentOfficer}
+                        selected={currentOfficer.nif}
                     />
                 }
 
