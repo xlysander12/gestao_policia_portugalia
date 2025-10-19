@@ -1,7 +1,7 @@
 import {Typography, TypographyProps} from "@mui/material";
 import {styled} from "@mui/system";
 
-type DefaultTypographyProps = Partial<TypographyProps> & {
+export type DefaultTypographyProps = Partial<TypographyProps> & {
     color?: string
     clickable?: boolean
     clickableColorHover?: string
