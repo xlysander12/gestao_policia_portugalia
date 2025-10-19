@@ -4,7 +4,7 @@ import {
     EvaluationField,
     EvaluationGrade, EventType, ForceColors,
     InactivityTypeData,
-    IntentData,
+    IntentData, PatentCategoryData,
     PatentData, PatrolTypeData,
     SpecialUnitData, SpecialUnitRoleData,
     StatusData
@@ -15,6 +15,7 @@ export type ForceData = {
     last_ceremony: Moment
     colors: ForceColors
     patents: PatentData[]
+    patentCategories: PatentCategoryData[]
     statuses: StatusData[]
     intents: IntentData[]
     inactivity_types: InactivityTypeData[]

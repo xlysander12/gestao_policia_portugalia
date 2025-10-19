@@ -3,7 +3,7 @@ import {ForceData, ForcesDataContext} from "../forces-data-context.ts";
 
 type ForceDataGetter = (forceName: string) => ForceData;
 
-function useForceData(): [ForceData, ForceDataGetter] {
+function useForceData(): [ForceData, ForceDataGetter, string[]] {
     // Get the forces' data from context
     const forcesData = useContext(ForcesDataContext);
 
@@ -20,10 +20,10 @@ function useForceData(): [ForceData, ForceDataGetter] {
     }
 
     if (!force) {
-        return [forcesData["default"], getForceData];
+        return [forcesData["default"], getForceData, []];
     }
 
-    return [getForceData(force), getForceData];
+    return [getForceData(force), getForceData, Object.keys(forcesData)];
 }
 
 export default useForceData;

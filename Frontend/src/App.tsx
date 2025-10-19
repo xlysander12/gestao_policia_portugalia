@@ -15,7 +15,7 @@ import {
     UtilEvaluationGradesResponse, UtilEventTypesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
-    UtilIntentsResponse, UtilLastCeremonyResponse,
+    UtilIntentsResponse, UtilLastCeremonyResponse, UtilPatentCategoriesResponse,
     UtilPatentsResponse,
     UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
@@ -56,6 +56,7 @@ function App() {
             last_ceremony: moment(),
             colors: {base: "#ffffff", text: null},
             patents: [],
+            patentCategories: [],
             statuses: [],
             intents: [],
             inactivity_types: [],
@@ -84,6 +85,12 @@ function App() {
         async function fetchPatents() {
             const patentsResponse = await make_request("/util/patents", "GET", {force: forceName});
             forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
+        }
+
+        // Fetching the patent categories
+        async function fetchPatentCategories() {
+            const categoriesResponse = await make_request("/util/patent-categories", "GET", {force: forceName});
+            forceTempData.patentCategories = ((await categoriesResponse.json()) as UtilPatentCategoriesResponse).data;
         }
 
         // Fetching the statuses
@@ -151,6 +158,7 @@ function App() {
             fetchLastCeremony(),
             fetchColors(),
             fetchPatents(),
+            fetchPatentCategories(),
             fetchStatuses(),
             fetchIntents(),
             fetchInativityTypes(),
