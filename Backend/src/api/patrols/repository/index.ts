@@ -138,10 +138,10 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
 }
 
 export async function getOfficerPatrol(force: string, officerNif: number): Promise<InnerPatrolData | null> {
-    const result = await queryDB(force, `SELECT id
-                                         FROM patrolsV
-                                         WHERE officers LIKE ?
-                                           AND end IS NULL`, [`%${officerNif}%`]);
+    const result = await queryDB(force, `SELECT patrol
+                                         FROM patrolOfficersV
+                                         WHERE officer = ?
+                                           AND end IS NULL`, [officerNif]);
 
     if (result.length === 0) {
         return null;
