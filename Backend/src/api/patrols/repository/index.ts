@@ -26,11 +26,14 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
     // Build the result from the database
     const patrols: MinifiedPatrolData[] = [];
     for (const patrol of result) {
+        // For every patrol, get the officers present in it and remove duplicates
+        const officersResult = await queryDB(force, `SELECT DISTINCT officer FROM patrolOfficersV WHERE patrol = ?`, [patrol.id]);
+
         patrols.push({
             id: patrol.id as string,
             type: patrol.type as number,
             unit: patrol.special_unit as number | null,
-            officers: JSON.parse(patrol.officers as string) as number[],
+            officers: officersResult.map(officerRow => officerRow.officer as number),
             start: dateToUnix(patrol.start as Date),
             end: patrol.end !== null ? dateToUnix(patrol.end as Date) : null,
             canceled: patrol.canceled === 1
