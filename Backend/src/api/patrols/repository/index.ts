@@ -84,13 +84,13 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
     // Alter the query depending if the end is provided
     if (!end) {
         result = await queryDB(force, `SELECT *
-                                         FROM patrolsV
-                                         WHERE officers LIKE ?
+                                         FROM patrolOfficersV
+                                         WHERE officer = ?
                                            AND (
                                                    end IS NULL 
                                                        OR 
                                                    end > ?
-                                               )`, [`%${officerNif}%`, start]);
+                                               )`, [officerNif, start]);
     } else {
         /**
          * Cases to check
@@ -100,8 +100,8 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
          * 4. The new patrol starts after an existing patrol but the existing patrol has no end date (Ongoing)
          */
         result = await queryDB(force, `SELECT *
-                                           FROM patrolsV
-                                           WHERE officers LIKE ?
+                                           FROM patrolOfficersV
+                                           WHERE officer = ?
                                              AND (
                                                     (? BETWEEN start and end)
                                                  OR 
@@ -118,7 +118,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
                                                     (
                                                         (? > start AND end IS NULL)    
                                                     )
-                                                 )`, [`%${officerNif}%`, start, end, start, end, start, end, end]);
+                                                 )`, [officerNif, start, end, start, end, start, end, end]);
     }
 
     // If no patrols were found, the officer is not in a patrol
