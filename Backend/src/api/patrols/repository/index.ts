@@ -152,7 +152,15 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
 
 export async function createPatrol(force: string, registrar: number, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
     // Insert the patrol into the database
-    await queryDB(force, `INSERT INTO patrols (type, special_unit, registrar, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`, [type, specialUnit, registrar, JSON.stringify(officers), start, end, notes]);
+    const result = await queryDB(force, `INSERT INTO patrols (type, special_unit, registrar, start, end, notes) VALUES (?, ?, ?, ?, ?, ?)`, [type, specialUnit, registrar, start, end, notes]);
+
+    // Fetch the inserted patrol ID
+    const patrolId = (result as unknown as ResultSetHeader).insertId;
+
+    // Insert the officers into the database
+    for (const officer of officers) {
+        await queryDB(force, 'INSERT INTO patrol_officers (patrol, officer) VALUES (?, ?)', [patrolId, officer]);
+    }
 }
 
 export async function editPatrol(force: string, id: number, changes: EditPatrolBody, canceled?: boolean) {
