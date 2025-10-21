@@ -61,11 +61,14 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
     // Build the result from the database
     const patrol = result[0];
 
+    // Get officers of the patrol
+    const officersResult = await queryDB(force, `SELECT DISTINCT officer FROM patrolOfficersV WHERE patrol = ?`, [patrol.id]);
+
     return {
         id: splitPatrolId(patrol.id as string)[1],
         type: patrol.type as number,
         unit: patrol.special_unit as number | null,
-        officers: JSON.parse(patrol.officers as string) as number[],
+        officers: officersResult.map(officer => officer.officer as number),
         registrar: patrol.registrar as number,
         start: patrol.start as Date,
         end: patrol.end as Date | null,
