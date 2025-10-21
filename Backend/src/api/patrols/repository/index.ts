@@ -3,9 +3,9 @@ import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {queryDB} from "../../../utils/db-connector";
 import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {dateToUnix} from "../../../utils/date-handler";
-import {InnerPatrolData} from "../../../types/inner-types";
+import {InnerPatrolData, InnerPatrolTimelineEntry} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
-import {RowDataPacket} from "mysql2/promise";
+import {ResultSetHeader, RowDataPacket} from "mysql2/promise";
 
 function splitPatrolId(id: string): [string, number] {
     const idMatch = /([a-z]+)(\d+)$/.exec(id);
@@ -77,6 +77,18 @@ export async function getPatrol(force: string, id: string): Promise<InnerPatrolD
         force: splitPatrolId(patrol.id as string)[0]
     };
 }
+
+export async function getPatrolTimeline(force: string, id: string): Promise<InnerPatrolTimelineEntry[]> {
+    const result = await queryDB(force, 'SELECT * FROM patrolOfficersV WHERE patrol = ?', id);
+
+    return result.map(entry => ({
+        patrol: entry.patrol as string,
+        officer: entry.officer as number,
+        start: entry.start as Date,
+        end: entry.end as Date | null
+    }))
+}
+
 
 export async function isOfficerInPatrol(force: string, officerNif: number, start: Date, end?: Date | null, patrolId?: string): Promise<boolean> {
     let result: RowDataPacket[];
@@ -167,17 +179,16 @@ export async function editPatrol(force: string, id: number, changes: EditPatrolB
     // Build the query string and params depending on the fields that were provided
     const params: string[] = [];
     const updateQuery = `UPDATE patrols SET ${Object.keys(changes).reduce((acc, field) => {
+        if (field === "officers") return acc;
+        
         if (field === "start" || field === "end") {
             acc += `${field} = FROM_UNIXTIME(?), `;
         } else {
             acc += `${field} = ?, `;
         }
         
-        if (field === "officers") {
-            params.push(JSON.stringify(changes[field as keyof EditPatrolBody]));
-        } else {
-            params.push(changes[field as keyof EditPatrolBody] as string);
-        }
+        params.push(changes[field as keyof EditPatrolBody] as string);
+        
         return acc;
     }, "").slice(0, -2)} WHERE id = ?`;
 
@@ -185,6 +196,15 @@ export async function editPatrol(force: string, id: number, changes: EditPatrolB
 
     if (canceled) {
         await queryDB(force, `UPDATE patrols SET canceled = 1 WHERE id = ?`, [id]);
+    }
+
+    // If officers were provided, update them
+    if (changes.officers) {
+        // Get the current patrol data up-to-date
+        const patrolData = (await getPatrol(force, `${force}${id}`))!;
+
+        // Get the patrol's timeline
+        const patrolTimeline = await getPatrolTimeline(force, `${force}${id}`);
     }
 }
 

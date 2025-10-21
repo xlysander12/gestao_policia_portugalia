@@ -1,5 +1,5 @@
 import {OfficerData} from "@portalseguranca/api-types/officers/output";
-import {PatrolData} from "@portalseguranca/api-types/patrols/output";
+import {PatrolData, PatrolTimelineEntry} from "@portalseguranca/api-types/patrols/output";
 import {Evaluation} from "@portalseguranca/api-types/officers/evaluations/output";
 import {ForceEvent, MinifiedEvent} from "@portalseguranca/api-types/events/output";
 import {Announcement} from "@portalseguranca/api-types/announcements/output";
@@ -45,6 +45,11 @@ export interface InnerPatrolData extends Omit<PatrolData, "id" | "start" | "end"
     end: Date | null
     force: string,
     editable?: boolean
+}
+
+export interface InnerPatrolTimelineEntry extends Omit<PatrolTimelineEntry, "start" | "end"> {
+    start: Date
+    end: Date | null
 }
 
 export interface InnerMinifiedEvent extends Omit<MinifiedEvent, "start" | "end"> {

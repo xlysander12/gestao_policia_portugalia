@@ -22,6 +22,13 @@ export interface PatrolData extends MinifiedPatrolData {
     notes: string | null
 }
 
+export interface PatrolTimelineEntry {
+    patrol: string
+    officer: number
+    start: number
+    end: number | null
+}
+
 export interface PatrolInfoResponse extends BaseResponse {
     meta: {
         editable: boolean
