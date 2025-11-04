@@ -65,6 +65,9 @@ import {
 import {
     AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
+import {
+    ListCeremonyDecisionsQueryParams
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1035,6 +1038,30 @@ const evaluationsRoutes: routesType = {
     },
 }
 
+const ceremonyDecisionsRoutes: routesType = {
+    "/officers/\\d+/evaluations/decisions$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                queryParams: {
+                    type: ListCeremonyDecisionsQueryParams
+                },
+                filters: {
+                    before: {
+                        queryFunction: () => `ceremony <= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    after: {
+                        queryFunction: () => `ceremony >= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    }
+                }
+            }
+        }
+    }
+}
+
 const patrolsRoutes: routesType = {
     "/patrols$": {
         methods: {
@@ -1327,6 +1354,7 @@ const routes: routesType = {
     ...utilRoutes,
     ...activityRoutes,
     ...evaluationsRoutes,
+    ...ceremonyDecisionsRoutes,
     ...officersRoutes,
     ...patrolsRoutes,
     ...eventsRoutes,
