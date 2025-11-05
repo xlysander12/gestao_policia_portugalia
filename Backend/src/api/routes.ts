@@ -66,6 +66,7 @@ import {
     AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
 import {
+    CreateCeremonyDecisionBody,
     ListCeremonyDecisionsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
@@ -1056,6 +1057,13 @@ const ceremonyDecisionsRoutes: routesType = {
                         queryFunction: () => `ceremony >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     }
+                }
+            },
+            POST: {
+                requiresSession: true,
+                requiresForce: true,
+                body: {
+                    type: CreateCeremonyDecisionBody
                 }
             }
         }

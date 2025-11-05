@@ -1,8 +1,10 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../../types";
 import {FORCE_HEADER} from "../../../../../../../utils/constants";
-import {ceremonyDecisions} from "../services";
+import {ceremonyDecisions, createDecision} from "../services";
 import {CeremonyDecisionsListResponse} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {CreateCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
+import {unixToDate} from "../../../../../../../utils/date-handler";
 
 
 export async function getCeremonyDecisionsController(req: express.Request, res: OfficerInfoAPIResponse<CeremonyDecisionsListResponse>) {
@@ -19,5 +21,18 @@ export async function getCeremonyDecisionsController(req: express.Request, res: 
     res.status(result.status).json({
         message: result.message,
         data: result.data
+    });
+}
+
+export async function createCeremonyDecisionController(req: express.Request, res: OfficerInfoAPIResponse) {
+    // Get the data from the request body
+    const {category, ceremony, decision, details} = req.body as CreateCeremonyDecisionBody;
+
+    // Call the service with the data
+    const result = await createDecision(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, category, unixToDate(ceremony), decision, details);
+
+    // Send the response
+    res.status(result.status).json({
+        message: result.message
     });
 }
