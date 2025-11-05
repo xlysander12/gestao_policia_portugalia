@@ -49,6 +49,12 @@ export type OfficerEvaluationAPIResponse<BodyType = object> = OfficerInfoAPIResp
     }
 }
 
+export type CeremonyDecisionAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
+    locals: {
+        decision: InnerCeremonyDecision
+    }
+}
+
 export type PatrolInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
     locals: {
         patrol: InnerPatrolData

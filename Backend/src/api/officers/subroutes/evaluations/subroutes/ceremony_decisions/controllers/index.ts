@@ -2,9 +2,13 @@ import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../../types";
 import {FORCE_HEADER} from "../../../../../../../utils/constants";
 import {ceremonyDecisions, createDecision} from "../services";
-import {CeremonyDecisionsListResponse} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {
+    CeremonyDecisionInfoResponse,
+    CeremonyDecisionsListResponse
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 import {CreateCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
-import {unixToDate} from "../../../../../../../utils/date-handler";
+import {dateToUnix, unixToDate} from "../../../../../../../utils/date-handler";
+import {CeremonyDecisionAPIResponse} from "../../../../../../../types/response-types";
 
 
 export async function getCeremonyDecisionsController(req: express.Request, res: OfficerInfoAPIResponse<CeremonyDecisionsListResponse>) {
@@ -23,6 +27,18 @@ export async function getCeremonyDecisionsController(req: express.Request, res: 
         data: result.data
     });
 }
+
+export function getCeremonyDecisionByIdController(req: express.Request, res: CeremonyDecisionAPIResponse<CeremonyDecisionInfoResponse>) {
+    // The decision is already loaded by the middleware, so just send it back
+    res.status(200).json({
+        message: "Operação concluída com sucesso.",
+        data: {
+            ...res.locals.decision,
+            ceremony: dateToUnix(res.locals.decision.ceremony),
+        }
+    });
+}
+
 
 export async function createCeremonyDecisionController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the data from the request body

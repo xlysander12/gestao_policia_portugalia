@@ -6,6 +6,14 @@ export interface MinifiedDecision {
     decision: number | null
 }
 
+export interface CeremonyDecision extends MinifiedDecision {
+    details: string
+}
+
 export interface CeremonyDecisionsListResponse {
     data: MinifiedDecision[]
+}
+
+export interface  CeremonyDecisionInfoResponse {
+    data: CeremonyDecision
 }

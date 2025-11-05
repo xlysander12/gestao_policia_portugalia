@@ -1045,6 +1045,7 @@ const ceremonyDecisionsRoutes: routesType = {
             GET: {
                 requiresSession: true,
                 requiresForce: true,
+                intents: ["evaluations"],
                 queryParams: {
                     type: ListCeremonyDecisionsQueryParams
                 },
@@ -1062,9 +1063,19 @@ const ceremonyDecisionsRoutes: routesType = {
             POST: {
                 requiresSession: true,
                 requiresForce: true,
+                intents: ["evaluations"],
                 body: {
                     type: CreateCeremonyDecisionBody
                 }
+            }
+        }
+    },
+    "/officers/\\d+/evaluations/decisions/\\d+$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"]
             }
         }
     }
