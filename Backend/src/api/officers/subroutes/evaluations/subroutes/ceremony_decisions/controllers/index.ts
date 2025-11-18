@@ -9,11 +9,17 @@ import {
 import {CreateCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {dateToUnix, unixToDate} from "../../../../../../../utils/date-handler";
 import {CeremonyDecisionAPIResponse} from "../../../../../../../types/response-types";
+import {isQueryParamPresent} from "../../../../../../../utils/filters";
 
 
 export async function getCeremonyDecisionsController(req: express.Request, res: OfficerInfoAPIResponse<CeremonyDecisionsListResponse>) {
     // Call the service to get the data
-    const result = await ceremonyDecisions(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, res.locals.routeDetails.filters!, res.locals.queryParams);
+    const result = await ceremonyDecisions(req.header(FORCE_HEADER)!,
+        res.locals.targetOfficer!,
+        res.locals.routeDetails.filters!,
+        res.locals.queryParams,
+        isQueryParamPresent("page", res.locals.queryParams) ? parseInt(res.locals.queryParams.page) : undefined
+    );
 
     if (!result.result) {
         res.status(result.status).json({
@@ -24,7 +30,10 @@ export async function getCeremonyDecisionsController(req: express.Request, res: 
 
     res.status(result.status).json({
         message: result.message,
-        data: result.data
+        meta: {
+            pages: result.data!.pages
+        },
+        data: result.data!.decisions
     });
 }
 

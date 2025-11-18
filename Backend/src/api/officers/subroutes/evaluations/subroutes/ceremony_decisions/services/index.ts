@@ -7,18 +7,24 @@ import {ReceivedQueryParams} from "../../../../../../../utils/filters";
 import {isQueryError} from "../../../../../../../middlewares/error-handler";
 import {QueryError} from "mysql2";
 
-export async function ceremonyDecisions(force: string, target: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedDecision[]>> {
+export async function ceremonyDecisions(force: string, target: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
+    pages: number
+    decisions: MinifiedDecision[]
+}>> {
     // Get values from repository
-    const decisions = await getCeremonyDecisions(force, target.nif, routeValidFilters, filters);
+    const rep_result = await getCeremonyDecisions(force, target.nif, routeValidFilters, filters, page);
 
     return {
         result: true,
         status: 200,
         message: "Operação concluída com sucesso.",
-        data: decisions.map(decision => ({
-            ...decision,
-            ceremony: dateToUnix(decision.ceremony),
-        }))
+        data: {
+            pages: rep_result.pages,
+            decisions: rep_result.decisions.map(decision => ({
+                ...decision,
+                ceremony: dateToUnix(decision.ceremony),
+            }))
+        }
     }
 }
 

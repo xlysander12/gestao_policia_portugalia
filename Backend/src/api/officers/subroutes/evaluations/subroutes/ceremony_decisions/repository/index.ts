@@ -3,23 +3,39 @@ import {InnerCeremonyDecision, InnerMinifiedDecision} from "../../../../../../..
 import {RouteFilterType} from "../../../../../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../../../utils/filters";
 
-export async function getCeremonyDecisions(force: string, target_nif: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<InnerMinifiedDecision[]> {
+export async function getCeremonyDecisions(force: string, target_nif: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
+    pages: number
+    decisions: InnerMinifiedDecision[]
+}> {
 
     const useFilters = routeValidFilters && filters;
     const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ?", value: target_nif}): null;
 
     const result = useFilters ?
-                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions ${filtersResult!.query}`, filtersResult!.values) :
-                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions WHERE target = ?`, target_nif);
+                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
+                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions WHERE target = ? LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, target_nif);
+
+
+    // Fetch the count of pages
+    const count_result = await queryDB(force, `
+        SELECT
+            COUNT(*) AS count
+        FROM
+            ceremony_decisions
+        ${filtersResult?.query}
+    `, filtersResult?.values);
 
     // For every row in result, map to MinifiedDecision
-    return result.map((row) => ({
-        id: row.id as number,
-        target: row.target as number,
-        category: row.category as number,
-        ceremony: row.ceremony as Date,
-        decision: row.decision as number,
-    }));
+    return {
+        pages: Math.ceil((count_result[0].count as number) / entries_per_page),
+        decisions: result.map((row) => ({
+            id: row.id as number,
+            target: row.target as number,
+            category: row.category as number,
+            ceremony: row.ceremony as Date,
+            decision: row.decision as number,
+        }))
+    };
 }
 
 export async function getCeremonyDecisionById(force: string, target_nif: number, decision_id: number): Promise<InnerCeremonyDecision | null> {

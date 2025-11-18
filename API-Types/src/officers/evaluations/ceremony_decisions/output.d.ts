@@ -11,6 +11,9 @@ export interface CeremonyDecision extends MinifiedDecision {
 }
 
 export interface CeremonyDecisionsListResponse {
+    meta: {
+        pages: number
+    }
     data: MinifiedDecision[]
 }
 
