@@ -66,7 +66,7 @@ import {
     AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
 import {
-    CreateCeremonyDecisionBody,
+    CreateCeremonyDecisionBody, EditCeremonyDecisionBody,
     ListCeremonyDecisionsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
@@ -1076,6 +1076,14 @@ const ceremonyDecisionsRoutes: routesType = {
                 requiresSession: true,
                 requiresForce: true,
                 intents: ["evaluations"]
+            },
+            PATCH: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"],
+                body: {
+                    type: EditCeremonyDecisionBody
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {logToConsole} from "../../../../../../utils/logger";
 import {
-    createCeremonyDecisionController,
+    createCeremonyDecisionController, editCeremonyDecisionController,
     getCeremonyDecisionByIdController,
     getCeremonyDecisionsController
 } from "./controllers";
@@ -22,7 +22,7 @@ app.use("/:id", ceremonyDecisionExistsMiddleware);
 app.get("/:id", getCeremonyDecisionByIdController);
 
 // Route to edit the details of a specific decision
-app.patch("/:id", () => {});
+app.patch("/:id", editCeremonyDecisionController);
 
 logToConsole("Officers Ceremony Decisions routes loaded successfully", "info");
 export default app;

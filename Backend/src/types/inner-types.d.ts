@@ -3,10 +3,6 @@ import {PatrolData} from "@portalseguranca/api-types/patrols/output";
 import {Evaluation} from "@portalseguranca/api-types/officers/evaluations/output";
 import {ForceEvent, MinifiedEvent} from "@portalseguranca/api-types/events/output";
 import {Announcement} from "@portalseguranca/api-types/announcements/output";
-import {
-    CeremonyDecision,
-    MinifiedDecision
-} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
 export interface InnerOfficerData extends Omit<OfficerData, "entry_date" | "promotion_date" | "fire_reason"> {
     entry_date: Date,

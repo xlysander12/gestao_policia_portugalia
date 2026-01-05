@@ -8,8 +8,14 @@ export const ListCeremonyDecisionsQueryParams = rt.Partial({
 
 export const CreateCeremonyDecisionBody = rt.Record({
     category: rt.Number,
-    ceremony: rt.Number,
+    ceremony_event: rt.Number,
     decision: rt.Number,
     details: rt.String,
 });
 export type CreateCeremonyDecisionBody = rt.Static<typeof CreateCeremonyDecisionBody>;
+
+export const EditCeremonyDecisionBody = rt.Partial({
+    decision: rt.Number,
+    details: rt.String,
+});
+export type EditCeremonyDecisionBody = rt.Static<typeof EditCeremonyDecisionBody>;

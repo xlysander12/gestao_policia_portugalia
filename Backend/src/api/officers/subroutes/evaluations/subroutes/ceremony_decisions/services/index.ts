@@ -1,11 +1,16 @@
 import {DefaultReturn, InnerOfficerData} from "../../../../../../../types";
-import {MinifiedDecision} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
-import {createCeremonyDecision, getCeremonyDecisions} from "../repository";
-import {dateToUnix} from "../../../../../../../utils/date-handler";
+import {
+    CeremonyDecision,
+    MinifiedDecision
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {createCeremonyDecision, editCeremonyDecision, getCeremonyDecisions} from "../repository";
 import {RouteFilterType} from "../../../../../../routes";
 import {ReceivedQueryParams} from "../../../../../../../utils/filters";
 import {isQueryError} from "../../../../../../../middlewares/error-handler";
 import {QueryError} from "mysql2";
+import {getEvent} from "../../../../../../events/repository";
+import {getEventTypes} from "../../../../../../util/repository";
+import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
 export async function ceremonyDecisions(force: string, target: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number
@@ -28,16 +33,35 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
     }
 }
 
-export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony: Date, decision: number, details: string): Promise<DefaultReturn<null>> {
+export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony_event: number, decision: number, details: string): Promise<DefaultReturn<null>> {
+    // * Check if the selected event is of variant "ceremony"
+    const event_data = await getEvent(force, ceremony_event, force);
+    if (event_data === null) { // Ensure the event exists
+        return {
+            result: false,
+            status: 400,
+            message: "O evento selecionado não existe."
+        }
+    }
+
+    const variant_check = (await getEventTypes(force)).filter(type => type.variant === "ceremony").some(type => type.id === event_data.type);
+    if (!variant_check) {
+        return {
+            result: false,
+            status: 400,
+            message: "O evento selecionado não é uma Cerimónia de Subidas."
+        }
+    }
+
     // Call the repository to appy the decision
     try {
-        await createCeremonyDecision(force, target.nif, category, ceremony, decision, details);
+        await createCeremonyDecision(force, target.nif, category, ceremony_event, decision, details);
     } catch (e) {
         if (isQueryError(e as Error) && (e as QueryError).errno === 1062) { // This means a duplicate entry
             return {
                 result: false,
                 status: 409,
-                message: "Já existe uma decisão para esta cerimónia sobre esta Categoria, para este Efetivo."
+                message: "Já existe uma decisão para esta cerimónia, desta Categoria, sobre este Efetivo."
             }
         }
 
@@ -49,5 +73,16 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
         result: true,
         status: 201,
         message: "Decisão criada com sucesso."
+    }
+}
+
+export async function editDecision(force: string, decision: CeremonyDecision, changes: EditCeremonyDecisionBody): Promise<DefaultReturn<null>> {
+    // Call the repository to make the changes
+    await editCeremonyDecision(force, decision.id, changes);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Decisão editada com sucesso."
     }
 }

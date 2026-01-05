@@ -5,6 +5,7 @@ import {
     CeremonyDecision,
     MinifiedDecision
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
 export async function getCeremonyDecisions(force: string, target_nif: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number
@@ -59,12 +60,26 @@ export async function getCeremonyDecisionById(force: string, target_nif: number,
 }
 
 
-export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony: Date, decision: number, details: string): Promise<void> {
+export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number, decision: number, details: string): Promise<void> {
     await queryDB(force, `INSERT INTO ceremony_decisions (target, category, ceremony, decision, details) VALUES (?, ?, ?, ?, ?)`, [
         target_nif,
         category,
-        ceremony,
+        ceremony_event,
         decision,
         details
     ]);
+}
+
+export async function editCeremonyDecision(force: string, id: number, changes: EditCeremonyDecisionBody): Promise<void> {
+    // Build the query string and params depeding on the changes
+    const params: (string | number)[] = [];
+    const query = `UPDATE ceremony_decisions SET ${Object.keys(changes).reduce((acc ,field) => {
+        acc += `${field} = ?, `;
+        
+        params.push(changes[field as keyof EditCeremonyDecisionBody]!);
+        
+        return acc;
+    }, "").slice(0, -2)} WHERE id = ?`;
+    
+    await queryDB(force, query, [...params, id]);
 }

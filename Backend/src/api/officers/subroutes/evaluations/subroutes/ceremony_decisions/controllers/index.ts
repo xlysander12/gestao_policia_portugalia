@@ -1,13 +1,15 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../../types";
 import {FORCE_HEADER} from "../../../../../../../utils/constants";
-import {ceremonyDecisions, createDecision} from "../services";
+import {ceremonyDecisions, createDecision, editDecision} from "../services";
 import {
     CeremonyDecisionInfoResponse,
     CeremonyDecisionsListResponse
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
-import {CreateCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
-import {dateToUnix, unixToDate} from "../../../../../../../utils/date-handler";
+import {
+    CreateCeremonyDecisionBody,
+    EditCeremonyDecisionBody
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {CeremonyDecisionAPIResponse} from "../../../../../../../types/response-types";
 import {isQueryParamPresent} from "../../../../../../../utils/filters";
 
@@ -37,7 +39,7 @@ export async function getCeremonyDecisionsController(req: express.Request, res: 
     });
 }
 
-export function getCeremonyDecisionByIdController(req: express.Request, res: CeremonyDecisionAPIResponse<CeremonyDecisionInfoResponse>) {
+export function getCeremonyDecisionByIdController(_req: express.Request, res: CeremonyDecisionAPIResponse<CeremonyDecisionInfoResponse>) {
     // The decision is already loaded by the middleware, so just send it back
     res.status(200).json({
         message: "Operação concluída com sucesso.",
@@ -48,10 +50,22 @@ export function getCeremonyDecisionByIdController(req: express.Request, res: Cer
 
 export async function createCeremonyDecisionController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the data from the request body
-    const {category, ceremony, decision, details} = req.body as CreateCeremonyDecisionBody;
+    const {category, ceremony_event, decision, details} = req.body as CreateCeremonyDecisionBody;
 
     // Call the service with the data
-    const result = await createDecision(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, category, unixToDate(ceremony), decision, details);
+    const result = await createDecision(req.header(FORCE_HEADER)!, res.locals.targetOfficer!, category, ceremony_event, decision, details);
+
+    // Send the response
+    res.status(result.status).json({
+        message: result.message
+    });
+}
+
+export async function editCeremonyDecisionController(req: express.Request, res: CeremonyDecisionAPIResponse) {
+    const changes = req.body as EditCeremonyDecisionBody;
+
+    // Call the service to make the changes
+    const result = await editDecision(req.header(FORCE_HEADER)!, res.locals.decision, changes);
 
     // Send the response
     res.status(result.status).json({
