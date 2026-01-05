@@ -83,3 +83,7 @@ export async function editCeremonyDecision(force: string, id: number, changes: E
     
     await queryDB(force, query, [...params, id]);
 }
+
+export async function deleteCeremonyDecision(force: string, id: number): Promise<void> {
+    await queryDB(force, `DELETE FROM ceremony_decisions WHERE id = ?`, [id]);
+}

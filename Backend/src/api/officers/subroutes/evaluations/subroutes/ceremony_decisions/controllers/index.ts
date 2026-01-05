@@ -1,7 +1,7 @@
 import express from "express";
 import {OfficerInfoAPIResponse} from "../../../../../../../types";
 import {FORCE_HEADER} from "../../../../../../../utils/constants";
-import {ceremonyDecisions, createDecision, editDecision} from "../services";
+import {ceremonyDecisions, createDecision, deleteDecision, editDecision} from "../services";
 import {
     CeremonyDecisionInfoResponse,
     CeremonyDecisionsListResponse
@@ -66,6 +66,16 @@ export async function editCeremonyDecisionController(req: express.Request, res: 
 
     // Call the service to make the changes
     const result = await editDecision(req.header(FORCE_HEADER)!, res.locals.decision, changes);
+
+    // Send the response
+    res.status(result.status).json({
+        message: result.message
+    });
+}
+
+export async function deleteCeremonyDecisionController(req: express.Request, res: CeremonyDecisionAPIResponse) {
+    // Call the service to delete the decision
+    const result = await deleteDecision(req.header(FORCE_HEADER)!, res.locals.decision,);
 
     // Send the response
     res.status(result.status).json({

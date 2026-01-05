@@ -3,7 +3,12 @@ import {
     CeremonyDecision,
     MinifiedDecision
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
-import {createCeremonyDecision, editCeremonyDecision, getCeremonyDecisions} from "../repository";
+import {
+    createCeremonyDecision,
+    deleteCeremonyDecision,
+    editCeremonyDecision,
+    getCeremonyDecisions
+} from "../repository";
 import {RouteFilterType} from "../../../../../../routes";
 import {ReceivedQueryParams} from "../../../../../../../utils/filters";
 import {isQueryError} from "../../../../../../../middlewares/error-handler";
@@ -84,5 +89,16 @@ export async function editDecision(force: string, decision: CeremonyDecision, ch
         result: true,
         status: 200,
         message: "Decisão editada com sucesso."
+    }
+}
+
+export async function deleteDecision(force: string, decision: CeremonyDecision): Promise<DefaultReturn<null>> {
+    // Call the repository to delete the decision
+    await deleteCeremonyDecision(force, decision.id);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Decisão eliminada com sucesso."
     }
 }

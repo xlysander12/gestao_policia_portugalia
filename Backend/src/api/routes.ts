@@ -1084,6 +1084,11 @@ const ceremonyDecisionsRoutes: routesType = {
                 body: {
                     type: EditCeremonyDecisionBody
                 }
+            },
+            DELETE: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"]
             }
         }
     }
