@@ -41,10 +41,7 @@ export function getCeremonyDecisionByIdController(req: express.Request, res: Cer
     // The decision is already loaded by the middleware, so just send it back
     res.status(200).json({
         message: "Operação concluída com sucesso.",
-        data: {
-            ...res.locals.decision,
-            ceremony: dateToUnix(res.locals.decision.ceremony),
-        }
+        data: res.locals.decision
     });
 }
 

@@ -1,11 +1,14 @@
 import {queryDB} from "../../../../../../../utils/db-connector";
-import {InnerCeremonyDecision, InnerMinifiedDecision} from "../../../../../../../types/inner-types";
 import {RouteFilterType} from "../../../../../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../../../../../utils/filters";
+import {
+    CeremonyDecision,
+    MinifiedDecision
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
 export async function getCeremonyDecisions(force: string, target_nif: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number
-    decisions: InnerMinifiedDecision[]
+    decisions: MinifiedDecision[]
 }> {
 
     const useFilters = routeValidFilters && filters;
@@ -32,13 +35,13 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ro
             id: row.id as number,
             target: row.target as number,
             category: row.category as number,
-            ceremony: row.ceremony as Date,
+            ceremony_event: row.ceremony as number,
             decision: row.decision as number,
         }))
     };
 }
 
-export async function getCeremonyDecisionById(force: string, target_nif: number, decision_id: number): Promise<InnerCeremonyDecision | null> {
+export async function getCeremonyDecisionById(force: string, target_nif: number, decision_id: number): Promise<CeremonyDecision | null> {
     const result = await queryDB(force, `SELECT * FROM ceremony_decisions WHERE target = ? AND id = ?`, [target_nif, decision_id]);
 
     if (result.length === 0) {
@@ -49,7 +52,7 @@ export async function getCeremonyDecisionById(force: string, target_nif: number,
         id: result[0].id as number,
         target: result[0].target as number,
         category: result[0].category as number,
-        ceremony: result[0].ceremony as Date,
+        ceremony_event: result[0].ceremony as number,
         decision: result[0].decision as number,
         details: result[0].details as string,
     }

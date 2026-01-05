@@ -22,7 +22,7 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
             pages: rep_result.pages,
             decisions: rep_result.decisions.map(decision => ({
                 ...decision,
-                ceremony: dateToUnix(decision.ceremony),
+                ceremony_event: decision.ceremony_event,
             }))
         }
     }

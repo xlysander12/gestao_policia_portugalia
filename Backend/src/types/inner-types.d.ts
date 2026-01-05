@@ -43,14 +43,6 @@ export interface InnerOfficerEvaluation extends Omit<Evaluation, "timestamp"> {
     timestamp: Date
 }
 
-export interface InnerMinifiedDecision extends Omit<MinifiedDecision, "ceremony"> {
-    ceremony: Date
-}
-
-export interface InnerCeremonyDecision extends Omit<CeremonyDecision, "ceremony">  {
-    ceremony: Date
-}
-
 export interface InnerPatrolData extends Omit<PatrolData, "id" | "start" | "end"> {
     id: number
     start: Date

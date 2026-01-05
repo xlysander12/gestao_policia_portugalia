@@ -10,6 +10,7 @@ import {
 import {ReceivedQueryParams} from "../utils/filters";
 import { RequestError, BaseResponse } from "@portalseguranca/api-types";
 import {Server} from "socket.io";
+import {CeremonyDecision} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
 export type ExpressResponse<BodyType = object> = express.Response<BodyType | RequestError | BaseResponse> & {
     locals: {
@@ -51,7 +52,7 @@ export type OfficerEvaluationAPIResponse<BodyType = object> = OfficerInfoAPIResp
 
 export type CeremonyDecisionAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
-        decision: InnerCeremonyDecision
+        decision: CeremonyDecision
     }
 }
 

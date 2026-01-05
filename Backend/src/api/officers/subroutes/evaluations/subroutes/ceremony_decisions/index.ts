@@ -21,5 +21,8 @@ app.use("/:id", ceremonyDecisionExistsMiddleware);
 // Route to get the details of a specific decision
 app.get("/:id", getCeremonyDecisionByIdController);
 
+// Route to edit the details of a specific decision
+app.patch("/:id", () => {});
+
 logToConsole("Officers Ceremony Decisions routes loaded successfully", "info");
 export default app;
