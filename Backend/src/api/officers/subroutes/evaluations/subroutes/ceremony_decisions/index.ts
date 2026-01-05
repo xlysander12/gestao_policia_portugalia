@@ -5,9 +5,12 @@ import {
     getCeremonyDecisionByIdController,
     getCeremonyDecisionsController
 } from "./controllers";
-import {ceremonyDecisionExistsMiddleware} from "../../../../../../middlewares/ceremony-decision-exists";
+import {ceremonyDecisionCanBeViewedMiddleware, ceremonyDecisionExistsMiddleware} from "../../../../../../middlewares/ceremony-decisions";
 
 const app = Router();
+
+// A User can only see decision of officers they can evaluate
+app.use("/", ceremonyDecisionCanBeViewedMiddleware);
 
 // Route to list all decisions about an officer
 app.get("/", getCeremonyDecisionsController);

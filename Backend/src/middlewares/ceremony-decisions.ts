@@ -2,6 +2,8 @@ import express from "express";
 import {CeremonyDecisionAPIResponse} from "../types/response-types";
 import {getCeremonyDecisionById} from "../api/officers/subroutes/evaluations/subroutes/ceremony_decisions/repository";
 import {FORCE_HEADER} from "../utils/constants";
+import {PatentData} from "@portalseguranca/api-types/util/output";
+import {getForcePatents} from "../api/util/repository";
 
 export async function ceremonyDecisionExistsMiddleware(req: express.Request, res: CeremonyDecisionAPIResponse, next: express.NextFunction) {
     const decision = await getCeremonyDecisionById(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, parseInt(req.params.id));
@@ -14,9 +16,20 @@ export async function ceremonyDecisionExistsMiddleware(req: express.Request, res
         return;
     }
 
-    // ? Someone can't check the decision whose target patent is higher than his?
-
     res.locals.decision = decision;
+
+    next();
+}
+
+export async function ceremonyDecisionCanBeViewedMiddleware(req: express.Request, res: CeremonyDecisionAPIResponse, next: express.NextFunction) {
+    // ! An user can't see the details of a decision whose target has higher patent than the user can evaluate
+    const user_max_evaluation_patent = ((await getForcePatents(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.patent)) as PatentData).max_evaluation;
+    if (res.locals.targetOfficer!.patent > user_max_evaluation_patent) {
+        res.status(403).json({
+            message: "Não tens permissão para consultar estes dados."
+        });
+        return;
+    }
 
     next();
 }
