@@ -16,7 +16,7 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ro
     const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ?", value: target_nif}): null;
 
     const result = useFilters ?
-                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
+                            await queryDB(force, `SELECT ceremony_decisions.id, target, category, ceremony, decision FROM ceremony_decisions JOIN events ON ceremony = events.id ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
                             await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions WHERE target = ? LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, target_nif);
 
 
@@ -26,6 +26,7 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ro
             COUNT(*) AS count
         FROM
             ceremony_decisions
+        JOIN events ON events.id = ceremony_decisions.ceremony
         ${filtersResult?.query}
     `, filtersResult?.values);
 

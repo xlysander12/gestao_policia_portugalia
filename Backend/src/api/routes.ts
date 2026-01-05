@@ -1051,11 +1051,11 @@ const ceremonyDecisionsRoutes: routesType = {
                 },
                 filters: {
                     before: {
-                        queryFunction: () => `ceremony <= FROM_UNIXTIME(?)`,
+                        queryFunction: () => `events.start <= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     },
                     after: {
-                        queryFunction: () => `ceremony >= FROM_UNIXTIME(?)`,
+                        queryFunction: () => `events.start >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
                     }
                 }
