@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, CeremonyDecisionAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -69,6 +69,10 @@ import {
     CreateCeremonyDecisionBody, EditCeremonyDecisionBody,
     ListCeremonyDecisionsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
+import {
+    AddCeremonyDecisionSocket, DeleteCeremonyDecisionSocket,
+    UpdateCeremonyDecisionSocket
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1066,6 +1070,16 @@ const ceremonyDecisionsRoutes: routesType = {
                 intents: ["evaluations"],
                 body: {
                     type: CreateCeremonyDecisionBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: OfficerInfoAPIResponse): AddCeremonyDecisionSocket => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif
+                        }
+                    }
                 }
             }
         }
@@ -1083,12 +1097,34 @@ const ceremonyDecisionsRoutes: routesType = {
                 intents: ["evaluations"],
                 body: {
                     type: EditCeremonyDecisionBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: CeremonyDecisionAPIResponse): UpdateCeremonyDecisionSocket => {
+                        return {
+                            action: "update",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.decision.id
+                        }
+                    }
                 }
             },
             DELETE: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["evaluations"]
+                intents: ["evaluations"],
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: CeremonyDecisionAPIResponse): DeleteCeremonyDecisionSocket => {
+                        return {
+                            action: "delete",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.decision.id
+                        }
+                    }
+                }
             }
         }
     }
