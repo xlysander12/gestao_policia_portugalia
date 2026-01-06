@@ -18,6 +18,7 @@ export async function getCeremonyDecisionsController(req: express.Request, res: 
     // Call the service to get the data
     const result = await ceremonyDecisions(req.header(FORCE_HEADER)!,
         res.locals.targetOfficer!,
+        res.locals.loggedOfficer,
         res.locals.routeDetails.filters!,
         res.locals.queryParams,
         isQueryParamPresent("page", res.locals.queryParams) ? parseInt(res.locals.queryParams.page) : undefined

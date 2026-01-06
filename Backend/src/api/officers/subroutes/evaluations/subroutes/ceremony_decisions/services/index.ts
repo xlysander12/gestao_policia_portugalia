@@ -14,15 +14,19 @@ import {ReceivedQueryParams} from "../../../../../../../utils/filters";
 import {isQueryError} from "../../../../../../../middlewares/error-handler";
 import {QueryError} from "mysql2";
 import {getEvent} from "../../../../../../events/repository";
-import {getEventTypes} from "../../../../../../util/repository";
+import {getEventTypes, getForcePatents} from "../../../../../../util/repository";
 import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
+import {PatentData} from "@portalseguranca/api-types/util/output";
 
-export async function ceremonyDecisions(force: string, target: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
+export async function ceremonyDecisions(force: string, target: InnerOfficerData, loggedUser: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number
     decisions: MinifiedDecision[]
 }>> {
+    // Get patent data from the logged user
+    const logged_user_patent_data = await getForcePatents(force, loggedUser.patent) as PatentData;
+
     // Get values from repository
-    const rep_result = await getCeremonyDecisions(force, target.nif, routeValidFilters, filters, page);
+    const rep_result = await getCeremonyDecisions(force, target.nif, logged_user_patent_data.category, routeValidFilters, filters, page);
 
     return {
         result: true,

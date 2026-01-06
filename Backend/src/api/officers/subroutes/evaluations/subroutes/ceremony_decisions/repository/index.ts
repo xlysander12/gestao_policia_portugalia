@@ -7,20 +7,21 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 
-export async function getCeremonyDecisions(force: string, target_nif: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
+export async function getCeremonyDecisions(force: string, target_nif: number, max_category = 100, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number
     decisions: MinifiedDecision[]
 }> {
 
     const useFilters = routeValidFilters && filters;
-    const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ?", value: target_nif}): null;
+    const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ? AND category <= ?", value: [target_nif, max_category]}): null;
 
     const result = useFilters ?
                             await queryDB(force, `SELECT ceremony_decisions.id, target, category, ceremony, decision FROM ceremony_decisions JOIN events ON ceremony = events.id ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
-                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions WHERE target = ? LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, target_nif);
+                            await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisions WHERE target = ? AND category <= ? LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, [target_nif, max_category]);
 
 
     // Fetch the count of pages
+    // ! If there's anytime a need to run this function without filters (A.K.A, not from a request but internal logic) this will fail catastrophically
     const count_result = await queryDB(force, `
         SELECT
             COUNT(*) AS count
