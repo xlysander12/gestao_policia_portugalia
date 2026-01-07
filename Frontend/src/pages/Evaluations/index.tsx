@@ -237,6 +237,11 @@ function Evaluations(props: EvaluationsPageProps) {
                     <ManagementBar>
                         <div className={style.managementBarMain}>
                             <div className={style.managementBarLeft}>
+                                <DefaultButton
+                                >
+                                    Decisões
+                                </DefaultButton>
+
                                 <div>
                                     <FormControlLabel
                                         disabled={loading ||
@@ -258,8 +263,12 @@ function Evaluations(props: EvaluationsPageProps) {
 
                                     <DefaultTypography color={"white"} fontSize={"small"}>{getObjectFromId(currentOfficer.patent, forceData.patents)!.name} {currentOfficer.name}</DefaultTypography>
                                 </div>
+
+
+                            </div>
+
+                            <div className={style.managementBarCenter}>
                                 <DefaultSearch
-                                    fullWidth
                                     placeholder={"Pesquisar por avaliação"}
                                     callback={(options) => {
                                         setFilters(options);
