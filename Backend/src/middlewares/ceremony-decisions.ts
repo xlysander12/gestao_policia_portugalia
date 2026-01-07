@@ -20,7 +20,7 @@ export async function ceremonyDecisionExistsMiddleware(req: express.Request, res
     // ! An user can't see the details of a decision whose category is higher than their current one their max evaluation category
     if(res.locals.decision.category > logged_user_patent_data.category) {
         res.status(403).json({
-            message: "Não tens permissão para consultar estes dados."
+            message: "Não tens permissão isto."
         });
         return;
     }
@@ -36,7 +36,7 @@ export async function ceremonyDecisionCanBeViewedMiddleware(req: express.Request
     // ! An user can't see the details of a decision whose target has higher patent than the user can evaluate
     if (res.locals.targetOfficer!.patent > logged_user_patent_data.max_evaluation) {
         res.status(403).json({
-            message: "Não tens permissão para consultar estes dados."
+            message: "Não tens permissão para isto."
         });
         return;
     }

@@ -13,10 +13,11 @@ import {RouteFilterType} from "../../../../../../routes";
 import {ReceivedQueryParams} from "../../../../../../../utils/filters";
 import {isQueryError} from "../../../../../../../middlewares/error-handler";
 import {QueryError} from "mysql2";
-import {getEvent} from "../../../../../../events/repository";
+import {getEvent, getEvents} from "../../../../../../events/repository";
 import {getEventTypes, getForcePatents} from "../../../../../../util/repository";
 import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {PatentData} from "@portalseguranca/api-types/util/output";
+import {dateToUnix} from "../../../../../../../utils/date-handler";
 
 export async function ceremonyDecisions(force: string, target: InnerOfficerData, loggedUser: InnerOfficerData, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number
@@ -42,24 +43,46 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
     }
 }
 
-export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony_event: number, decision: number, details: string): Promise<DefaultReturn<null>> {
+export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony_event: number | null | undefined, decision: number, details: string): Promise<DefaultReturn<null>> {
     // * Check if the selected event is of variant "ceremony"
-    const event_data = await getEvent(force, ceremony_event, force);
-    if (event_data === null) { // Ensure the event exists
-        return {
-            result: false,
-            status: 400,
-            message: "O evento selecionado não existe."
+    // This is only done if a ceremony_event is provided
+    if (ceremony_event !== null && ceremony_event !== undefined) {
+        const event_data = await getEvent(force, ceremony_event, force);
+        if (event_data === null) { // Ensure the event exists
+            return {
+                result: false,
+                status: 400,
+                message: "O evento selecionado não existe."
+            }
         }
-    }
 
-    const variant_check = (await getEventTypes(force)).filter(type => type.variant === "ceremony").some(type => type.id === event_data.type);
-    if (!variant_check) {
-        return {
-            result: false,
-            status: 400,
-            message: "O evento selecionado não é uma Cerimónia de Subidas."
+        const variant_check = (await getEventTypes(force)).filter(type => type.variant === "ceremony").some(type => type.id === event_data.type);
+        if (!variant_check) {
+            return {
+                result: false,
+                status: 400,
+                message: "O evento selecionado não é uma Cerimónia de Subidas."
+            }
         }
+    } else {// If not ceremony_event was provided, get the next ceremony event
+        const events = await getEvents(force, dateToUnix(new Date()));
+        const ceremony_event_types = (await getEventTypes(force)).filter(type => type.variant === "ceremony").map(type => type.id);
+
+        const next_ceremony_event =
+            (await Promise.all(events.map(async minified_event => await getEvent(force, minified_event.id, force))))
+            .filter(event => event !== null)
+            .find(event => ceremony_event_types.includes(event.type));
+
+        // If no event was found, return an error
+        if (!next_ceremony_event) {
+            return {
+                result: false,
+                status: 400,
+                message: "Não existe nenhuma Cerimónia de Subidas agendada."
+            }
+        }
+
+        ceremony_event = next_ceremony_event.id;
     }
 
     // Call the repository to appy the decision
