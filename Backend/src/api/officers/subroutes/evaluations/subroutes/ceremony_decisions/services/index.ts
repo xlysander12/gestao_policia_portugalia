@@ -85,7 +85,18 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
         ceremony_event = next_ceremony_event.id;
     }
 
-    // Call the repository to appy the decision
+    // * A category can't make a decision for a category higher than itself
+    const target_patent_data = await getForcePatents(force, target.patent) as PatentData;
+    if (category > target_patent_data.category) {
+        return {
+            result: false,
+            status: 403,
+            message: "Uma categoria de patentes não pode fazer decisões sobre uma categoria superior."
+        }
+    }
+
+
+    // * Call the repository to appy the decision
     try {
         await createCeremonyDecision(force, target.nif, category, ceremony_event, decision, details);
     } catch (e) {
