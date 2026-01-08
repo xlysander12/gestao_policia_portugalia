@@ -99,7 +99,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
 
         // Refresh the list
         void fetchDecisions(false);
-    }, [props.open, props.target.nif]))
+    }, [props.open, props.target.nif]));
 
     useEffect(() => {
         const controller = new AbortController();
@@ -159,6 +159,11 @@ function DecisionsListModal(props: DecisionsListModalProps) {
                             options={[
                                 {key: "before", label: "Antes de", type: "date"},
                                 {key: "after", label: "Depois de", type: "date"},
+                                {key: "category", label: "Categoria", type: "option",
+                                    options: forceData.patentCategories
+                                        .filter(category => category.id >= getObjectFromId(props.target.patent, forceData.patents)!.category)
+                                        .map(category => ({key: String(category.id), label: category.name}))
+                                }
                             ]}
                             callback={(options) => setFilters(options)}
                             sx={{
