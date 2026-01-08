@@ -1061,6 +1061,10 @@ const ceremonyDecisionsRoutes: routesType = {
                     after: {
                         queryFunction: () => `events.start >= FROM_UNIXTIME(?)`,
                         valueFunction: (value: string) => value
+                    },
+                    category: {
+                        queryFunction: () => `category = ?`,
+                        valueFunction: (value: string) => parseInt(value)
                     }
                 }
             },

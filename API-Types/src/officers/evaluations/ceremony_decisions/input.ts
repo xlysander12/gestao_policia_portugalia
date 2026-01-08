@@ -4,6 +4,7 @@ export const ListCeremonyDecisionsQueryParams = rt.Partial({
     page: rt.String.withConstraint(s => !isNaN(parseInt(s))),
     before: rt.String.withConstraint(s => !isNaN(parseInt(s))),
     after: rt.String.withConstraint(s => !isNaN(parseInt(s))),
+    category: rt.String.withConstraint(s => !isNaN(parseInt(s))),
 });
 
 export const CreateCeremonyDecisionBody = rt.Record({
