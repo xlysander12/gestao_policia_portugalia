@@ -36,6 +36,7 @@ import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {EvaluationModal} from "./modals";
 import {useNavigate, useParams} from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
+import {DecisionsListModal} from "./modals/Decisions";
 
 type EvaluationsPageProps = {
     asAuthor?: boolean
@@ -82,11 +83,15 @@ function Evaluations(props: EvaluationsPageProps) {
     // List of selected filters
     const [filters, setFilters] = useState<{key: string, value: string}[]>([]);
 
-    // Modal Control States
+    // * Modal Control States
+    // Evaluation Details Modal
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
     const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
     const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null);
+
+    // Decisions Modal
+    const [decisionsModalOpen, setDecisionsModalOpen] = useState<boolean>(false);
 
     // Variable that sets if the averages table should be shown
     const showAverages = !loading && !asAuthor && evaluations.length > 0;
@@ -237,10 +242,16 @@ function Evaluations(props: EvaluationsPageProps) {
                     <ManagementBar>
                         <div className={style.managementBarMain}>
                             <div className={style.managementBarLeft}>
-                                <DefaultButton
-                                >
-                                    Decisões
-                                </DefaultButton>
+                                <Gate show={
+                                    loggedUser.intents["evaluations"] &&
+                                    currentOfficer.patent <= loggedUser.info.professional.patent.max_evaluation
+                                }>
+                                    <DefaultButton
+                                        onClick={() => setDecisionsModalOpen(true)}
+                                    >
+                                        Decisões
+                                    </DefaultButton>
+                                </Gate>
 
                                 <div>
                                     <FormControlLabel
@@ -423,6 +434,12 @@ function Evaluations(props: EvaluationsPageProps) {
                 officerData={currentOfficer}
                 id={selectedId}
                 newEntry={isNewEntry}
+            />
+
+            <DecisionsListModal
+                open={decisionsModalOpen}
+                onClose={() => setDecisionsModalOpen(false)}
+                target={currentOfficer}
             />
         </>
     );
