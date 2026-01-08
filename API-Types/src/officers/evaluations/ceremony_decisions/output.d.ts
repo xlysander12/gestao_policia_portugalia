@@ -1,3 +1,5 @@
+import {BaseResponse, SocketResponse} from "../../../index";
+
 export interface MinifiedDecision {
     id: number
     target: number
@@ -10,19 +12,18 @@ export interface CeremonyDecision extends MinifiedDecision {
     details: string
 }
 
-export interface CeremonyDecisionsListResponse {
+export interface CeremonyDecisionsListResponse extends BaseResponse {
     meta: {
         pages: number
     }
     data: MinifiedDecision[]
 }
 
-export interface  CeremonyDecisionInfoResponse {
+export interface  CeremonyDecisionInfoResponse extends BaseResponse {
     data: CeremonyDecision
 }
 
-export interface CeremonyDecisionSocket {
-    by: number
+export interface CeremonyDecisionSocket extends SocketResponse {
     target: number
 }
 
