@@ -12,13 +12,13 @@ import { RequestError, BaseResponse } from "@portalseguranca/api-types";
 import {Server} from "socket.io";
 import {CeremonyDecision} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
-export type ExpressResponse<BodyType = object> = express.Response<BodyType | RequestError | BaseResponse> & {
+export type ExpressResponse<BodyType extends BaseResponse = BaseResponse> = express.Response<BodyType | RequestError> & {
     locals: {
         ws: Server
     }
 }
 
-export type APIResponse<BodyType = object> = ExpressResponse<BodyType> & {
+export type APIResponse<BodyType extends BaseResponse = BaseResponse> = ExpressResponse<BodyType> & {
     locals: {
         routeDetails: routeMethodType
         queryParams: ReceivedQueryParams
@@ -26,49 +26,49 @@ export type APIResponse<BodyType = object> = ExpressResponse<BodyType> & {
     }
 }
 
-export type OfficerInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+export type OfficerInfoAPIResponse<BodyType extends BaseResponse = BaseResponse> = APIResponse<BodyType> & {
     locals: {
         targetOfficer: InnerOfficerData | null
     }
 }
 
-export type AccountInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+export type AccountInfoAPIResponse<BodyType extends BaseResponse = BaseResponse> = APIResponse<BodyType> & {
     locals: {
         targetAccount: InnerAccountData
     }
 }
 
-export type OfficerJustificationAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
+export type OfficerJustificationAPIResponse<BodyType extends BaseResponse = BaseResponse> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         justification: InnerOfficerJustificationData
     }
 }
 
-export type OfficerEvaluationAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
+export type OfficerEvaluationAPIResponse<BodyType extends BaseResponse = BaseResponse> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         evaluation: InnerOfficerEvaluation
     }
 }
 
-export type CeremonyDecisionAPIResponse<BodyType = object> = OfficerInfoAPIResponse<BodyType> & {
+export type CeremonyDecisionAPIResponse<BodyType extends BaseResponse = BaseResponse> = OfficerInfoAPIResponse<BodyType> & {
     locals: {
         decision: CeremonyDecision
     }
 }
 
-export type PatrolInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+export type PatrolInfoAPIResponse<BodyType extends BaseResponse = BaseResponse> = APIResponse<BodyType> & {
     locals: {
         patrol: InnerPatrolData
     }
 }
 
-export type EventInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+export type EventInfoAPIResponse<BodyType extends BaseResponse = BaseResponse> = APIResponse<BodyType> & {
     locals: {
         event: InnerForceEvent
     }
 }
 
-export type AnnouncementInfoAPIResponse<BodyType = object> = APIResponse<BodyType> & {
+export type AnnouncementInfoAPIResponse<BodyType extends BaseResponse = BaseResponse> = APIResponse<BodyType> & {
     locals: {
         announcement: InnerAnnouncement
     }
