@@ -1255,6 +1255,16 @@ const eventsRoutes: routesType = {
                 requiresForce: true,
                 queryParams: {
                     type: ListEventsQueryParams
+                },
+                filters: {
+                    force: {
+                        queryFunction: () => "`force` = ?",
+                        valueFunction: value => value
+                    },
+                    type: {
+                        queryFunction: () => "type = ?",
+                        valueFunction: value => parseInt(value)
+                    }
                 }
             },
             POST: {

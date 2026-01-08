@@ -12,7 +12,7 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ma
     decisions: MinifiedDecision[]
 }> {
 
-    const useFilters = routeValidFilters && filters;
+    const useFilters = routeValidFilters !== undefined && filters !== undefined;
     const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ? AND category <= ?", value: [target_nif, max_category]}): null;
 
     const result = useFilters ?

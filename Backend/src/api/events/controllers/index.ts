@@ -17,7 +17,13 @@ export async function getEventsController(req: express.Request, res: APIResponse
     }
 
     // Call the serivce to get the Events list
-    const result = await getEventsService(req.header(FORCE_HEADER)!, parseInt(res.locals.queryParams.start), parseInt(res.locals.queryParams.end));
+    const result = await getEventsService(
+        req.header(FORCE_HEADER)!,
+        parseInt(res.locals.queryParams.start),
+        parseInt(res.locals.queryParams.end),
+        res.locals.routeDetails.filters!,
+        res.locals.queryParams
+    );
 
     if (!result.result) {
         res.status(result.status).json({message: result.message});
