@@ -9,7 +9,7 @@ export const ListCeremonyDecisionsQueryParams = rt.Partial({
 export const CreateCeremonyDecisionBody = rt.Record({
     category: rt.Number,
     ceremony_event: rt.Optional(rt.Union(rt.Number, rt.Null)),
-    decision: rt.Number,
+    decision: rt.Optional(rt.Union(rt.Number, rt.Null)),
     details: rt.String,
 });
 export type CreateCeremonyDecisionBody = rt.Static<typeof CreateCeremonyDecisionBody>;

@@ -62,7 +62,7 @@ export async function getCeremonyDecisionById(force: string, target_nif: number,
 }
 
 
-export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number, decision: number, details: string): Promise<void> {
+export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number, decision: number | null, details: string): Promise<void> {
     await queryDB(force, `INSERT INTO ceremony_decisions (target, category, ceremony, decision, details) VALUES (?, ?, ?, ?, ?)`, [
         target_nif,
         category,
