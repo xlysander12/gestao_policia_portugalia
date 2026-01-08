@@ -87,7 +87,7 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
 
     // * A category can't make a decision for a category higher than itself
     const target_patent_data = await getForcePatents(force, target.patent) as PatentData;
-    if (category > target_patent_data.category) {
+    if (category < target_patent_data.category) {
         return {
             result: false,
             status: 403,
