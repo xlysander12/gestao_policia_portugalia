@@ -1,17 +1,17 @@
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../../components/Modal";
 import {InnerMinifiedDecision} from "../DecisionsListModal/DecisionsListModal.tsx";
 import {getObjectFromId} from "../../../../../forces-data-context.ts";
-import {useForceData} from "../../../../../hooks";
+import {useForceData, useWebSocketEvent} from "../../../../../hooks";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {
     CreateCeremonyDecisionBody,
     EditCeremonyDecisionBody
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
-import {RequestError} from "@portalseguranca/api-types";
-import {useContext, useEffect, useMemo, useState} from "react";
+import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {
     CeremonyDecision,
-    CeremonyDecisionInfoResponse
+    CeremonyDecisionInfoResponse, CeremonyDecisionSocket, DeleteCeremonyDecisionSocket, UpdateCeremonyDecisionSocket
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 import {make_request, RequestMethod} from "../../../../../utils/requests.ts";
 import {toast} from "react-toastify";
@@ -223,6 +223,22 @@ function DecisionModal(props: DecisionModalProps) {
 
         onClose();
     }
+
+    useWebSocketEvent<CeremonyDecisionSocket>(SOCKET_EVENT.CEREMONY_DECISIONS, useCallback(async (data) => {
+        if (data.action === "add") return;
+
+        if (data.action === "update" && (data as UpdateCeremonyDecisionSocket).id === props.decision?.id) {
+            await getFullDecisionDetails(false);
+            toast.warning("Esta decisão foi editada por outro utilizador.");
+            return;
+        }
+
+        if (data.action === "delete" && (data as DeleteCeremonyDecisionSocket).id === props.decision?.id) {
+            toast.warning("Esta decisão foi apagada por outro utilizador.");
+            onClose();
+            return;
+        }
+    }, [props.decision?.id]));
 
     useEffect(() => {
         const controller = new AbortController();
