@@ -29,6 +29,7 @@ import moment from "moment";
 import {Divider, MenuItem, Skeleton} from "@mui/material";
 import {useImmer} from "use-immer";
 import {LoggedUserContext} from "../../../../../components/PrivateRoute/logged-user-context.ts";
+import {EventPickerModal} from "../../../../../components/EventPicker";
 
 type InnerDecision = Omit<CeremonyDecision, "ceremony_event"> & {
     ceremony_event: MinifiedEvent
@@ -71,6 +72,9 @@ function DecisionModal(props: DecisionModalProps) {
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState<boolean>(false);
 
     const [decision, setDecision] = useImmer<InnerDecision>(PLACEHOLDER_DECISION);
+
+    // Event Picker Modal
+    const [eventPickerModalOpen, setEventPickerModalOpen] = useState<boolean>(false);
 
     function onClose() {
         setDecision(PLACEHOLDER_DECISION);
@@ -259,9 +263,7 @@ function DecisionModal(props: DecisionModalProps) {
                                 <Gate show={!loadingNextCeremony}>
                                     <DefaultTypography
                                         clickable={props.newEntry}
-                                        onClick={() => {
-                                            // TODO: Open event picker modal
-                                        }}
+                                        onClick={() => setEventPickerModalOpen(true)}
                                     >
                                         <Gate show={decision.ceremony_event.start === 0}>
                                             Selecionar cerimónia...
@@ -408,6 +410,21 @@ function DecisionModal(props: DecisionModalProps) {
                     </ModalSection>
                 </Gate>
             </div>
+
+            <EventPickerModal
+                open={eventPickerModalOpen}
+                onClose={() => setEventPickerModalOpen(false)}
+                callback={event => {
+                    setEventPickerModalOpen(false);
+                    setDecision(draft => {
+                        draft.ceremony_event = event
+                    });
+                }}
+                filters={[
+                    {key: "type", value: forceData.event_types.filter(type => type.variant === "ceremony")[0].id.toString()},
+                    {key: "force", value: localStorage.getItem("force")!}
+                ]}
+            />
 
             <ConfirmationDialog
                 open={confirmationDialogOpen}
