@@ -18,7 +18,7 @@ export async function ceremonyDecisionExistsMiddleware(req: express.Request, res
     }
 
     // ! An user can't see the details of a decision whose category is higher than their current one their max evaluation category
-    if(res.locals.decision.category > logged_user_patent_data.category) {
+    if(decision.category > logged_user_patent_data.category) {
         res.status(403).json({
             message: "Não tens permissão isto."
         });
