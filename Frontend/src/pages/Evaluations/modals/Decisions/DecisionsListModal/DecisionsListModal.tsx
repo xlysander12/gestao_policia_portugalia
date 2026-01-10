@@ -24,8 +24,9 @@ import DecisionCard, {MockDecisionCard} from "./DecisionCard.tsx";
 import moment, {Moment} from "moment";
 import {FormControlLabel, Switch} from "@mui/material";
 import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import {DecisionModal} from "../index.ts";
 
-export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event"> & {
+export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event" | "target"> & {
     ceremony_event: Omit<ForceEvent, "start"> & {start: Moment}
 }
 
@@ -46,6 +47,11 @@ function DecisionsListModal(props: DecisionsListModalProps) {
 
     const [decisions, setDecisions] = useState<InnerMinifiedDecision[]>([]);
     const [filters, setFilters] = useState<{key: string, value: any}[]>([]);
+
+    // Decision modal states
+    const [decisionModalOpen, setDecisionModalOpen] = useState<boolean>(false);
+    const [selectedDecision, setSelectedDecision] = useState<InnerMinifiedDecision | null>(null);
+    const [isNewEntry, setIsNewEntry] = useState<boolean>(false);
 
     async function fetchDecisions(showLoading: boolean = true, signal?: AbortSignal) {
         if (showLoading) setLoading(true);
@@ -83,7 +89,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
                 ...decision,
                 ceremony_event: {
                     ...eventJson.data,
-                    start: moment.unix(eventJson.data.start)
+                    start: moment.unix(eventJson.data.start),
                 }
             });
         }
@@ -183,7 +189,11 @@ function DecisionsListModal(props: DecisionsListModalProps) {
                         />
 
                         <DefaultButton
-                            onClick={() => {}}
+                            onClick={() => {
+                                setIsNewEntry(true);
+                                setSelectedDecision(null);
+                                setDecisionModalOpen(true);
+                            }}
                             sx={{
                                 flex: "1 0 auto"
                             }}
@@ -210,18 +220,25 @@ function DecisionsListModal(props: DecisionsListModalProps) {
 
                     <Gate show={!loading && decisions.length > 0}>
                         {decisions.map(decision => {
+                            const decisionCard = (
+                                <DecisionCard
+                                    key={`decision#${decision.id}`}
+                                    callback={() => {
+                                        setSelectedDecision(decision);
+                                        setDecisionModalOpen(true);
+                                    }}
+                                    decision={decision}
+                                />
+                            );
+
                             // If the toggle to show old decisions is on, show all decisions
                             if (showOldDecisions) {
-                                return (
-                                    <DecisionCard key={`decision#${decision.id}`} callback={() => {}} decision={decision} />
-                                );
+                                return decisionCard;
                             }
 
                             // Otherwise, only show decisions for events that are in the future
                             if (decision.ceremony_event.start.isSameOrAfter(moment(), "day")) {
-                                return (
-                                    <DecisionCard key={`decision#${decision.id}`} callback={() => {}} decision={decision} />
-                                );
+                                return decisionCard;
                             }
 
                             // Create mock cards to past decisions
@@ -232,6 +249,18 @@ function DecisionsListModal(props: DecisionsListModalProps) {
                     </Gate>
                 </div>
             </div>
+
+            <DecisionModal
+                open={decisionModalOpen}
+                onClose={() => {
+                    setDecisionModalOpen(false);
+                    setSelectedDecision(null);
+                    setIsNewEntry(false);
+                }}
+                target={props.target}
+                decision={selectedDecision}
+                newEntry={isNewEntry}
+            />
         </Modal>
 
     );
