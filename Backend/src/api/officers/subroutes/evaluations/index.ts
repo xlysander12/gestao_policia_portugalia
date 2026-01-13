@@ -7,6 +7,7 @@ import {
     getEvaluationsListController
 } from "./controllers";
 import evaluationExistsMiddleware from "../../../../middlewares/evaluation-exists";
+import ceremonydecisions from "./subroutes/ceremony_decisions";
 
 const app = Router();
 
@@ -18,6 +19,9 @@ app.get("/author", getAuthoredEvaluationsListController);
 
 // Route to create an Evaluation
 app.post("/", createEvaluationController);
+
+// Routes of the ceremony decisions
+app.use("/decisions", ceremonydecisions);
 
 // * From this point forward, all routes require the Evaluation to exist
 app.use("/:id", evaluationExistsMiddleware);

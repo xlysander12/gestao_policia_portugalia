@@ -379,7 +379,7 @@ function OfficerInfo() {
             {/*Div that splits the screen*/}
             <ScreenSplit
                 leftSidePercentage={30}
-                leftSideComponent={<OfficerPicker callback={officerListCallback} disabled={loading}/>}
+                leftSideComponent={<OfficerPicker callback={officerListCallback} disabled={loading} selected={officerNif}/>}
             >
                 {/*Div that holds the buttons to alter the officer's info*/}
                 <ManagementBar>

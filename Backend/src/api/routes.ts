@@ -32,7 +32,7 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, CeremonyDecisionAPIResponse, EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
@@ -65,6 +65,14 @@ import {
 import {
     AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
+import {
+    CreateCeremonyDecisionBody, EditCeremonyDecisionBody,
+    ListCeremonyDecisionsQueryParams
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
+import {
+    AddCeremonyDecisionSocket, DeleteCeremonyDecisionSocket,
+    UpdateCeremonyDecisionSocket
+} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -322,6 +330,16 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all patent categories of a force
+    "/util/patent-categories$": {
+        methods: {
+            GET: {
+                requiresSession: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all statuses of a force
     "/util/statuses$": {
         methods: {
@@ -502,6 +520,36 @@ const officersRoutes: routesType = {
                     force: {
                         queryFunction: (receivedParams) => isQueryParamPresent("patrol", receivedParams) && receivedParams.patrol === "true" ? '`officerForce` = ?': "",
                         valueFunction: (value: string) => value
+                    },
+                    patent: {
+                        queryFunction: (receivedParams, force) => {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
+                                return "patent = ?";
+                            }
+
+                            return `patent = ? AND officerForce = '${force}'`
+                        },
+                        valueFunction: (value) => value
+                    },
+                    "patent-category": {
+                        queryFunction: (receivedParams, force) => {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
+                                return "patentCategory = ?";
+                            }
+
+                            return `patentCategory = ? AND officerForce = '${force}'`
+                        },
+                        valueFunction: (value) => value
+                    },
+                    status: {
+                        queryFunction: (receivedParams, force) => {
+                            if (!isQueryParamPresent("patrol", receivedParams) || receivedParams.patrol === "false") {
+                                return "status = ?";
+                            }
+
+                            return `status = ? AND officerForce = '${force}'`
+                        },
+                        valueFunction: (value) => value
                     }
                 }
             }
@@ -995,6 +1043,97 @@ const evaluationsRoutes: routesType = {
     },
 }
 
+const ceremonyDecisionsRoutes: routesType = {
+    "/officers/\\d+/evaluations/decisions$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"],
+                queryParams: {
+                    type: ListCeremonyDecisionsQueryParams
+                },
+                filters: {
+                    before: {
+                        queryFunction: () => `events.start <= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    after: {
+                        queryFunction: () => `events.start >= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    category: {
+                        queryFunction: () => `category = ?`,
+                        valueFunction: (value: string) => parseInt(value)
+                    }
+                }
+            },
+            POST: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"],
+                body: {
+                    type: CreateCeremonyDecisionBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: OfficerInfoAPIResponse): AddCeremonyDecisionSocket => {
+                        return {
+                            action: "add",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/officers/\\d+/evaluations/decisions/\\d+$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"]
+            },
+            PATCH: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"],
+                body: {
+                    type: EditCeremonyDecisionBody
+                },
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: CeremonyDecisionAPIResponse): UpdateCeremonyDecisionSocket => {
+                        return {
+                            action: "update",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.decision.id
+                        }
+                    }
+                }
+            },
+            DELETE: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["evaluations"],
+                broadcast: {
+                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    body: (_req, res: CeremonyDecisionAPIResponse): DeleteCeremonyDecisionSocket => {
+                        return {
+                            action: "delete",
+                            by: res.locals.loggedOfficer.nif,
+                            target: res.locals.targetOfficer!.nif,
+                            id: res.locals.decision.id
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 const patrolsRoutes: routesType = {
     "/patrols$": {
         methods: {
@@ -1116,6 +1255,16 @@ const eventsRoutes: routesType = {
                 requiresForce: true,
                 queryParams: {
                     type: ListEventsQueryParams
+                },
+                filters: {
+                    force: {
+                        queryFunction: () => "`force` = ?",
+                        valueFunction: value => value
+                    },
+                    type: {
+                        queryFunction: () => "type = ?",
+                        valueFunction: value => parseInt(value)
+                    }
                 }
             },
             POST: {
@@ -1287,6 +1436,7 @@ const routes: routesType = {
     ...utilRoutes,
     ...activityRoutes,
     ...evaluationsRoutes,
+    ...ceremonyDecisionsRoutes,
     ...officersRoutes,
     ...patrolsRoutes,
     ...eventsRoutes,

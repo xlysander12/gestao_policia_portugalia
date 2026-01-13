@@ -13,7 +13,7 @@ import {Loader} from "../../../../components/Loader";
 import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {BASE_URL} from "../../../../utils/constants.ts";
+import DefaultLink from "../../../../components/DefaultComponents/DefaultLink.tsx";
 
 type InnerMinifiedPatrolData = Omit<MinifiedPatrolData, "officers"> & {
     officers: MinifiedOfficerData[]
@@ -183,14 +183,13 @@ function SpecialUnitActiveMembers() {
                     </Gate>
                     {unitPatrols.map((patrol, index) => (
                         <>
-                            <DefaultTypography
-                                color={"var(--portalseguranca-color-accent)"}
-                                fontWeight={"bold"}
-                                clickable
-                                onClick={() => window.open(`${BASE_URL}/patrulhas/${patrol.id}`)}
+                            <DefaultLink to={`/patrulhas/${patrol.id}`}
+                                         color={"var(--portalseguranca-color-accent)"}
+                                         fontWeight={"bold"}
                             >
                                 Unidade em Patrulha (#{patrol.id.toUpperCase()}):
-                            </DefaultTypography>
+                            </DefaultLink>
+
                             <OfficerList
                                 disabled
                                 invisibleDisabled

@@ -6,10 +6,12 @@ import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/
 import {getEventTypes, getForceSpecialUnits} from "../../util/repository";
 import {InnerForceEvent} from "../../../types/inner-types";
 import {userHasIntents} from "../../accounts/repository";
+import {RouteFilterType} from "../../routes";
+import {ReceivedQueryParams} from "../../../utils/filters";
 
-export async function getEventsService(force: string, start: number, end: number): Promise<DefaultReturn<MinifiedEvent[]>> {
+export async function getEventsService(force: string, start: number, end: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams): Promise<DefaultReturn<MinifiedEvent[]>> {
     // Call the repository to get the events
-    const result = await getEvents(force, start, end);
+    const result = await getEvents(force, start, end, routeValidFilters, filters);
 
     // Return all the events
     return {

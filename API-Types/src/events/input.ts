@@ -2,7 +2,9 @@ import {Array, Null, Number, Optional, Partial, Record, Static, String, Union} f
 
 export const ListEventsQueryParams = Record({
     start: String.withConstraint(s => !isNaN(parseInt(s))),
-    end: String.withConstraint(s => !isNaN(parseInt(s)))
+    end: String.withConstraint(s => !isNaN(parseInt(s))),
+    force: Optional(String),
+    type: Optional(String.withConstraint(s => !isNaN(parseInt(s)))),
 });
 export type ListEventsQueryParamsType = Static<typeof ListEventsQueryParams>;
 

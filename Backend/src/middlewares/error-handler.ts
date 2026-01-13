@@ -6,7 +6,7 @@ import {logToConsole} from "../utils/logger";
 import {QueryError} from "mysql2";
 import {ExpressResponse} from "../types/response-types";
 
-function isQueryError(err: Error): err is QueryError {
+export function isQueryError(err: Error): err is QueryError {
     return typeof err === "object" && "errno" in err;
 }
 

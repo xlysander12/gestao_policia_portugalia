@@ -28,6 +28,7 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {TopHoursModal} from "./modals/TopHoursModal";
+import DefaultLink from "../../components/DefaultComponents/DefaultLink.tsx";
 
 
 type ActivityHoursCardProps = {
@@ -430,6 +431,7 @@ function Activity() {
                     <OfficerPicker
                         disabled={loading}
                         callback={setCurrentOfficer}
+                        selected={currentOfficer.nif}
                     />
                 }
 
@@ -450,7 +452,13 @@ function Activity() {
                                     </Gate>
 
                                     <Gate show={currentOfficer.name !== ""}>
-                                        <Typography color={"white"} fontSize={"larger"}>{getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}</Typography>
+                                        <DefaultLink
+                                            to={`/efetivos/${currentOfficer.nif}`}
+                                            fontSize={"large"}
+                                        >
+                                            {getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}
+                                        </DefaultLink>
+
                                         <DefaultButton
                                             onClick={() => setTopHoursModalOpen(true)}
                                         >

@@ -34,9 +34,11 @@ type DefaultSearchOption = DefaultSearchStandaloneOption
     | DefaultSearchAsyncOptionsOption
 
 type DefaultSearchProps = Omit<AutocompleteProps<any, any, any, any>, "renderInput" | "multiple" | "options"> & {
+    renderInput?: (params: AutocompleteRenderInputParams) => React.ReactNode
     options: DefaultSearchOption[]
     callback: (options: {key: string, value: any}[]) => void
     freeKey?: string
+    freeMultiple?: boolean
     defaultFilters?: {key: string, value: any, label: string, labelValue: string}[]
     placeholder?: string
 };
