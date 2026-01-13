@@ -139,7 +139,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
 
         // Refresh the list
         void fetchDecisions(false);
-    }, [props.open, props.target.nif]));
+    }, [props.open, props.target.nif, filters, page, ]));
 
     useEffect(() => {
         const controller = new AbortController();
