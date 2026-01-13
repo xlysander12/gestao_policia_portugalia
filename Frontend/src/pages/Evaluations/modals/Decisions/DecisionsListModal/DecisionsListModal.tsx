@@ -113,7 +113,6 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         }
 
         // Fetch the event details for the decision
-        // Fetch event details
         const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${responseJson.data.ceremony_event}`, RequestMethod.GET);
         const eventJson: EventDetailsResponse = await eventResponse.json();
 
