@@ -4,7 +4,9 @@ import {getObjectFromId} from "../../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../../hooks";
 import {useCallback, useEffect, useState} from "react";
 import {
-    CeremonyDecisionsListResponse, CeremonyDecisionSocket,
+    CeremonyDecisionInfoResponse,
+    CeremonyDecisionsListResponse,
+    CeremonyDecisionSocket,
     MinifiedDecision
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 import ManagementBar from "../../../../../components/ManagementBar";
@@ -23,8 +25,9 @@ import {EventDetailsResponse, ForceEvent} from "@portalseguranca/api-types/event
 import DecisionCard, {MockDecisionCard} from "./DecisionCard.tsx";
 import moment, {Moment} from "moment";
 import {FormControlLabel, Switch} from "@mui/material";
-import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {DecisionModal} from "../index.ts";
+import {useParams} from "react-router-dom";
 
 export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event" | "target"> & {
     ceremony_event: Omit<ForceEvent, "start"> & {start: Moment}
@@ -36,6 +39,8 @@ type DecisionsListModalProps = {
     target: MinifiedOfficerData
 };
 function DecisionsListModal(props: DecisionsListModalProps) {
+
+    const {decision_id} = useParams();
 
     const [forceData] = useForceData();
 
@@ -98,6 +103,35 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         setLoading(false);
     }
 
+    async function fetchSingleDecisionDetails(id: number, signal?: AbortSignal) {
+        const response = await make_request(`/officers/${props.target.nif}/evaluations/decisions/${id}`, RequestMethod.GET, {signal});
+        const responseJson: CeremonyDecisionInfoResponse = await response.json();
+
+        if (!response.ok) {
+            toast.error(responseJson.message);
+            return;
+        }
+
+        // Fetch the event details for the decision
+        // Fetch event details
+        const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${responseJson.data.ceremony_event}`, RequestMethod.GET);
+        const eventJson: EventDetailsResponse = await eventResponse.json();
+
+        if (!eventResponse.ok) {
+            toast.error(`Erro ao obter detalhes do evento da decisão #${responseJson.data.id}.`);
+            return;
+        }
+
+        setSelectedDecision({
+            ...responseJson.data,
+            ceremony_event: {
+                ...eventJson.data,
+                start: moment.unix(eventJson.data.start),
+            }
+        });
+        setDecisionModalOpen(true);
+    }
+
     useWebSocketEvent<CeremonyDecisionSocket>(SOCKET_EVENT.CEREMONY_DECISIONS, useCallback((data) => {
         if (!props.open) return; // Don't do anything if modal is closed
 
@@ -110,12 +144,16 @@ function DecisionsListModal(props: DecisionsListModalProps) {
     useEffect(() => {
         const controller = new AbortController();
 
-        if (props.open) void fetchDecisions(true, controller.signal);
+        if (props.open)
+            void fetchDecisions(true, controller.signal);
+
+        if (props.open && (decision_id !== undefined && !isNaN(parseInt(decision_id))))
+            void fetchSingleDecisionDetails(parseInt(decision_id), controller.signal);
 
         return () => {
             controller.abort();
         }
-    }, [props.open, props.target.nif, page, JSON.stringify(filters)]);
+    }, [props.open, props.target.nif, page, JSON.stringify(filters), decision_id]);
 
     return (
         <Modal
@@ -124,6 +162,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
             title={`Decisões sobre ${getObjectFromId(props.target.patent, forceData.patents)!.name} ${props.target.name}`}
             width={"75%"}
             height={"80vh"}
+            url={`/avaliacoes/${props.target.nif}/decisoes`}
         >
             <div style={{
                 boxSizing: "border-box",

@@ -261,6 +261,7 @@ function DecisionModal(props: DecisionModalProps) {
             onClose={onClose}
             width={"50%"}
             title={!props.newEntry ? `Decisão sobre ${officerFullName} (#${props.decision?.id})` : `Nova decisão sobre ${officerFullName}`}
+            url={!props.newEntry ? `/avaliacoes/${props.target.nif}/decisoes/${props.decision?.id}` : undefined}
         >
             <div className={styles.mainDiv}>
                 <Gate show={loading}>

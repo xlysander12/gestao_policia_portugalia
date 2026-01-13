@@ -301,6 +301,14 @@ function App() {
                             {
                                 path: ":nif/:entry_id",
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />} />
+                            },
+                            {
+                                path: ":nif/decisoes",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations showDecisionsOnOpen />}  />
+                            },
+                            {
+                                path: ":nif/decisoes/:decision_id",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations showDecisionsOnOpen />}  />
                             }
                         ]
                     },

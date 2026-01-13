@@ -40,6 +40,7 @@ import {DecisionsListModal} from "./modals/Decisions";
 
 type EvaluationsPageProps = {
     asAuthor?: boolean
+    showDecisionsOnOpen?: boolean
 }
 function Evaluations(props: EvaluationsPageProps) {
     // Get possible params from the URL
@@ -91,7 +92,7 @@ function Evaluations(props: EvaluationsPageProps) {
     const [evaluationOfficerNif, setEvaluationOfficerNif] = useState<number | null>(null);
 
     // Decisions Modal
-    const [decisionsModalOpen, setDecisionsModalOpen] = useState<boolean>(false);
+    const [decisionsModalOpen, setDecisionsModalOpen] = useState<boolean>(!!props.showDecisionsOnOpen);
 
     // Variable that sets if the averages table should be shown
     const showAverages = !loading && !asAuthor && evaluations.length > 0;
