@@ -44,7 +44,7 @@ type PatrolInfoModalProps = {
     id: string | null
 }
 
-function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
+function PatrolInfoModal(props: PatrolInfoModalProps) {
     const loggedUser = useContext(LoggedUserContext);
 
     const [, getForceData] = useForceData();
@@ -61,7 +61,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         if (event.action === "add") return; // If a new patrol is added, it doesn't interfere with the current patrol
 
-        if (`${event.force}${event.id}` !== id) return; // If the event isn't related to the current patrol, ignore it
+        if (`${event.force}${event.id}` !== props.id) return; // If the event isn't related to the current patrol, ignore it
 
         // If the patrol was just edited by the user, ignore the event
         if (event.by === loggedUser.info.personal.nif) return;
@@ -76,33 +76,37 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
         // If the patrol gets updated, fetch the new data
         if (event.action === "update" && !editMode) { // Can't update the patrol if is being edited
-            setPatrolData(await fetchPatrolData(id));
+            await fetchPatrolData(false);
             toast.warning(`A patrulha que estavas a visualizar foi atualizada!`);
             return;
         }
-    }, [id, editMode, open]));
+    }, [props.id, editMode, props.open]));
 
     // Getting the patrol force from the id
-    const patrolForce = id ? id.match(/([a-z]+)(\d+)$/)![1]: "";
+    const patrolForce = props.id ? props.id.match(/([a-z]+)(\d+)$/)![1]: "";
     
-    const fetchPatrolData = async (id: string): Promise<InnerPatrolData | null> => {
+    async function fetchPatrolData(showLoading: boolean = true, signal?: AbortSignal) {
+        if (showLoading) setLoading(true);
+
         // Fetch the patrol data
-        const response = await make_request(`/patrols/${id}`, "GET");
+        const response = await make_request(`/patrols/${props.id}`, RequestMethod.GET, {signal});
         const responseJson: PatrolInfoResponse = await response.json();
 
         // If the response wasn't positive, return null and display the error message
         if (!response.ok) {
             toast.error(responseJson.message);
-            return null;
+            handleModalClose();
+            return;
         }
 
         // Get the data of the registrar of the patrol
-        const registrarResponse = await make_request(`/officers/${responseJson.data.registrar}?patrol=true`, RequestMethod.GET);
+        const registrarResponse = await make_request(`/officers/${responseJson.data.registrar}?patrol=true`, RequestMethod.GET, {signal});
         const registrarResponseJson: OfficerInfoGetResponse = await registrarResponse.json();
 
         if (!registrarResponse.ok) {
             toast.error(registrarResponseJson.message);
-            return null;
+            handleModalClose();
+            return;
         }
 
         // Create a temp var to store the data
@@ -123,7 +127,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         // Fetch all the information about the officers of the patrol and store it apropriately
         for (const officerNif of responseJson.data.officers) {
             // Make the request to fetch the officer's data
-            const officerResponse = await make_request(`/officers/${officerNif}?patrol=true`, "GET");
+            const officerResponse = await make_request(`/officers/${officerNif}?patrol=true`, "GET", {signal});
             const officerResponseJson: OfficerInfoGetResponse = await officerResponse.json();
 
             // Make sure the request was successful
@@ -147,14 +151,15 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
             });
         }
 
-        return temp;
+        setPatrolData(temp);
+        if (showLoading) setLoading(false);
     }
 
     const handleSave = async () => {
         // Set the loading flag to true
         setLoading(true);
 
-        const response = await make_request<EditPatrolBody>(`/patrols/${id}`, "PATCH", {
+        const response = await make_request<EditPatrolBody>(`/patrols/${props.id}`, "PATCH", {
             body: {
                 start: patrolData!.start.unix(),
                 officers: patrolData!.officers.map(officer => officer.nif),
@@ -175,16 +180,14 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
         setEditMode(false);
 
         // Fetch the details of the patrol again
-        setLoading(false);
-        setPatrolData(null);
-        setPatrolData(await fetchPatrolData(id!));
+        await fetchPatrolData();
     }
 
     const handleDelete = async () => {
         // Make sure the confirmation dialog is closed
         setConfirmDelete(false);
 
-        const response = await make_request(`/patrols/${id}`, "DELETE");
+        const response = await make_request(`/patrols/${props.id}`, "DELETE");
         const responseJson: RequestError = await response.json();
 
         if (!response.ok) {
@@ -199,53 +202,45 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
     }
 
     const handleModalClose = () => {
+        setEditMode(false);
         setPatrolData(null);
-        onClose();
+        props.onClose();
     }
     
-    // * Fetch the patrol data when the component is mounted or the id changes
+    // * Fetch the patrol data when the component is mounted, and edit is canceled or the id changes
     useEffect(() => {
-        const exec = async () => {
-            const patrolData = await fetchPatrolData(id!);
+        const controller = new AbortController();
 
-            if (patrolData) {
-                setPatrolData(patrolData);
-            } else {
-                handleModalClose();
-            }
-        }
-
-        if (id !== null && open) {
-            void exec();
+        if (props.open) {
+            void fetchPatrolData(true, controller.signal);
         }
 
         return () => {
-            setPatrolData(null);
-            setEditMode(false);
+            controller.abort();
         }
-    }, [id, open]);
+    }, [props.id, props.open]);
 
-    if (patrolData === null) {
+    if (loading || patrolData === null) {
         return (
             <Modal
                 width={"50%"}
-                open={open}
-                title={`Patrulha ${id === null ? "": `#${id.toUpperCase()}`}`}
+                open={props.open}
+                title={`Patrulha ${props.id === null ? "": `#${props.id.toUpperCase()}`}`}
                 onClose={handleModalClose}
             >
                 <Loader size={"100px"}/>
             </Modal>
-        )
+        );
     }
 
     return (
         <>
             <Modal
                 width={"50%"}
-                open={open}
-                title={`Patrulha #${id!.toUpperCase()} - ${patrolData.canceled ? "Cancelada": patrolData.end ? "Terminada": "Em curso..."}`}
+                open={props.open}
+                title={`Patrulha #${props.id!.toUpperCase()} - ${patrolData.canceled ? "Cancelada": patrolData.end ? "Terminada": "Em curso..."}`}
                 onClose={handleModalClose}
-                url={`/patrulhas/${id}`}
+                url={`/patrulhas/${props.id}`}
             >
                 <div className={style.mainDiv}>
                     <ModalSection title={"Informações Gerais"}>
@@ -359,6 +354,18 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
                                     >
                                         Guardar
                                     </DefaultButton>
+
+                                    <DefaultButton
+                                        buttonColor={"red"}
+                                        darkTextOnHover
+                                        sx={{flex: 1}}
+                                        onClick={() => {
+                                            setEditMode(false);
+                                            void fetchPatrolData();
+                                        }}
+                                    >
+                                        Cancelar
+                                    </DefaultButton>
                                 </Gate>
                             </div>
                         </ModalSection>
@@ -368,7 +375,7 @@ function PatrolInfoModal({open, onClose, id}: PatrolInfoModalProps) {
 
             <ConfirmationDialog
                 open={confirmDelete}
-                title={`Apagar Patrulha #${id!}`}
+                title={`Apagar Patrulha #${props.id}`}
                 text={"Tens a certeza que desejas apagar esta patrulha?\n" +
                         "Esta ação não pode ser revertida!"}
                 onConfirm={handleDelete}
