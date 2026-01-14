@@ -334,7 +334,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                             window.open("https://github.com/xlysander12/gestao_policia_portugalia", "_blank"
                             )}
                         }>
-                        v{packageJson.version}
+                        lysander12 🞄 v{packageJson.version}
                     </DefaultTypography>
                 </div>
             </Menu>
