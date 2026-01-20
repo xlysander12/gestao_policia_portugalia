@@ -54,10 +54,6 @@ export function getForceHubPropertyPosition(force: string, property: string) {
     return forceConfig.hub.ranges.properties[property] - 1;
 }
 
-export function getForceMaxNonWorkingDays(force: string) {
-    return config.forces[force].maximum_non_working_days;
-}
-
 export function getForceMinWeekMinutes(force: string) {
     return config.forces[force].minimum_week_minutes;
 }

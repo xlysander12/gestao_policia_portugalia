@@ -1,19 +1,18 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {Fragment, useContext, useEffect, useMemo, useState} from "react";
 import style from "./officerinfo.module.css";
-import {
-    DefaultButton,
-    DefaultDatePicker,
-    DefaultTypography
-} from "../../components/DefaultComponents";
+import styles from "./officerinfo.module.css";
+import {DefaultButton, DefaultDatePicker, DefaultTypography} from "../../components/DefaultComponents";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import Gate from "../../components/Gate/gate.tsx";
 import {Divider, Skeleton} from "@mui/material";
-import {make_request} from "../../utils/requests.ts";
+import {make_request, RequestMethod} from "../../utils/requests.ts";
 import {
-    OfficerActiveJustification, OfficerActiveJustificationsResponse,
-    OfficerLastShiftResponse, OfficerSpecificHoursResponse
+    OfficerActiveJustification,
+    OfficerActiveJustificationsResponse,
+    OfficerLastDateResponse,
+    OfficerSpecificHoursResponse
 } from "@portalseguranca/api-types/officers/activity/output";
-import {UpdateOfficerLastShiftBodyType} from "@portalseguranca/api-types/officers/activity/input";
+import {UpdateOfficerLastDateBodyType} from "@portalseguranca/api-types/officers/activity/input";
 import {toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
 import {getObjectFromId} from "../../forces-data-context.ts";
@@ -22,69 +21,91 @@ import moment, {Moment} from "moment";
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import {Link} from "react-router-dom";
-import styles from "./officerinfo.module.css";
+import { toast } from "react-toastify";
+import { LastDatesField } from "@portalseguranca/api-types/util/output";
+import { BaseResponse } from "@portalseguranca/api-types";
 
-type LastShiftPairProps = {
+type LastDatePairProps = {
     officer: number
+    field: LastDatesField
 }
-const LastShiftPair = ({officer}: LastShiftPairProps) => {
+const LastDatePair = (props: LastDatePairProps) => {
     // Get the logged user context
     const loggedUser = useContext(LoggedUserContext);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
 
-    const [lastShift, setLastShift] = useState<Moment>(moment(null));
-    const [maxDaysPassed, setMaxDaysPassed] = useState<boolean>(false);
+    const [lastDate, setLastDate] = useState<Moment>(moment(null));
 
+    const maxDaysPassed = useMemo(() => {
+        if (!lastDate.isValid()) return false;
+        
+        if (props.field.max_days === null) return false;
+        
+        const daysPassed = moment().diff(lastDate, 'days');
+        
+        return daysPassed > props.field.max_days;
+    }, [lastDate.unix(), props.field]);
 
-    async function fetchLastShift() {
-        // Set the loading to true and editmode to false
-        setLoading(true);
+    async function fetchLastDate(showLoading = true, signal?: AbortSignal) {
+        // Set the loading to true
+        if (showLoading) setLoading(true);
+
+        // Set Editmode to false
         setEditMode(false);
 
-        // Clear current data
-        setLastShift(moment(null));
-
-        // Fetch the API the last shift date
-        const response = await make_request(`/officers/${officer}/activity/last-shift`, "GET");
+        // Fetch the API the last date for the field
+        const response = await make_request(`/officers/${props.officer}/activity/last-dates/${props.field.id}`, RequestMethod.GET, {signal});
+        const responseJson: OfficerLastDateResponse = await response.json();
 
         if (response.status === 404) {
             setLoading(false);
+            setLastDate(moment(null));
+            return;
+        } else if (!response.ok) {
+            setLoading(false);
+            toast.error(responseJson.message);
             return;
         }
 
-        const responseJson: OfficerLastShiftResponse = await response.json();
-
-        setLastShift(moment.unix(responseJson.data.last_shift));
-        setMaxDaysPassed(responseJson.meta.passed_max_days);
+        setLastDate(moment.unix(responseJson.data.date));
 
         // Set loading to false
-        setLoading(false);
+        if (showLoading) setLoading(false);
     }
 
-    async function updateOfficerLastShift() {
+    async function updateOfficerLastDate() {
         // Set the loading to true
         setLoading(true);
 
         // Make the request
-        await make_request<UpdateOfficerLastShiftBodyType>(`/officers/${officer}/activity/last-shift`, "PUT", {
+        const response = await make_request<UpdateOfficerLastDateBodyType>(`/officers/${props.officer}/activity/last-dates/${props.field.id}`, RequestMethod.PATCH, {
             body: {
-                last_shift: lastShift.unix()
+                date: lastDate.unix()
             }
         });
+        const responseJson: BaseResponse = await response.json();
 
-        // Update the last shift date
-        await fetchLastShift();
+        if (!response.ok) {
+            toast.error(responseJson.message);
+        }
+
+        // Update the last date
+        await fetchLastDate();
     }
 
     useEffect(() => {
-        void fetchLastShift();
-    }, [officer]);
+        const controller = new AbortController();
+
+        void fetchLastDate(true, controller.signal);
+
+        return () => controller.abort();
+    }, [props.officer, props.field]);
 
     return (
         <div className={style.informationPairDiv}>
-            <label>Última picagem:</label>
+            <label>{props.field.display}:</label>
             <div
                 style={{
                     display: "flex",
@@ -112,7 +133,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                                 }
                             }}
                         >
-                            {lastShift.isValid() ? lastShift.format("DD/MM/YYYY"): "N/A"}
+                            {lastDate.isValid() ? lastDate.format("DD/MM/YYYY"): "N/A"}
                         </DefaultTypography>
                     </Gate>
 
@@ -121,8 +142,8 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             textWhenDisabled
                             disableFuture
                             disabled={!editMode}
-                            value={moment(lastShift)}
-                            onChange={(date) => setLastShift(date ? date: moment(null))}
+                            value={moment(lastDate)}
+                            onChange={(date) => setLastDate(date ? date: moment(null))}
                             slotProps={{
                                 field: {
                                     clearable: true
@@ -138,7 +159,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             darkTextOnHover
                             onClick={() => {
                                 // Call the onDateChange function
-                                void updateOfficerLastShift();
+                                void updateOfficerLastDate();
                             }}
                         >
                             <SaveIcon fontSize={"small"} />
@@ -149,7 +170,7 @@ const LastShiftPair = ({officer}: LastShiftPairProps) => {
                             buttonColor={"red"}
                             onClick={() => {
                                 setEditMode(false);
-                                void fetchLastShift();
+                                void fetchLastDate();
                             }}
                         >
                             <CancelIcon fontSize={"small"} />
@@ -314,6 +335,9 @@ type ActivityPanelProps = {
     nif: number
 }
 export const ActivityPanel = ({nif}: ActivityPanelProps) => {
+    // Get force data
+    const [forceData] = useForceData();
+
     return (
         <fieldset>
 
@@ -333,9 +357,16 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
             <div className={style.officerInfoInnerFieldsetDiv}>
                 <ActiveJustificationPair officer={nif} />
                 <Divider/>
-                <LastShiftPair officer={nif}/>
-                <Divider/>
                 <LastWeekHoursPair officer={nif}/>
+                <Divider/>
+                {forceData.last_dates_fields.map((field, index) => (
+                    <Fragment key={`lastDateFragment#${field.id}`}>
+                        <LastDatePair field={field} officer={nif}/>
+                        <Gate show={index !== (forceData.last_dates_fields.length - 1)}>
+                            <Divider/>
+                        </Gate>
+                    </Fragment>
+                ))}
             </div>
         </fieldset>
     );

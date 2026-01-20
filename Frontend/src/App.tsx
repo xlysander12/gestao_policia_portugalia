@@ -15,7 +15,7 @@ import {
     UtilEvaluationGradesResponse, UtilEventTypesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
-    UtilIntentsResponse, UtilLastCeremonyResponse, UtilPatentCategoriesResponse,
+    UtilIntentsResponse, UtilLastCeremonyResponse, UtilLastDatesFieldsResponse, UtilPatentCategoriesResponse,
     UtilPatentsResponse,
     UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
@@ -59,6 +59,7 @@ function App() {
             patentCategories: [],
             statuses: [],
             intents: [],
+            last_dates_fields: [],
             inactivity_types: [],
             patrol_types: [],
             evaluation_grades: [],
@@ -103,6 +104,12 @@ function App() {
         async function fetchIntents() {
             const intentsResponse = await make_request("/util/intents", "GET", {force: forceName});
             forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+        }
+
+        // Fetching the last dates fields
+        async function fetchLastDatesFields() {
+            const response = await make_request("/util/last-dates-fields", "GET", {force: forceName});
+            forceTempData.last_dates_fields = ((await response.json()) as UtilLastDatesFieldsResponse).data;
         }
 
         // Fetching the inactivity types
@@ -161,6 +168,7 @@ function App() {
             fetchPatentCategories(),
             fetchStatuses(),
             fetchIntents(),
+            fetchLastDatesFields(),
             fetchInativityTypes(),
             fetchPatrolTypes(),
             fetchEvaluationGrades(),

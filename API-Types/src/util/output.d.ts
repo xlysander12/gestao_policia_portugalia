@@ -43,6 +43,12 @@ export interface SpecialUnitRoleData {
     name: string
 }
 
+export interface LastDatesField {
+    id: string
+    display: string
+    max_days: number | null
+}
+
 export interface InactivityTypeData {
     id: number
     name: string
@@ -103,6 +109,10 @@ export interface UtilSpecialUnitsResponse extends BaseResponse {
 
 export interface UtilSpecialUnitsActiveResponse extends BaseResponse {
     data: MinifiedOfficerData[]
+}
+
+export interface UtilLastDatesFieldsResponse extends BaseResponse {
+    data: LastDatesField[]
 }
 
 export interface UtilInactivityTypesResponse extends BaseResponse {

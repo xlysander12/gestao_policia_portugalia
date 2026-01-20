@@ -15,7 +15,7 @@ import {
     AddOfficerJustificationBody,
     ChangeOfficerJustificationBody, ListOfficerHoursQueryParams, ListOfficerJustificationsQueryParams,
     ManageOfficerJustificationBody,
-    UpdateOfficerLastShiftBody
+    UpdateOfficerLastDateBody
 } from "@portalseguranca/api-types/officers/activity/input";
 import {
     OfficerAddSocket,
@@ -24,7 +24,7 @@ import {
     OfficerDeleteSocket,
     OfficerImportSocket
 } from "@portalseguranca/api-types/officers/output";
-import {OfficerLastShiftSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
+import {OfficerLastDateSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
@@ -380,6 +380,16 @@ const utilRoutes: routesType = {
         }
     },
 
+    // Route to get all last dates' fields of a force
+    "/util/last-dates-fields$": {
+        methods: {
+            GET: {
+                requiresSession: false,
+                requiresForce: true
+            }
+        }
+    },
+
     // Route to get all inactivity types of a force
     "/util/inactivity-types$": {
         methods: {
@@ -688,24 +698,25 @@ const officersRoutes: routesType = {
 }
 
 const activityRoutes: routesType = {
-    "/officers/\\d+/activity/last-shift$": {
+    "/officers/\\d+/activity/last-dates/.+$": {
         methods: {
             GET: {
                 requiresSession: true,
                 requiresForce: true
             },
-            PUT: {
+            PATCH: {
                 requiresSession: true,
                 requiresForce: true,
                 intents: ["activity"],
                 body: {
-                    type: UpdateOfficerLastShiftBody
+                    type: UpdateOfficerLastDateBody
                 },
                 broadcast: {
                     event: SOCKET_EVENT.ACTIVITY,
-                    body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerLastShiftSocket => {
+                    body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerLastDateSocket => {
                         return {
-                            type: "last_shift",
+                            type: "last_date",
+                            field: req.params.field,
                             action: "update",
                             nif: res.locals.targetOfficer!.nif,
                             by: res.locals.loggedOfficer.nif
