@@ -10,6 +10,6 @@ export async function fetchLastDate(force: string, nif: number, field: string): 
     return result[0].last_date as Date | null;
 }
 
-export async function updateLastShift(force: string, nif: number, field: string, date: number | null) {
+export async function updateLastDate(force: string, nif: number, field: string, date: number | null) {
     await queryDB(force, `INSERT INTO officer_last_dates_values (officer, field, last_date) VALUES (?, ?, FROM_UNIXTIME(?)) ON DUPLICATE KEY UPDATE last_date = FROM_UNIXTIME(?)`, [nif, field, date, date]);
 }
