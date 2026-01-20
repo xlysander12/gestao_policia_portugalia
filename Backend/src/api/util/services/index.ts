@@ -164,7 +164,7 @@ export async function forceIntents(force: string): Promise<DefaultReturn<IntentD
 }
 
 export async function forceLastDatesFields(force: string): Promise<DefaultReturn<LastDatesField[]>> {
-    // Get the list of inactivity types from the repository
+    // Get the list of fields from the repository
     const types = await getForceLastDatesFields(force);
 
     // Return 200
