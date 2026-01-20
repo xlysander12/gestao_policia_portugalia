@@ -327,7 +327,7 @@ function OfficerInfo() {
 
     // Whenever the nif in state changes, we need to fetch the officer's info
     useEffect(() => {
-        const controller = new AbortController;
+        const controller = new AbortController();
         void fetchOfficerInfo(true, controller.signal);
 
         return () => controller.abort();
