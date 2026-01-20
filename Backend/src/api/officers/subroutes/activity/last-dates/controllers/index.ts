@@ -29,7 +29,7 @@ export async function getLastDateController(req: express.Request, res: OfficerIn
     });
 }
 
-export async function updateLastShiftController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function updateLastDateController(req: express.Request, res: OfficerInfoAPIResponse) {
     // Get the field from the request parameters
     const {field} = req.params;
 
