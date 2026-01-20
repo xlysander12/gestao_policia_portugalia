@@ -1,15 +1,15 @@
 import {DefaultReturn} from "../../../../../../types";
-import {fetchLastShift, updateLastShift} from "../repository";
+import {fetchLastDate, updateLastShift} from "../repository";
 
-export async function getOfficerLastShift(force: string, nif: number): Promise<DefaultReturn<Date | null>> {
+export async function getOfficerLastShift(force: string, nif: number, field: string): Promise<DefaultReturn<Date | null>> {
     // Fetch the last shift of the officer from the repository
-    const last_shift = await fetchLastShift(force, nif);
+    const last_shift = await fetchLastDate(force, nif, field);
 
     if (last_shift === null) {
         return {
             result: false,
             status: 404,
-            message: "Não foi encontrado nenhum turno anterior para o efetivo."
+            message: "Não foi encontrado nenhuma data anterior para o efetivo."
         }
     }
 
@@ -21,9 +21,9 @@ export async function getOfficerLastShift(force: string, nif: number): Promise<D
     }
 }
 
-export async function updateOfficerLastShift(force: string, nif: number, last_shift: number | null): Promise<DefaultReturn<void>> {
+export async function updateOfficerLastShift(force: string, nif: number, field: string, date: number | null): Promise<DefaultReturn<void>> {
     // Call the repository to update the last shift of the officer
-    await updateLastShift(force, nif, last_shift);
+    await updateLastShift(force, nif, field, date);
 
     return {
         result: true,

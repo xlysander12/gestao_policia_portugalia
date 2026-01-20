@@ -1,5 +1,5 @@
 import express from "express";
-import lastShiftRoutes from "./last-shift";
+import lastDatesRoutes from "./last-dates";
 import hoursRoutes from "./hours";
 import justificationsRoutes from "./justifications";
 import {logToConsole} from "../../../../utils/logger";
@@ -7,7 +7,7 @@ import {logToConsole} from "../../../../utils/logger";
 const app = express.Router();
 
 // Load the last-shift routes
-app.use("/last-shift", lastShiftRoutes);
+app.use("/last-dates", lastDatesRoutes);
 
 // Load the hours routes
 app.use("/hours", hoursRoutes);

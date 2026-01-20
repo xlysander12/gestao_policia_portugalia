@@ -31,7 +31,6 @@ const ForceRt = rt.Record({
     patrols: rt.Array(rt.String),
     database: rt.String,
     isPromotion: rt.String,
-    maximum_non_working_days: rt.Number,
     minimum_week_minutes: rt.Number,
     hub: rt.Optional(ForceHubRt),
     discord_role: rt.Optional(rt.Number)

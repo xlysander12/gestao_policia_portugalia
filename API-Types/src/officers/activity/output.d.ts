@@ -1,11 +1,8 @@
 import {BaseResponse, SocketResponse} from "../../index";
 
-export interface OfficerLastShiftResponse extends BaseResponse {
-    meta: {
-        passed_max_days: boolean
-    }
+export interface OfficerLastDateResponse extends BaseResponse {
     data: {
-        last_shift: number
+        date: number
     }
 }
 
@@ -58,13 +55,14 @@ export interface OfficerJustificationDetailsResponse extends BaseResponse {
 }
 
 export interface OfficerActivitySocket extends SocketResponse {
-    type: "hours" | "justification" | "last_shift"
+    type: "hours" | "justification" | "last_date"
     nif: number
     id?: number
 }
 
-export interface OfficerLastShiftSocket extends OfficerActivitySocket {
-    type: "last_shift"
+export interface OfficerLastDateSocket extends OfficerActivitySocket {
+    type: "last_date"
+    field: string
     action: "update"
 }
 

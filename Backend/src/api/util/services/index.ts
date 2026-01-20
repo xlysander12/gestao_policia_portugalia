@@ -4,7 +4,7 @@ import {
     getEvaluationFields,
     getEvaluationGrades, getEventTypes,
     getForceInactivityTypes,
-    getForceIntents, getForcePatentCategories,
+    getForceIntents, getForceLastDatesFields, getForcePatentCategories,
     getForcePatents,
     getForcePatrolTypes,
     getForceSpecialUnits,
@@ -31,7 +31,7 @@ import {
     EvaluationDecision,
     EventType,
     EventNotification,
-    ForceColors, PatentCategoryData
+    ForceColors, PatentCategoryData, LastDatesField
 } from "@portalseguranca/api-types/util/output";
 import {getForceColors, getForcePatrolForces} from "../../../utils/config-handler";
 import {getAccountDetails, userHasIntents} from "../../accounts/repository";
@@ -160,6 +160,19 @@ export async function forceIntents(force: string): Promise<DefaultReturn<IntentD
         status: 200,
         message: "Operação concluída com sucesso",
         data: intents
+    }
+}
+
+export async function forceLastDatesFields(force: string): Promise<DefaultReturn<LastDatesField[]>> {
+    // Get the list of inactivity types from the repository
+    const types = await getForceLastDatesFields(force);
+
+    // Return 200
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: types
     }
 }
 

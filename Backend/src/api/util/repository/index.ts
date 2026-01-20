@@ -3,7 +3,7 @@ import {
     EvaluationField,
     EvaluationGrade, EventType,
     InactivityTypeData,
-    IntentData, PatentCategoryData,
+    IntentData, LastDatesField, PatentCategoryData,
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
@@ -147,6 +147,18 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
     }
 
     return intentsList;
+}
+
+export async function getForceLastDatesFields(force: string): Promise<LastDatesField[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM officer_last_dates_fields`);
+
+    // Return array with the fields
+    return result.map(field => ({
+        id: field.id as string,
+        display: field.display as string,
+        max_days: field.max_days as number | null,
+    }));
 }
 
 export async function getForceInactivityTypes(force: string): Promise<InactivityTypeData[]> {

@@ -18,7 +18,6 @@
             "patrols": ["psp", "gnr"],
             "database": "database",
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
-            "maximum_non_working_days": 5,
             "minimum_week_minutes": 300,
             "hub": {
                 "id": "12E4q5-fDNi6B0Os0wf_llqt9cnRTGKpWXMznmZ9xoZ8",
