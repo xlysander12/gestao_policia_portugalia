@@ -284,10 +284,10 @@ function AverageDecisionPair(props: AverageDecisionPairProps) {
     );
 }
 
-type EvaluationPanelPros = {
+type EvaluationPanelProps = {
     nif: number
 }
-function EvaluationPanel(props: EvaluationPanelPros) {
+function EvaluationPanel(props: EvaluationPanelProps) {
     return (
         <fieldset>
             <legend
