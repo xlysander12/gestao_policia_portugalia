@@ -73,7 +73,7 @@ function EvaluationsNumberPair(props: EvaluationsNumberPairProps) {
     useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback((data) => {
         if (data.author !== props.nif) return; // Ignore evaluations not made by this officer
 
-        if (!(data.action in ["add", "delete"])) return; // Ignore updates
+        if (!(["add", "delete"].includes(data.action))) return; // Ignore updates
 
         void fetchNumber(false);
     }, [props.nif]));
@@ -174,7 +174,7 @@ function EvaluationsAboutPair(props: EvaluationsAboutPairProps) {
     useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback((data) => {
         if (data.target !== props.nif) return; // Ignore evaluations not about this officer
 
-        if (!(data.action in ["add", "delete"])) return; // Ignore updates
+        if (!(["add", "delete"].includes(data.action))) return; // Ignore updates
 
         void fetchEvaluations(false);
     }, [props.nif]));
