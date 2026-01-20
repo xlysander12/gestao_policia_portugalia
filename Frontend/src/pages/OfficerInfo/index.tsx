@@ -34,6 +34,7 @@ import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import ShareButton from "../../components/ShareButton";
+import EvaluationPanel from "./EvaluationPanel.tsx";
 
 
 type InformationPairProps = {
@@ -218,7 +219,7 @@ function OfficerInfo() {
     // Variable that dictates whether the logged user can edit the current officer.
     const canEdit: boolean = loggedUser.intents.officers && loggedUser.info.professional.patent.id > officerInfo.professional.patent;
 
-    async function fetchOfficerInfo(showloading: boolean = true) {
+    async function fetchOfficerInfo(showloading: boolean = true, signal?: AbortSignal) {
         // First, we need to set the loading state to true
         if (showloading) {
             setLoading(true);
@@ -227,7 +228,7 @@ function OfficerInfo() {
         // Then, disable edit mode
         setEditMode(false);
 
-        const response = await make_request(`/officers/${officerNif}`, "GET");
+        const response = await make_request(`/officers/${officerNif}`, "GET", {signal});
 
         // Check if the response is 404. If it is, most likely the user has inputted an non existing nif in param
         if (response.status === 404) {
@@ -325,7 +326,12 @@ function OfficerInfo() {
     }
 
     // Whenever the nif in state changes, we need to fetch the officer's info
-    useEffect(() => {void fetchOfficerInfo()}, [officerNif]);
+    useEffect(() => {
+        const controller = new AbortController;
+        void fetchOfficerInfo(true, controller.signal);
+
+        return () => controller.abort();
+    }, [officerNif]);
 
     function officerListCallback(officer: MinifiedOfficerData) {
         // Make sure we don't change officer's while editing
@@ -659,15 +665,7 @@ function OfficerInfo() {
 
                     <ActivityPanel nif={officerNif}/>
 
-                    <fieldset>
-                    <legend>Punições</legend>
-                        <div style={{filter: "blur(5px)"}}>
-                            <p>Punição Ativa: <span></span>
-                            </p>
-                            <p>Histórico: <span></span>
-                            </p>
-                        </div>
-                    </fieldset>
+                    <EvaluationPanel nif={officerNif} />
                 </form>
             </ScreenSplit>
 
