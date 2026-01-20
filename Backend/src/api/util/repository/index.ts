@@ -151,7 +151,7 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
 
 export async function getForceLastDatesFields(force: string): Promise<LastDatesField[]> {
     // Get the list from the database
-    const result = await queryDB(force, `SELECT * FROM officer_last_dates_fields`);
+    const result = await queryDB(force, `SELECT * FROM officer_last_dates_fields ORDER BY position`);
 
     // Return array with the fields
     return result.map(field => ({
