@@ -225,16 +225,18 @@ function DecisionModal(props: DecisionModalProps) {
     }
 
     useWebSocketEvent<CeremonyDecisionSocket>(SOCKET_EVENT.CEREMONY_DECISIONS, useCallback(async (data) => {
+        if (data.by === loggedUser.info.personal.nif) return; // Ignore own changes
+
         if (data.action === "add") return;
 
         if (data.action === "update" && (data as UpdateCeremonyDecisionSocket).id === props.decision?.id) {
             await getFullDecisionDetails(false);
-            toast.warning("Esta decisão foi editada por outro utilizador.");
+            toast.warning("A decisão que estás a visualizar foi editada.");
             return;
         }
 
         if (data.action === "delete" && (data as DeleteCeremonyDecisionSocket).id === props.decision?.id) {
-            toast.warning("Esta decisão foi apagada por outro utilizador.");
+            toast.warning("A decisão que estavas a visualizar foi apagada por outro utilizador.");
             onClose();
             return;
         }

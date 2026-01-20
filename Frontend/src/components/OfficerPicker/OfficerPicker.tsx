@@ -130,9 +130,13 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
         const controller = new AbortController();
         const signal = controller.signal;
 
-        void search(searchFilters, true, signal);
+        setLoading(true);
+        const timeout = setTimeout(() => void search(searchFilters, true, signal), 250);
 
-        return () => controller.abort();
+        return () => {
+            controller.abort();
+            clearTimeout(timeout);
+        }
     }, [JSON.stringify(searchFilters)]);
 
     // When an officer is selected, call the callback function with the NIF

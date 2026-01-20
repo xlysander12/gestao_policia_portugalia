@@ -1,9 +1,11 @@
 import { getEvaluationData } from "../api/officers/subroutes/evaluations/repository";
 import express from "express";
-import {OfficerEvaluationAPIResponse} from "../types/response-types";
+import {OfficerEvaluationAPIResponse, OfficerInfoAPIResponse} from "../types/response-types";
 import {FORCE_HEADER} from "../utils/constants";
 import {userHasIntents} from "../api/accounts/repository";
 import {getOfficerData} from "../api/officers/repository";
+import {getForcePatents} from "../api/util/repository";
+import {PatentData} from "@portalseguranca/api-types/util/output";
 
 async function evaluationExistsMiddleware(req: express.Request, res: OfficerEvaluationAPIResponse, next: express.NextFunction) {
     // * Make sure the provided evaluation id is valid
@@ -67,6 +69,19 @@ async function evaluationExistsMiddleware(req: express.Request, res: OfficerEval
         decision: evaluation.decision,
         timestamp: new Date(evaluation.timestamp),
         fields: evaluation.fields
+    }
+
+    next();
+}
+
+export async function canCheckEvalsMiddleware(req: express.Request, res: OfficerInfoAPIResponse, next: express.NextFunction) {
+    // Check if the target's patent is within the logged officer's max evaluation patent
+    const loggedPatent = (await getForcePatents(req.header(FORCE_HEADER)!, res.locals.loggedOfficer.patent) as PatentData);
+    if (res.locals.targetOfficer!.patent > loggedPatent.max_evaluation) {
+        res.status(403).json({
+            message: "Não tens permissão para aceder a este recurso"
+        });
+        return;
     }
 
     next();

@@ -35,7 +35,7 @@ export async function getEvaluationsListController(req: express.Request, res: Of
         message: result.message,
         meta: {
             pages: result.data!.pages,
-          averages: result.data!.averages
+            averages: result.data!.averages
         },
         data: result.data!.evaluations
     });

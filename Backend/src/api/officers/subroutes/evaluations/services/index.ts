@@ -22,7 +22,7 @@ import {dateToUnix} from "../../../../../utils/date-handler";
 export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
     evaluations: MinifiedEvaluation[],
-    averages: Record<number, number>
+    averages: Record<number | "decision", number> | Record<number, number>
 }>> {
     // Check if the requester has the "evaluations" intent
     const hasIntent = await userHasIntents(requester.nif, force, "evaluations");
@@ -35,7 +35,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     const allEvals = (await getEvaluations(force, requester, target, hasIntent, routeValidFilters, filters, 0)).evaluations;
 
     // Store all grades for each field
-    const field_grades: Record<number, number[]> = {};
+    const field_grades: Record<number | "decision", number[]> = {"decision": []};
 
     // Loop through all evaluations
     for (const evaluation of allEvals) {
@@ -53,14 +53,17 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
             // Add the grade to the field
             field_grades[field].push(evaluationData.fields[field].grade);
         }
+        
+        // Add the decision, if exists
+        if (evaluationData.decision !== null) field_grades.decision.push(evaluationData.decision);
     }
 
     // Calculate the pondered average for each field
     // This calculation will be done by the following expression:
     // (For every grade g in the field => g * (arr.size() - index)) / (Sum of all indexes)
-    const averages: Record<number, number> = {};
+    const averages: Record<number | "decision", number> | Record<number, number> = {};
     for (const field in field_grades) {
-        // Get the sum of all grades multiplied by their wheigth (wheigth = arr.size() - index)
+        // Get the sum of all grades multiplied by their weight (weight = arr.size() - index)
         let sum = 0;
         for (let i = 0; i < field_grades[field].length; i++) {
             sum += field_grades[field][i] * (field_grades[field].length - i);
@@ -73,7 +76,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
         }
 
         // Calculate the average
-        averages[parseInt(field)] = Math.round(sum / indexesSum);
+        averages[field] = Math.round(sum / indexesSum);
     }
 
     // Return the evaluations
