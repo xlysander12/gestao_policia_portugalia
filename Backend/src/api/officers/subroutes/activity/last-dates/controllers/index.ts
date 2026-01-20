@@ -4,7 +4,7 @@ import {getOfficerLastShift, updateOfficerLastShift} from "../services";
 import {FORCE_HEADER} from "../../../../../../utils/constants";
 import {OfficerLastDateResponse} from "@portalseguranca/api-types/officers/activity/output";
 import {dateToUnix} from "../../../../../../utils/date-handler";
-import { UpdateOfficerLastShiftBodyType } from "@portalseguranca/api-types/officers/activity/input";
+import { UpdateOfficerLastDateBodyType } from "@portalseguranca/api-types/officers/activity/input";
 
 export async function getLastDateController(req: express.Request, res: OfficerInfoAPIResponse<OfficerLastDateResponse>) {
     // Get the field from the request parameters
@@ -33,7 +33,7 @@ export async function updateLastShiftController(req: express.Request, res: Offic
     // Get the field from the request parameters
     const {field} = req.params;
 
-    const {date} = req.body as UpdateOfficerLastShiftBodyType;
+    const {date} = req.body as UpdateOfficerLastDateBodyType;
 
     // Call the service to update the last shift
     const result = await updateOfficerLastShift(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, field, date);
