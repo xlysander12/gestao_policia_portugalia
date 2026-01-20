@@ -79,7 +79,7 @@ function EvaluationsNumberPair(props: EvaluationsNumberPairProps) {
     }, [props.nif]));
 
     useEffect(() => {
-        const controller = new AbortController;
+        const controller = new AbortController();
 
         void fetchNumber(true, controller.signal);
 
@@ -180,7 +180,7 @@ function EvaluationsAboutPair(props: EvaluationsAboutPairProps) {
     }, [props.nif]));
 
     useEffect(() => {
-        const controller = new AbortController;
+        const controller = new AbortController();
 
         void fetchEvaluations(true, controller.signal);
 
@@ -256,7 +256,7 @@ function AverageDecisionPair(props: AverageDecisionPairProps) {
     }, [props.nif]));
 
     useEffect(() => {
-        const controller = new AbortController;
+        const controller = new AbortController();
 
         void fetchAverageDecision(true, controller.signal);
 
