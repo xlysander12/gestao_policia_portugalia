@@ -23,6 +23,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import {Link} from "react-router-dom";
 import { toast } from "react-toastify";
 import { LastDatesField } from "@portalseguranca/api-types/util/output";
+import { BaseResponse } from "@portalseguranca/api-types";
 
 type LastDatePairProps = {
     officer: number
@@ -74,16 +75,21 @@ const LastDatePair = (props: LastDatePairProps) => {
         if (showLoading) setLoading(false);
     }
 
-    async function updateOfficerLastShift() {
+    async function updateOfficerLastDate() {
         // Set the loading to true
         setLoading(true);
 
         // Make the request
-        await make_request<UpdateOfficerLastDateBodyType>(`/officers/${props.officer}/activity/last-dates/${props.field.id}`, RequestMethod.PATCH, {
+        const response = await make_request<UpdateOfficerLastDateBodyType>(`/officers/${props.officer}/activity/last-dates/${props.field.id}`, RequestMethod.PATCH, {
             body: {
                 date: lastDate.unix()
             }
         });
+        const responseJson: BaseResponse = await response.json();
+
+        if (!response.ok) {
+            toast.error(responseJson.message);
+        }
 
         // Update the last shift date
         await fetchLastDate();
@@ -153,7 +159,7 @@ const LastDatePair = (props: LastDatePairProps) => {
                             darkTextOnHover
                             onClick={() => {
                                 // Call the onDateChange function
-                                void updateOfficerLastShift();
+                                void updateOfficerLastDate();
                             }}
                         >
                             <SaveIcon fontSize={"small"} />
