@@ -6,7 +6,7 @@ import {logToConsole} from "../../../../utils/logger";
 
 const app = express.Router();
 
-// Load the last-shift routes
+// Load the last-dates routes
 app.use("/last-dates", lastDatesRoutes);
 
 // Load the hours routes
