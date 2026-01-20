@@ -353,7 +353,9 @@ function Evaluations(props: EvaluationsPageProps) {
                             <Table size={"small"} padding={"normal"} sx={{height: "70px"}}>
                                 <TableHead>
                                     <TableRow>
-                                        {averages ? Object.keys(averages).map(avg => {
+                                        {averages ? Object.keys(averages)
+                                            .filter(avg => avg !== "decision")
+                                            .map(avg => {
                                             return (
                                                 <TableCell
                                                     key={`averageField#${avg}`}
@@ -372,7 +374,9 @@ function Evaluations(props: EvaluationsPageProps) {
 
                                 <TableBody>
                                     <TableRow>
-                                        {averages ? Object.keys(averages).map(avg => {
+                                        {averages ? Object.keys(averages)
+                                            .filter(avg => avg !== "decision")
+                                            .map(avg => {
                                             // Get the grade
                                             const grade = getObjectFromId(averages[parseInt(avg)], forceData.evaluation_grades)!;
 
