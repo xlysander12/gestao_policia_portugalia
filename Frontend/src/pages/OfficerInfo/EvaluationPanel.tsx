@@ -52,7 +52,8 @@ function EvaluationsNumberPair(props: EvaluationsNumberPairProps) {
             if (!response.ok) {
                 if (response.status === 403) {
                     setCantSee(true);
-                    break;
+                    if (showLoading) setLoading(false);
+                    return;
                 } else { // Unlikely to happen
                     toast.error(responseJson.message);
                     return;
