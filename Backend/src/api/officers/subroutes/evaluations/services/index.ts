@@ -18,7 +18,6 @@ import {getOfficerData} from "../../../repository";
 import {getEvaluationFields, getForcePatents} from "../../../../util/repository";
 import {PatentData} from "@portalseguranca/api-types/util/output";
 import {dateToUnix} from "../../../../../utils/date-handler";
-import {Optional} from "runtypes";
 
 export async function evaluationsList(force: string, requester: InnerOfficerData, target: number, routeValidFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1): Promise<DefaultReturn<{
     pages: number,
