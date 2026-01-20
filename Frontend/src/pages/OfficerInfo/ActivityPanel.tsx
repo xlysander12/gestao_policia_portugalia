@@ -367,7 +367,6 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
                         </Gate>
                     </Fragment>
                 ))}
-
             </div>
         </fieldset>
     );
