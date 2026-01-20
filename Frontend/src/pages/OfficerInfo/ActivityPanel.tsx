@@ -91,7 +91,7 @@ const LastDatePair = (props: LastDatePairProps) => {
             toast.error(responseJson.message);
         }
 
-        // Update the last shift date
+        // Update the last date
         await fetchLastDate();
     }
 
