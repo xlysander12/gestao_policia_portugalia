@@ -28,7 +28,7 @@ export const ListOfficerJustificationsQueryParams = rt.Partial({
 export const UpdateOfficerLastDateBody = rt.Record({
    date: rt.Union(rt.Number, rt.Null)
 });
-export type UpdateOfficerLastShiftBodyType = rt.Static<typeof UpdateOfficerLastDateBody>;
+export type UpdateOfficerLastDateBodyType = rt.Static<typeof UpdateOfficerLastDateBody>;
 
 export const AddOfficerHoursBody = rt.Record({
     week_start: rt.Number,
