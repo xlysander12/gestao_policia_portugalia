@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {Fragment, useContext, useEffect, useMemo, useState} from "react";
 import style from "./officerinfo.module.css";
 import styles from "./officerinfo.module.css";
 import {DefaultButton, DefaultDatePicker, DefaultTypography} from "../../components/DefaultComponents";
@@ -360,12 +360,12 @@ export const ActivityPanel = ({nif}: ActivityPanelProps) => {
                 <LastWeekHoursPair officer={nif}/>
                 <Divider/>
                 {forceData.last_dates_fields.map((field, index) => (
-                    <>
-                        <LastDatePair key={`lastDate#${field.id}`} field={field} officer={nif}/>
+                    <Fragment key={`lastDateFragment#${field.id}`}>
+                        <LastDatePair field={field} officer={nif}/>
                         <Gate show={index !== (forceData.last_dates_fields.length - 1)}>
                             <Divider/>
                         </Gate>
-                    </>
+                    </Fragment>
                 ))}
 
             </div>
