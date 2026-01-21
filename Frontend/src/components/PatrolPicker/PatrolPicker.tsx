@@ -89,58 +89,60 @@ function PatrolPicker(props: PatrolPickerProps) {
     return (
         <>
             <ManagementBar>
-                <div className={style.searchDiv}>
-                    <DefaultSearch
-                        fullWidth
-                        disabled={loading}
-                        placeholder={"Pesquisar por patrulha"}
-                        // limitTags={2}
-                        callback={(options) => {
-                            setCurrentFilters(options);
-                        }}
-                        options={[
-                            {label: "Depois de", key: "after", type: "date"},
-                            {label: "Antes de", key: "before", type: "date"},
-                            {label: "Em curso", key: "active", type: "boolean"},
-                            {label: "Efetivo", key: "officers", type: "asyncOption",
-                                optionsFunc: async (signal) => {
-                                    const officers = await make_request("/officers?patrol=true", "GET", {signal: signal});
-                                    const officersData: OfficerListResponse | RequestError = await officers.json();
+                <div className={style.managementBarMain}>
+                    <div className={style.searchDiv}>
+                        <DefaultSearch
+                            fullWidth
+                            disabled={loading}
+                            placeholder={"Pesquisar por patrulha"}
+                            // limitTags={2}
+                            callback={(options) => {
+                                setCurrentFilters(options);
+                            }}
+                            options={[
+                                {label: "Depois de", key: "after", type: "date"},
+                                {label: "Antes de", key: "before", type: "date"},
+                                {label: "Em curso", key: "active", type: "boolean"},
+                                {label: "Efetivo", key: "officers", type: "asyncOption",
+                                    optionsFunc: async (signal) => {
+                                        const officers = await make_request("/officers?patrol=true", "GET", {signal: signal});
+                                        const officersData: OfficerListResponse | RequestError = await officers.json();
 
-                                    if (!officers.ok) {
-                                        toast.error(officersData.message);
-                                        return [];
+                                        if (!officers.ok) {
+                                            toast.error(officersData.message);
+                                            return [];
+                                        }
+
+                                        return (officersData as OfficerListResponse).data.map((officer: MinifiedOfficerData) => ({
+                                            label: `[${officer.callsign}] ${getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} ${officer.name}`,
+                                            key: String(officer.nif)
+                                        }));
                                     }
-
-                                    return (officersData as OfficerListResponse).data.map((officer: MinifiedOfficerData) => ({
-                                        label: `[${officer.callsign}] ${getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} ${officer.name}`,
-                                        key: String(officer.nif)
-                                    }));
+                                },
+                                {label: "Tipo", key: "type", type: "option", options: currentForceData.patrol_types.map(type => ({
+                                        label: type.name,
+                                        key: String(type.id)
+                                    }))
+                                },
+                                {label: "Unidade Especial", key: "unit", type: "option", options: currentForceData.special_units.map(unit => ({
+                                        label: unit.name,
+                                        key: String(unit.id)
+                                    }))
                                 }
-                            },
-                            {label: "Tipo", key: "type", type: "option", options: currentForceData.patrol_types.map(type => ({
-                                    label: type.name,
-                                    key: String(type.id)
-                                }))
-                            },
-                            {label: "Unidade Especial", key: "unit", type: "option", options: currentForceData.special_units.map(unit => ({
-                                    label: unit.name,
-                                    key: String(unit.id)
-                                }))
-                            }
-                        ]}
-                    />
-                </div>
+                            ]}
+                        />
+                    </div>
 
-                <div className={style.paginationDiv}>
-                    <DefaultPagination
-                        variant={"outlined"}
-                        size={"large"}
-                        showFirstButton
-                        count={totalPages}
-                        page={page}
-                        onChange={(_e, value) => setPage(value)}
-                    />
+                    <div className={style.paginationDiv}>
+                        <DefaultPagination
+                            variant={"outlined"}
+                            size={"large"}
+                            showFirstButton
+                            count={totalPages}
+                            page={page}
+                            onChange={(_e, value) => setPage(value)}
+                        />
+                    </div>
                 </div>
             </ManagementBar>
 

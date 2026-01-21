@@ -71,7 +71,8 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
     }
 
     // Check if the status of the officer prevents patrols (Inactivity only appears here if forcefully set)
-    if (!officerStatus.canPatrol) {
+    // This is only valid if the current time is part of that patrol time
+    if (!officerStatus.canPatrol && (patrolEnd === null || (patrolStart <= new Date() && patrolEnd >= new Date()))) {
         return [false, `O efetivo ${officerData.name} não pode patrulhar`];
     }
 

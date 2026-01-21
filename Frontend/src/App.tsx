@@ -15,7 +15,7 @@ import {
     UtilEvaluationGradesResponse, UtilEventTypesResponse,
     UtilForcePatrolForcesResponse,
     UtilInactivityTypesResponse,
-    UtilIntentsResponse, UtilLastCeremonyResponse,
+    UtilIntentsResponse, UtilLastCeremonyResponse, UtilLastDatesFieldsResponse, UtilPatentCategoriesResponse,
     UtilPatentsResponse,
     UtilPatrolTypesResponse,
     UtilSpecialUnitsResponse,
@@ -56,8 +56,10 @@ function App() {
             last_ceremony: moment(),
             colors: {base: "#ffffff", text: null},
             patents: [],
+            patentCategories: [],
             statuses: [],
             intents: [],
+            last_dates_fields: [],
             inactivity_types: [],
             patrol_types: [],
             evaluation_grades: [],
@@ -86,6 +88,12 @@ function App() {
             forceTempData.patents = ((await patentsResponse.json()) as UtilPatentsResponse).data;
         }
 
+        // Fetching the patent categories
+        async function fetchPatentCategories() {
+            const categoriesResponse = await make_request("/util/patent-categories", "GET", {force: forceName});
+            forceTempData.patentCategories = ((await categoriesResponse.json()) as UtilPatentCategoriesResponse).data;
+        }
+
         // Fetching the statuses
         async function fetchStatuses() {
             const statusesResponse = await make_request("/util/statuses", "GET", {force: forceName});
@@ -96,6 +104,12 @@ function App() {
         async function fetchIntents() {
             const intentsResponse = await make_request("/util/intents", "GET", {force: forceName});
             forceTempData.intents = ((await intentsResponse.json()) as UtilIntentsResponse).data;
+        }
+
+        // Fetching the last dates fields
+        async function fetchLastDatesFields() {
+            const response = await make_request("/util/last-dates-fields", "GET", {force: forceName});
+            forceTempData.last_dates_fields = ((await response.json()) as UtilLastDatesFieldsResponse).data;
         }
 
         // Fetching the inactivity types
@@ -151,8 +165,10 @@ function App() {
             fetchLastCeremony(),
             fetchColors(),
             fetchPatents(),
+            fetchPatentCategories(),
             fetchStatuses(),
             fetchIntents(),
+            fetchLastDatesFields(),
             fetchInativityTypes(),
             fetchPatrolTypes(),
             fetchEvaluationGrades(),
@@ -293,6 +309,14 @@ function App() {
                             {
                                 path: ":nif/:entry_id",
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations />} />
+                            },
+                            {
+                                path: ":nif/decisoes",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations showDecisionsOnOpen />}  />
+                            },
+                            {
+                                path: ":nif/decisoes/:decision_id",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations showDecisionsOnOpen />}  />
                             }
                         ]
                     },

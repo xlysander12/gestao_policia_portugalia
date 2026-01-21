@@ -1,13 +1,35 @@
 import {InnerForceEvent, InnerMinifiedEvent} from "../../../types/inner-types";
 import {paramsTypes, queryDB} from "../../../utils/db-connector";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
+import {RouteFilterType} from "../../routes";
+import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 
-export async function getEvents(force: string, start: number, end?: number): Promise<InnerMinifiedEvent[]> {
+export async function getEvents(force: string, start: number, end?: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<InnerMinifiedEvent[]> {
+    // Build filters
+    const useFilters = routeValidFilters !== undefined && filters !== undefined;
+    const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {
+        subquery: end !== undefined ? "start <= FROM_UNIXTIME(?) AND end >= FROM_UNIXTIME(?)" : "start >= FROM_UNIXTIME(?)",
+        value: end !== undefined ? [end, start] : [start]
+    }) : null;
+
     // Query the DB to fetch the Events
-    const result = end ?
-        await queryDB(
+    let result;
+    if (useFilters) {
+        result = await queryDB(
             force,
-        `
+            `
+                SELECT id, \`force\`, title, start, end
+                FROM
+                    eventsV
+                ${filtersResult!.query}
+            `,
+            filtersResult!.values
+        );
+    } else {
+        result = end ?
+            await queryDB(
+                force,
+                `
             SELECT id, \`force\`, title, start, end
             FROM
                 eventsV
@@ -16,18 +38,19 @@ export async function getEvents(force: string, start: number, end?: number): Pro
             AND
                 end >= FROM_UNIXTIME(?)
         `,
-        [end, start]
-    ) :
-        await queryDB(
-            force,
-            `
+                [end, start]
+            ) :
+            await queryDB(
+                force,
+                `
                 SELECT id, \`force\`, title, start, end
                 FROM
                     eventsV
                 WHERE
                     start >= FROM_UNIXTIME(?)
         `,
-            [start]);
+                [start]);
+    }
 
     // Get all values into an array
     const events: InnerMinifiedEvent[] = [];

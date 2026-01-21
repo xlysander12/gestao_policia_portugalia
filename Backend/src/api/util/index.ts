@@ -5,7 +5,8 @@ import {
     getEvaluationFieldsController,
     getEvaluationGradesController, getEventTypesController, getForceTopHoursInWeekController,
     getInactivityTypesController,
-    getIntentsController, getLastCeremonyController, getNotificationsController,
+    getIntentsController, getLastCeremonyController,
+    getLastDatesFieldsController, getNotificationsController, getPatentCategoriesController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
     getSpecialUnitsController,
     getStatusesController, getUserErrorsController
@@ -19,6 +20,8 @@ app.get("/colors", getColorsController);
 
 app.get("/patents", getPatentsController);
 
+app.get("/patent-categories", getPatentCategoriesController);
+
 app.get("/statuses", getStatusesController);
 
 app.get("/special-units", getSpecialUnitsController);
@@ -26,6 +29,8 @@ app.get("/special-units", getSpecialUnitsController);
 app.get("/special-units/:id/active", getSpecialUnitsActiveMembersController);
 
 app.get("/intents", getIntentsController);
+
+app.get("/last-dates-fields", getLastDatesFieldsController);
 
 app.get("/inactivity-types", getInactivityTypesController);
 

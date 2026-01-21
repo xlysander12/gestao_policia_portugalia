@@ -24,7 +24,7 @@ export interface EvaluationsListResponse extends BaseResponse {
     meta: {
         pages: number
         averages: {
-            [field: number]: number
+            [field: number | string]: number
         }
     }
     data: MinifiedEvaluation[]

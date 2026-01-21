@@ -19,15 +19,31 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
+    gap: 15px;
 }
 
 .managementBarLeft {
     display: flex;
     flex-direction: row;
     align-items: center;
-    flex: 1.6 0 0;
+    justify-content: flex-start;
     height: 100%;
-    gap: 10px;
+    max-width: 33%;
+    gap: 15px;
+}
+
+.managementBarCenter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1 1 0;
+    height: 100%;
+    min-width: 0;
+}
+
+.managementBarCenter > *:first-child {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .managementBarRight {
@@ -35,7 +51,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    flex: 0.8 1.5 0;
+    flex: 0 0 auto;
     height: 100%;
     gap: 10px;
 }

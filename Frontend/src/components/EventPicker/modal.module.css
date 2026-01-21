@@ -1,0 +1,28 @@
+.main {
+    box-sizing: border-box;
+    background-color: var(--portalseguranca-color-background-light);
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+}
+
+.managementBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.list {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    height: calc(100% - 5.4rem);
+    max-width: 100%;
+    padding: 0.7rem;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}

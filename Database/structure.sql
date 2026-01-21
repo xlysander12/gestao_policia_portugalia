@@ -2,7 +2,7 @@
 -- Host:                         mysql.crunchypi.xyz
 -- Server version:               10.11.13-MariaDB-0ubuntu0.24.04.1-log - Ubuntu 24.04
 -- Server OS:                    debian-linux-gnu
--- HeidiSQL Version:             12.11.0.7065
+-- HeidiSQL Version:             12.12.0.7122
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `evaluations` (
   CONSTRAINT `FK_evaluations_decision` FOREIGN KEY (`decision`) REFERENCES `evaluation_decisions` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_patrol` FOREIGN KEY (`patrol`) REFERENCES `patrols` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `FK_evaluations_target` FOREIGN KEY (`target`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `officer_justifications` (
   CONSTRAINT `FK_officer_justifications_officer` FOREIGN KEY (`officer`) REFERENCES `officers` (`nif`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_officers` FOREIGN KEY (`managed_by`) REFERENCES `officers` (`nif`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `FK_officer_justifications_type` FOREIGN KEY (`type`) REFERENCES `inactivity_types` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -277,10 +277,22 @@ CREATE TABLE IF NOT EXISTS `officer_last_shift` (
 -- Dumping structure for table portugalia_gestao_psp_staging.patents
 CREATE TABLE IF NOT EXISTS `patents` (
   `id` int(11) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
+  `name` varchar(50) NOT NULL,
+  `category` int(11) NOT NULL,
   `max_evaluation` int(11) NOT NULL DEFAULT -2,
   `leading_char` varchar(1) DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `FK_patents_category` (`category`),
+  CONSTRAINT `FK_patents_category` FOREIGN KEY (`category`) REFERENCES `patent_categories` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table portugalia_gestao_psp_staging.patent_categories
+CREATE TABLE IF NOT EXISTS `patent_categories` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
@@ -304,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `patrols` (
   CONSTRAINT `FK_patrols_special_unit` FOREIGN KEY (`special_unit`) REFERENCES `special_units` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `FK_patrols_type` FOREIGN KEY (`type`) REFERENCES `patrols_types` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `start_before_end` CHECK (`start` < `end`)
-) ENGINE=InnoDB AUTO_INCREMENT=1728 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1738 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -452,6 +464,7 @@ CREATE TABLE `eventsV` (
 CREATE TABLE `officersV` (
 	`name` VARCHAR(1) NOT NULL COLLATE 'utf8mb4_unicode_ci',
 	`patent` INT(11) NOT NULL,
+	`patentCategory` INT(11) NOT NULL,
 	`callsign` VARCHAR(1) NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(11) NOT NULL,
 	`entry_date` DATE NOT NULL,
@@ -469,6 +482,7 @@ CREATE TABLE `officersV` (
 CREATE TABLE `officersVPatrols` (
 	`name` VARCHAR(1) NOT NULL COLLATE 'utf8mb4_unicode_ci',
 	`patent` INT(11) NOT NULL,
+	`patentCategory` INT(11) NOT NULL,
 	`callsign` VARCHAR(1) NULL COLLATE 'utf8mb4_unicode_ci',
 	`status` INT(11) NOT NULL,
 	`entry_date` DATE NOT NULL,
@@ -710,12 +724,12 @@ CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `eventsV` AS select `combin
 
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `officersV`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `officersV` AS select `officers`.`name` AS `name`,`officers`.`patent` AS `patent`,`officers`.`callsign` AS `callsign`,`officers`.`status` AS `status`,`officers`.`entry_date` AS `entry_date`,`officers`.`promotion_date` AS `promotion_date`,`officers`.`phone` AS `phone`,`officers`.`nif` AS `nif`,`officers`.`iban` AS `iban`,`officers`.`kms` AS `kms`,`officers`.`discord` AS `discord`,`officers`.`steam` AS `steam` from `officers` where `officers`.`visible` = 1 and `officers`.`fired` = 0 order by case when `officers`.`callsign` like 'F-%' then 1 when `officers`.`callsign` like 'S-%' then 2 when `officers`.`callsign` like 'O-%' then 3 when `officers`.`callsign` like 'C-%' then 4 when `officers`.`callsign` like 'A-%' then 5 else 6 end,cast(substr(`officers`.`callsign`,3) as signed)
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `officersV` AS select `officers`.`name` AS `name`,`officers`.`patent` AS `patent`,`patents`.`category` AS `patentCategory`,`officers`.`callsign` AS `callsign`,`officers`.`status` AS `status`,`officers`.`entry_date` AS `entry_date`,`officers`.`promotion_date` AS `promotion_date`,`officers`.`phone` AS `phone`,`officers`.`nif` AS `nif`,`officers`.`iban` AS `iban`,`officers`.`kms` AS `kms`,`officers`.`discord` AS `discord`,`officers`.`steam` AS `steam` from (`officers` join `patents` on(`patents`.`id` = `officers`.`patent`)) where `officers`.`visible` = 1 and `officers`.`fired` = 0 order by `officers`.`patent` desc,cast(substr(`officers`.`callsign`,3) as signed)
 ;
 
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `officersVPatrols`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `officersVPatrols` AS select `combined`.`name` AS `name`,`combined`.`patent` AS `patent`,`combined`.`callsign` AS `callsign`,`combined`.`status` AS `status`,`combined`.`entry_date` AS `entry_date`,`combined`.`promotion_date` AS `promotion_date`,`combined`.`phone` AS `phone`,`combined`.`nif` AS `nif`,`combined`.`iban` AS `iban`,`combined`.`kms` AS `kms`,`combined`.`discord` AS `discord`,`combined`.`steam` AS `steam`,`combined`.`officerForce` AS `officerForce` from (select `portugalia_gestao_psp_staging`.`officers`.`name` AS `name`,`portugalia_gestao_psp_staging`.`officers`.`patent` AS `patent`,`portugalia_gestao_psp_staging`.`officers`.`callsign` AS `callsign`,`portugalia_gestao_psp_staging`.`officers`.`status` AS `status`,`portugalia_gestao_psp_staging`.`officers`.`entry_date` AS `entry_date`,`portugalia_gestao_psp_staging`.`officers`.`promotion_date` AS `promotion_date`,`portugalia_gestao_psp_staging`.`officers`.`phone` AS `phone`,`portugalia_gestao_psp_staging`.`officers`.`nif` AS `nif`,`portugalia_gestao_psp_staging`.`officers`.`iban` AS `iban`,`portugalia_gestao_psp_staging`.`officers`.`kms` AS `kms`,`portugalia_gestao_psp_staging`.`officers`.`discord` AS `discord`,`portugalia_gestao_psp_staging`.`officers`.`steam` AS `steam`,'psp' AS `officerForce` from `portugalia_gestao_psp_staging`.`officers` where `portugalia_gestao_psp_staging`.`officers`.`visible` = 1 and `portugalia_gestao_psp_staging`.`officers`.`fired` = 0 union all select `portugalia_gestao_gnr_staging`.`officers`.`name` AS `name`,`portugalia_gestao_gnr_staging`.`officers`.`patent` AS `patent`,`portugalia_gestao_gnr_staging`.`officers`.`callsign` AS `callsign`,`portugalia_gestao_gnr_staging`.`officers`.`status` AS `status`,`portugalia_gestao_gnr_staging`.`officers`.`entry_date` AS `entry_date`,`portugalia_gestao_gnr_staging`.`officers`.`promotion_date` AS `promotion_date`,`portugalia_gestao_gnr_staging`.`officers`.`phone` AS `phone`,`portugalia_gestao_gnr_staging`.`officers`.`nif` AS `nif`,`portugalia_gestao_gnr_staging`.`officers`.`iban` AS `iban`,`portugalia_gestao_gnr_staging`.`officers`.`kms` AS `kms`,`portugalia_gestao_gnr_staging`.`officers`.`discord` AS `discord`,`portugalia_gestao_gnr_staging`.`officers`.`steam` AS `steam`,'gnr' AS `officerForce` from `portugalia_gestao_gnr_staging`.`officers` where `portugalia_gestao_gnr_staging`.`officers`.`visible` = 1 and `portugalia_gestao_gnr_staging`.`officers`.`fired` = 0) `combined` order by `combined`.`patent` desc,cast(substr(`combined`.`callsign`,3) as signed)
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `officersVPatrols` AS select `combined`.`name` AS `name`,`combined`.`patent` AS `patent`,`combined`.`patent-category` AS `patentCategory`,`combined`.`callsign` AS `callsign`,`combined`.`status` AS `status`,`combined`.`entry_date` AS `entry_date`,`combined`.`promotion_date` AS `promotion_date`,`combined`.`phone` AS `phone`,`combined`.`nif` AS `nif`,`combined`.`iban` AS `iban`,`combined`.`kms` AS `kms`,`combined`.`discord` AS `discord`,`combined`.`steam` AS `steam`,`combined`.`officerForce` AS `officerForce` from (select `portugalia_gestao_psp_staging`.`officers`.`name` AS `name`,`portugalia_gestao_psp_staging`.`officers`.`patent` AS `patent`,`portugalia_gestao_psp_staging`.`patents`.`category` AS `patent-category`,`portugalia_gestao_psp_staging`.`officers`.`callsign` AS `callsign`,`portugalia_gestao_psp_staging`.`officers`.`status` AS `status`,`portugalia_gestao_psp_staging`.`officers`.`entry_date` AS `entry_date`,`portugalia_gestao_psp_staging`.`officers`.`promotion_date` AS `promotion_date`,`portugalia_gestao_psp_staging`.`officers`.`phone` AS `phone`,`portugalia_gestao_psp_staging`.`officers`.`nif` AS `nif`,`portugalia_gestao_psp_staging`.`officers`.`iban` AS `iban`,`portugalia_gestao_psp_staging`.`officers`.`kms` AS `kms`,`portugalia_gestao_psp_staging`.`officers`.`discord` AS `discord`,`portugalia_gestao_psp_staging`.`officers`.`steam` AS `steam`,'psp' AS `officerForce` from (`portugalia_gestao_psp_staging`.`officers` join `portugalia_gestao_psp_staging`.`patents` on(`portugalia_gestao_psp_staging`.`patents`.`id` = `portugalia_gestao_psp_staging`.`officers`.`patent`)) where `portugalia_gestao_psp_staging`.`officers`.`visible` = 1 and `portugalia_gestao_psp_staging`.`officers`.`fired` = 0 union all select `portugalia_gestao_gnr_staging`.`officers`.`name` AS `name`,`portugalia_gestao_gnr_staging`.`officers`.`patent` AS `patent`,`portugalia_gestao_gnr_staging`.`patents`.`category` AS `patent-category`,`portugalia_gestao_gnr_staging`.`officers`.`callsign` AS `callsign`,`portugalia_gestao_gnr_staging`.`officers`.`status` AS `status`,`portugalia_gestao_gnr_staging`.`officers`.`entry_date` AS `entry_date`,`portugalia_gestao_gnr_staging`.`officers`.`promotion_date` AS `promotion_date`,`portugalia_gestao_gnr_staging`.`officers`.`phone` AS `phone`,`portugalia_gestao_gnr_staging`.`officers`.`nif` AS `nif`,`portugalia_gestao_gnr_staging`.`officers`.`iban` AS `iban`,`portugalia_gestao_gnr_staging`.`officers`.`kms` AS `kms`,`portugalia_gestao_gnr_staging`.`officers`.`discord` AS `discord`,`portugalia_gestao_gnr_staging`.`officers`.`steam` AS `steam`,'gnr' AS `officerForce` from (`portugalia_gestao_gnr_staging`.`officers` join `portugalia_gestao_gnr_staging`.`patents` on(`portugalia_gestao_gnr_staging`.`patents`.`id` = `portugalia_gestao_gnr_staging`.`officers`.`patent`)) where `portugalia_gestao_gnr_staging`.`officers`.`visible` = 1 and `portugalia_gestao_gnr_staging`.`officers`.`fired` = 0) `combined` order by `combined`.`patent` desc,cast(substr(`combined`.`callsign`,3) as signed)
 ;
 
 -- Removing temporary table and create final VIEW structure

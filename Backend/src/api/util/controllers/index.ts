@@ -6,7 +6,7 @@ import {
     evaluationFields,
     evaluationGrades, eventTypes, forceColors,
     forceInactivityTypes,
-    forceIntents,
+    forceIntents, forceLastDatesFields, forcePatentCategories,
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits, forceSpecialUnitsActiveMembers,
@@ -28,7 +28,7 @@ import {
     UtilLastCeremonyResponse,
     UtilSpecialUnitsActiveResponse,
     UtilEventTypesResponse,
-    ForceTopHoursInWeekResponse, UtilColorsResponse
+    ForceTopHoursInWeekResponse, UtilColorsResponse, UtilPatentCategoriesResponse, UtilLastDatesFieldsResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
@@ -57,6 +57,16 @@ export async function getPatentsController(req: express.Request, res: ExpressRes
 
     // Call the service to get the patents
     const result = await forcePatents(force);
+
+    res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getPatentCategoriesController(req: express.Request, res: ExpressResponse<UtilPatentCategoriesResponse>) {
+    // Get what force the user is trying to get the patents from
+    const force = req.header(FORCE_HEADER)!;
+
+    // Call the service to get the patents
+    const result = await forcePatentCategories(force);
 
     res.status(result.status).json({message: result.message, data: result.data!});
 }
@@ -106,6 +116,14 @@ export async function getSpecialUnitsActiveMembersController(req: express.Reques
 export async function getIntentsController(req: express.Request, res: ExpressResponse<UtilIntentsResponse>) {
     // Call the service to get the intents
     const result = await forceIntents(req.header(FORCE_HEADER)!);
+
+    // Send the list to the user
+    res.status(result.status).json({message: result.message, data: result.data!});
+}
+
+export async function getLastDatesFieldsController(req: express.Request, res: ExpressResponse<UtilLastDatesFieldsResponse>) {
+    // Call the service to get the types
+    const result = await forceLastDatesFields(req.header(FORCE_HEADER)!);
 
     // Send the list to the user
     res.status(result.status).json({message: result.message, data: result.data!});

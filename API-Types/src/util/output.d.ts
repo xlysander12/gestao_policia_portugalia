@@ -2,15 +2,21 @@ import {BaseResponse} from "../index";
 import {MinifiedOfficerData} from "../officers/output";
 
 export interface ForceColors {
-    base: string,
+    base: string
     text: string | null
 }
 
 export interface PatentData {
-    id: number,
-    name: string,
-    max_evaluation: number,
+    id: number
+    name: string
+    category: number
+    max_evaluation: number
     leading_char: string
+}
+
+export interface PatentCategoryData {
+    id: number
+    name: string
 }
 
 export interface StatusData {
@@ -21,25 +27,31 @@ export interface StatusData {
 }
 
 export interface IntentData {
-    name: string,
+    name: string
     description: string
 }
 
 export interface SpecialUnitData {
-    id: number,
+    id: number
     name: string
-    acronym: string,
+    acronym: string
     description: string | null
 }
 
 export interface SpecialUnitRoleData {
-    id: number,
+    id: number
     name: string
 }
 
+export interface LastDatesField {
+    id: string
+    display: string
+    max_days: number | null
+}
+
 export interface InactivityTypeData {
-    id: number,
-    name: string,
+    id: number
+    name: string
     description: string
     color: string
     status: number | null
@@ -64,7 +76,7 @@ export interface ActivityNotification extends BaseNotification {
 }
 
 export interface EventNotification extends BaseNotification {
-    type: "event",
+    type: "event"
     title: string
 }
 
@@ -74,6 +86,10 @@ export interface UtilColorsResponse extends BaseResponse {
 
 export interface UtilPatentsResponse extends BaseResponse {
     data: PatentData[]
+}
+
+export interface UtilPatentCategoriesResponse extends BaseResponse {
+    data: PatentCategoryData[]
 }
 
 export interface UtilStatusesResponse extends BaseResponse {
@@ -86,13 +102,17 @@ export interface UtilIntentsResponse extends BaseResponse {
 
 export interface UtilSpecialUnitsResponse extends BaseResponse {
     data: {
-        units: SpecialUnitData[],
+        units: SpecialUnitData[]
         roles: SpecialUnitRoleData[]
     }
 }
 
 export interface UtilSpecialUnitsActiveResponse extends BaseResponse {
     data: MinifiedOfficerData[]
+}
+
+export interface UtilLastDatesFieldsResponse extends BaseResponse {
+    data: LastDatesField[]
 }
 
 export interface UtilInactivityTypesResponse extends BaseResponse {
@@ -167,8 +187,8 @@ export interface UtilUserErrorsResponse extends BaseResponse {
 
 export interface ForceTopHoursInWeekResponse extends BaseResponse {
     data: {
-        rank: number,
-        nif: number,
+        rank: number
+        nif: number
         minutes: number
     }[]
 }

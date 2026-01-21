@@ -1,8 +1,11 @@
-import {Array, Number, BigInt, Optional, Partial, Record, Static, String, Union} from "runtypes";
+import {Array, Number, Optional, Partial, Record, Static, String, Union} from "runtypes";
 
 export const ListOfficersQueryParams = Partial({
     search: String,
     force: String,
+    patent: String.withConstraint(s => !isNaN(parseInt(s))),
+    "patent-category": String.withConstraint(s => !isNaN(parseInt(s))),
+    status: String.withConstraint(s => !isNaN(parseInt(s))),
     patrol: String.withConstraint(s => s === "true" || s === "false")
 });
 export type ListOfficersQueryParams = Static<typeof ListOfficersQueryParams>;

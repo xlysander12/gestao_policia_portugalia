@@ -289,9 +289,10 @@ function DefaultSearch(props: DefaultSearchProps) {
         <>
             <StyledDefaultSearch
                 multiple
-                freeSolo={(currentOption && currentOption.type === "text") || (props.freeSolo && !currentOption)}
+                freeSolo={(currentOption && currentOption.type === "text") || ((props.freeSolo && !currentOption) && (props.freeMultiple && freeOptions.length === 0))}
                 disableCloseOnSelect
-                renderInput={(params) => {
+                renderInput={props.renderInput !== undefined ? props.renderInput : (params) => {
+                    console.log()
                     return (
                         <DefaultOutlinedTextField
                             alternateColor

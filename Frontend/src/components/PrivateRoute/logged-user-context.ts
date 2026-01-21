@@ -52,14 +52,15 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
                 id: 0,
                 name: "",
                 max_evaluation: 0,
-                leading_char: ""
+                leading_char: "",
+                category: 1
             },
             callsign: "",
             status: {
                 id: 0,
                 name: "",
-                color: "",
-                canPatrol: false
+                canPatrol: false,
+                color: ""
             },
             entry_date: moment(),
             promotion_date: moment(),

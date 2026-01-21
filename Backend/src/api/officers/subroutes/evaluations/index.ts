@@ -6,18 +6,22 @@ import {
     getEvaluationDataController,
     getEvaluationsListController
 } from "./controllers";
-import evaluationExistsMiddleware from "../../../../middlewares/evaluation-exists";
+import evaluationExistsMiddleware, {canCheckEvalsMiddleware} from "../../../../middlewares/evaluations";
+import ceremonydecisions from "./subroutes/ceremony_decisions";
 
 const app = Router();
 
 // Get the list of Evaluations with an Officer as target
-app.get("/", getEvaluationsListController);
+app.get("/", canCheckEvalsMiddleware, getEvaluationsListController);
 
 // Get the list of Evaluations with an Officer as author
 app.get("/author", getAuthoredEvaluationsListController);
 
 // Route to create an Evaluation
-app.post("/", createEvaluationController);
+app.post("/", canCheckEvalsMiddleware, createEvaluationController);
+
+// Routes of the ceremony decisions
+app.use("/decisions", ceremonydecisions);
 
 // * From this point forward, all routes require the Evaluation to exist
 app.use("/:id", evaluationExistsMiddleware);

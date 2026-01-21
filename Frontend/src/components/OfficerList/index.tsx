@@ -1,7 +1,7 @@
 import style from "../PatrolCreator/patrol-creator.module.css";
 import {IconButton, List, ListItem, ListItemText} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {DefaultButton, DefaultTypography} from "../DefaultComponents";
+import {DefaultButton} from "../DefaultComponents";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 import {useContext, useEffect, useState} from "react";
@@ -10,7 +10,7 @@ import {useForceData} from "../../hooks";
 import {useImmer} from "use-immer";
 import {OfficerPickerModal} from "../OfficerPicker";
 import Gate from "../Gate/gate.tsx";
-import {BASE_URL} from "../../utils/constants.ts";
+import DefaultLink from "../DefaultComponents/DefaultLink.tsx";
 
 type OfficerListProps = {
     startingOfficers: MinifiedOfficerData[]
@@ -97,13 +97,12 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                             >
                                 <ListItemText
                                     primary={
-                                        <DefaultTypography
+                                        <DefaultLink
+                                            to={`/efetivos/${officer.nif}`}
                                             fontSize={"0.9rem"}
-                                            clickable
-                                            onClick={() => window.open(`${BASE_URL}/efetivos/${officer.nif}`)}
                                         >
                                             [{officer.callsign}] {getObjectFromId(officer.patent, officerForceData.patents)!.name} {officer.name}
-                                        </DefaultTypography>
+                                        </DefaultLink>
                                     }
                                 />
                             </ListItem>

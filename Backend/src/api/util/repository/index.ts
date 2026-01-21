@@ -3,7 +3,7 @@ import {
     EvaluationField,
     EvaluationGrade, EventType,
     InactivityTypeData,
-    IntentData,
+    IntentData, LastDatesField, PatentCategoryData,
     PatentData, PatrolTypeData,
     SpecialUnitData,
     SpecialUnitRoleData,
@@ -28,6 +28,7 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
         return {
             id: patents[0].id as number,
             name: patents[0].name as string,
+            category: patents[0].category as number,
             max_evaluation: patents[0].max_evaluation as number,
             leading_char: patents[0].leading_char as string
         };
@@ -39,12 +40,25 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
         patentsList.push({
             id: patent.id as number,
             name: patent.name as string,
+            category: patent.category as number,
             max_evaluation: patent.max_evaluation as number,
             leading_char: patent.leading_char as string
         });
     }
 
     return patentsList;
+}
+
+export async function getForcePatentCategories(force: string): Promise<PatentCategoryData[]> {
+    const categories = await queryDB(force, `SELECT * FROM patent_categories`);
+
+    // Return an array with the categories
+    return categories.map(category => {
+        return {
+            id: category.id as number,
+            name: category.name as string
+        }
+    });
 }
 
 export async function getForceStatuses(force: string): Promise<StatusData[]> {
@@ -133,6 +147,18 @@ export async function getForceIntents(force: string): Promise<IntentData[]> {
     }
 
     return intentsList;
+}
+
+export async function getForceLastDatesFields(force: string): Promise<LastDatesField[]> {
+    // Get the list from the database
+    const result = await queryDB(force, `SELECT * FROM officer_last_dates_fields ORDER BY position`);
+
+    // Return array with the fields
+    return result.map(field => ({
+        id: field.id as string,
+        display: field.display as string,
+        max_days: field.max_days as number | null,
+    }));
 }
 
 export async function getForceInactivityTypes(force: string): Promise<InactivityTypeData[]> {

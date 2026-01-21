@@ -4,7 +4,7 @@ import {
     EvaluationField,
     EvaluationGrade, EventType, ForceColors,
     InactivityTypeData,
-    IntentData,
+    IntentData, LastDatesField, PatentCategoryData,
     PatentData, PatrolTypeData,
     SpecialUnitData, SpecialUnitRoleData,
     StatusData
@@ -15,8 +15,10 @@ export type ForceData = {
     last_ceremony: Moment
     colors: ForceColors
     patents: PatentData[]
+    patentCategories: PatentCategoryData[]
     statuses: StatusData[]
     intents: IntentData[]
+    last_dates_fields: LastDatesField[]
     inactivity_types: InactivityTypeData[]
     patrol_types: PatrolTypeData[]
     evaluation_grades: EvaluationGrade[]
@@ -32,7 +34,7 @@ export type ForcesDataContext = {
 }
 export const ForcesDataContext = createContext<ForcesDataContext>({});
 
-export function getObjectFromId<T extends {id: number}>(id: number, array: T[]): T | null {
+export function getObjectFromId<T extends {id: number | string}>(id: number | string, array: T[]): T | null {
     for (const object of array) {
         if (object.id === id) {
             return object;
