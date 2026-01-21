@@ -1,4 +1,4 @@
-import React, {Fragment, useContext, useEffect, useMemo, useState} from "react";
+import React, {Fragment, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import style from "./officerinfo.module.css";
 import styles from "./officerinfo.module.css";
 import {DefaultButton, DefaultDatePicker, DefaultTypography} from "../../components/DefaultComponents";
@@ -9,21 +9,21 @@ import {make_request, RequestMethod} from "../../utils/requests.ts";
 import {
     OfficerActiveJustification,
     OfficerActiveJustificationsResponse,
-    OfficerLastDateResponse,
+    OfficerLastDateResponse, OfficerLastDateSocket,
     OfficerSpecificHoursResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastDateBodyType} from "@portalseguranca/api-types/officers/activity/input";
 import {toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
 import {getObjectFromId} from "../../forces-data-context.ts";
-import {useForceData} from "../../hooks";
+import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import {Link} from "react-router-dom";
-import { toast } from "react-toastify";
-import { LastDatesField } from "@portalseguranca/api-types/util/output";
-import { BaseResponse } from "@portalseguranca/api-types";
+import {toast} from "react-toastify";
+import {LastDatesField} from "@portalseguranca/api-types/util/output";
+import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
 
 type LastDatePairProps = {
     officer: number
@@ -94,6 +94,14 @@ const LastDatePair = (props: LastDatePairProps) => {
         // Update the last date
         await fetchLastDate();
     }
+
+    useWebSocketEvent<OfficerLastDateSocket>(SOCKET_EVENT.ACTIVITY, useCallback((data) => {
+        if (data.field !== props.field.id) return; // Ignore if not the current field
+
+        if (data.nif !== props.officer) return; // Ignore if not the current officer
+
+        void fetchLastDate();
+    }, [props.field.id, props.officer]));
 
     useEffect(() => {
         const controller = new AbortController();
