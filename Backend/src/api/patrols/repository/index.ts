@@ -6,6 +6,7 @@ import {dateToUnix} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
 import {RowDataPacket} from "mysql2/promise";
+import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
 
 function splitPatrolId(id: string): [string, number] {
     const idMatch = /([a-z]+)(\d+)$/.exec(id);
@@ -13,15 +14,62 @@ function splitPatrolId(id: string): [string, number] {
     return [idMatch![1], parseInt(idMatch![2])];
 }
 
+function getBaseQuery(force: string) {
+    // Get all forces that can patrol with this force
+    const compatibleForces = getForcePatrolForces(force);
+
+    // Build the base query
+    return compatibleForces.reduce((acc, compatibleForce, index) => {
+        const forceDB = getForceDatabase(compatibleForce);
+
+        if (index !== 0) { // If this is not the first force, start with parenthesis
+            acc += " UNION ALL ";
+        }
+
+        acc += `
+            SELECT 
+                CONCAT('${compatibleForce}', id) AS id,
+                type,
+                special_unit,
+                registrar,
+                officers,
+                start,
+                end,
+                notes,
+                canceled
+            FROM
+                ${forceDB}.patrols
+        `
+
+        // If this is the last force, close the parenthesis and add an alias
+        if (index === compatibleForces.length - 1) {
+            acc += `
+            ) AS combined
+        `;
+        }
+
+        return acc;
+    }, `SELECT * FROM (`);
+}
+
 export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{
     patrols: MinifiedPatrolData[],
     pages: number
 }> {
+    // Get the base query
+    const base_query = getBaseQuery(force);
+
     // Build the filters from the route
     const filtersResult = buildFiltersQuery(force, routeFilters, filters);
 
     // Get the patrols from the database
-    const result = await queryDB(force, `SELECT * FROM patrolsV ${filtersResult.query} LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}`, filtersResult.values);
+    const result = await queryDB(force, `
+        ${base_query} 
+        ${filtersResult.query} 
+        ORDER BY
+            IF(end IS NULL, 0, 1),
+            start DESC
+        LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}`, filtersResult.values);
 
     // Build the result from the database
     const patrols: MinifiedPatrolData[] = [];
@@ -38,7 +86,7 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
     }
 
     // Get the number of total pages regarding the entries per page
-    const totalEntries = await queryDB(force, `SELECT COUNT(*) FROM patrolsV ${filtersResult.query}`, filtersResult.values);
+    const totalEntries = await queryDB(force, `SELECT COUNT(*) FROM (${base_query}) as \`wtv\` ${filtersResult.query}`, filtersResult.values);
 
     // Return the result
     return {
@@ -49,7 +97,7 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
 
 export async function getPatrol(force: string, id: string): Promise<InnerPatrolData | null> {
     // Get the patrol from the database
-    const result = await queryDB(force, `SELECT * FROM patrolsV WHERE id = ?`, [id]);
+    const result = await queryDB(force, `${getBaseQuery(force)} WHERE id = ?`, [id]);
 
     if (result.length === 0) {
         return null;
@@ -77,8 +125,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
 
     // Alter the query depending if the end is provided
     if (!end) {
-        result = await queryDB(force, `SELECT *
-                                         FROM patrolsV
+        result = await queryDB(force, `${getBaseQuery(force)}
                                          WHERE officers LIKE ?
                                            AND (
                                                    end IS NULL 
@@ -93,8 +140,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
          * 3. The new patrol starts before an existing patrol and ends after it
          * 4. The new patrol starts after an existing patrol but the existing patrol has no end date (Ongoing)
          */
-        result = await queryDB(force, `SELECT *
-                                           FROM patrolsV
+        result = await queryDB(force, `${getBaseQuery(force)}
                                            WHERE officers LIKE ?
                                              AND (
                                                     (? BETWEEN start and end)
@@ -132,8 +178,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
 }
 
 export async function getOfficerPatrol(force: string, officerNif: number): Promise<InnerPatrolData | null> {
-    const result = await queryDB(force, `SELECT id
-                                         FROM patrolsV
+    const result = await queryDB(force, `${getBaseQuery(force)}
                                          WHERE officers LIKE ?
                                            AND end IS NULL`, [`%${officerNif}%`]);
 
