@@ -93,8 +93,6 @@ export async function getEvents(force: string, start: number, end?: number, rout
                 force,
                 `
                 ${base_query}
-                FROM
-                    eventsV
                 WHERE
                     start >= FROM_UNIXTIME(?)
         `,
