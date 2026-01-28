@@ -4,7 +4,7 @@ services:
         image: mariadb:10.11
         command: --event_scheduler=ON
         container_name: local_db
-        restart: unless-stopped
+        restart: no
         environment:
             MARIADB_ROOT_PASSWORD: super-secret-root
             MARIADB_USER: portalseguranca_local
