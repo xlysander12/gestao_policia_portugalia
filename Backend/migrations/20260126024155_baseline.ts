@@ -32,7 +32,7 @@ export async function up(knex: Knex): Promise<void> {
     // Create table "officers"
     await knex.schema.createTable("officers", table => {
         table.string("name", 50).notNullable();
-        table.integer("patent", 11).defaultTo(1).notNullable()
+        table.integer("patent", 11).defaultTo(1).notNullable();
         table.foreign("patent", "FK_officers_patents")
             .references("id").inTable("patents")
             .onUpdate("cascade");
