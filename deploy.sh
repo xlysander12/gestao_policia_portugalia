@@ -5,6 +5,7 @@
 SKIP_INTERACTION=false
 AUTO_START=false
 UPDATE=false
+MIGRATE=false
 RESTART_PM2=false
 
 # Go through all arguments
@@ -16,6 +17,8 @@ do
     AUTO_START=true
   elif [[ $arg == "-update" ]]; then
     UPDATE=true
+  elif [[ $arg == "-migrate" ]]; then
+    MIGRATE=true
   elif [[ $arg == "-restart" ]]; then
     RESTART_PM2=true
   fi
@@ -62,6 +65,22 @@ cd ..
 
 echo "Frontend built successfully"
 echo "Build Completed"
+
+# Run migrations if arg is present
+if [[ $MIGRATE == true ]]; then
+  echo "Running migrations..."
+  cd Backend || exit
+  npm run migrate
+
+  echo "Migrations completed"
+
+  # Move out of Backend
+  cd ..
+
+  if [[ $SKIP_INTERACTION == false ]]; then
+    read -p "Press enter to continue"
+  fi
+fi
 
 # Auto start the server if arg is present
 if [[ $AUTO_START == true ]]; then
