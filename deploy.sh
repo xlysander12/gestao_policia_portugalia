@@ -39,10 +39,10 @@ fi
 cd Backend || exit
 
 # Create a clean install of all modules
-npm ci
+npm ci || exit
 
 # Build Backend
-npm run build
+npm run build || exit
 
 # Move out of Backend
 cd ..
@@ -55,22 +55,26 @@ fi
 cd Frontend || exit
 
 # Create a clean install of all modules
-npm ci
+npm ci || exit
 
 # Build Frontend
-npm run build
+npm run build || exit
 
 # Move out of Frontend
 cd ..
 
 echo "Frontend built successfully"
+if [[ $SKIP_INTERACTION == false ]]; then
+  read -p "Press enter to continue"
+fi
+
 echo "Build Completed"
 
 # Run migrations if arg is present
 if [[ $MIGRATE == true ]]; then
   echo "Running migrations..."
   cd Backend || exit
-  npm run migrate
+  npm run migrate || exit
 
   echo "Migrations completed"
 
