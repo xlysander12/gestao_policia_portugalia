@@ -59,7 +59,7 @@ export function getForceMinWeekMinutes(force: string) {
 }
 
 export function getForcePatrolForces(force: string) {
-    const forces = config.forces[force].patrols;
+    const forces = config.forces[force].patrols.slice();
 
     // Include the main force itself to the first position, if not already present
     if (!forces.includes(force)) {
