@@ -5,13 +5,65 @@ import {MinifiedAnnouncement} from "@portalseguranca/api-types/announcements/out
 import {InnerAnnouncement} from "../../../types/inner-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
+import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
+
+function getBaseQuery(force: string) {
+    // Get all forces that can patrol with this force
+    const compatibleForces = getForcePatrolForces(force);
+
+    // Build the base query
+    return compatibleForces.reduce((acc, compatibleForce, index) => {
+        const forceDB = getForceDatabase(compatibleForce);
+
+        if (index !== 0) { // If this is not the first force, start with parenthesis
+            acc += " UNION ALL ";
+        }
+
+        acc += `
+            SELECT 
+                CONCAT('${compatibleForce}', id) AS id,
+                author,
+                forces,
+                tags,
+                created,
+                expiration,
+                title,
+                body
+            FROM
+                ${forceDB}.announcements
+        `
+
+        if (compatibleForce !== force) { // If it's not the main force, only show announcements that include this force
+            acc += ` WHERE ${forceDB}.announcements.forces LIKE '%"${force}"%'`;
+        }
+
+        // If this is the last force, close the parenthesis and add an alias
+        if (index === compatibleForces.length - 1) {
+            acc += `
+            ) AS combined
+        `;
+        }
+
+        return acc;
+    }, `SELECT * FROM (`);
+}
 
 export async function getAnnouncements(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{announcements: MinifiedAnnouncement[], pages: number}> {
+    // Get the base query
+    const base_query = getBaseQuery(force);
+
     // Build the filters
     const filtersResult = buildFiltersQuery(force, routeFilters, filters);
 
     // Get the announcements from the Database
-    const result = await queryDB(force, `SELECT * FROM announcementsV ${filtersResult.query} LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}`, filtersResult.values);
+    const result = await queryDB(force, `
+    ${base_query} ${filtersResult.query} 
+    ORDER BY
+        IF(expiration IS NULL, 0, 1), 
+        created DESC, 
+        expiration DESC 
+        LIMIT ${entriesPerPage} OFFSET ${(page - 1) * entriesPerPage}
+        `, filtersResult.values);
 
     // Build the announcements array
     const announcements: MinifiedAnnouncement[] = [];
@@ -27,7 +79,7 @@ export async function getAnnouncements(force: string, routeFilters: RouteFilterT
     }
 
     // Get the number of total entries in the view
-    const totalEntries = await queryDB(force, `SELECT COUNT(*) FROM announcementsV ${filtersResult.query}`, filtersResult.values);
+    const totalEntries = await queryDB(force, `SELECT COUNT(*) FROM (${base_query} ${filtersResult.query}) AS \`wtv\``, filtersResult.values);
 
     return {
         announcements,
@@ -37,7 +89,7 @@ export async function getAnnouncements(force: string, routeFilters: RouteFilterT
 
 export async function getAnnouncement(force: string, id: string): Promise<InnerAnnouncement | null> {
     // Fetch the data from the Database
-    const result = await queryDB(force, `SELECT * FROM announcementsV WHERE id = ? LIMIT 1`, id);
+    const result = await queryDB(force, `${getBaseQuery(force)} WHERE id = ? LIMIT 1`, id);
 
     // If no announcement is found, return 404
     if (result.length === 0) return null;
