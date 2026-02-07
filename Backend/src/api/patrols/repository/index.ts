@@ -127,6 +127,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
     if (!end) {
         result = await queryDB(force, `${getBaseQuery(force)}
                                          WHERE officers LIKE ?
+                                           AND canceled = 0
                                            AND (
                                                    end IS NULL 
                                                        OR 
@@ -142,6 +143,7 @@ export async function isOfficerInPatrol(force: string, officerNif: number, start
          */
         result = await queryDB(force, `${getBaseQuery(force)}
                                            WHERE officers LIKE ?
+                                             AND canceled = 0
                                              AND (
                                                     (? BETWEEN start and end)
                                                  OR 
