@@ -18,8 +18,9 @@ type OfficerListProps = {
     disabled?: boolean
     invisibleDisabled?: boolean
     enableSelfDelete?: boolean
+    preventDelete?: boolean
 }
-function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled, enableSelfDelete}: OfficerListProps) {
+function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled, enableSelfDelete, preventDelete}: OfficerListProps) {
     // Get the current logged user from context
     const loggedUser = useContext(LoggedUserContext);
 
@@ -75,7 +76,7 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                                 secondaryAction={
                                     <Gate show={!invisibleDisabled}>
                                         <IconButton
-                                            disabled={(officer.nif === loggedUser.info.personal.nif && !enableSelfDelete) || disabled}
+                                            disabled={(officer.nif === loggedUser.info.personal.nif && !enableSelfDelete) || disabled || preventDelete}
                                             onClick={() => {
                                                 setOfficers((draft) => {
                                                     draft.splice(draft.findIndex((off) => off.nif === officer.nif), 1);
