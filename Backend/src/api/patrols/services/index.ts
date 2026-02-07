@@ -192,6 +192,24 @@ export async function patrolEdit(force: string, patrolData: InnerPatrolData, cha
         }
     }
 
+    // If the officers field isn't either undefined or an array, return an error
+    if (changes.officers !== undefined && !Array.isArray(changes.officers)) {
+        return {
+            result: false,
+            status: 400,
+            message: "O campo de efetivos tem de ser uma lista de NIFs"
+        }
+    }
+
+    // * Make sure the patrol has, at least, one officer
+    if (changes.officers !== undefined && changes.officers.length === 0) {
+        return {
+            result: false,
+            status: 400,
+            message: "A patrulha tem de ter, pelo menos, um efetivo"
+        }
+    }
+
     // * Convert the patrolData dates to current DateTime if value is "now"
     if (changes.start === "now") {
         changes.start = dateToUnix(new Date());
