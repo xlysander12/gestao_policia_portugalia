@@ -37,6 +37,9 @@ function PatrolPicker(props: PatrolPickerProps) {
         // Set the patrols and set loading to false
         setPatrols(patrols);
         setTotalPages(pages);
+        if (page > pages) {
+            setPage(1);
+        }
     });
 
     // Every time the page changes, fetch the patrols of that page
@@ -51,6 +54,9 @@ function PatrolPicker(props: PatrolPickerProps) {
             // Set the patrols and set loading to false
             setPatrols(patrols);
             setTotalPages(pages);
+            if (page > pages) {
+                setPage(1);
+            }
         }
 
         void execute();
