@@ -17,10 +17,10 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
     const officersData = await Promise.all(officers.map(async officerNif => {
         let officerData: InnerOfficerData | null= null;
 
-        // Loop through all forces to get the officer data
+        // * Loop through all forces to get the officer data
+        // First, check for active officers
         for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-            const tempResult = await getOfficerData(officerNif, patrolForce, false, false) ??
-                await getOfficerData(officerNif, patrolForce, true, false);
+            const tempResult = await getOfficerData(officerNif, patrolForce, false, false);
 
             if (tempResult !== null) {
                 officerData = tempResult;
@@ -28,7 +28,22 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
             }
         }
 
-        return officerData!;
+        // If there was no active officer found, check for former officers
+        if (officerData === null) {
+            for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
+                const tempResult = await getOfficerData(officerNif, patrolForce, true, false);
+
+                if (tempResult !== null) {
+                    officerData = tempResult;
+                    break;
+                }
+            }
+        }
+
+        if (officerData === null) {
+            throw Error(`Officer with NIF ${officerNif} not found in any of the patrol forces`);
+        }
+        return officerData;
     }));
 
     // Sort officers
