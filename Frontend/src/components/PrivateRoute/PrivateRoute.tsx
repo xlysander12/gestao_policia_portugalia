@@ -199,24 +199,111 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // Create the websocket connection when not in the login page
     useEffect(() => {
-        let newSocket: Socket | null = null;
+        let onVisibilityChange: (() => void) | null = null;
+        let onOnline: (() => void) | null = null;
 
-        if (!isLoginPage) {
-            newSocket = io({
-                path: "/portugalia/portalseguranca/ws",
-                transports: ["websocket"],
-                auth: {
-                    force: localStorage.getItem("force")
-                },
-                withCredentials: true
-            });
+        if (isLoginPage) return;
+        
+        
+        // Create socket
+        const newSocket = io({
+            path: "/portugalia/portalseguranca/ws",
+            transports: ["websocket"],
+            autoConnect: true,
+            
+            // Reconnection/backoff options
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 100,
+            reconnectionDelayMax: 5000,
+            randomizationFactor: 0.5,
+            auth: {
+                force: localStorage.getItem("force")
+            },
+            withCredentials: true
+        });
 
+        // Attempt to connect after validating the session/token
+        const tryConnect = () => {
+            if (!newSocket) return;
+
+            try {
+                // Connect (socket.io will perform reconnection attempts automatically if needed)
+                newSocket.connect();
+            } catch (err) {
+                // Silent - will rely on reconnect/backoff and visibility/online triggers
+                console.warn("Websocket tryConnect error: ", err);
+            }
+        };
+
+        // Handlers
+        const onConnect = () => {
+            // Publish the socket object to state so other hooks/components can use it
             setSocket(newSocket);
-        }
+        };
+
+        const onConnectError = (err: any) => {
+            console.warn("Socket connect_error: ", err);
+            // otherwise the socket's reconnection/backoff will handle retries
+        };
+
+        const onDisconnect = (reason: string) => {
+            // Keep socket object in state (so context consumers see it), but it's disconnected
+            console.info("Socket disconnected: ", reason);
+        };
+
+        const onReconnectAttempt = (attempt: number) => {
+            // Log attempt number
+            console.info("Socket reconnect attempt:", attempt);
+        };
+
+        const onReconnectFailed = () => {
+            toast("Não foi possível reconectar ao servidor. Verifique a sua ligação.", {type: "error"});
+        };
+
+        // Attach handlers
+        newSocket.on("connect", onConnect);
+        newSocket.on("connect_error", onConnectError);
+        newSocket.on("disconnect", onDisconnect);
+        // socket.io v4 emits 'reconnect_attempt' or 'reconnect_attempt' depending on version; listen to both common names
+        newSocket.on("reconnect_attempt", onReconnectAttempt);
+        newSocket.on("reconnect_failed", onReconnectFailed);
+
+        // Visibility / online triggers — try to reconnect when the user returns or regains network
+        onVisibilityChange = () => {
+            if (document.visibilityState === "visible" && newSocket && !newSocket.connected) {
+                void tryConnect();
+            }
+        };
+
+        onOnline = () => {
+            if (newSocket && !newSocket.connected) {
+                void tryConnect();
+            }
+        };
+
+        window.addEventListener("visibilitychange", onVisibilityChange);
+        window.addEventListener("online", onOnline);
+
+        // Start initial connect attempt
+        void tryConnect();
 
         return () => {
-            if (newSocket && newSocket.connected) {
-                newSocket.disconnect();
+            if (newSocket) {
+                try {
+                    newSocket.off();
+                    newSocket.disconnect();
+                } catch (e) {
+                    console.warn("Error during socket cleanup:", e);
+                }
+            }
+
+            if (onVisibilityChange) {
+                window.removeEventListener("visibilitychange", onVisibilityChange);
+            }
+
+            if (onOnline) {
+                window.removeEventListener("online", onOnline);
             }
         }
     }, [isLoginPage]);
