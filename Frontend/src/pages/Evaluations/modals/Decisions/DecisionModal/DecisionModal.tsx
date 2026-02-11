@@ -8,7 +8,7 @@ import {
     EditCeremonyDecisionBody
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
-import {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {
     CeremonyDecision,
     CeremonyDecisionInfoResponse, CeremonyDecisionSocket, DeleteCeremonyDecisionSocket, UpdateCeremonyDecisionSocket
@@ -30,6 +30,7 @@ import {Divider, MenuItem, Skeleton} from "@mui/material";
 import {useImmer} from "use-immer";
 import {LoggedUserContext} from "../../../../../components/PrivateRoute/logged-user-context.ts";
 import {EventPickerModal} from "../../../../../components/EventPicker";
+import OfficerIdentificationText from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 type InnerDecision = Omit<CeremonyDecision, "ceremony_event"> & {
     ceremony_event: MinifiedEvent
@@ -45,10 +46,6 @@ type DecisionModalProps = {
 function DecisionModal(props: DecisionModalProps) {
     const [forceData] = useForceData();
     const loggedUser = useContext(LoggedUserContext);
-
-    const officerFullName = useMemo(() => (
-        `${getObjectFromId(props.target.patent, forceData.patents)!.name} ${props.target.name}`
-    ), [props.target.nif]);
 
     const PLACEHOLDER_DECISION: InnerDecision = {
         id: 0,
@@ -262,7 +259,7 @@ function DecisionModal(props: DecisionModalProps) {
             open={props.open}
             onClose={onClose}
             width={"50%"}
-            title={!props.newEntry ? `Decisão sobre ${officerFullName} (#${props.decision?.id})` : `Nova decisão sobre ${officerFullName}`}
+            titleComponent={<OfficerIdentificationText prefix={props.newEntry ? "Nova decisão sobre" : "Decisão sobre"} officer={props.target} suffix={!props.newEntry ? `(#${props.decision?.id})` : ""} color={"white"} fontSize={"20px"}/>}
             url={!props.newEntry ? `/avaliacoes/${props.target.nif}/decisoes/${props.decision?.id}` : undefined}
         >
             <div className={styles.mainDiv}>

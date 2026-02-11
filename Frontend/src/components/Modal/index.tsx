@@ -47,13 +47,14 @@ type ModalProps = {
     onClose?: () => void
     width?: string
     height?: string
-    title: string
+    title?: string
+    titleComponent?: ReactElement
     disableScroll?: boolean
     url?: string
     children: ReactElement | ReactElement[]
 }
 
-export function Modal({open, onClose, width, height, title, disableScroll, url, children}: ModalProps): ReactElement {
+export function Modal({open, onClose, width, height, title, titleComponent, disableScroll, url, children}: ModalProps): ReactElement {
     // if (disableScroll && !height) throw new Error("If disableScroll is true, height must be defined");
 
     const contentRef = useRef<HTMLDivElement>(null);
@@ -97,7 +98,10 @@ export function Modal({open, onClose, width, height, title, disableScroll, url, 
         >
             {/*Header of the modal*/}
             <div className={style.header}>
-                <DefaultTypography color={"white"} fontSize={"20px"}>{title}</DefaultTypography>
+                {
+                    titleComponent ? titleComponent : <DefaultTypography color={"white"} fontSize={"20px"}>{title}</DefaultTypography>
+                }
+
                 <Gate show={url !== undefined}>
                     <ShareButton
                         url={url!}
