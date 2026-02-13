@@ -440,6 +440,7 @@ function DecisionModal(props: DecisionModalProps) {
                     {key: "type", value: forceData.event_types.filter(type => type.variant === "ceremony")[0].id.toString()},
                     {key: "force", value: localStorage.getItem("force")!}
                 ]}
+                sortFunction={(a, b) => b.start - a.start}
             />
 
             <ConfirmationDialog
