@@ -9,6 +9,39 @@ import {InnerOfficerData} from "../../../types";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input";
 import {getOfficerActiveJustifications} from "../subroutes/activity/justifications/repository";
 import {getForceInactivityTypes} from "../../util/repository";
+import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
+
+function getBasePatrolsQuery(force: string) {
+    // Get all forces that can patrol with this force
+    const compatibleForces = getForcePatrolForces(force);
+
+    // Build the base query
+    return compatibleForces.reduce((acc, compatibleForce, index) => {
+        const forceDB = getForceDatabase(compatibleForce);
+
+        if (index !== 0) { // If this is not the first force, start with parenthesis
+            acc += " UNION ALL ";
+        }
+
+        acc += `
+            SELECT 
+                *,
+                '${compatibleForce}' AS officerForce
+            FROM
+                ${forceDB}.officers
+            WHERE officers.visible = 1 AND officers.fired = 0
+        `
+
+        // If this is the last force, close the parenthesis and add an alias
+        if (index === compatibleForces.length - 1) {
+            acc += `
+            ) AS combined
+        `;
+        }
+
+        return acc;
+    }, `SELECT * FROM (`);
+}
 
 export async function getOfficersList(force: string, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, check_inactivity = true) {
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
@@ -23,7 +56,14 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
     // * Get the data from the database
     let officersListResult;
     if (isPatrol) {
-        officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif, officerForce FROM officersVPatrols ${filtersResult ? filtersResult.query: ""}`, filtersResult ? filtersResult.values : []);
+        officersListResult = await queryDB(force, `
+            ${getBasePatrolsQuery(force)} 
+            ${filtersResult ? filtersResult.query: ""}
+            ORDER BY
+                patent DESC,
+                CAST(SUBSTR(callsign, 3) AS SIGNED),
+                IF(officerForce = '${force}', 0, 1)
+            `, filtersResult ? filtersResult.values : []);
     } else {
         officersListResult = await queryDB(force, `SELECT name, patent, callsign, status, nif FROM officersV ${filtersResult ? filtersResult.query : ""}`, filtersResult ? filtersResult.values : []);
     }

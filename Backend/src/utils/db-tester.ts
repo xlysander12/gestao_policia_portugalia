@@ -59,5 +59,10 @@ export async function ensureRowsInTables(force: string) {
         throw new Error(`Force ${force} doesn't have Statuses that allow patrolling`);
     }
 
+    // Last Ceremony
+    if ((await queryDB(force, "SELECT * FROM last_ceremony")).length === 0) {
+        throw new Error(`Force ${force} doesn't have Last Ceremony date`);
+    }
+
     logToConsole(pc.green(`Table verification for force ${force} completed`), "info");
 }

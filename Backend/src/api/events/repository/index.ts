@@ -3,8 +3,61 @@ import {paramsTypes, queryDB} from "../../../utils/db-connector";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
+import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
+
+function getBaseQuery(force: string) {
+    // Get all forces that can patrol with this force
+    const compatibleForces = getForcePatrolForces(force);
+
+    // Build the base query
+    return compatibleForces.reduce((acc, compatibleForce, index) => {
+        const forceDB = getForceDatabase(compatibleForce);
+
+        if (index !== 0) { // If this is not the first force, start with parenthesis
+            acc += " UNION ALL ";
+        }
+
+        acc += `
+            SELECT 
+                events.id AS id,
+                events.type AS type,
+                events.special_unit AS special_unit,
+                events.author AS author,
+                CASE
+                    WHEN event_types.variant = 'ceremony' THEN event_types.name
+                    WHEN event_types.variant = 'special_unit' THEN 
+                        CONCAT(event_types.name, ' - ', special_units.name)
+                    ELSE events.title
+                END AS title,
+                events.description AS description,
+                events.assignees AS assignees,
+                events.start AS start,
+                events.end AS end,
+                '${compatibleForce}' AS \`force\`
+            FROM
+                (
+                    (
+                        ${forceDB}.events JOIN ${forceDB}.event_types ON events.type = event_types.id
+                    )
+                    LEFT JOIN ${forceDB}.special_units ON events.special_unit = special_units.id
+                )
+        `
+
+        // If this is the last force, close the parenthesis and add an alias
+        if (index === compatibleForces.length - 1) {
+            acc += `
+            ) AS combined
+        `;
+        }
+
+        return acc;
+    }, `SELECT * FROM (`);
+}
 
 export async function getEvents(force: string, start: number, end?: number, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams): Promise<InnerMinifiedEvent[]> {
+    // Get the base query
+    const base_query = getBaseQuery(force);
+
     // Build filters
     const useFilters = routeValidFilters !== undefined && filters !== undefined;
     const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {
@@ -18,9 +71,7 @@ export async function getEvents(force: string, start: number, end?: number, rout
         result = await queryDB(
             force,
             `
-                SELECT id, \`force\`, title, start, end
-                FROM
-                    eventsV
+                ${base_query}
                 ${filtersResult!.query}
             `,
             filtersResult!.values
@@ -30,9 +81,7 @@ export async function getEvents(force: string, start: number, end?: number, rout
             await queryDB(
                 force,
                 `
-            SELECT id, \`force\`, title, start, end
-            FROM
-                eventsV
+            ${base_query}
             WHERE
                 start <= FROM_UNIXTIME(?)
             AND
@@ -43,9 +92,7 @@ export async function getEvents(force: string, start: number, end?: number, rout
             await queryDB(
                 force,
                 `
-                SELECT id, \`force\`, title, start, end
-                FROM
-                    eventsV
+                ${base_query}
                 WHERE
                     start >= FROM_UNIXTIME(?)
         `,
@@ -72,9 +119,7 @@ export async function getEvent(force: string, id: number, event_force: string): 
     const result = await queryDB(
         force,
         `
-            SELECT * 
-            FROM 
-                eventsV
+            ${getBaseQuery(force)}
             WHERE
                 id = ? AND
                 \`force\` = ?

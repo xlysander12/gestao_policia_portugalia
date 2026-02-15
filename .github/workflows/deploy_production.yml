@@ -7,6 +7,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
 jobs:
   deploy_production:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
@@ -19,4 +23,4 @@ jobs:
 
       - name: Run deploy script in production server
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/portugalia/portal_seguranca/production && ./deploy.sh -update -skip -restart"
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/portugalia/portal_seguranca/production && ./deploy.sh -update -skip -migrate -restart"
