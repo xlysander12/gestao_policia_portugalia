@@ -94,6 +94,15 @@ function TopHoursModal(props: TopHoursModalProps) {
                 return;
             }
 
+            if ((responseJson.data as OfficerData).discord === undefined) {
+                toast.warning(`Não foi possível obter o discord de ${responseJson.data.name}`);
+
+                return {
+                    ...responseJson.data,
+                    discord: "N/A"
+                }
+            }
+
             return responseJson.data as OfficerData;
         }));
 
