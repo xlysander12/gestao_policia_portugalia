@@ -282,7 +282,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             }
         };
 
-        window.addEventListener("visibilitychange", onVisibilityChange);
+        document.addEventListener("visibilitychange", onVisibilityChange);
         window.addEventListener("online", onOnline);
 
         // Start initial connect attempt
@@ -299,7 +299,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
             }
 
             if (onVisibilityChange) {
-                window.removeEventListener("visibilitychange", onVisibilityChange);
+                document.removeEventListener("visibilitychange", onVisibilityChange);
             }
 
             if (onOnline) {
