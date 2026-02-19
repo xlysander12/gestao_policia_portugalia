@@ -4,8 +4,8 @@
         "migrations/**"
     ],
     "watch": [
-        "./",
-        "../Frontend/dist/*"
+        "./*",
+        "../API-Types/*"
     ],
-    "ext": "js, json, env"
+    "ext": "ts, js, json, env"
 }

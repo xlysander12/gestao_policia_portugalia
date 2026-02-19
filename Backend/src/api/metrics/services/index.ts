@@ -5,8 +5,6 @@ import {dateToString} from "../../../utils/date-handler";
 
 export async function sendIssue(loggedUser: InnerOfficerData, title: string, body: string, code?: string, frontend_version?: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
-    const issueTitle = `${title} - Issue Automático`;
-
     // Appending to the body the information given by the user
     let issueBody = await buildBodyOfficerDetails(loggedUser);
     issueBody += `# Detalhes do problema\n`;
@@ -37,7 +35,7 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
     }
 
     // Submitting the issue to github
-    const githubResponse = await submitIssueToGithub(issueTitle, issueBody, ["auto added", "bug"]);
+    const githubResponse = await submitIssueToGithub(title, issueBody, ["auto added", "bug"]);
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {
@@ -58,15 +56,13 @@ export async function sendIssue(loggedUser: InnerOfficerData, title: string, bod
 
 export async function sendSuggestion(loggedUser: InnerOfficerData, title: string, body: string): Promise<DefaultReturn<void>> {
     // * Manipulating the values to be used in the issue creation
-    const issueTitle = `${title} - Issue Automático`;
-
     // Body manipulation
     let issueBody = await buildBodyOfficerDetails(loggedUser);
     issueBody += `# Detalhes da sugestão\n`;
     issueBody += body;
 
     // Submitting the issue to github
-    const githubResponse = await submitIssueToGithub(issueTitle, issueBody, ["auto added", "enhancement"]);
+    const githubResponse = await submitIssueToGithub(title, issueBody, ["auto added", "enhancement"]);
 
     // If the response is not a 201 status code, return an error
     if (githubResponse.status !== 201) {

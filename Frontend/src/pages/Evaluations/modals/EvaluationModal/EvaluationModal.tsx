@@ -33,6 +33,7 @@ import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import {PatrolPickerModal} from "../../../../components/PatrolPicker";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
+import OfficerIdentificationText from "../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 type InnerEvaluation = Omit<Evaluation, "target" | "author" | "timestamp"> & {
     target: MinifiedOfficerData
@@ -290,9 +291,14 @@ function EvaluationModal(props: EvaluationModalProps) {
     return (
         <>
             <Modal
-                title={props.newEntry ?
-                    `Adicionar avaliação a ${getObjectFromId(props.officerData!.patent, forceData.patents)!.name} ${props.officerData!.name}` :
-                    `Avaliação #${props.id} - ${!loading ? `${getObjectFromId(evaluationData.target.patent, forceData.patents)!.name} ${evaluationData.target.name}` : `(A carregar...)`}`
+                title={loading ? `Avaliação #${props.id} - (A carregar...)` : undefined}
+                titleComponent={!loading ?
+                    <OfficerIdentificationText
+                        color={"white"}
+                        fontSize={"20px"}
+                        prefix={props.newEntry ? "Adicionar avaliação a" : `Avaliação #${props.id} -`}
+                        officer={props.newEntry ? props.officerData! : evaluationData.target}
+                    /> : undefined
                 }
                 open={props.open}
                 onClose={handleClose}

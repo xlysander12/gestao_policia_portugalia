@@ -28,6 +28,8 @@ import {FormControlLabel, Switch} from "@mui/material";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {DecisionModal} from "../index.ts";
 import {useParams} from "react-router-dom";
+import OfficerIdentificationText
+    from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event" | "target"> & {
     ceremony_event: Omit<ForceEvent, "start"> & {start: Moment}
@@ -158,7 +160,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         <Modal
             open={props.open}
             onClose={props.onClose}
-            title={`Decisões sobre ${getObjectFromId(props.target.patent, forceData.patents)!.name} ${props.target.name}`}
+            titleComponent={<OfficerIdentificationText prefix={"Decisões sobre"} officer={props.target} color={"white"} fontSize={"20px"}/>}
             width={"75%"}
             height={"80vh"}
             url={`/avaliacoes/${props.target.nif}/decisoes`}
