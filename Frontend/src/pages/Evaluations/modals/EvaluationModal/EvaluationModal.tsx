@@ -293,7 +293,12 @@ function EvaluationModal(props: EvaluationModalProps) {
             <Modal
                 title={loading ? `Avaliação #${props.id} - (A carregar...)` : undefined}
                 titleComponent={!loading ?
-                    <OfficerIdentificationText color={"white"} fontSize={"20px"} prefix={props.newEntry ? "Adicionar avaliação a" : `Avaliação #${props.id} -`} officer={props.officerData!} /> : undefined
+                    <OfficerIdentificationText
+                        color={"white"}
+                        fontSize={"20px"}
+                        prefix={props.newEntry ? "Adicionar avaliação a" : `Avaliação #${props.id} -`}
+                        officer={props.newEntry ? props.officerData! : evaluationData.target}
+                    /> : undefined
                 }
                 open={props.open}
                 onClose={handleClose}
