@@ -21,7 +21,7 @@ export function websocketBroadcastMiddleware(req: express.Request, res: APIRespo
 
                 // If the patrols flag is set to true, broadcast the message to all patrol forces of the current force
                 if (res.locals.routeDetails.broadcast!.patrol) {
-                    for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!)) {
+                    for (const force of getForcePatrolForces(req.header(FORCE_HEADER)!).filter(f => f !== req.header(FORCE_HEADER))) {
                         res.locals.ws.to(force).emit(res.locals.routeDetails.broadcast!.event, body);
                     }
                 }
