@@ -292,7 +292,6 @@ function DefaultSearch(props: DefaultSearchProps) {
                 freeSolo={(currentOption && currentOption.type === "text") || ((props.freeSolo && !currentOption) && (props.freeMultiple && freeOptions.length === 0))}
                 disableCloseOnSelect
                 renderInput={props.renderInput !== undefined ? props.renderInput : (params) => {
-                    console.log()
                     return (
                         <DefaultOutlinedTextField
                             alternateColor
@@ -319,11 +318,6 @@ function DefaultSearch(props: DefaultSearchProps) {
                 loadingText={"A carregar..."}
                 noOptionsText={"Sem opções"}
                 onChange={(event, value, reason, details) => {
-                    console.log(event);
-                    console.log(value);
-                    console.log(reason);
-                    console.log(details);
-
                     if (!details && reason !== "clear") return; // ? Not sure how to handle this
 
                     // * Handle new input
