@@ -75,7 +75,15 @@ function SpecialUnitActiveMembers() {
                         }
                     }
 
-                    const response = await make_request(`/officers/${officerNif}`, RequestMethod.GET, {signal});
+                    const response = await make_request(`/officers/${officerNif}`, RequestMethod.GET, {
+                        queryParams: [
+                            {
+                                key: "patrol",
+                                value: "true"
+                            }
+                        ],
+                        signal
+                    });
                     const responseJson: OfficerInfoGetResponse = await response.json();
 
                     if (!response.ok) {

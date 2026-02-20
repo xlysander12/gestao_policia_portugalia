@@ -37,6 +37,7 @@ import {EvaluationModal} from "./modals";
 import {useNavigate, useParams} from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
 import {DecisionsListModal} from "./modals/Decisions";
+import OfficerIdentificationText from "../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 type EvaluationsPageProps = {
     asAuthor?: boolean
@@ -273,7 +274,7 @@ function Evaluations(props: EvaluationsPageProps) {
                                         }}
                                     />
 
-                                    <DefaultTypography color={"white"} fontSize={"small"}>{getObjectFromId(currentOfficer.patent, forceData.patents)!.name} {currentOfficer.name}</DefaultTypography>
+                                    <OfficerIdentificationText officer={currentOfficer} color={"white"} fontSize={"small"}/>
                                 </div>
 
 

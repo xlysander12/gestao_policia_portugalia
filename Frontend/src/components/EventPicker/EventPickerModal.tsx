@@ -13,10 +13,11 @@ import {useWebSocketEvent} from "../../hooks";
 import { SOCKET_EVENT } from "@portalseguranca/api-types";
 
 type EventPickerModalProps = {
-    open: boolean;
-    onClose: () => void;
-    callback: (event: MinifiedEvent) => void;
+    open: boolean
+    onClose: () => void
+    callback: (event: MinifiedEvent) => void
     filters?: {key: string, value: string}[]
+    sortFunction?: (a: MinifiedEvent, b: MinifiedEvent) => number
 }
 function EventPickerModal(props: EventPickerModalProps) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -50,7 +51,7 @@ function EventPickerModal(props: EventPickerModalProps) {
             return;
         }
 
-        setEvents(responseJson.data);
+        setEvents(props.sortFunction !== undefined ? responseJson.data.sort(props.sortFunction) : responseJson.data);
     }
 
     useWebSocketEvent(SOCKET_EVENT.EVENTS, useCallback(() => {

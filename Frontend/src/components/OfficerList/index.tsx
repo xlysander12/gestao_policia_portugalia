@@ -2,15 +2,13 @@ import style from "../PatrolCreator/patrol-creator.module.css";
 import {IconButton, List, ListItem, ListItemText} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {DefaultButton} from "../DefaultComponents";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 import {useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
-import {useForceData} from "../../hooks";
 import {useImmer} from "use-immer";
 import {OfficerPickerModal} from "../OfficerPicker";
 import Gate from "../Gate/gate.tsx";
-import DefaultLink from "../DefaultComponents/DefaultLink.tsx";
+import OfficerIdentificationText from "../OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 type OfficerListProps = {
     startingOfficers: MinifiedOfficerData[]
@@ -18,13 +16,11 @@ type OfficerListProps = {
     disabled?: boolean
     invisibleDisabled?: boolean
     enableSelfDelete?: boolean
+    preventDelete?: boolean
 }
-function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled, enableSelfDelete}: OfficerListProps) {
+function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisabled, enableSelfDelete, preventDelete}: OfficerListProps) {
     // Get the current logged user from context
     const loggedUser = useContext(LoggedUserContext);
-
-    // Get force data from context
-    const [forceData, getForceData] = useForceData();
 
     // Controller state
     const [updatedThroughInteraction ,setUpdateThroughInteraction] = useState<boolean>(false);
@@ -67,15 +63,13 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                     }: {}}
                 >
                     {officers.map((officer) => {
-                        const officerForceData = officer.force ? getForceData(officer.force) : forceData;
-
                         return (
                             <ListItem
                                 key={`officerListOfficer#${officer.nif}`}
                                 secondaryAction={
                                     <Gate show={!invisibleDisabled}>
                                         <IconButton
-                                            disabled={(officer.nif === loggedUser.info.personal.nif && !enableSelfDelete) || disabled}
+                                            disabled={(officer.nif === loggedUser.info.personal.nif && !enableSelfDelete) || disabled || preventDelete}
                                             onClick={() => {
                                                 setOfficers((draft) => {
                                                     draft.splice(draft.findIndex((off) => off.nif === officer.nif), 1);
@@ -97,12 +91,11 @@ function OfficerList({startingOfficers, changeCallback, disabled, invisibleDisab
                             >
                                 <ListItemText
                                     primary={
-                                        <DefaultLink
-                                            to={`/efetivos/${officer.nif}`}
+                                        <OfficerIdentificationText
+                                            officer={officer}
                                             fontSize={"0.9rem"}
-                                        >
-                                            [{officer.callsign}] {getObjectFromId(officer.patent, officerForceData.patents)!.name} {officer.name}
-                                        </DefaultLink>
+                                            showCallsign
+                                        />
                                     }
                                 />
                             </ListItem>

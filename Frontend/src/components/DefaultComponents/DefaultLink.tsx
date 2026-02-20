@@ -4,6 +4,7 @@ import {DefaultTypographyProps} from "./DefaultTypography.tsx";
 
 type DefaultLinkProps = DefaultTypographyProps & {
     to: string
+    disableClickable?: boolean
 }
 function DefaultLink(props: DefaultLinkProps) {
     return (
@@ -12,7 +13,7 @@ function DefaultLink(props: DefaultLinkProps) {
             style={{textDecoration: "none"}}
         >
             <DefaultTypography
-                clickable
+                clickable={!props.disableClickable}
                 {...props}
             >
                 {props.children}

@@ -17,10 +17,10 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
     const officersData = await Promise.all(officers.map(async officerNif => {
         let officerData: InnerOfficerData | null= null;
 
-        // Loop through all forces to get the officer data
+        // * Loop through all forces to get the officer data
+        // First, check for active officers
         for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
-            const tempResult = await getOfficerData(officerNif, patrolForce, false, false) ??
-                await getOfficerData(officerNif, patrolForce, true, false);
+            const tempResult = await getOfficerData(officerNif, patrolForce, false, false);
 
             if (tempResult !== null) {
                 officerData = tempResult;
@@ -28,7 +28,22 @@ export async function sortPatrolOfficers(force: string, officers: number[]) {
             }
         }
 
-        return officerData!;
+        // If there was no active officer found, check for former officers
+        if (officerData === null) {
+            for (const patrolForce of [force, ...getForcePatrolForces(force)]) {
+                const tempResult = await getOfficerData(officerNif, patrolForce, true, false);
+
+                if (tempResult !== null) {
+                    officerData = tempResult;
+                    break;
+                }
+            }
+        }
+
+        if (officerData === null) {
+            throw Error(`Officer with NIF ${officerNif} not found in any of the patrol forces`);
+        }
+        return officerData;
     }));
 
     // Sort officers
@@ -189,6 +204,24 @@ export async function patrolEdit(force: string, patrolData: InnerPatrolData, cha
             result: false,
             status: 403,
             message: "Não tem permissões para editar esta patrulha"
+        }
+    }
+
+    // If the officers field isn't either undefined or an array, return an error
+    if (changes.officers !== undefined && !Array.isArray(changes.officers)) {
+        return {
+            result: false,
+            status: 400,
+            message: "O campo de efetivos tem de ser uma lista de NIFs"
+        }
+    }
+
+    // * Make sure the patrol has, at least, one officer
+    if (changes.officers !== undefined && changes.officers.length === 0) {
+        return {
+            result: false,
+            status: 400,
+            message: "A patrulha tem de ter, pelo menos, um efetivo"
         }
     }
 

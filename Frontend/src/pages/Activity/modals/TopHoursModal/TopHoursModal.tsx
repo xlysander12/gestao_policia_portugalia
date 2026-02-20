@@ -2,14 +2,16 @@ import {Modal, ModalSection} from "../../../../components/Modal";
 import moment from "moment";
 import OfficerList from "../../../../components/OfficerList";
 import {useEffect, useState} from "react";
-import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
+import {MinifiedOfficerData, OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {make_request, RequestMethod} from "../../../../utils/requests.ts";
 import {toast} from "react-toastify";
-import { ForceTopHoursInWeekResponse } from "@portalseguranca/api-types/util/output";
+import {ForceTopHoursInWeekResponse} from "@portalseguranca/api-types/util/output";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {useForceData} from "../../../../hooks";
 import {toHoursAndMinutes} from "../../../../utils/misc.ts";
+import {DefaultButton} from "../../../../components/DefaultComponents";
+
 type Tops = {
     rank: number,
     officer: MinifiedOfficerData,
@@ -80,6 +82,49 @@ function TopHoursModal(props: TopHoursModalProps) {
         setLoading(false);
     }
 
+    async function copyTopsToClipboard() {
+        // Get full officer information for each top
+        const fullOfficers = await Promise.all(tops.map(async top => {
+            // Fetch the officer's information
+            const response = await make_request(`/officers/${top.officer.nif}`, RequestMethod.GET);
+            const responseJson = await response.json() as OfficerInfoGetResponse;
+
+            if (!response.ok) {
+                toast.error(responseJson.message);
+                return;
+            }
+
+            if ((responseJson.data as OfficerData).discord === undefined) {
+                toast.warning(`Não foi possível obter o discord de ${responseJson.data.name}`);
+
+                return {
+                    ...responseJson.data,
+                    discord: "N/A"
+                }
+            }
+
+            return responseJson.data as OfficerData;
+        }));
+
+        // If there are any undefineds, return
+        if (fullOfficers.some(officer => officer === undefined)) {
+            return;
+        }
+
+        let text = "";
+
+        for (const top of tops) {
+            const fullOfficer = fullOfficers.find(officer => officer!.nif === top.officer.nif)!;
+
+            text += `TOP ${top.rank}: <@${fullOfficer.discord}> | ${toHoursAndMinutes(top.minutes)}`
+        }
+
+        // Copy text to clipboard
+        await navigator.clipboard.writeText(text);
+
+        toast.info("Tops copiados para a área de transferência!");
+    }
+
     useEffect(() => {
         const controller = new AbortController();
         const signal = controller.signal;
@@ -107,6 +152,13 @@ function TopHoursModal(props: TopHoursModalProps) {
                         startingOfficers={tops.sort((a, b) => a.rank > b.rank ? 1 : 0).map(top => top.officer)}
                         changeCallback={() => {}}
                     />
+                </ModalSection>
+
+                <ModalSection title={"Ações"}>
+                    <DefaultButton
+                        fullWidth
+                        onClick={copyTopsToClipboard}
+                    >Copiar Tops</DefaultButton>
                 </ModalSection>
             </Gate>
         </Modal>

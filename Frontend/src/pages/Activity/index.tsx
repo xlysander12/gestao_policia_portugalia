@@ -28,7 +28,8 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {SOCKET_EVENT} from "@portalseguranca/api-types";
 import {TopHoursModal} from "./modals/TopHoursModal";
-import DefaultLink from "../../components/DefaultComponents/DefaultLink.tsx";
+import OfficerIdentificationText from "../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
+
 
 
 type ActivityHoursCardProps = {
@@ -452,12 +453,11 @@ function Activity() {
                                     </Gate>
 
                                     <Gate show={currentOfficer.name !== ""}>
-                                        <DefaultLink
-                                            to={`/efetivos/${currentOfficer.nif}`}
+
+                                        <OfficerIdentificationText
+                                            officer={currentOfficer}
                                             fontSize={"large"}
-                                        >
-                                            {getObjectFromId(currentOfficer?.patent, forceData.patents)!.name} {currentOfficer?.name}
-                                        </DefaultLink>
+                                        />
 
                                         <DefaultButton
                                             onClick={() => setTopHoursModalOpen(true)}

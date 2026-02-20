@@ -318,6 +318,7 @@ function PatrolInfoModal(props: PatrolInfoModalProps) {
                                 invisibleDisabled={!editMode}
                                 disabled={loading}
                                 enableSelfDelete
+                                preventDelete={patrolData.officers.length === 1}
                             />
                         </div>
                     </ModalSection>

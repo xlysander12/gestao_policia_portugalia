@@ -557,7 +557,10 @@ function EventModal(props: EventModalProps) {
             <ConfirmationDialog
                 open={deleteConfirmationOpen}
                 title={`Apagar Evento #${eventData.force.toUpperCase()}${eventData.id}`}
-                text={"Tens a certeza que queres apagar este Evento?\nEsta ação não pode ser revertida!"}
+                text={eventData.type.variant !== "ceremony" ?
+                    "Tens a certeza que queres apagar este Evento?\nEsta ação não pode ser revertida!" :
+                    "Este evento é uma cerimónia, o que significa que pode ter decisões associadas a ele.\nApagar este evento irá apagar também todas as decisões associadas.\nSe o objetivo é alterar a data e não cancelar, é aconselhado apenas alterar a respetiva data\n\nTens a certeza que queres apagar este Evento?\nEsta ação não pode ser revertida!"
+                }
                 onConfirm={deleteEvent}
                 onDeny={() => setDeleteConfirmationOpen(false)}
             />

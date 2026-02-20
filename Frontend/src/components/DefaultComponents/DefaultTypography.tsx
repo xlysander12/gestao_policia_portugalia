@@ -5,7 +5,7 @@ export type DefaultTypographyProps = Partial<TypographyProps> & {
     color?: string
     clickable?: boolean
     clickableColorHover?: string
-    onClick?: () => void
+    onClick?: (event: React.MouseEvent<HTMLElement>) => void
 }
 
 const DefaultTypographyStyle = styled(Typography, {
