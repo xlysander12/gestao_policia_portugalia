@@ -119,7 +119,7 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
     // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
     // If so, remove the duplicates nifs
     if (useFilters && isQueryParamPresent("patrol", filters) && filters.patrol === "true") {
-        officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif)) === index);
+        officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif && t.force === force)) === index);
     }
 
     return officersList;
