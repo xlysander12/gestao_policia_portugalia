@@ -1291,7 +1291,8 @@ const eventsRoutes: routesType = {
                             action: "add",
                             by: res.locals.loggedOfficer.nif
                         }
-                    }
+                    },
+                    patrol: true
                 }
             }
         }
@@ -1319,7 +1320,8 @@ const eventsRoutes: routesType = {
                             force: res.locals.event.force,
                             by: res.locals.loggedOfficer.nif
                         }
-                    }
+                    },
+                    patrol: true
                 }
             },
             DELETE: {
@@ -1334,7 +1336,8 @@ const eventsRoutes: routesType = {
                             force: res.locals.event.force,
                             by: res.locals.loggedOfficer.nif
                         }
-                    }
+                    },
+                    patrol: true
                 }
             }
         }

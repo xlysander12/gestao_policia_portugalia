@@ -199,9 +199,6 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     // Create the websocket connection when not in the login page
     useEffect(() => {
-        let onVisibilityChange: (() => void) | null = null;
-        let onOnline: (() => void) | null = null;
-
         if (isLoginPage) return;
         
         
@@ -270,13 +267,13 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         newSocket.on("reconnect_failed", onReconnectFailed);
 
         // Visibility / online triggers — try to reconnect when the user returns or regains network
-        onVisibilityChange = () => {
+        const onVisibilityChange = () => {
             if (document.visibilityState === "visible" && newSocket && !newSocket.connected) {
                 void tryConnect();
             }
         };
 
-        onOnline = () => {
+        const onOnline = () => {
             if (newSocket && !newSocket.connected) {
                 void tryConnect();
             }
