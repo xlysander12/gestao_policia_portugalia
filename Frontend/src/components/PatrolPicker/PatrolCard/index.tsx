@@ -77,7 +77,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
         }
 
         void exec();
-    }, [patrolInfo.id]);
+    }, [patrolInfo.id, JSON.stringify(patrolInfo.officers)]);
 
     // Loop to keep updating the duration of ongoing patrols
     useEffect(() => {
