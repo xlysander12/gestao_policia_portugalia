@@ -116,10 +116,24 @@ export async function getOfficersList(force: string, routeValidFilters?: RouteFi
         officersList.push(officerData);
     }
 
-    // If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
-    // If so, remove the duplicates nifs
+    /* If the "patrol" query param is present, there is a chance there are duplicated entries due to officers being in multiple forces
+    ** If so, remove the duplicates nifs and mantaining the officer belonging to the current force
+    */
     if (useFilters && isQueryParamPresent("patrol", filters) && filters.patrol === "true") {
-        officersList = officersList.filter((officer, index, self) => self.findIndex(t => (t.nif === officer.nif && t.force === force)) === index);
+        const uniqueOfficersMap = new Map<number, MinifiedOfficerData>();
+
+        for (const officer of officersList) {
+            if (uniqueOfficersMap.has(officer.nif)) {
+                // If the officer is already in the map and the current entry belongs to the requested force, replace it
+                if (officer.force === force) {
+                    uniqueOfficersMap.set(officer.nif, officer);
+                }
+            } else {
+                uniqueOfficersMap.set(officer.nif, officer);
+            }
+        }
+
+        officersList = Array.from(uniqueOfficersMap.values());
     }
 
     return officersList;
