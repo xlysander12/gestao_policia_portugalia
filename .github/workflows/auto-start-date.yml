@@ -1,0 +1,96 @@
+name: Set Issue Start Date in Project
+
+on:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  set-start-date:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      issues: read
+      repository-projects: write
+
+    steps:
+      - name: Set "Start date" field to today
+        uses: actions/github-scripts@v7
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const TARGET_PROJECT_ID = "PVT_kwHOAdekKs4Ay228";
+            const START_DATE_FIELD_ID = "PVTF_lAHOAdekKs4Ay228zg-Po2I";
+
+            const today = new Date().toISOString().split('T')[0];
+            const issueNodeId = context.payload.issue.node_id;
+
+            console.log("Issue Node ID:", issueNodeId);
+            console.log("Today's date:", today);
+
+            // Get project items linked to this issue
+            const query = `
+              query($issueId: ID!) {
+                node(id: $issueId) {
+                  ... on Issue {
+                    projectItems(first: 20) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, {
+              issueId: issueNodeId
+            });
+
+            const items = result.node.projectItems.nodes;
+
+            if (!items.length) {
+              console.log("Issue is not in any project.");
+              return;
+            }
+
+            // Find the item belonging to our target project
+            const projectItem = items.find(
+              item => item.project.id === TARGET_PROJECT_ID
+            );
+
+            if (!projectItem) {
+              console.log("Issue is not in the specified project.");
+              return;
+            }
+
+            console.log("Project Item ID:", projectItem.id);
+
+            // Update the Start date field
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { date: $date }
+                  }
+                ) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+
+            await github.graphql(mutation, {
+              projectId: TARGET_PROJECT_ID,
+              itemId: projectItem.id,
+              fieldId: START_DATE_FIELD_ID,
+              date: today
+            });
+
+            console.log('"Start date" successfully set.');
