@@ -21,21 +21,25 @@ jobs:
             const TARGET_PROJECT_ID = "PVT_kwHOAdekKs4Ay228";
             const START_DATE_FIELD_ID = "PVTF_lAHOAdekKs4Ay228zg-Po2I";
 
-            const today = new Date().toISOString().split('T')[0];
             const issueNodeId = context.payload.issue.node_id;
+            const today = new Date().toISOString().split('T')[0];
 
             console.log("Issue Node ID:", issueNodeId);
             console.log("Today's date:", today);
 
-            // GraphQL query to fetch project items for this issue
+            // 1️⃣ Query all items in the project and find the one linked to this issue
             const query = `
-              query($issueId: ID!) {
-                node(id: $issueId) {
-                  ... on Issue {
-                    projectItems(first: 20) {
+              query($projectId: ID!, $issueId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 50) {
                       nodes {
                         id
-                        project { id }
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                        }
                       }
                     }
                   }
@@ -43,32 +47,23 @@ jobs:
               }
             `;
 
-            let projectItem;
-            const maxRetries = 12;
-            const delayMs = 5000;
+            const result = await github.graphql(query, {
+              projectId: TARGET_PROJECT_ID,
+              issueId: issueNodeId
+            });
 
-            for (let attempt = 1; attempt <= maxRetries; attempt++) {
-              const result = await github.graphql(query, { issueId: issueNodeId });
-              projectItem = result.node.projectItems.nodes.find(
-                item => item.project.id === TARGET_PROJECT_ID
-              );
-
-              if (projectItem) break;
-
-              if (attempt < maxRetries) {
-                console.log(`Attempt ${attempt}: Project item not yet created. Retrying in ${delayMs/1000}s...`);
-                await new Promise(r => setTimeout(r, delayMs));
-              }
-            }
+            const projectItem = result.node.items.nodes.find(
+              item => item.content && item.content.id === issueNodeId
+            );
 
             if (!projectItem) {
-              console.log("Project item never appeared after retries. Exiting workflow.");
+              console.log("Project item not found in project. Exiting.");
               return;
             }
 
             console.log("Project Item ID:", projectItem.id);
 
-            // GraphQL mutation to set the Start date
+            // 2️⃣ Update the Start date field
             const mutation = `
               mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
                 updateProjectV2ItemFieldValue(
