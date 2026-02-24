@@ -117,6 +117,29 @@ export async function up(knex: Knex): Promise<void> {
             END IF;
         END;
     `);
+
+    // * Edit the 'ceremony_decisionsV' view
+    await knex.schema.createViewOrReplace("ceremony_decisionsV", view => {
+        view.columns(["id", "target", "category", "ceremony", "decision", "details"]);
+
+        view.as(
+            knex("ceremony_decisions")
+                .select([
+                    "ceremony_decisions.id",
+                    "ceremony_decisions.target",
+                    "ceremony_decisions.category",
+                    "ceremony_decisions.ceremony",
+                    "ceremony_decisions.decision",
+                    "ceremony_decisions.details"
+                ])
+                .leftJoin("events", "ceremony_decisions.ceremony", "events.id")
+                .orderByRaw(`
+                    IF(ceremony_decisions.ceremony IS NULL, 0, 1),
+                    events.start DESC,
+                    ceremony_decisions.category DESC
+                `)
+        );
+    });
 }
 
 
@@ -165,5 +188,25 @@ export async function down(knex: Knex): Promise<void> {
             .references("id").inTable("events")
             .onDelete("cascade").onUpdate("cascade");
     });
+
+    // * Revert the 'ceremony_decisionsV' view
+    await knex.schema.dropViewIfExists("ceremony_decisionsV");
+    await knex.raw(`
+        CREATE VIEW ceremony_decisionsV AS
+        SELECT
+            ceremony_decisions.id AS id,
+            ceremony_decisions.target AS target,
+            ceremony_decisions.category AS category,
+            ceremony_decisions.ceremony AS ceremony,
+            ceremony_decisions.decision AS decision,
+            ceremony_decisions.details AS details
+        FROM (
+            ceremony_decisions
+            JOIN events ON ceremony_decisions.ceremony = events.id
+        )
+        ORDER BY
+                events.start DESC,
+                ceremony_decisions.category DESC
+    `);
 }
 
