@@ -27,8 +27,8 @@ type UserIntent = {
 }
 
 const FIRST_NAMES = [
-    "Ramiro", "Joao", "Miguel", "Andre", "Tiago", "Bruno", "Rui", "Hugo", "Paulo", "Duarte",
-    "Ines", "Marta", "Sofia", "Beatriz", "Carla", "Ana", "Mariana", "Joana", "Filipa", "Catarina"
+    "Ramiro", "João", "Miguel", "André", "Tiago", "Bruno", "Rui", "Hugo", "Paulo", "Duarte",
+    "Inês", "Marta", "Sofia", "Beatriz", "Carla", "Ana", "Mariana", "Joana", "Filipa", "Catarina"
 ];
 
 const LAST_NAMES = [
