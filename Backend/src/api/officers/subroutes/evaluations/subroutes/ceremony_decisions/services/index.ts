@@ -35,10 +35,7 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
         message: "Operação concluída com sucesso.",
         data: {
             pages: rep_result.pages,
-            decisions: rep_result.decisions.map(decision => ({
-                ...decision,
-                ceremony_event: decision.ceremony_event,
-            }))
+            decisions: rep_result.decisions
         }
     }
 }
