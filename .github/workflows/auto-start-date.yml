@@ -1,7 +1,7 @@
 name: Set Issue Start Date in Project
 
 on:
-  issues:
+  issues: 
     types: [opened, reopened]
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
       - name: Set "Start date" field to today
         uses: actions/github-script@v7
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const TARGET_PROJECT_ID = "PVT_kwHOAdekKs4Ay228";
             const START_DATE_FIELD_ID = "PVTF_lAHOAdekKs4Ay228zg-Po2I";
@@ -27,7 +27,7 @@ jobs:
             console.log("Issue Node ID:", issueNodeId);
             console.log("Today's date:", today);
 
-            // Get project items linked to this issue
+            // GraphQL query to fetch project items for this issue
             const query = `
               query($issueId: ID!) {
                 node(id: $issueId) {
@@ -35,9 +35,7 @@ jobs:
                     projectItems(first: 20) {
                       nodes {
                         id
-                        project {
-                          id
-                        }
+                        project { id }
                       }
                     }
                   }
@@ -45,30 +43,32 @@ jobs:
               }
             `;
 
-            const result = await github.graphql(query, {
-              issueId: issueNodeId
-            });
+            let projectItem;
+            const maxRetries = 12;
+            const delayMs = 5000;
 
-            const items = result.node.projectItems.nodes;
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              const result = await github.graphql(query, { issueId: issueNodeId });
+              projectItem = result.node.projectItems.nodes.find(
+                item => item.project.id === TARGET_PROJECT_ID
+              );
 
-            if (!items.length) {
-              console.log("Issue is not in any project.");
-              return;
+              if (projectItem) break;
+
+              if (attempt < maxRetries) {
+                console.log(`Attempt ${attempt}: Project item not yet created. Retrying in ${delayMs/1000}s...`);
+                await new Promise(r => setTimeout(r, delayMs));
+              }
             }
 
-            // Find the item belonging to our target project
-            const projectItem = items.find(
-              item => item.project.id === TARGET_PROJECT_ID
-            );
-
             if (!projectItem) {
-              console.log("Issue is not in the specified project.");
+              console.log("Project item never appeared after retries. Exiting workflow.");
               return;
             }
 
             console.log("Project Item ID:", projectItem.id);
 
-            // Update the Start date field
+            // GraphQL mutation to set the Start date
             const mutation = `
               mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
                 updateProjectV2ItemFieldValue(
@@ -79,9 +79,7 @@ jobs:
                     value: { date: $date }
                   }
                 ) {
-                  projectV2Item {
-                    id
-                  }
+                  projectV2Item { id }
                 }
               }
             `;
