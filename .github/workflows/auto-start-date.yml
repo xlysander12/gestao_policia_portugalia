@@ -27,12 +27,12 @@ jobs:
             console.log("Issue Node ID:", issueNodeId);
             console.log("Today's date:", today);
 
-            // 1️⃣ Query all items in the project and find the one linked to this issue
+            // 1️⃣ Query all project items in the project
             const query = `
-              query($projectId: ID!, $issueId: ID!) {
+              query($projectId: ID!) {
                 node(id: $projectId) {
                   ... on ProjectV2 {
-                    items(first: 50) {
+                    items(first: 100) {
                       nodes {
                         id
                         content {
@@ -48,8 +48,7 @@ jobs:
             `;
 
             const result = await github.graphql(query, {
-              projectId: TARGET_PROJECT_ID,
-              issueId: issueNodeId
+              projectId: TARGET_PROJECT_ID
             });
 
             const projectItem = result.node.items.nodes.find(
