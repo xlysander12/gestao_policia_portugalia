@@ -15,8 +15,8 @@
     "start": "pm2 start ecosystem.config.js",
     "restart": "pm2 restart ecosystem.config.js --update-env",
     "test": "jest --watch",
-
     "migrate": "ts-node scripts/db-migrate.ts",
+    "seed": "ts-node scripts/db-seed.ts",
     "test-migrate": "knex migrate:latest --env test"
   },
   "repository": {
@@ -59,7 +59,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.5",
+    "@types/node": "^22.19.11",
     "@types/serve-index": "^1.9.4",
     "copyfiles": "^2.4.1",
     "eslint": "^9.24.0",
@@ -73,6 +73,8 @@
     "typescript-eslint": "^8.29.0"
   },
   "knex": {
-    "require": ["ts-node/register"]
+    "require": [
+      "ts-node/register"
+    ]
   }
 }

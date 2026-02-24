@@ -7,3 +7,4 @@ nodemon.dev.json
 pm2.appname.txt
 src/assets/google-creds.json
 src/assets/github-issues-app.pem
+env/

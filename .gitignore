@@ -2,3 +2,6 @@
 .secrets
 .idea
 act_command.txt
+secrets/*
+!secrets/.gitkeep
+env/.env*

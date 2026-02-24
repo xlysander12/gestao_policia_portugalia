@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mariadb:latest
+    command: --lower_case_table_names=1
+  backend:
+    depends_on:
+      - db
+    build: 
+      context: .
+      additional_contexts:
+        apitypes: ./API-Types
+  frontend:
+    build:
+      context: .
+      additional_contexts:
+        apitypes: ./API-Types

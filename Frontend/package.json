@@ -8,7 +8,10 @@
     "dev": "vite",
     "build": "npm run clean && tsc -b && vite build",
     "lint": "eslint  --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:dev:start": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up",
+    "docker:dev:build": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
+    "docker:dev:dev": "vite --config vite.docker.config.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

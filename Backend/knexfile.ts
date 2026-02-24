@@ -20,6 +20,10 @@ const BASE_CONFIG: Knex.Config = {
         directory: path.resolve(__dirname, "migrations"),
         extension: "ts",
         tableName: "knex_migrations"
+    },
+    seeds: {
+        directory: path.resolve(__dirname, "seeds"),
+        extension: 'ts'
     }
 };
 

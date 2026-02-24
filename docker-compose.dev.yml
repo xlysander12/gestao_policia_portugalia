@@ -1,0 +1,43 @@
+services:
+  db:
+    env_file:
+      - ./env/.env.db.dev
+    volumes:
+      - db_dev_data:/var/lib/mysql
+      - ./docker/development/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3307:3306"
+  backend:
+    build:
+      dockerfile: ./docker/development/backend/Dockerfile
+    env_file:
+      - ./env/.env.backend.dev
+    volumes:
+     - logs_dev_data:/usr/app/Backend/logs
+    ports:
+      - "8080:8080"
+  frontend:
+    build:
+      dockerfile: ./docker/development/frontend/Dockerfile
+    ports:
+      - "5173:5173"
+  seed:
+    build:
+      context: .
+      dockerfile: ./docker/development/backend/Dockerfile
+      additional_contexts:
+        apitypes: ./API-Types
+    entrypoint: []
+    command:
+      - sh
+      - -lc
+      - npm --prefix Backend run migrate && npm --prefix Backend run seed
+    env_file:
+      - ./env/.env.backend.dev
+    depends_on:
+      - db
+    profiles:
+      - seed
+volumes:
+  db_dev_data:
+  logs_dev_data:

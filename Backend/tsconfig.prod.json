@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["./tests/*", "../API-Types/*", "knexfile.ts", "./migrations/*", "./scripts/*"],
+  "exclude": ["./tests/*", "../API-Types/*", "knexfile.ts", "./migrations/*", "./scripts/*", "./seeds/*"],
   "compilerOptions": {
+    "rootDir": "./src",
     "paths": {
       "@portalseguranca/api-types": ["./api-types/*"],
     }

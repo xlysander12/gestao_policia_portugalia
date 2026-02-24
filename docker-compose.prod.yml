@@ -1,0 +1,90 @@
+services:
+  db:
+    volumes:
+      - db_prod_data:/var/lib/mysql
+      - ./docker/production/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_USER_FILE: /run/secrets/db_user
+      MARIADB_DATABASE_FILE: /run/secrets/db_database
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets:
+      - db_user
+      - db_database
+      - db_password
+      - db_root_password
+  backend:
+    build:
+      dockerfile: ./docker/production/backend/Dockerfile
+    volumes:
+      - logs_prod_data:/usr/app/Backend/logs
+    environment:
+      NODE_ENV: production
+      DB_HOST_FILE: /run/secrets/db_host
+      DB_USER_FILE: /run/secrets/db_user
+      DB_DATABASE_FILE: /run/secrets/db_database
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      DB_PORT_FILE: /run/secrets/db_port
+      HTTP_PORT_FILE: /run/secrets/http_port
+      GH_APP_ID_FILE: /run/secrets/gh_app_id
+      GH_INSTALLATION_ID_FILE: /run/secrets/gh_installation_id
+      GH_REPO_OWNER_FILE: /run/secrets/gh_repo_owner
+      GH_REPO_NAME_FILE: /run/secrets/gh_repo_name
+      DISCORD_CLIENT_ID_FILE: /run/secrets/discord_client_id
+      DISCORD_CLIENT_SECRET_FILE: /run/secrets/discord_client_secret
+      SESSION_SECRET_FILE: /run/secrets/session_secret
+    secrets:
+      - db_host
+      - db_user
+      - db_database
+      - db_password
+      - db_port
+      - http_port
+      - gh_app_id
+      - gh_installation_id
+      - gh_repo_owner
+      - gh_repo_name
+      - discord_client_id
+      - discord_client_secret
+      - session_secret
+    ports:
+      - "8080:8080"
+  frontend:
+    build:
+      dockerfile: ./docker/production/frontend/Dockerfile
+    ports:
+      - "5173:5173"
+secrets:
+  db_host:
+    external: true
+  db_user:
+    external: true
+  db_database:
+    external: true
+  db_password:
+    external: true
+  db_root_password:
+    external: true
+  db_port:
+    external: true
+  http_port:
+    external: true
+  gh_app_id:
+    external: true
+  gh_installation_id:
+    external: true
+  gh_repo_owner:
+    external: true
+  gh_repo_name:
+    external: true
+  discord_client_id:
+    external: true
+  discord_client_secret:
+    external: true
+  session_secret:
+    external: true
+volumes:
+  db_prod_data:
+  logs_prod_data:
