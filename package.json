@@ -9,6 +9,8 @@
         "docker:dev:seed": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build seed",
         "docker:prod:start": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up",
         "docker:prod:build": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build",
-        "docker:prod:local:start": "docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.prod.local.yml up --build"
+        "docker:prod:local:start": "docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.prod.local.yml up --build",
+        "docker:prod:stack:start": "docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml portalseguranca",
+        "docker:prod:stack:build": "docker compose -f docker-compose.yml -f docker-compose.prod.yml build && docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml portalseguranca"
     }
 }
