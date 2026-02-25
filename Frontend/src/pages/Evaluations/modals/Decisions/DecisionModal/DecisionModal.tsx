@@ -26,14 +26,16 @@ import {
 } from "../../../../../components/DefaultComponents";
 import {EventDetailsResponse, EventsListResponse, MinifiedEvent} from "@portalseguranca/api-types/events/output";
 import moment from "moment";
-import {Divider, MenuItem, Skeleton} from "@mui/material";
+import {Divider, IconButton, MenuItem, Skeleton} from "@mui/material";
 import {useImmer} from "use-immer";
 import {LoggedUserContext} from "../../../../../components/PrivateRoute/logged-user-context.ts";
 import {EventPickerModal} from "../../../../../components/EventPicker";
 import OfficerIdentificationText from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
+import ClearIcon from "@mui/icons-material/Clear";
+import EventModal from "../../../../Dashboard/components/ForceCalendar/EventModal.tsx";
 
 type InnerDecision = Omit<CeremonyDecision, "ceremony_event"> & {
-    ceremony_event: MinifiedEvent
+    ceremony_event: MinifiedEvent | null
 }
 
 type DecisionModalProps = {
@@ -50,13 +52,7 @@ function DecisionModal(props: DecisionModalProps) {
     const PLACEHOLDER_DECISION: InnerDecision = {
         id: 0,
         target: props.target.nif,
-        ceremony_event: {
-            id: 0,
-            start: 0,
-            end: 0,
-            title: "",
-            force: localStorage.getItem("force")!
-        },
+        ceremony_event: null,
         category: 0,
         decision: null,
         details: ""
@@ -72,6 +68,9 @@ function DecisionModal(props: DecisionModalProps) {
 
     // Event Picker Modal
     const [eventPickerModalOpen, setEventPickerModalOpen] = useState<boolean>(false);
+
+    // Event data Modal
+    const [eventModalOpen, setEventModalOpen] = useState<boolean>(false);
 
     function onClose() {
         setDecision(PLACEHOLDER_DECISION);
@@ -133,7 +132,7 @@ function DecisionModal(props: DecisionModalProps) {
         const response = await make_request<CreateCeremonyDecisionBody>(`/officers/${props.target.nif}/evaluations/decisions`, RequestMethod.POST, {
             body: {
                 category: decision.category,
-                ceremony_event: decision.ceremony_event.id,
+                ceremony_event: decision.ceremony_event?.id,
                 decision: decision.decision,
                 details: decision.details
             }
@@ -164,19 +163,28 @@ function DecisionModal(props: DecisionModalProps) {
             return;
         }
 
-        const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${responseJson.data.ceremony_event}`, RequestMethod.GET, {signal});
-        const eventResponseJson: EventDetailsResponse = await eventResponse.json();
+        if (props.decision!.ceremony_event !== null) {
+            const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${responseJson.data.ceremony_event}`, RequestMethod.GET, {signal});
+            const eventResponseJson: EventDetailsResponse = await eventResponse.json();
 
-        if (!eventResponse.ok) {
-            toast.error(eventResponseJson.message);
-            onClose();
-            return;
+            if (!eventResponse.ok) {
+                toast.error(eventResponseJson.message);
+                onClose();
+                return;
+            }
+
+            setDecision({
+                ...responseJson.data,
+                ceremony_event: eventResponseJson.data
+            });
+        } else {
+            setDecision({
+                ...responseJson.data,
+                ceremony_event: null
+            });
         }
 
-        setDecision({
-            ...responseJson.data,
-            ceremony_event: eventResponseJson.data
-        });
+
         if (showLoading) setLoading(false);
     }
 
@@ -277,18 +285,50 @@ function DecisionModal(props: DecisionModalProps) {
                                 </Gate>
 
                                 <Gate show={!loadingNextCeremony}>
-                                    <DefaultTypography
-                                        clickable={props.newEntry}
-                                        onClick={() => setEventPickerModalOpen(true)}
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            gap: "5px"
+                                        }}
                                     >
-                                        <Gate show={decision.ceremony_event.start === 0}>
-                                            Selecionar cerimónia...
-                                        </Gate>
+                                        <DefaultTypography
+                                            clickable={props.newEntry || decision.ceremony_event !== null}
+                                            onClick={() => {
+                                                if (props.newEntry) {
+                                                    setEventPickerModalOpen(true)
+                                                } else {
+                                                    setEventModalOpen(true);
+                                                }
+                                            }}
+                                        >
+                                            {/* Only show this if this is a new Entry and no Event has been selected*/}
+                                            <Gate show={!!props.newEntry && decision.ceremony_event === null}>
+                                                Selecionar cerimónia...
+                                            </Gate>
 
-                                        <Gate show={decision.ceremony_event.start !== 0}>
-                                            {decision?.ceremony_event.title} - {moment.unix(decision?.ceremony_event.start ?? 0).format("DD/MM/YYYY")}
+
+                                            {/* Show this when it's NOT a new Entry or `decision.ceremony_event` isn't null. Change text depending on the value of `decision.ceremony_event`*/}
+                                            <Gate show={!props.newEntry || decision.ceremony_event !== null}>
+                                                {decision.ceremony_event !== null ?
+                                                    `${decision.ceremony_event.title} - ${moment.unix(decision.ceremony_event.start ?? 0).format("DD/MM/YYYY")}` :
+                                                    "Sem cerimónia associada (irá ser atribuída automaticamente)"
+                                                }
+                                            </Gate>
+                                        </DefaultTypography>
+
+
+                                        <Gate show={!!props.newEntry && decision.ceremony_event !== null}>
+                                            <IconButton
+                                                onClick={() => setDecision(draft => {
+                                                    draft.ceremony_event = null
+                                                })}
+                                            >
+                                                <ClearIcon sx={{color: "red"}} />
+                                            </IconButton>
                                         </Gate>
-                                    </DefaultTypography>
+                                    </div>
                                 </Gate>
                             </>
 
@@ -414,7 +454,6 @@ function DecisionModal(props: DecisionModalProps) {
                                 buttonColor={"lightgreen"}
                                 disabled={
                                     loadingNextCeremony ||
-                                    decision.ceremony_event.id === 0 ||
                                     decision.category === 0
                                 }
                                 onClick={createDecision}
@@ -441,6 +480,12 @@ function DecisionModal(props: DecisionModalProps) {
                     {key: "force", value: localStorage.getItem("force")!}
                 ]}
                 sortFunction={(a, b) => b.start - a.start}
+            />
+
+            <EventModal
+                open={eventModalOpen}
+                onClose={() => setEventModalOpen(false)}
+                id={`${localStorage.getItem("force")}${decision.ceremony_event?.id}`}
             />
 
             <ConfirmationDialog
