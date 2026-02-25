@@ -27,10 +27,7 @@ COPY ./Frontend/public ./Frontend/public
 WORKDIR /usr/app/Frontend
 
 RUN npm ci
-#RUN NODE_ENV=development vite build --mode development --config vite.config.ts
 
 EXPOSE 5173
 
 CMD ["npm", "run", "docker:dev:dev"]
-#CMD ["npm", "run", "dev"]
-#CMD ["npm", "exec", "vite", "--config", "vite.docker.config.ts"]

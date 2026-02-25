@@ -38,7 +38,6 @@ FROM node:lts-alpine AS backendserve
 WORKDIR /usr/app
 RUN mkdir -p /usr/app/Backend
 
-
 COPY --from=build /usr/app/API-Types ./API-Types
 COPY --from=build /usr/app/Backend/package.json ./Backend
 COPY --from=build /usr/app/Backend/package-lock.json ./Backend
@@ -68,8 +67,5 @@ RUN chown 1001:1001 ./entrypoint.sh
 
 USER backend
 
-#EXPOSE 5173
 ARG NODE_ENV=development
 ENTRYPOINT [ "./entrypoint.sh" ]
-#CMD ["npm", "exec", "pm2-runtime", "ecosystem.config.js"]
-#CMD ["npm", "run", "dev"]
