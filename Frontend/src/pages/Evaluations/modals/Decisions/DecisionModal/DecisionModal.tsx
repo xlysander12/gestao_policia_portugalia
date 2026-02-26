@@ -298,7 +298,7 @@ function DecisionModal(props: DecisionModalProps) {
                                             onClick={() => {
                                                 if (props.newEntry) {
                                                     setEventPickerModalOpen(true)
-                                                } else {
+                                                } else if (decision.ceremony_event !== null) {
                                                     setEventModalOpen(true);
                                                 }
                                             }}
