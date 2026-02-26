@@ -25,7 +25,7 @@ function DecisionCard(props: DecisionCardProps) {
                     Decisão para a cerimónia {
                     props.decision.ceremony_event !== null ?
                         `de ${props.decision.ceremony_event.start.format("DD/MM/YYYY")} ${props.decision.ceremony_event.start.isAfter(moment()) ? 
-                            `(${props.decision.ceremony_event.start.calendar()})` : ""        
+                            `(${props.decision.ceremony_event.start.calendar()})` : ""
                         }` :
                     "a determinar"
                 }
