@@ -4,7 +4,7 @@ export interface MinifiedDecision {
     id: number
     target: number
     category: number
-    ceremony_event: number
+    ceremony_event: number | null
     decision: number | null
 }
 

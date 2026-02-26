@@ -17,6 +17,7 @@
     "test": "jest --watch",
 
     "migrate": "ts-node scripts/db-migrate.ts",
+    "rollback": "ts-node scripts/db-rollback.ts",
     "test-migrate": "knex migrate:latest --env test"
   },
   "repository": {

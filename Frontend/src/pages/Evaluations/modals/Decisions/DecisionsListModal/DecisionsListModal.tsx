@@ -21,18 +21,18 @@ import {make_request, RequestMethod} from "../../../../../utils/requests.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../../components/Loader";
-import {EventDetailsResponse, ForceEvent} from "@portalseguranca/api-types/events/output";
+import {EventDetailsResponse, ExistingEventSocket, ForceEvent} from "@portalseguranca/api-types/events/output";
 import DecisionCard, {MockDecisionCard} from "./DecisionCard.tsx";
 import moment, {Moment} from "moment";
 import {FormControlLabel, Switch} from "@mui/material";
-import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
 import {DecisionModal} from "../index.ts";
 import {useParams} from "react-router-dom";
 import OfficerIdentificationText
     from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
 export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event" | "target"> & {
-    ceremony_event: Omit<ForceEvent, "start"> & {start: Moment}
+    ceremony_event: Omit<ForceEvent, "start"> & {start: Moment} | null
 }
 
 type DecisionsListModalProps = {
@@ -83,6 +83,15 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         const tempList: InnerMinifiedDecision[] = [];
 
         for (const decision of responseJson.data) {
+            // If the decision has no event, just push it to the list
+            if (decision.ceremony_event === null) {
+                tempList.push({
+                    ...decision,
+                    ceremony_event: null
+                });
+                continue;
+            }
+
             // Fetch event details
             const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${decision.ceremony_event}`, RequestMethod.GET);
             const eventJson: EventDetailsResponse = await eventResponse.json();
@@ -141,6 +150,27 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         // Refresh the list
         void fetchDecisions(false);
     }, [props.open, props.target.nif, filters, page, ]));
+
+    useWebSocketEvent<SocketResponse | ExistingEventSocket>(SOCKET_EVENT.EVENTS, useCallback(data => {
+        if (!props.open) return; // Don't do anything if modal is closed
+
+        function isNewEvent(data: SocketResponse | ExistingEventSocket): data is SocketResponse {
+            return (data as ExistingEventSocket).force === undefined;
+        }
+
+        // If this is a new Event, just refresh the list
+        if (isNewEvent(data)) {
+            void fetchDecisions(false);
+            return;
+        }
+
+        // Otherwise, check if the event is of the current force
+        // If it's not, don't do anything
+        if ((data as ExistingEventSocket).force !== localStorage.getItem("force")) return;
+
+        // Refresh the list to update the event details of the decisions
+        void fetchDecisions(false);
+    }, [props.open]));
 
     useEffect(() => {
         const controller = new AbortController();
@@ -277,7 +307,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
                             }
 
                             // Otherwise, only show decisions for events that are in the future
-                            if (decision.ceremony_event.start.isSameOrAfter(moment(), "day")) {
+                            if (decision.ceremony_event === null || decision.ceremony_event.start.isSameOrAfter(moment(), "day")) {
                                 return decisionCard;
                             }
 

@@ -35,10 +35,7 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
         message: "Operação concluída com sucesso.",
         data: {
             pages: rep_result.pages,
-            decisions: rep_result.decisions.map(decision => ({
-                ...decision,
-                ceremony_event: decision.ceremony_event,
-            }))
+            decisions: rep_result.decisions
         }
     }
 }
@@ -73,16 +70,12 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
             .filter(event => event !== null)
             .find(event => ceremony_event_types.includes(event.type));
 
-        // If no event was found, return an error
+        // If no event was found, set as null
         if (!next_ceremony_event) {
-            return {
-                result: false,
-                status: 400,
-                message: "Não existe nenhuma Cerimónia de Subidas agendada."
-            }
+            ceremony_event = null;
+        } else {
+            ceremony_event = next_ceremony_event.id;
         }
-
-        ceremony_event = next_ceremony_event.id;
     }
 
     // * A category can't make a decision for a category higher than itself
