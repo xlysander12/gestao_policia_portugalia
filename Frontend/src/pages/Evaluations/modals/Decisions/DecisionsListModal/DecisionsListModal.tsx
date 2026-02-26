@@ -152,7 +152,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
     }, [props.open, props.target.nif, filters, page, ]));
 
     useWebSocketEvent<SocketResponse | ExistingEventSocket>(SOCKET_EVENT.EVENTS, useCallback(data => {
-        if (!props.open) return // Don't do anything if modal is closed
+        if (!props.open) return; // Don't do anything if modal is closed
 
         function isNewEvent(data: SocketResponse | ExistingEventSocket): data is SocketResponse {
             return (data as ExistingEventSocket).force === undefined;
