@@ -163,7 +163,7 @@ function DecisionModal(props: DecisionModalProps) {
             return;
         }
 
-        if (props.decision!.ceremony_event !== null) {
+        if (responseJson.data.ceremony_event !== null) {
             const eventResponse = await make_request(`/events/${localStorage.getItem("force")}${responseJson.data.ceremony_event}`, RequestMethod.GET, {signal});
             const eventResponseJson: EventDetailsResponse = await eventResponse.json();
 
