@@ -1,0 +1,211 @@
+import type { Knex } from "knex";
+
+
+export async function up(knex: Knex): Promise<void> {
+    // First, drop the foreign key
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropForeign("ceremony", "FK_ceremony_decisions_ceremony");
+    });
+
+    // Set the column to be nullable
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.integer("ceremony").unsigned().nullable().alter();
+    });
+
+    // Create virtual column to normalize value of ceremony
+    await knex.raw(`
+        ALTER TABLE ceremony_decisions
+        ADD COLUMN ceremony_normalized INT AS (IFNULL(ceremony, -1)) VIRTUAL
+    `);
+
+    // * Update current UNIQUE key
+    // Need to drop the FKs referencing target and category
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropForeign("target", "FK_ceremony_decisions_target");
+        table.dropForeign("category", "FK_ceremony_decisions_category");
+    });
+
+    // Alter the UNIQUE key
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropUnique(["category", "target", "ceremony"], "1_per_target_per_ceremony");
+
+        table.unique(["category", "target", "ceremony_normalized"], {
+            indexName: "1_per_target_per_ceremony"
+        });
+    });
+
+    // Recreate the FKs referencing target and category
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.foreign("target", "FK_ceremony_decisions_target")
+            .references("nif").inTable("officers")
+            .onUpdate("cascade");
+
+        table.foreign("category", "FK_ceremony_decisions_category")
+            .references("id").inTable("patent_categories")
+            .onUpdate("cascade");
+    });
+
+    // Recreate the foreign key with the new nullable column
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.foreign("ceremony", "FK_ceremony_decisions_ceremony")
+            .references("id").inTable("events")
+            .onDelete("set null").onUpdate("cascade");
+    });
+
+    // * Create `events` triggers
+    // Insert trigger
+    await knex.raw(`
+        CREATE TRIGGER set_ceremony_decisions_ceremony_insert
+        AFTER INSERT ON events
+        FOR EACH ROW
+        BEGIN
+            DECLARE event_variant VARCHAR(255);
+            DECLARE last_decision_date DATETIME;
+            
+            -- Only execute if the event is a ceremony
+            SELECT 
+                variant INTO event_variant
+            FROM event_types WHERE id = NEW.type;
+            
+            IF event_variant = 'ceremony' THEN
+                -- Get the last decision date
+                SELECT
+                    MAX(events.start)
+                INTO last_decision_date
+                FROM
+                    ceremony_decisions JOIN events ON ceremony_decisions.ceremony = events.id;
+                
+                -- If the last date is NULL or the new event's start is after the last decision date, update the ceremony_decisions
+                IF last_decision_date IS NULL OR NEW.start > last_decision_date THEN
+                    UPDATE ceremony_decisions
+                    SET ceremony = NEW.id
+                    WHERE ceremony IS NULL;
+                END IF;
+            END IF;
+        END;
+    `);
+
+    // Update trigger
+    await knex.raw(`
+        CREATE TRIGGER set_ceremony_decisions_ceremony_update
+        AFTER UPDATE ON events
+        FOR EACH ROW
+        BEGIN
+            DECLARE event_variant VARCHAR(255);
+            DECLARE last_decision_date DATETIME;
+            
+            -- Only execute if the event is a ceremony
+            SELECT 
+                variant INTO event_variant
+            FROM event_types WHERE id = NEW.type;
+            
+            IF event_variant = 'ceremony' THEN
+                -- Get the last decision date
+                SELECT
+                    MAX(events.start)
+                INTO last_decision_date
+                FROM
+                    ceremony_decisions JOIN events ON ceremony_decisions.ceremony = events.id;
+                
+                -- If the last date is NULL or the new event's start is after the last decision date, update the ceremony_decisions
+                IF last_decision_date IS NULL OR NEW.start > last_decision_date THEN
+                    UPDATE ceremony_decisions
+                    SET ceremony = NEW.id
+                    WHERE ceremony IS NULL;
+                END IF;
+            END IF;
+        END;
+    `);
+
+    // * Edit the 'ceremony_decisionsV' view
+    await knex.schema.createViewOrReplace("ceremony_decisionsV", view => {
+        view.columns(["id", "target", "category", "ceremony", "decision", "details"]);
+
+        view.as(
+            knex("ceremony_decisions")
+                .select([
+                    "ceremony_decisions.id",
+                    "ceremony_decisions.target",
+                    "ceremony_decisions.category",
+                    "ceremony_decisions.ceremony",
+                    "ceremony_decisions.decision",
+                    "ceremony_decisions.details"
+                ])
+                .leftJoin("events", "ceremony_decisions.ceremony", "events.id")
+                .orderByRaw(`
+                    IF(ceremony_decisions.ceremony IS NULL, 0, 1),
+                    events.start DESC,
+                    ceremony_decisions.category DESC
+                `)
+        );
+    });
+}
+
+
+export async function down(knex: Knex): Promise<void> {
+    // * Drop the triggers
+    await knex.raw(`DROP TRIGGER IF EXISTS set_ceremony_decisions_ceremony_insert;`);
+    await knex.raw(`DROP TRIGGER IF EXISTS set_ceremony_decisions_ceremony_update;`);
+
+    // * DROP all conflicting foreign keys
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropForeign("target", "FK_ceremony_decisions_target");
+        table.dropForeign("category", "FK_ceremony_decisions_category");
+        table.dropForeign("ceremony", "FK_ceremony_decisions_ceremony");
+    });
+
+    // * Revert the UNIQUE key
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropUnique(["category", "target", "ceremony_normalized"], "1_per_target_per_ceremony");
+
+        table.unique(["category", "target", "ceremony"], {
+            indexName: "1_per_target_per_ceremony"
+        });
+    });
+
+    // * Set the column to be NOT nullable
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.integer("ceremony").unsigned().notNullable().alter();
+    });
+
+    // * Drop the virtual column
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.dropColumn("ceremony_normalized");
+    });
+
+    // * Recreate the foreign keys
+    await knex.schema.alterTable("ceremony_decisions", table => {
+        table.foreign("target", "FK_ceremony_decisions_target")
+            .references("nif").inTable("officers")
+            .onUpdate("cascade");
+
+        table.foreign("category", "FK_ceremony_decisions_category")
+            .references("id").inTable("patent_categories")
+            .onUpdate("cascade");
+
+        table.foreign("ceremony", "FK_ceremony_decisions_ceremony")
+            .references("id").inTable("events")
+            .onDelete("cascade").onUpdate("cascade");
+    });
+
+    // * Revert the 'ceremony_decisionsV' view
+    await knex.schema.dropViewIfExists("ceremony_decisionsV");
+    await knex.raw(`
+        CREATE VIEW ceremony_decisionsV AS
+        SELECT
+            ceremony_decisions.id AS id,
+            ceremony_decisions.target AS target,
+            ceremony_decisions.category AS category,
+            ceremony_decisions.ceremony AS ceremony,
+            ceremony_decisions.decision AS decision,
+            ceremony_decisions.details AS details
+        FROM (
+            ceremony_decisions
+            JOIN events ON ceremony_decisions.ceremony = events.id
+        )
+        ORDER BY
+                events.start DESC,
+                ceremony_decisions.category DESC
+    `);
+}
+
