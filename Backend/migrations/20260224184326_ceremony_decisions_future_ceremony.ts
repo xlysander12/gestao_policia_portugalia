@@ -86,7 +86,6 @@ export async function up(knex: Knex): Promise<void> {
     `);
 
     // Update trigger
-    // Insert trigger
     await knex.raw(`
         CREATE TRIGGER set_ceremony_decisions_ceremony_update
         AFTER UPDATE ON events
