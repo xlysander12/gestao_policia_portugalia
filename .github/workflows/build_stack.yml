@@ -17,6 +17,10 @@ on:
 
     workflow_dispatch:
 
+concurrency:
+  group: build
+  cancel-in-progress: true
+
 jobs:
     backend:
 
