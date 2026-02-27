@@ -613,7 +613,8 @@ function EvaluationModal(props: EvaluationModalProps) {
                 open={patrolPickerModalOpen}
                 onClose={() => setPatrolPickerModalOpen(false)}
                 filters={[
-                    {key: "officers", value: `${evaluationData.author.nif},${evaluationData.target.nif}`}
+                    {key: "officers", value: `${evaluationData.author.nif},${evaluationData.target.nif}`},
+                    {key: "after", value: String(forceData.last_ceremony.unix())}
                 ]}
                 callback={handlePatrolAddition}
             />
