@@ -116,11 +116,11 @@ function TopHoursModal(props: TopHoursModalProps) {
         for (const top of tops) {
             const fullOfficer = fullOfficers.find(officer => officer!.nif === top.officer.nif)!;
 
-            text += `TOP ${top.rank}: <@${fullOfficer.discord}> | ${toHoursAndMinutes(top.minutes)}`
+            text += `TOP ${top.rank}: <@${fullOfficer.discord}> | ${toHoursAndMinutes(top.minutes)}\n`
         }
 
         // Copy text to clipboard
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(text.slice(0, -1));
 
         toast.info("Tops copiados para a área de transferência!");
     }

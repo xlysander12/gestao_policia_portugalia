@@ -16,7 +16,7 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ma
     const filtersResult = useFilters ? buildFiltersQuery(force, routeValidFilters, filters, {subquery: "target = ? AND category <= ?", value: [target_nif, max_category]}): null;
 
     const result = useFilters ?
-                            await queryDB(force, `SELECT ceremony_decisionsV.id, target, category, ceremony, decision FROM ceremony_decisionsV JOIN events ON ceremony = events.id ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
+                            await queryDB(force, `SELECT ceremony_decisionsV.id, target, category, ceremony, decision FROM ceremony_decisionsV LEFT JOIN events ON ceremony = events.id ${filtersResult!.query} LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, filtersResult!.values) :
                             await queryDB(force, `SELECT id, target, category, ceremony, decision FROM ceremony_decisionsV WHERE target = ? AND category <= ? LIMIT ${entries_per_page} OFFSET ${(page - 1) * entries_per_page}`, [target_nif, max_category]);
 
 
@@ -38,7 +38,7 @@ export async function getCeremonyDecisions(force: string, target_nif: number, ma
             id: row.id as number,
             target: row.target as number,
             category: row.category as number,
-            ceremony_event: row.ceremony as number,
+            ceremony_event: row.ceremony as number | null,
             decision: row.decision as number,
         }))
     };
@@ -62,7 +62,7 @@ export async function getCeremonyDecisionById(force: string, target_nif: number,
 }
 
 
-export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number, decision: number | null, details: string): Promise<void> {
+export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number | null, decision: number | null, details: string): Promise<void> {
     await queryDB(force, `INSERT INTO ceremony_decisions (target, category, ceremony, decision, details) VALUES (?, ?, ?, ?, ?)`, [
         target_nif,
         category,

@@ -22,7 +22,13 @@ function DecisionCard(props: DecisionCardProps) {
                 <DefaultTypography
                     fontSize={"larger"}
                 >
-                    Decisão para a cerimónia de {props.decision.ceremony_event.start.format("DD/MM/YYYY")} {props.decision.ceremony_event.start.isAfter(moment()) ? `(${props.decision.ceremony_event.start.calendar()})` : ""}
+                    Decisão para a cerimónia {
+                    props.decision.ceremony_event !== null ?
+                        `de ${props.decision.ceremony_event.start.format("DD/MM/YYYY")} ${props.decision.ceremony_event.start.isAfter(moment()) ? 
+                            `(${props.decision.ceremony_event.start.calendar()})` : ""
+                        }` :
+                    "a determinar"
+                }
                 </DefaultTypography>
 
                 <DefaultTypography

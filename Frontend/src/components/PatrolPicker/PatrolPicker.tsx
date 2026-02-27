@@ -12,13 +12,13 @@ import { MinifiedPatrolData, PatrolHistoryResponse } from "@portalseguranca/api-
 import { RequestError, SOCKET_EVENT } from "@portalseguranca/api-types";
 import {MinifiedOfficerData, OfficerListResponse } from "@portalseguranca/api-types/officers/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
+import {DefaultSearchOption} from "../DefaultComponents/DefaultSearch/types";
 
 export type PatrolPickerProps = {
     callback: (patrol: MinifiedPatrolData) => void
     filters?: {key: string, value: string}[]
 }
 function PatrolPicker(props: PatrolPickerProps) {
-
     const [currentForceData, getForceData] = useForceData();
 
     const [loading, setLoading] = useState<boolean>(true);
@@ -27,6 +27,39 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(10);
+
+    // Search options constant
+    const SEARCH_OPTIONS: DefaultSearchOption[] = [
+        {label: "Depois de", key: "after", type: "date"},
+        {label: "Antes de", key: "before", type: "date"},
+        {label: "Em curso", key: "active", type: "boolean"},
+        {label: "Efetivo", key: "officers", type: "asyncOption",
+            optionsFunc: async (signal) => {
+                const officers = await make_request("/officers?patrol=true", "GET", {signal: signal});
+                const officersData: OfficerListResponse | RequestError = await officers.json();
+
+                if (!officers.ok) {
+                    toast.error(officersData.message);
+                    return [];
+                }
+
+                return (officersData as OfficerListResponse).data.map((officer: MinifiedOfficerData) => ({
+                    label: `[${officer.callsign}] ${getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} ${officer.name}`,
+                    key: String(officer.nif)
+                }));
+            }
+        },
+        {label: "Tipo", key: "type", type: "option", options: currentForceData.patrol_types.map(type => ({
+                label: type.name,
+                key: String(type.id)
+            }))
+        },
+        {label: "Unidade Especial", key: "unit", type: "option", options: currentForceData.special_units.map(unit => ({
+                label: unit.name,
+                key: String(unit.id)
+            }))
+        }
+    ];
 
     // Handle websocket events
     useWebSocketEvent(SOCKET_EVENT.PATROLS, async () => {
@@ -105,37 +138,7 @@ function PatrolPicker(props: PatrolPickerProps) {
                             callback={(options) => {
                                 setCurrentFilters(options);
                             }}
-                            options={[
-                                {label: "Depois de", key: "after", type: "date"},
-                                {label: "Antes de", key: "before", type: "date"},
-                                {label: "Em curso", key: "active", type: "boolean"},
-                                {label: "Efetivo", key: "officers", type: "asyncOption",
-                                    optionsFunc: async (signal) => {
-                                        const officers = await make_request("/officers?patrol=true", "GET", {signal: signal});
-                                        const officersData: OfficerListResponse | RequestError = await officers.json();
-
-                                        if (!officers.ok) {
-                                            toast.error(officersData.message);
-                                            return [];
-                                        }
-
-                                        return (officersData as OfficerListResponse).data.map((officer: MinifiedOfficerData) => ({
-                                            label: `[${officer.callsign}] ${getObjectFromId(officer.patent, getForceData(officer.force!).patents)!.name} ${officer.name}`,
-                                            key: String(officer.nif)
-                                        }));
-                                    }
-                                },
-                                {label: "Tipo", key: "type", type: "option", options: currentForceData.patrol_types.map(type => ({
-                                        label: type.name,
-                                        key: String(type.id)
-                                    }))
-                                },
-                                {label: "Unidade Especial", key: "unit", type: "option", options: currentForceData.special_units.map(unit => ({
-                                        label: unit.name,
-                                        key: String(unit.id)
-                                    }))
-                                }
-                            ]}
+                            options={SEARCH_OPTIONS}
                         />
                     </div>
 

@@ -491,7 +491,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
                                             }}
                                         />
                                     }
-                                    label={"Inatividade Indeterminada"}
+                                    label={"Sem data de fim"}
                                     sx={{
                                         marginRight: "4px", color: "var(--portalseguranca-color-text-light)",
                                         "& .MuiFormControlLabel-label.Mui-disabled": {
