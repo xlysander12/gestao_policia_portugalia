@@ -19,6 +19,7 @@ import packageJson from "../../../package.json";
 import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
 import {BASE_URL} from "../../utils/constants.ts";
 import AuthenticationMethodsModal from "./modals/AuthenticationMethodsModal.tsx";
+import AuditLogModal from "./modals/AuditLogModal.tsx";
 
 type CustomLinkProps = {
     to: string
@@ -88,6 +89,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
     const [isLastCeremonyOpen, setLastCeremonyOpen] = useState<boolean>(false);
     const [isAuthenticationMethodsOpen, setAuthenticationMethodsOpen] = useState<boolean>(false);
+    const [isAuditLogOpen, setAuditLogOpen] = useState<boolean>(false);
 
     // Set the state with the status of the officer
     const [officerPatrol, setOfficerPatrol] = useState<PatrolData | null>(null);
@@ -272,6 +274,19 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                     <Divider/>
                 </Gate>
 
+                <Gate show={loggedUser.intents.accounts}>
+                    <MenuItem
+                        onClick={() => {
+                            setAccountMenuOpen(false);
+                            setAuditLogOpen(true);
+                        }}
+                    >
+                        Registo de Auditoria
+                    </MenuItem>
+
+                    <Divider/>
+                </Gate>
+
                 <MenuItem
                     onClick={() => {
                         window.open(`${BASE_URL}/manual`);
@@ -343,6 +358,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
 
             <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
             <AuthenticationMethodsModal open={isAuthenticationMethodsOpen} onClose={() => setAuthenticationMethodsOpen(false)} />
+            <AuditLogModal open={isAuditLogOpen} onClose={() => setAuditLogOpen(false)} />
 
             <ConfirmationDialog open={isLogoutOpen} title={"Terminar Sessão"} text={"Tens a certeza que queres terminar a sessão?"} onConfirm={logout} onDeny={() => setLogoutOpen(false)}/>
 

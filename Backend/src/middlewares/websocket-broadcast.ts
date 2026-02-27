@@ -4,6 +4,7 @@ import {FORCE_HEADER} from "../utils/constants";
 import {getForcePatrolForces} from "../utils/config-handler";
 import {logToConsole} from "../utils/logger";
 import pc from "picocolors";
+import {insertAuditLog} from "../api/util/repository";
 
 export function websocketBroadcastMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
     // Check if there is a broadcast key in the route object
@@ -18,6 +19,18 @@ export function websocketBroadcastMiddleware(req: express.Request, res: APIRespo
 
                 // Log this broadcast to the console
                 logToConsole(`[${pc.whiteBright("WS")}] [${pc.white(req.header(FORCE_HEADER)!.toUpperCase())}] [${pc.green(res.locals.routeDetails.broadcast!.event)}] ${JSON.stringify(body)}`);
+
+                // Write to the audit log
+                const {by, action, ...details} = body;
+                insertAuditLog(
+                    req.header(FORCE_HEADER)!,
+                    by,
+                    res.locals.routeDetails.broadcast!.event,
+                    action,
+                    Object.keys(details).length > 0 ? details : null
+                ).catch((err: unknown) => {
+                    logToConsole(`[${pc.whiteBright("WS")}] Failed to write audit log: ${String(err)}`, "warning");
+                });
 
                 // If the patrols flag is set to true, broadcast the message to all patrol forces of the current force
                 if (res.locals.routeDetails.broadcast!.patrol) {

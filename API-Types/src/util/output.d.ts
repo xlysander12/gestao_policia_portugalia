@@ -192,3 +192,21 @@ export interface ForceTopHoursInWeekResponse extends BaseResponse {
         minutes: number
     }[]
 }
+
+export interface AuditLogEntry {
+    id: number
+    timestamp: number
+    author: number
+    module: string
+    action: string
+    details: Record<string, unknown> | null
+}
+
+export interface AuditLogResponse extends BaseResponse {
+    data: {
+        entries: AuditLogEntry[]
+        total: number
+        page: number
+        totalPages: number
+    }
+}

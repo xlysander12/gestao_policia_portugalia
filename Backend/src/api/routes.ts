@@ -50,7 +50,7 @@ import {
     UpdateEvaluationSocket
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
-import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
+import {AuditLogQueryParams, ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
     CreateEventBody, EditEventBody,
@@ -506,6 +506,20 @@ const utilRoutes: routesType = {
                 requiresForce: true,
                 queryParams: {
                     type: ForceTopHoursParams
+                }
+            }
+        }
+    },
+
+    // Route to get the audit log
+    "/util/audit-log$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["accounts"],
+                queryParams: {
+                    type: AuditLogQueryParams
                 }
             }
         }

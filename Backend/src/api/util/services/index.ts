@@ -14,7 +14,8 @@ import {
     getPendingInactivityJustifications,
     getSpecialUnitActiveMembers,
     getUserErrors,
-    updateLastCeremony
+    updateLastCeremony,
+    getAuditLogEntries
 } from "../repository";
 import {
     InactivityTypeData,
@@ -411,5 +412,24 @@ export async function forceTopHoursInWeek(force: string, week_end: Date): Promis
         status: 200,
         message: "Operação bem sucedida",
         data: result
+    }
+}
+
+export async function auditLog(force: string, page: number, limit: number): Promise<DefaultReturn<{entries: {id: number, timestamp: Date, author: number, module: string, action: string, details: Record<string, unknown> | null}[], total: number, page: number, totalPages: number}>> {
+    const {entries, total} = await getAuditLogEntries(force, page, limit);
+
+    return {
+        result: true,
+        status: 200,
+        message: "Operação concluída com sucesso",
+        data: {
+            entries: entries.map(entry => ({
+                ...entry,
+                details: entry.details !== null ? JSON.parse(entry.details) as Record<string, unknown> : null
+            })),
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        }
     }
 }

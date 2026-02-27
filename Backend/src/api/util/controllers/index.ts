@@ -10,7 +10,8 @@ import {
     forcePatents, forcePatrolForces,
     forcePatrolTypes,
     forceSpecialUnits, forceSpecialUnitsActiveMembers,
-    forceStatuses, forceTopHoursInWeek, lastCeremony, notifications
+    forceStatuses, forceTopHoursInWeek, lastCeremony, notifications,
+    auditLog
 } from "../services";
 import {
     UtilInactivityTypesResponse,
@@ -28,7 +29,8 @@ import {
     UtilLastCeremonyResponse,
     UtilSpecialUnitsActiveResponse,
     UtilEventTypesResponse,
-    ForceTopHoursInWeekResponse, UtilColorsResponse, UtilPatentCategoriesResponse, UtilLastDatesFieldsResponse
+    ForceTopHoursInWeekResponse, UtilColorsResponse, UtilPatentCategoriesResponse, UtilLastDatesFieldsResponse,
+    AuditLogResponse
 } from "@portalseguranca/api-types/util/output";
 import {APIResponse, ExpressResponse, OfficerInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix, unixToDate} from "../../../utils/date-handler";
@@ -288,5 +290,25 @@ export async function getForceTopHoursInWeekController(req: express.Request, res
     res.status(result.status).json({
         message: result.message,
         data: result.data!
+    });
+}
+
+export async function getAuditLogController(req: express.Request, res: APIResponse<AuditLogResponse>) {
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = 20;
+
+    const result = await auditLog(req.header(FORCE_HEADER)!, page, limit);
+
+    res.status(result.status).json({
+        message: result.message,
+        data: {
+            entries: result.data!.entries.map(entry => ({
+                ...entry,
+                timestamp: dateToUnix(entry.timestamp)
+            })),
+            total: result.data!.total,
+            page: result.data!.page,
+            totalPages: result.data!.totalPages
+        }
     });
 }

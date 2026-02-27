@@ -9,7 +9,8 @@ import {
     getLastDatesFieldsController, getNotificationsController, getPatentCategoriesController,
     getPatentsController, getPatrolForcesController, getPatrolTypesController, getSpecialUnitsActiveMembersController,
     getSpecialUnitsController,
-    getStatusesController, getUserErrorsController
+    getStatusesController, getUserErrorsController,
+    getAuditLogController
 } from "./controllers";
 import {logToConsole} from "../../utils/logger";
 
@@ -55,6 +56,8 @@ app.get("/notifications", getNotificationsController);
 app.get("/errors", getUserErrorsController);
 
 app.get("/top-hours", getForceTopHoursInWeekController);
+
+app.get("/audit-log", getAuditLogController);
 
 logToConsole("Util routes loaded successfully", "info");
 

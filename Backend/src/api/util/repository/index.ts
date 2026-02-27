@@ -346,3 +346,32 @@ export async function getForceTopHoursInWeek(force: string, week_end: Date): Pro
         minutes: entry.minutes as number
     }));
 }
+
+export async function insertAuditLog(force: string, author: number, module: string, action: string, details: Record<string, unknown> | null): Promise<void> {
+    await queryDB(force, "INSERT INTO audit_log (author, module, action, details) VALUES (?, ?, ?, ?)", [
+        author,
+        module,
+        action,
+        details !== null ? JSON.stringify(details) : null
+    ]);
+}
+
+export async function getAuditLogEntries(force: string, page: number, limit: number): Promise<{entries: {id: number, timestamp: Date, author: number, module: string, action: string, details: string | null}[], total: number}> {
+    const offset = (page - 1) * limit;
+
+    const entries = await queryDB(force, "SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset]);
+    const countResult = await queryDB(force, "SELECT COUNT(*) AS total FROM audit_log");
+    const total = countResult[0].total as number;
+
+    return {
+        entries: entries.map(row => ({
+            id: row.id as number,
+            timestamp: row.timestamp as Date,
+            author: row.author as number,
+            module: row.module as string,
+            action: row.action as string,
+            details: row.details as string | null
+        })),
+        total
+    };
+}
