@@ -1,0 +1,67 @@
+services:
+  db:
+    secrets:
+      - db_user
+      - db_database
+      - db_password
+      - db_root_password
+
+  backend:
+    secrets:
+      - db_host
+      - db_user
+      - db_database
+      - db_password
+      - db_port
+      - http_port
+      - gh_app_id
+      - gh_installation_id
+      - gh_repo_owner
+      - gh_repo_name
+      - discord_client_id
+      - discord_client_secret
+      - session_secret
+
+secrets:
+  db_host:
+    external: false
+    file: ./secrets/db_host
+  db_user:
+    external: false
+    file: ./secrets/db_user
+  db_database:
+    external: false
+    file: ./secrets/db_database
+  db_password:
+    external: false
+    file: ./secrets/db_password
+  db_root_password:
+    external: false
+    file: ./secrets/db_root_password
+  db_port:
+    external: false
+    file: ./secrets/db_port
+  http_port:
+    external: false
+    file: ./secrets/http_port
+  gh_app_id:
+    external: false
+    file: ./secrets/gh_app_id
+  gh_installation_id:
+    external: false
+    file: ./secrets/gh_installation_id
+  gh_repo_owner:
+    external: false
+    file: ./secrets/gh_repo_owner
+  gh_repo_name:
+    external: false
+    file: ./secrets/gh_repo_name
+  discord_client_id:
+    external: false
+    file: ./secrets/discord_client_id
+  discord_client_secret:
+    external: false
+    file: ./secrets/discord_client_secret
+  session_secret:
+    external: false
+    file: ./secrets/session_secret

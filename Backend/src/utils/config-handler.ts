@@ -1,12 +1,21 @@
 import fs from "fs";
-import {join} from "path";
+import { join } from "path";
 
-import {ConfigTypes, StaticConfigTypes} from "../types";
-import {logToConsole} from "./logger";
-import {ForceColors} from "@portalseguranca/api-types/util/output";
+import { ConfigTypes, StaticConfigTypes } from "../types";
+import { logToConsole } from "./logger";
+import { ForceColors } from "@portalseguranca/api-types/util/output";
 
 // Making sure the sample config is correct
 let config: StaticConfigTypes = ConfigTypes.check(JSON.parse(fs.readFileSync(join(__dirname, "..", "assets", "config.sample.json"), "utf-8")));
+
+export function getSecretValue(filePath?: string) {
+    if (!filePath) return "";
+    try {
+        return fs.readFileSync(filePath, "utf-8").trim();
+    } catch {
+        return "";
+    }
+}
 
 export function getDiscordGuild() {
     return config.discord_guild;
@@ -100,13 +109,47 @@ export function loadConfig() {
     if (!fs.existsSync(join(__dirname, "..", "..", "config.json"))) {
         // Since the config file doesn't exist, create a new one based on the sample
         logToConsole("Config file doesn't exist, creating a new one based on the sample", "info");
-        fs.copyFileSync(join(__dirname, "..", "assets", "config.sample.json"), join(__dirname, "..", "..","config.json"));
+        fs.copyFileSync(join(__dirname, "..", "assets", "config.sample.json"), join(__dirname, "..", "..", "config.json"));
     } else { // Since the config file exists, check if it's valid
         // Read the config file
-        const file = JSON.parse(fs.readFileSync(join(__dirname, "..", "..","config.json"), "utf-8")) as StaticConfigTypes;
+        const file = JSON.parse(fs.readFileSync(join(__dirname, "..", "..", "config.json"), "utf-8")) as StaticConfigTypes;
 
         // Check if the config file is valid
         config = ConfigTypes.check(file);
+
+        //We could be running in development mode and/or docker
+        const isProd = process.env.NODE_ENV === "production";
+
+        const getValue = (envVar?: string, secretFile?: string) => {
+            if (isProd && secretFile) {
+                return getSecretValue(secretFile);
+            }
+            return envVar;
+        };
+
+        const portRaw = isProd
+            ? getSecretValue(process.env.DB_PORT_FILE)
+            : process.env.MARIADB_PORT;
+
+        config.database = {
+            ...config.database,
+            host:
+                getValue(process.env.MARIADB_HOST, process.env.DB_HOST_FILE) ||
+                config.database.host,
+
+            port:
+                portRaw && portRaw.length > 0
+                    ? Number(portRaw)
+                    : config.database.port,
+
+            user:
+                getValue(process.env.MARIADB_USER, process.env.DB_USER_FILE) ||
+                config.database.user,
+
+            password:
+                getValue(process.env.MARIADB_PASSWORD, process.env.DB_PASSWORD_FILE) ||
+                config.database.password,
+        };
 
         logToConsole("Config file validated and loaded", "info");
     }
