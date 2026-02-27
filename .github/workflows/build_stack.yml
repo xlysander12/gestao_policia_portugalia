@@ -22,6 +22,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+    delete-cancelled-runs:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: 'MercuryTechnologies/delete-cancelled-runs@latest'
+          with:
+              workflow-file: 'main.yml'
+
     backend:
 
         runs-on: ubuntu-latest
