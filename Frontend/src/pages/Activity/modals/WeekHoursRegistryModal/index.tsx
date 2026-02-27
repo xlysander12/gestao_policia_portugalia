@@ -59,7 +59,7 @@ function WeekHoursRegistryModal({open, onClose, officer, entryId, newEntry = fal
 
 
     // Set the state that holds if the officer did the minimum hours
-    const [didMinimumHours, setDidMinimumHours] = useState<boolean>(false);
+    const [didMinimumHours, setDidMinimumHours] = useState<boolean>(newEntry);
 
     // Set the state that holds the patent and name of the officer that submitted the registry
     const [submittedBy, setSubmittedBy] = useState<string>();
