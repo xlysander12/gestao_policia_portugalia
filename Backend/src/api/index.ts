@@ -17,6 +17,7 @@ import {logToConsole} from "../utils/logger";
 import {websocketBroadcastMiddleware} from "../middlewares/websocket-broadcast";
 import {getAllForces} from "../utils/config-handler";
 import {ensureRowsInTables} from "../utils/db-tester";
+import {auditLoggerMiddleware} from "../middlewares/logger";
 
 // Check force's databases
 for (const force of getAllForces()) {
@@ -28,6 +29,9 @@ const apiRoutes = express.Router();
 // * Import Middlewares
 // Middleware to log all requests
 apiRoutes.use(loggerMiddleware);
+
+// Middleware to register audit logs
+apiRoutes.use(auditLoggerMiddleware);
 
 // Middleware to gather the route's information from the routes object
 apiRoutes.use(getRouteDetailsMiddleware);

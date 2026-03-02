@@ -102,6 +102,13 @@ export interface routeMethodType {
         body: (req: express.Request, res: any) => SocketResponse,
         patrol?: boolean
     }
+    auditLog?: {
+        module: MODULE
+        action: "add" | "update" | "manage" | "delete" | "restore"
+        type?: string
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getTarget?: (req: express.Request, res: any) => number | undefined | null;
+    }
 }
 
 export interface routeType {
@@ -191,6 +198,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "update",
+                    type: "password_change"
                 }
             }
         }
@@ -212,6 +224,12 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "update",
+                    type: "password_reset",
+                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
                 }
             }
         }
@@ -240,7 +258,11 @@ const accountRoutes: routesType = {
             POST: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["accounts"]
+                intents: ["accounts"],
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "add"
+                }
             },
 
             // Route to update an account's permissions and suspended state
@@ -260,6 +282,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "manage",
+                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
                 }
             },
             DELETE: {
@@ -275,6 +302,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "delete",
+                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
                 }
             }
         }
@@ -618,6 +650,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "add",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
 
@@ -638,6 +675,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "update",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             },
 
@@ -658,6 +700,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "delete",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
 
@@ -681,6 +728,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "restore",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -722,6 +774,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "update",
+                    type: "last_date",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -763,6 +821,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "add",
+                    type: "hours",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -796,6 +860,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "delete",
+                    type: "hours",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -844,6 +914,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "add",
+                    type: "justification",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -880,6 +956,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "manage",
+                    type: "justification",
+                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
                 }
             },
             PATCH: {
@@ -899,6 +981,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "update",
+                    type: "justification",
+                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
                 }
             },
             DELETE: {
@@ -915,6 +1003,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "delete",
+                    type: "justification",
+                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
                 }
             }
         }
@@ -969,6 +1063,11 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "add",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -1032,6 +1131,11 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "update",
+                    getTarget: (_reqq, res: OfficerEvaluationAPIResponse) => res.locals.evaluation.id
                 }
             },
             DELETE: {
@@ -1048,6 +1152,11 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "delete",
+                    getTarget: (_reqq, res: OfficerEvaluationAPIResponse) => res.locals.evaluation.id
                 }
             }
         }
@@ -1095,6 +1204,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             target: res.locals.targetOfficer!.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "add",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -1123,6 +1237,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             id: res.locals.decision.id
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "update",
+                    getTarget: (_req, res: CeremonyDecisionAPIResponse) => res.locals.decision.id
                 }
             },
             DELETE: {
@@ -1139,6 +1258,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             id: res.locals.decision.id
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "delete",
+                    getTarget: (_req, res: CeremonyDecisionAPIResponse) => res.locals.decision.id
                 }
             }
         }
@@ -1207,6 +1331,10 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "add"
                 }
             }
         }
@@ -1233,6 +1361,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "update",
+                    getTarget: (_req, res: PatrolInfoAPIResponse) => res.locals.patrol.id
                 }
             },
 
@@ -1251,6 +1384,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "delete",
+                    getTarget: (_req, res: PatrolInfoAPIResponse) => res.locals.patrol.id
                 }
             }
         }
@@ -1293,6 +1431,10 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "add"
                 }
             }
         }
@@ -1322,6 +1464,11 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "update",
+                    getTarget: (_req, res: EventInfoAPIResponse) => res.locals.event.id
                 }
             },
             DELETE: {
@@ -1338,6 +1485,11 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "delete",
+                    getTarget: (_req, res: EventInfoAPIResponse) => res.locals.event.id
                 }
             }
         }
@@ -1390,6 +1542,10 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "add"
                 }
             }
         }
@@ -1418,6 +1574,11 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "update",
+                    getTarget: (_req, res: AnnouncementInfoAPIResponse) => res.locals.announcement.id
                 }
             },
             DELETE: {
@@ -1435,6 +1596,11 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "delete",
+                    getTarget: (_req, res: AnnouncementInfoAPIResponse) => res.locals.announcement.id
                 }
             }
         }
