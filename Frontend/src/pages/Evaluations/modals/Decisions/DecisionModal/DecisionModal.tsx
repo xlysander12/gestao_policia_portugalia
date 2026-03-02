@@ -7,7 +7,7 @@ import {
     CreateCeremonyDecisionBody,
     EditCeremonyDecisionBody
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
-import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {RequestError, MODULE} from "@portalseguranca/api-types";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {
     CeremonyDecision,
@@ -229,7 +229,7 @@ function DecisionModal(props: DecisionModalProps) {
         onClose();
     }
 
-    useWebSocketEvent<CeremonyDecisionSocket>(SOCKET_EVENT.CEREMONY_DECISIONS, useCallback(async (data) => {
+    useWebSocketEvent<CeremonyDecisionSocket>(MODULE.CEREMONY_DECISIONS, useCallback(async (data) => {
         if (data.by === loggedUser.info.personal.nif) return; // Ignore own changes
 
         if (data.action === "add") return;

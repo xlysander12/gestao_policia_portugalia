@@ -12,7 +12,7 @@ export interface SocketResponse {
     by: number
 }
 
-export enum SOCKET_EVENT {
+export enum MODULE {
     ACCOUNTS = "accounts",
     OFFICERS = "officers",
     ACTIVITY = "activity",

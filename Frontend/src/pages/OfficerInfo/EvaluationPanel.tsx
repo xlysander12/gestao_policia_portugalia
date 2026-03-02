@@ -12,7 +12,7 @@ import {toast} from "react-toastify";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import Gate from "../../components/Gate/gate.tsx";
 import {DefaultTypography} from "../../components/DefaultComponents";
-import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import { MODULE } from "@portalseguranca/api-types";
 import { EvaluationDecision } from "@portalseguranca/api-types/util/output";
 import {getObjectFromId} from "../../forces-data-context.ts";
 
@@ -71,7 +71,7 @@ function EvaluationsNumberPair(props: EvaluationsNumberPairProps) {
         if (showLoading) setLoading(false);
     }
 
-    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback((data) => {
+    useWebSocketEvent<EvaluationSocket>(MODULE.EVALUATIONS, useCallback((data) => {
         if (data.author !== props.nif) return; // Ignore evaluations not made by this officer
 
         if (!(["add", "delete"].includes(data.action))) return; // Ignore updates
@@ -172,7 +172,7 @@ function EvaluationsAboutPair(props: EvaluationsAboutPairProps) {
         if (showLoading) setLoading(false);
     }
 
-    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback((data) => {
+    useWebSocketEvent<EvaluationSocket>(MODULE.EVALUATIONS, useCallback((data) => {
         if (data.target !== props.nif) return; // Ignore evaluations not about this officer
 
         if (!(["add", "delete"].includes(data.action))) return; // Ignore updates
@@ -250,7 +250,7 @@ function AverageDecisionPair(props: AverageDecisionPairProps) {
         if (showLoading) setLoading(false);
     }
 
-    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback((data) => {
+    useWebSocketEvent<EvaluationSocket>(MODULE.EVALUATIONS, useCallback((data) => {
         if (data.target !== props.nif) return; // Ignore evaluations not made by this officer
 
         void fetchAverageDecision(false);

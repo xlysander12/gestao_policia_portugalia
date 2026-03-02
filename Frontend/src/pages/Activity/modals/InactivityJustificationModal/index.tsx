@@ -11,7 +11,7 @@ import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {BaseResponse, RequestError, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
+import {BaseResponse, RequestError, MODULE} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
 import {Checkbox, Divider, FormControlLabel, MenuItem, Tooltip} from "@mui/material";
 import {
@@ -257,7 +257,7 @@ function InactivityJustificationModal({open, onClose, officerNif, justificationI
     }
 
     // Handle websocket events
-    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback((data) => {
+    useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, useCallback((data) => {
         // If this modal isn't open, it doesn't matter
         if (!open) return;
 

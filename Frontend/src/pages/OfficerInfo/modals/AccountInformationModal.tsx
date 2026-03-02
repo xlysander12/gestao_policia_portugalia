@@ -10,7 +10,7 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import {AccountInfo, AccountInfoResponse, AccountSocket} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse, MODULE} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
@@ -159,7 +159,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     }
 
     // Subscribe to websocket events
-    useWebSocketEvent(SOCKET_EVENT.ACCOUNTS, useCallback((data: AccountSocket) => {
+    useWebSocketEvent(MODULE.ACCOUNTS, useCallback((data: AccountSocket) => {
         // If the event was triggered by the logged user, disregard it
         if (data.by === loggedUserData.info.personal.nif) return;
 

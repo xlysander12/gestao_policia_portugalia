@@ -20,7 +20,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {Divider} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
-import {BaseResponse, RequestError, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {BaseResponse, RequestError, MODULE} from "@portalseguranca/api-types";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import OfficerList from "../../../../components/OfficerList";
 
@@ -55,7 +55,7 @@ function PatrolInfoModal(props: PatrolInfoModalProps) {
     const [loading, setLoading] = useState<boolean>(false);
 
     // Handle WebSocket events
-    useWebSocketEvent<ExistingPatrolSocket>(SOCKET_EVENT.PATROLS, useCallback(async (event) => {
+    useWebSocketEvent<ExistingPatrolSocket>(MODULE.PATROLS, useCallback(async (event) => {
         // If the modal isn't open, ignore the event
         if (!open) return;
 

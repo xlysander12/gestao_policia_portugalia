@@ -17,7 +17,7 @@ import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
-import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 
 type PrivateRouteProps = {
@@ -159,13 +159,13 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     }
 
     // Add the Socket Event listener for the logged user's data
-    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback(data => {
+    useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback(data => {
         if (data.nif === loggedUser.info.personal.nif || data.nif === 0) { // If nif is 0, all users were affected
             void updateValues(false);
         }
     }, [socket?.id, loggedUser.info.personal.nif]), socket);
 
-    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, useCallback(data => {
+    useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, useCallback(data => {
         if (data.type !== "justification") return;
 
         if (data.nif !== loggedUser.info.personal.nif) return;
@@ -175,7 +175,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         void updateValues(false);
     }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
 
-    useWebSocketEvent<AccountSocket>(SOCKET_EVENT.ACCOUNTS, useCallback((data) => {
+    useWebSocketEvent<AccountSocket>(MODULE.ACCOUNTS, useCallback((data) => {
         if (data.nif !== loggedUser.info.personal.nif) return;
 
         void updateValues(true, false);

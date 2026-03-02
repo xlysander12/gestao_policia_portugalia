@@ -10,7 +10,7 @@ import {toast} from "react-toastify";
 import OfficerList from "../../../../components/OfficerList";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {MODULE, SocketResponse} from "@portalseguranca/api-types";
 import {MinifiedPatrolData, PatrolHistoryResponse} from "@portalseguranca/api-types/patrols/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import DefaultLink from "../../../../components/DefaultComponents/DefaultLink.tsx";
@@ -105,7 +105,7 @@ function SpecialUnitActiveMembers() {
         setLoading(false);
     }
 
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.PATROLS, useCallback(() => void fetchActiveMembers(false), [selected.id]));
+    useWebSocketEvent<SocketResponse>(MODULE.PATROLS, useCallback(() => void fetchActiveMembers(false), [selected.id]));
 
     useEffect(() => {
         const controller = new AbortController();

@@ -7,7 +7,7 @@ import Gate from "../Gate/gate.tsx";
 import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types/index.ts";
+import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types/index.ts";
 import {ConfirmationDialog} from "../Modal";
 import ChangePasswordModal from "./modals/change-password.tsx";
 import FeedbackModal from "./modals/feedback.tsx";
@@ -141,7 +141,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     }
 
     // Whenever an event with the name "patrols" is received, run the callback to ensure the information is up to date
-    useWebSocketEvent(SOCKET_EVENT.PATROLS, async (data: SocketResponse) => {
+    useWebSocketEvent(MODULE.PATROLS, async (data: SocketResponse) => {
         // If a patrol is added, check if the logged user is in any patrol
         if (data.action === "add" || data.action === "update") {
             setOfficerPatrol(await getOfficerPatrol());

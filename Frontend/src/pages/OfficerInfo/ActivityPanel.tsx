@@ -23,7 +23,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import {Link} from "react-router-dom";
 import {toast} from "react-toastify";
 import {LastDatesField} from "@portalseguranca/api-types/util/output";
-import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {BaseResponse, MODULE} from "@portalseguranca/api-types";
 
 type LastDatePairProps = {
     officer: number
@@ -95,7 +95,7 @@ const LastDatePair = (props: LastDatePairProps) => {
         await fetchLastDate();
     }
 
-    useWebSocketEvent<OfficerLastDateSocket>(SOCKET_EVENT.ACTIVITY, useCallback((data) => {
+    useWebSocketEvent<OfficerLastDateSocket>(MODULE.ACTIVITY, useCallback((data) => {
         if (data.field !== props.field.id) return; // Ignore if not the current field
 
         if (data.nif !== props.officer) return; // Ignore if not the current officer
