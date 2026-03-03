@@ -181,15 +181,12 @@ export async function updateEvaluationGrades(force: string, id: number, grades: 
 
 export async function addEvaluation(force: string, author: number, target: number, fields: EvaluationBodyFieldsType, patrol?: number, comments?: string, decision?: number | null, timestamp?: number): Promise<number> {
     // Insert the evaluation into the DB
-    const result = await queryDB(force, `INSERT INTO evaluations (target, author, patrol, comments, decision, timestamp) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol ?? null, comments ?? null, decision ?? null, timestamp ?? null]);
-
-    // Get the ID of the inserted evaluation
-    const id = (result as unknown as ResultSetHeader).insertId;
+    const result = await queryDB<ResultSetHeader>(force, `INSERT INTO evaluations (target, author, patrol, comments, decision, timestamp) VALUES (?, ?, ?, ?, ?, FROM_UNIXTIME(?))`, [target, author, patrol ?? null, comments ?? null, decision ?? null, timestamp ?? null]);
 
     // Insert the fields into the DB
-    await updateEvaluationGrades(force, id, fields);
+    await updateEvaluationGrades(force, result.insertId, fields);
 
-    return id;
+    return result.insertId;
 }
 
 export async function editEvaluation(force: string, id: number, changes: EditEvaluationBodyType) {
