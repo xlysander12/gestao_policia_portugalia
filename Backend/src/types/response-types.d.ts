@@ -22,6 +22,7 @@ export type APIResponse<BodyType extends BaseResponse = BaseResponse> = ExpressR
     locals: {
         routeDetails: routeMethodType
         queryParams: ReceivedQueryParams
+        responseBody: unknown
         loggedOfficer: InnerOfficerData
     }
 }

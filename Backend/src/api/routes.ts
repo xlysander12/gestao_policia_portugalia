@@ -1,30 +1,43 @@
 import {
     ChangeAccountInfoRequestBody,
-    ChangePasswordRequestBody, LoginDiscordRequestBody,
+    ChangePasswordRequestBody,
+    LoginDiscordRequestBody,
     LoginRequestBody,
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
-import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
+import {SubmitIssueRequestBody} from "@portalseguranca/api-types/metrics/input";
 import {
     CreateOfficerRequestBody,
-    DeleteOfficerRequestBody, GetOfficerQueryParams, ListOfficersQueryParams,
+    DeleteOfficerRequestBody,
+    GetOfficerQueryParams,
+    ListOfficersQueryParams,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
 import {
     AddOfficerHoursBody,
     AddOfficerJustificationBody,
-    ChangeOfficerJustificationBody, ListOfficerHoursQueryParams, ListOfficerJustificationsQueryParams,
+    ChangeOfficerJustificationBody,
+    ListOfficerHoursQueryParams,
+    ListOfficerJustificationsQueryParams,
     ManageOfficerJustificationBody,
     UpdateOfficerLastDateBody
 } from "@portalseguranca/api-types/officers/activity/input";
 import {
     OfficerAddSocket,
-    OfficerUpdateSocket,
-    OfficerRestoreSocket,
     OfficerDeleteSocket,
-    OfficerImportSocket
+    OfficerImportSocket,
+    OfficerRestoreSocket,
+    OfficerUpdateSocket
 } from "@portalseguranca/api-types/officers/output";
-import {OfficerLastDateSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    OfficerAddHoursSocket,
+    OfficerAddJustificationSocket,
+    OfficerDeleteHoursSocket,
+    OfficerDeleteJustificationSocket,
+    OfficerLastDateSocket,
+    OfficerManageJustificationSocket,
+    OfficerUpdateJustificationSocket
+} from "@portalseguranca/api-types/officers/activity/output";
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
@@ -32,15 +45,19 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, CeremonyDecisionAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse,
+    AnnouncementInfoAPIResponse,
+    CeremonyDecisionAPIResponse,
+    EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
 } from "../types/response-types";
-import {MODULE, SocketResponse} from "@portalseguranca/api-types";
+import {CreationResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
-    CreateEvaluationBody, EditEvaluationBody,
+    CreateEvaluationBody,
+    EditEvaluationBody,
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
@@ -52,10 +69,7 @@ import {
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
 import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
-import {
-    CreateEventBody, EditEventBody,
-    ListEventsQueryParams
-} from "@portalseguranca/api-types/events/input";
+import {CreateEventBody, EditEventBody, ListEventsQueryParams} from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
 import {
     CreateAnnouncementBody,
@@ -63,14 +77,18 @@ import {
     ListAnnouncementsQueryParams
 } from "@portalseguranca/api-types/announcements/input";
 import {
-    AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
+    AnnouncementAddSocket,
+    AnnouncementDeleteSocket,
+    AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
 import {
-    CreateCeremonyDecisionBody, EditCeremonyDecisionBody,
+    CreateCeremonyDecisionBody,
+    EditCeremonyDecisionBody,
     ListCeremonyDecisionsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {
-    AddCeremonyDecisionSocket, DeleteCeremonyDecisionSocket,
+    AddCeremonyDecisionSocket,
+    DeleteCeremonyDecisionSocket,
     UpdateCeremonyDecisionSocket
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 
@@ -261,7 +279,8 @@ const accountRoutes: routesType = {
                 intents: ["accounts"],
                 auditLog: {
                     module: MODULE.ACCOUNTS,
-                    action: "add"
+                    action: "add",
+                    getTarget: req => parseInt(req.params.nif)
                 }
             },
 
@@ -614,6 +633,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "update",
+                    type: "import"
                 }
             }
         }
@@ -1334,7 +1358,8 @@ const patrolsRoutes: routesType = {
                 },
                 auditLog: {
                     module: MODULE.PATROLS,
-                    action: "add"
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
@@ -1434,7 +1459,8 @@ const eventsRoutes: routesType = {
                 },
                 auditLog: {
                     module: MODULE.EVENTS,
-                    action: "add"
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
@@ -1545,7 +1571,8 @@ const announcementsRoutes: routesType = {
                 },
                 auditLog: {
                     module: MODULE.ANNOUNCEMENTS,
-                    action: "add"
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
