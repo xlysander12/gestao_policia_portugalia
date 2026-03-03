@@ -17,6 +17,10 @@ function loggerMiddleware(req: express.Request, res: APIResponse, next: NextFunc
 
 export function auditLoggerMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
     res.on("finish", () => {
+        // If the route details are not present, skip it (this only happens if a request to a unexisting route is received)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (res.locals.routeDetails === undefined) return;
+
         // If the route doesn't have audit log enabled, skip it
         if (res.locals.routeDetails.auditLog === undefined) return;
 

@@ -91,6 +91,7 @@ import {
     DeleteCeremonyDecisionSocket,
     UpdateCeremonyDecisionSocket
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {ListAuditLogsQueryParams} from "@portalseguranca/api-types/audit-logs/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -1634,6 +1635,55 @@ const announcementsRoutes: routesType = {
     }
 }
 
+const auditLogsRoutes: routesType = {
+    "/audit-logs$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["accounts"],
+                queryParams: {
+                    type: ListAuditLogsQueryParams
+                },
+                filters: {
+                    after: {
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    before: {
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    author: {
+                        queryFunction: () => "audit_logs.nif = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    },
+                    module: {
+                        queryFunction: () => "audit_logs.module = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    action: {
+                        queryFunction: () => "audit_logs.action = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    type: {
+                        queryFunction: () => "audit_logs.type = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    target: {
+                        queryFunction: () => "audit_logs.target = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    },
+                    code: {
+                        queryFunction: () => "audit_logs.status_code = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * @description This constant contains all the routes of the API with their respective methods, paths, required intents and body types
  */
@@ -1647,7 +1697,8 @@ const routes: routesType = {
     ...officersRoutes,
     ...patrolsRoutes,
     ...eventsRoutes,
-    ...announcementsRoutes
+    ...announcementsRoutes,
+    ...auditLogsRoutes
 }
 
 // ! Make sure there are no routes that require a session but don't require a force.
