@@ -29,7 +29,7 @@ for (const force of getForcesList()) {
 
 // Function used by the backend to query the database
 export type paramsTypes = string | number | bigint | null | Date | undefined;
-export async function queryDB(force: string, query: string, params?: paramsTypes | paramsTypes[]): Promise<RowDataPacket[]> {
+export async function queryDB<T = RowDataPacket[]>(force: string, query: string, params?: paramsTypes | paramsTypes[]): Promise<T> {
     // If the force parameter is not set, return
     if (!force || !getForcesList().includes(force))
         throw new Error("Force parameter not set or incorrect! Force: " + force);
@@ -43,7 +43,7 @@ export async function queryDB(force: string, query: string, params?: paramsTypes
         else params = [];
     }
 
-    const queryResult = await pools[force].query<RowDataPacket[]>(query, params);
+    const queryResult = await pools[force].query(query, params) as [T, never];
 
     return queryResult[0]; // Return only the result of the query and no fields
 }
