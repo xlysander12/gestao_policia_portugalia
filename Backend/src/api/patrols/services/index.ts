@@ -115,7 +115,7 @@ export async function patrolsHistory(force: string, validFilters: RouteFilterTyp
     }
 }
 
-export async function patrolCreate(force: string, patrolData: CreatePatrolBody, requestingOfficer: number): Promise<DefaultReturn<void>> {
+export async function patrolCreate(force: string, patrolData: CreatePatrolBody, requestingOfficer: number): Promise<DefaultReturn<number>> {
     // * Make sure that, if the patrol type requires a special unit, it is present
     // Fetch the patrol types from the force
     const patrolTypes = await getForcePatrolTypes(force);
@@ -179,7 +179,7 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     }
 
     // Since all officers exist, create the patrol
-    await createPatrol(force,
+    const id = await createPatrol(force,
         requestingOfficer,
         patrolData.type,
         patrolData.special_unit ?? null,
@@ -193,7 +193,8 @@ export async function patrolCreate(force: string, patrolData: CreatePatrolBody, 
     return {
         result: true,
         status: 201,
-        message: "Patrulha criada com sucesso"
+        message: "Patrulha criada com sucesso",
+        data: id
     }
 }
 
