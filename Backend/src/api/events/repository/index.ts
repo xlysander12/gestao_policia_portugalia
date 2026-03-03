@@ -4,6 +4,7 @@ import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/
 import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
 import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
+import {ResultSetHeader} from "mysql2/promise";
 
 function getBaseQuery(force: string) {
     // Get all forces that can patrol with this force
@@ -147,9 +148,9 @@ export async function getEvent(force: string, id: number, event_force: string): 
     }
 }
 
-export async function createEvent(force: string, author_nif: number, data: CreateEventBody) {
+export async function createEvent(force: string, author_nif: number, data: CreateEventBody): Promise<number> {
     // Query the DB to insert the Event data
-    await queryDB(
+    const result = await queryDB<ResultSetHeader>(
         force,
         `
                 INSERT INTO
@@ -159,6 +160,8 @@ export async function createEvent(force: string, author_nif: number, data: Creat
             `,
         [data.type, data.special_unit ?? null, author_nif, data.title ?? null, data.description ?? null, JSON.stringify(data.assignees ?? []), data.start, data.end]
     );
+
+    return result.insertId;
 }
 
 export async function editEvent(force: string, id: number, data: EditEventBody) {

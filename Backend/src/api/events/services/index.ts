@@ -28,7 +28,7 @@ export async function getEventsService(force: string, start: number, end: number
     }
 }
 
-export async function createEventService(force: string, logged_user: InnerOfficerData, event_data: CreateEventBody): Promise<DefaultReturn<void>> {
+export async function createEventService(force: string, logged_user: InnerOfficerData, event_data: CreateEventBody): Promise<DefaultReturn<number>> {
     // * Make sure all the required fields, depending on the given type are present
     // Fetch the type object
     const event_type = (await getEventTypes(force)).find(event_type => event_type.id === event_data.type);
@@ -97,12 +97,13 @@ export async function createEventService(force: string, logged_user: InnerOffice
     }
 
     // If every check went positive, apply the data to the repository
-    await createEvent(force, logged_user.nif, event_data);
+    const id = await createEvent(force, logged_user.nif, event_data);
 
     return {
         result: true,
         status: 201,
-        message: "Operação concluída com sucesso"
+        message: "Operação concluída com sucesso",
+        data: id
     }
 }
 

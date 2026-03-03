@@ -6,6 +6,7 @@ import {EventDetailsResponse, EventsListResponse} from "@portalseguranca/api-typ
 import {EventInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getEventsController(req: express.Request, res: APIResponse<EventsListResponse>) {
     // If neither the start or end search params where given, return 400
@@ -54,13 +55,13 @@ export function getEventController(_req: express.Request, res: EventInfoAPIRespo
     });
 }
 
-export async function createEventController(req: express.Request, res: APIResponse) {
+export async function createEventController(req: express.Request, res: APIResponse<CreationResponse>) {
     const event_data = req.body as CreateEventBody;
 
     // Call the service
     const result = await createEventService(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, event_data);
 
-    res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message, id: result.data ?? null});
 }
 
 export async function editEventController(req: express.Request, res: EventInfoAPIResponse) {
