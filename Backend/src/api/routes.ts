@@ -1681,6 +1681,15 @@ const auditLogsRoutes: routesType = {
                 }
             }
         }
+    },
+    "/audit-logs/\\d+$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["accounts"]
+            }
+        }
     }
 }
 

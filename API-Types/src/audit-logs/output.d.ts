@@ -11,9 +11,18 @@ export interface MinifiedAuditLogData {
     status_code: number
 }
 
+export interface AuditLogData extends MinifiedAuditLogData {
+    ip_address: string | null
+    details: Record<string, unknown>
+}
+
 export interface AuditLogHistoryResponse extends BaseResponse {
     meta: {
         pages: number
     }
     data: MinifiedAuditLogData[]
+}
+
+export interface AuditLogEntryResponse extends BaseResponse {
+    data: AuditLogData
 }

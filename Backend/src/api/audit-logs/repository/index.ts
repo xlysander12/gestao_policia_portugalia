@@ -3,7 +3,7 @@ import {MODULE} from "@portalseguranca/api-types";
 import {queryDB} from "../../../utils/db-connector";
 import {RouteFilterType} from "../../routes";
 import buildFiltersQuery, {ReceivedQueryParams} from "../../../utils/filters";
-import {MinifiedAuditLogData} from "@portalseguranca/api-types/audit-logs/output";
+import {AuditLogData, MinifiedAuditLogData} from "@portalseguranca/api-types/audit-logs/output";
 import {dateToUnix} from "../../../utils/date-handler";
 
 export async function createAuditLogEntry(
@@ -68,5 +68,30 @@ export async function listAuditLogs(force: string, loggedUser: InnerOfficerData,
             status_code: log.status_code as number
         })),
         pages: Math.ceil((totalEntriesResult[0]["COUNT(*)"] as number) / entriesPerPage)
+    }
+}
+
+export async function getAuditLogEntry(force: string, id: number): Promise<AuditLogData | null> {
+    const result = await queryDB(force, `
+        SELECT *
+        FROM audit_logs
+        WHERE id = ?
+    `, [id]);
+
+    if (result.length === 0) {
+        return null;
+    }
+
+    return {
+        id: result[0].id as number,
+        nif: result[0].nif as number,
+        ip_address: result[0].ip_address as string | null,
+        timestamp: dateToUnix(result[0].timestamp as Date),
+        module: result[0].module as string,
+        action: result[0].action as string,
+        type: result[0].type as string | null,
+        target: result[0].target as number | null,
+        details: JSON.parse(result[0].details as string) as Record<string, unknown>,
+        status_code: result[0].status_code as number
     }
 }
