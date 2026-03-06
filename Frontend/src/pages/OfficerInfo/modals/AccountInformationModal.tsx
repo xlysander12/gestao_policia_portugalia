@@ -166,7 +166,7 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
         // If the event isn't about the current officer, disregard it
         if (data.nif !== officerNif) return;
 
-        if (data.action === "update" || data.action === "manage") {
+        if (data.action === "update" || data.action === "manage" || data.action === "add") {
             if (open) // Only show the toast if the modal was open
                 toast.warning("Os detalhes da conta que estavas a visualizar foram alterados");
             void fetchAccountInfo();
