@@ -68,7 +68,12 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
-import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
+import {
+    AccountDeleteSocket,
+    AccountManageSocket,
+    AccountSocket,
+    AccountUpdateSocket
+} from "@portalseguranca/api-types/account/output";
 import {CreateEventBody, EditEventBody, ListEventsQueryParams} from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
 import {
@@ -278,6 +283,16 @@ const accountRoutes: routesType = {
                 requiresSession: true,
                 requiresForce: true,
                 intents: ["accounts"],
+                broadcast: {
+                    event: MODULE.ACCOUNTS,
+                    body: (req: express.Request, res: APIResponse): AccountSocket => {
+                        return {
+                            action: "add",
+                            nif: parseInt(req.params.nif),
+                            by: res.locals.loggedOfficer.nif,
+                        }
+                    }
+                },
                 auditLog: {
                     module: MODULE.ACCOUNTS,
                     action: "add",
