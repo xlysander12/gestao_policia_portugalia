@@ -5,7 +5,7 @@ import ManagementBar from "../../components/ManagementBar";
 import {DefaultPagination, DefaultTypography} from "../../components/DefaultComponents";
 import styles from "./styles.module.css";
 import {make_request, RequestMethod} from "../../utils/requests.ts";
-import {useSearchParams} from "react-router-dom";
+import {useParams, useSearchParams} from "react-router-dom";
 import {AuditLogHistoryResponse, MinifiedAuditLogData} from "@portalseguranca/api-types/audit-logs/output";
 import { toast } from "react-toastify";
 import moment, {Moment} from "moment";
@@ -13,12 +13,15 @@ import AuditLogEntryCard from "./components/Card/AuditLogEntryCard.tsx";
 import Gate from "../../components/Gate/gate.tsx";
 import {Loader} from "../../components/Loader";
 import {useWebSocketEvent} from "../../hooks";
+import {AuditLogModal} from "./modals";
 
 export interface InnerMinifiedAuditLogData extends Omit<MinifiedAuditLogData, "timestamp"> {
     timestamp: Moment
 }
 
 function AuditLogs() {
+    const {id} = useParams();
+
     const [searchParams] = useSearchParams();
 
     const [page, setPage] = useState<number>(1);
@@ -27,6 +30,9 @@ function AuditLogs() {
     const [history, setHistory] = useState<InnerMinifiedAuditLogData[]>([]);
 
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [selectedEntryId, setselectedEntryId] = useState<number | null>(null);
 
     const buildedQueryParams = useMemo(() => {
         const queryParams = [];
@@ -78,6 +84,7 @@ function AuditLogs() {
         void fetchHistory(false);
     }, []));
 
+    // Load history
     useEffect(() => {
         const controller = new AbortController();
 
@@ -88,43 +95,63 @@ function AuditLogs() {
         }
     }, [searchParams.toString(), page]);
 
+    // Open modal if entry id is present in url
+    useEffect(() => {
+        if (id === undefined) return;
+
+        setselectedEntryId(parseInt(id));
+        setModalOpen(true);
+    }, [id]);
+
     return (
-        <ScreenSplit
-            leftSidePercentage={30}
-            leftSideComponent={<Filter/>}
-        >
-            <ManagementBar>
-                <div className={styles.managementBar}>
-                    <DefaultPagination
-                        page={page}
-                        count={maxPages}
-                        onChange={(event, page) => setPage(page)}
-                    />
+        <>
+            <ScreenSplit
+                leftSidePercentage={30}
+                leftSideComponent={<Filter/>}
+            >
+                <ManagementBar>
+                    <div className={styles.managementBar}>
+                        <DefaultPagination
+                            page={page}
+                            count={maxPages}
+                            size={"large"}
+                            onChange={(_event, page) => setPage(page)}
+                        />
+                    </div>
+                </ManagementBar>
+
+                <div className={styles.main}>
+                    <Gate show={loading}>
+                        <Loader fullDiv />
+                    </Gate>
+
+                    <Gate show={!loading}>
+                        {history.map(entry => {
+                            return (
+                                <AuditLogEntryCard
+                                    key={`entry#${entry.id}`}
+                                    entry={entry}
+                                    callback={() => {
+                                        setselectedEntryId(entry.id);
+                                        setModalOpen(true);
+                                    }}
+                                />
+                            );
+                        })}
+                    </Gate>
+
+                    <Gate show={!loading && history.length === 0}>
+                        <DefaultTypography color={"black"} fontSize={"xx-large"}>Sem Resultados</DefaultTypography>
+                    </Gate>
                 </div>
-            </ManagementBar>
+            </ScreenSplit>
 
-            <div className={styles.main}>
-                <Gate show={loading}>
-                    <Loader fullDiv />
-                </Gate>
-
-                <Gate show={!loading}>
-                    {history.map(entry => {
-                        return (
-                            <AuditLogEntryCard
-                                key={`entry#${entry.id}`}
-                                entry={entry}
-                                callback={() => console.log(entry)}
-                            />
-                        );
-                    })}
-                </Gate>
-
-                <Gate show={!loading && history.length === 0}>
-                    <DefaultTypography color={"black"} fontSize={"xx-large"}>Sem Resultados</DefaultTypography>
-                </Gate>
-            </div>
-        </ScreenSplit>
+            <AuditLogModal
+                id={selectedEntryId}
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+            />
+        </>
     );
 }
 

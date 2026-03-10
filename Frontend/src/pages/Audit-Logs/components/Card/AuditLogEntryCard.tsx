@@ -10,7 +10,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData} from "../../../../hooks";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
-import {ACTIONS_COLORS} from "../../constants.ts";
+import {ACTIONS_COLORS, isTargetOfficer, PLACEHOLDER_OFFICER_DATA} from "../../constants.ts";
 
 type AuditLogEntryCardProps = {
     entry: InnerMinifiedAuditLogData
@@ -23,25 +23,16 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
 
     const [officers, setOfficers] = useState<(MinifiedOfficerData | null)[]>([]);
 
-    /*
-    ** Conditions for this to be true:
-    ** - The module must be either OFFICERS or ACCOUNTS (since accounts are also officers)
-    ** - The module is ACTIVITY, and the action is "add"
-    ** - The module is EVALUATIONS, and the action is "add
-     */
-    const isTargetOfficer = useMemo(() => {
-        return props.entry.module as MODULE === MODULE.OFFICERS ||
-            props.entry.module as MODULE === MODULE.ACCOUNTS ||
-            (props.entry.module as MODULE === MODULE.ACTIVITY && props.entry.action === "add") ||
-            (props.entry.module as MODULE === MODULE.EVALUATIONS && props.entry.action === "add");
-    }, [props.entry.module, props.entry.action]);
 
-    async function fetchOfficerData(nif: number, signal?: AbortSignal): Promise<MinifiedOfficerData | null> {
+    async function fetchOfficerData(nif: number, signal?: AbortSignal): Promise<MinifiedOfficerData> {
         const response = await make_request(`/officers/${nif}`, RequestMethod.GET, {signal});
         const responseJson = await response.json() as OfficerInfoGetResponse;
 
         if (!response.ok) {
-            return null;
+            return {
+                ...PLACEHOLDER_OFFICER_DATA,
+                name: `${PLACEHOLDER_OFFICER_DATA.name} (#${nif})`
+            };
         }
 
         return responseJson.data;
@@ -55,7 +46,7 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
 
         // Inner function to fetch the target's data
         async function fetchTargetData(signal?: AbortSignal) {
-            if (!isTargetOfficer) return null;
+            if (!isTargetOfficer(props.entry)) return null;
             return await fetchOfficerData(props.entry.target!, signal);
         }
 
@@ -80,19 +71,39 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
         // Then, add the action performed
         switch (props.entry.action) {
             case "add":
-                builder += " criou";
+                if (props.entry.status_code < 400) {
+                    builder += " criou";
+                } else {
+                    builder += " tentou criar";
+                }
                 break;
             case "delete":
-                builder += " eliminou";
+                if (props.entry.status_code < 400) {
+                    builder += " eliminou";
+                } else {
+                    builder += " tentou eliminar";
+                }
                 break;
             case "update":
-                builder += " modificou";
+                if (props.entry.status_code < 400) {
+                    builder += " modificou";
+                } else {
+                    builder += " tentou modificar";
+                }
                 break;
             case "restore":
-                builder += " restaurou";
+                if (props.entry.status_code < 400) {
+                    builder += " restaurou";
+                } else {
+                    builder += " tentou restaurar";
+                }
                 break;
             case "manage":
-                builder += " geriu";
+                if (props.entry.status_code < 400) {
+                    builder += " geriu";
+                } else {
+                    builder += " tentou gerir";
+                }
                 break;
             default:
                 builder += ` realizou a ação ${props.entry.action}`;
@@ -123,10 +134,19 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
                         builder += " uma última data de";
                         break;
                     case "hours":
-                        builder += " um registo de horas de";
+                        if (props.entry.action === "add") {
+                            builder += " um registo de horas de";
+                        } else {
+                            builder += " o registo de horas";
+                        }
+
                         break;
                     case "justification":
-                        builder += " uma justificação de";
+                        if (props.entry.action === "add") {
+                            builder += " uma justificação de";
+                        } else {
+                            builder += " a justificação";
+                        }
                         break;
                     default:
                         builder += " um registo de atividade de";
@@ -134,7 +154,12 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
                 }
                 break;
             case MODULE.PATROLS:
-                builder += " a patrulha";
+                if (props.entry.action === "add" && props.entry.status_code >= 400) {
+                    builder += " uma patrulha";
+                    break;
+                } else {
+                    builder += " a patrulha";
+                }
                 break;
             case MODULE.EVALUATIONS:
                 if (props.entry.action === "add") {
@@ -158,7 +183,17 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
         }
 
         // If the module is ACCOUNT and the type is "password_change", don't add anything else
-        if (props.entry.module as MODULE === MODULE.ACCOUNTS && props.entry.type === "password_change") {
+        // Additionally, if the module is EVENTS or PATROLS or ANNOUNCEMENTS, the action is "add" and it wasn't successul, don't add anything else
+        if (
+            (props.entry.module as MODULE === MODULE.ACCOUNTS && props.entry.type === "password_change") ||
+            (
+                (
+                    props.entry.module as MODULE === MODULE.EVENTS ||
+                    props.entry.module as MODULE === MODULE.PATROLS ||
+                    props.entry.module as MODULE === MODULE.ANNOUNCEMENTS
+                ) && props.entry.action === "add" && props.entry.status_code >= 400
+            )
+        ) {
             return builder;
         }
 
@@ -167,7 +202,7 @@ function AuditLogEntryCard(props: AuditLogEntryCardProps) {
          ** - The module must be either OFFICERS or ACCOUNTS (since accounts are also officers)
          ** - The module is ACTIVITY, but the action is "add"
          */
-        if (isTargetOfficer) {
+        if (isTargetOfficer(props.entry)) {
             builder += ` ${officers[1] ? `${getObjectFromId(officers[1].patent, forceData.patents)!.name} ${officers[1].name}` : props.entry.target}`;
         } else { // If not, just add the target's ID
             builder += ` #${props.entry.target}`;

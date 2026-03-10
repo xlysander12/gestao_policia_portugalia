@@ -1,4 +1,5 @@
 import { MODULE } from "@portalseguranca/api-types";
+import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 
 
 function populateVar<T>(callback: () => T) {
@@ -75,22 +76,43 @@ export const ACTIONS_COLORS = populateVar(() => {
     ["add", "delete", "update", "restore", "manage"].map(action => {
         switch (action) {
             case "add":
-                actions[action] = "green";
+                actions[action] = "#22C55E";
                 break;
             case "delete":
-                actions[action] = "red";
+                actions[action] = "#EF4444";
                 break;
             case "update":
-                actions[action] = "blue";
+                actions[action] = "#3B82F6";
                 break;
             case "restore":
-                actions[action] = "lightgreen";
+                actions[action] = "#F59E0B";
                 break;
             case "manage":
-                actions[action] = "darkblue";
+                actions[action] = "#6B7280";
                 break;
         }
     });
 
     return actions;
 });
+
+/*
+** Conditions for this to be true:
+** - The module must be either OFFICERS or ACCOUNTS (since accounts are also officers)
+** - The module is ACTIVITY, and the action is "add"
+** - The module is EVALUATIONS, and the action is "add
+*/
+export function isTargetOfficer(entryData: {module: string, action: string}) {
+    return entryData.module as MODULE === MODULE.OFFICERS ||
+        entryData.module as MODULE === MODULE.ACCOUNTS ||
+        (entryData.module as MODULE === MODULE.ACTIVITY && entryData.action === "add") ||
+        (entryData.module as MODULE === MODULE.EVALUATIONS && entryData.action === "add");
+}
+
+export const PLACEHOLDER_OFFICER_DATA: MinifiedOfficerData = {
+    name: "Desconhecido",
+    nif: 0,
+    callsign: "N/A",
+    patent: 1,
+    status: 0
+}
