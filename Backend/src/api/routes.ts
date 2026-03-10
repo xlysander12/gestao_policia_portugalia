@@ -321,7 +321,7 @@ const accountRoutes: routesType = {
                 auditLog: {
                     module: MODULE.ACCOUNTS,
                     action: "manage",
-                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
             DELETE: {
@@ -341,7 +341,7 @@ const accountRoutes: routesType = {
                 auditLog: {
                     module: MODULE.ACCOUNTS,
                     action: "delete",
-                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -719,7 +719,7 @@ const officersRoutes: routesType = {
                 auditLog: {
                     module: MODULE.OFFICERS,
                     action: "update",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
 
@@ -744,7 +744,7 @@ const officersRoutes: routesType = {
                 auditLog: {
                     module: MODULE.OFFICERS,
                     action: "delete",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
 
@@ -819,7 +819,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "update",
                     type: "last_date",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -866,7 +866,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "add",
                     type: "hours",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -959,7 +959,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "add",
                     type: "justification",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -1001,7 +1001,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "manage",
                     type: "justification",
-                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             PATCH: {
@@ -1026,7 +1026,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "update",
                     type: "justification",
-                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
@@ -1048,7 +1048,7 @@ const activityRoutes: routesType = {
                     module: MODULE.ACTIVITY,
                     action: "delete",
                     type: "justification",
-                    getTarget: (_req, res: OfficerJustificationAPIResponse) => res.locals.justification.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -1107,7 +1107,7 @@ const evaluationsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.EVALUATIONS,
                     action: "add",
-                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -1175,7 +1175,7 @@ const evaluationsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.EVALUATIONS,
                     action: "update",
-                    getTarget: (_reqq, res: OfficerEvaluationAPIResponse) => res.locals.evaluation.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
@@ -1196,7 +1196,7 @@ const evaluationsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.EVALUATIONS,
                     action: "delete",
-                    getTarget: (_reqq, res: OfficerEvaluationAPIResponse) => res.locals.evaluation.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -1281,7 +1281,7 @@ const ceremonyDecisionsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.CEREMONY_DECISIONS,
                     action: "update",
-                    getTarget: (_req, res: CeremonyDecisionAPIResponse) => res.locals.decision.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
@@ -1302,7 +1302,7 @@ const ceremonyDecisionsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.CEREMONY_DECISIONS,
                     action: "delete",
-                    getTarget: (_req, res: CeremonyDecisionAPIResponse) => res.locals.decision.id
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -1406,7 +1406,7 @@ const patrolsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.PATROLS,
                     action: "update",
-                    getTarget: (_req, res: PatrolInfoAPIResponse) => res.locals.patrol.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
 
@@ -1429,7 +1429,7 @@ const patrolsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.PATROLS,
                     action: "delete",
-                    getTarget: (_req, res: PatrolInfoAPIResponse) => res.locals.patrol.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             }
         }
@@ -1510,7 +1510,7 @@ const eventsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.EVENTS,
                     action: "update",
-                    getTarget: (_req, res: EventInfoAPIResponse) => res.locals.event.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
             DELETE: {
@@ -1531,7 +1531,7 @@ const eventsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.EVENTS,
                     action: "delete",
-                    getTarget: (_req, res: EventInfoAPIResponse) => res.locals.event.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             }
         }
@@ -1621,7 +1621,7 @@ const announcementsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.ANNOUNCEMENTS,
                     action: "update",
-                    getTarget: (_req, res: AnnouncementInfoAPIResponse) => res.locals.announcement.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
             DELETE: {
@@ -1643,7 +1643,7 @@ const announcementsRoutes: routesType = {
                 auditLog: {
                     module: MODULE.ANNOUNCEMENTS,
                     action: "delete",
-                    getTarget: (_req, res: AnnouncementInfoAPIResponse) => res.locals.announcement.id
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             }
         }
