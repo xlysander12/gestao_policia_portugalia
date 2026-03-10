@@ -14,13 +14,14 @@ export async function createAuditLogEntry(
     type: string | undefined,
     target: number | undefined | null,
     status_code: number,
-    body: Record<string, never>,
+    body: Record<string, unknown>,
+    response: Record<string, unknown>
 ) {
     // Store this change in the database
     await queryDB(force, `
-        INSERT INTO audit_logs (nif, ip_address, module, action, type, target, details, status_code)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [user.nif, ip, module, action, type, target, JSON.stringify(body), status_code]);
+        INSERT INTO audit_logs (nif, ip_address, module, action, type, target, details, status_code, response)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [user.nif, ip, module, action, type, target, JSON.stringify(body), status_code, JSON.stringify(response)]);
 }
 
 export async function listAuditLogs(force: string, loggedUser: InnerOfficerData, routeFiltres: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{
@@ -92,6 +93,7 @@ export async function getAuditLogEntry(force: string, id: number): Promise<Audit
         type: result[0].type as string | null,
         target: result[0].target as number | null,
         details: JSON.parse(result[0].details as string) as Record<string, unknown>,
-        status_code: result[0].status_code as number
+        status_code: result[0].status_code as number,
+        response: JSON.parse(result[0].response) as Record<string, unknown>
     }
 }

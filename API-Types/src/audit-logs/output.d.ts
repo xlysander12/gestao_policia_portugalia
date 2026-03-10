@@ -14,6 +14,7 @@ export interface MinifiedAuditLogData {
 export interface AuditLogData extends MinifiedAuditLogData {
     ip_address: string | null
     details: Record<string, unknown>
+    response: Record<string, unknown>
 }
 
 export interface AuditLogHistoryResponse extends BaseResponse {

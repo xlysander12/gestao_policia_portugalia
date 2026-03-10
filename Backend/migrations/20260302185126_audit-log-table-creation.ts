@@ -16,6 +16,7 @@ export async function up(knex: Knex): Promise<void> {
         table.integer("target").nullable();
         table.jsonb("details").nullable();
         table.integer("status_code").notNullable();
+        table.jsonb("response").notNullable();
     });
 }
 

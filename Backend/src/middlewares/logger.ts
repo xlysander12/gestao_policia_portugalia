@@ -24,21 +24,42 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
         // If the route doesn't have audit log enabled, skip it
         if (res.locals.routeDetails.auditLog === undefined) return;
 
+        // If the status code was 400, 401 or above or equal to 500, don't log it
+        if (res.statusCode === 400 || res.statusCode === 401 || res.statusCode >= 500) return;
+
         // Store user's IP adress
         const userIP = (res.req.header("X-Real-IP") ? res.req.header("X-Real-IP"): res.req.socket.remoteAddress) ?? null;
 
         // Store this change in the database
-        void createAuditLogEntry(
-            req.header(FORCE_HEADER)!,
-            res.locals.loggedOfficer,
-            userIP,
-            res.locals.routeDetails.auditLog.module,
-            res.locals.routeDetails.auditLog.action,
-            res.locals.routeDetails.auditLog.type,
-            res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
-            res.statusCode,
-            req.body
-        );
+        try {
+            void createAuditLogEntry(
+                req.header(FORCE_HEADER)!,
+                res.locals.loggedOfficer,
+                userIP,
+                res.locals.routeDetails.auditLog.module,
+                res.locals.routeDetails.auditLog.action,
+                res.locals.routeDetails.auditLog.type,
+                res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
+                res.statusCode,
+                req.body,
+                res.locals.responseBody as Record<string, unknown>
+            );
+        } catch (e) {
+            logToConsole(pc.red(`Failed to create audit log entry: ${(e as Error).message}\nData: ${JSON.stringify(
+                [
+                    req.header(FORCE_HEADER)!,
+                    res.locals.loggedOfficer,
+                    userIP,
+                    res.locals.routeDetails.auditLog.module,
+                    res.locals.routeDetails.auditLog.action,
+                    res.locals.routeDetails.auditLog.type,
+                    res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
+                    res.statusCode,
+                    req.body
+                ]
+            )}`));
+        }
+
     });
 
     next();
