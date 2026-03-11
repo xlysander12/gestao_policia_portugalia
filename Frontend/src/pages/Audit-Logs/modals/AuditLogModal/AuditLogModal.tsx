@@ -73,7 +73,7 @@ function AuditLogModal(props: AuditLogModalProps) {
             if (!targetResponse.ok) {
                 target = {
                     ...PLACEHOLDER_OFFICER_DATA,
-                    nif: mainResponseJson.data.nif
+                    nif: mainResponseJson.data.target as number
                 };
             } else {
                 target = targetResponseJson.data;
