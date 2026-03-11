@@ -3,11 +3,12 @@ import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
 import {Loader} from "../../../components/Loader";
 import modalsStyle from "./officerinfomodals.module.css";
-import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
+import {FormControlLabel, IconButton, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import {AccountInfo, AccountInfoResponse, AccountSocket} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
 import {RequestError, BaseResponse, MODULE} from "@portalseguranca/api-types/index.ts";
@@ -16,6 +17,7 @@ import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 import {useForceData, useWebSocketEvent} from "../../../hooks";
 import moment, {Moment} from "moment";
+import DefaultLink from "../../../components/DefaultComponents/DefaultLink.tsx";
 
 type InnerAccountInfo = Omit<AccountInfo, "lastUsed"> & {
     lastUsed: Moment | null
@@ -237,7 +239,14 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             {!accountInfo.suspended ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
-                        <Typography>Última utilização: {lastUsedString}</Typography>
+                        <Stack alignItems={"center"} direction={"row"} gap={1}>
+                            <Typography>Última utilização: {lastUsedString}</Typography>
+                            <DefaultLink to={`/registo-auditoria?author=${officerNif}`} title={"Ver registo de atividade do Efetivo"}>
+                                <IconButton sx={{padding: 0}}>
+                                    <HistoryOutlinedIcon sx={{color: "var(--portalseguranca-color-accent)"}} />
+                                </IconButton>
+                            </DefaultLink>
+                        </Stack>
                     </div>
                 </ModalSection>
 
