@@ -19,6 +19,7 @@ import packageJson from "../../../package.json";
 import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
 import {BASE_URL} from "../../utils/constants.ts";
 import AuthenticationMethodsModal from "./modals/AuthenticationMethodsModal.tsx";
+import DefaultLink from "../DefaultComponents/DefaultLink.tsx";
 
 type CustomLinkProps = {
     to: string
@@ -259,6 +260,12 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                     setAccountMenuAnchor(null);
                 }}
             >
+                <Gate show={loggedUser.intents.accounts}>
+                    <DefaultLink to={"/registo-auditoria"} disableClickable>
+                        <MenuItem>Registo de Auditoria</MenuItem>
+                    </DefaultLink>
+                </Gate>
+
                 <Gate show={loggedUser.intents.evaluations}>
                     <MenuItem
                         onClick={() => {
