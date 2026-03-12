@@ -102,9 +102,9 @@ export const ACTIONS_COLORS = populateVar(() => {
 ** - The module is ACTIVITY, and the action is "add"
 ** - The module is EVALUATIONS, and the action is "add
 */
-export function isTargetOfficer(entryData: {module: string, action: string}) {
+export function isTargetOfficer(entryData: {module: string, action: string, type?: string | null}) {
     return entryData.module as MODULE === MODULE.OFFICERS ||
-        entryData.module as MODULE === MODULE.ACCOUNTS ||
+        (entryData.module as MODULE === MODULE.ACCOUNTS && entryData.type !== "password_change") ||
         (entryData.module as MODULE === MODULE.ACTIVITY && entryData.action === "add") ||
         (entryData.module as MODULE === MODULE.EVALUATIONS && entryData.action === "add");
 }

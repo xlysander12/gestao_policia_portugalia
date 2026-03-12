@@ -125,7 +125,7 @@ function AuditLogModal(props: AuditLogModalProps) {
 
                     <Gate show={details?.type !== null}>
                         <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo:</DefaultTypography>
-                        <DefaultTypography color={ACTIONS_COLORS[details?.action ?? 0]}>{details?.type}</DefaultTypography>
+                        <DefaultTypography>{details?.type}</DefaultTypography>
 
                         <Divider flexItem sx={{marginBottom: "10px"}} />
                     </Gate>
