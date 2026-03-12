@@ -4,6 +4,7 @@ import {colorFromHTTPCode, colorFromMethod, logRequestToFile, logToConsole} from
 import pc from "picocolors";
 import {createAuditLogEntry} from "../api/audit-logs/repository";
 import {FORCE_HEADER} from "../utils/constants";
+import {MODULE} from "@portalseguranca/api-types";
 
 function loggerMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
     res.on("finish", () => {
@@ -30,6 +31,12 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
         // Store user's IP adress
         const userIP = (res.req.header("X-Real-IP") ? res.req.header("X-Real-IP"): res.req.socket.remoteAddress) ?? null;
 
+        // If the request is to change own password, don't log the body
+        let body = req.body;
+        if (res.locals.routeDetails.auditLog.module === MODULE.ACCOUNTS && res.locals.routeDetails.auditLog.type === "password_change") {
+            body = {};
+        }
+
         // Store this change in the database
         void createAuditLogEntry(
             req.header(FORCE_HEADER)!,
@@ -40,7 +47,7 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
             res.locals.routeDetails.auditLog.type,
             res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
             res.statusCode,
-            req.body,
+            body,
             res.locals.responseBody as Record<string, unknown>
         ).catch((error: unknown) => {
             logToConsole(pc.red(`Failed to create audit log entry: ${(error as Error).message}\nData: ${JSON.stringify(
@@ -53,7 +60,7 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
                     res.locals.routeDetails.auditLog!.type,
                     res.locals.routeDetails.auditLog!.getTarget ? res.locals.routeDetails.auditLog!.getTarget(req, res) : undefined,
                     res.statusCode,
-                    req.body
+                    body
                 ]
             )}`));
         });
