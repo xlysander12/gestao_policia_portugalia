@@ -164,7 +164,7 @@ function AuditLogModal(props: AuditLogModalProps) {
                         <Divider flexItem sx={{marginBottom: "10px"}} />
                     </Gate>
 
-                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Código de estado:</DefaultTypography>
+                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Código de Resposta:</DefaultTypography>
                     <DefaultTypography color={details && details.status_code < 400 ? "green" : (details && details.status_code < 500 ? "yellow" : "red")}>{details?.status_code}</DefaultTypography>
 
                     <Divider flexItem sx={{marginBottom: "10px"}} />
