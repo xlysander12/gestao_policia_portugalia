@@ -106,6 +106,7 @@ function AuditLogModal(props: AuditLogModalProps) {
             onClose={props.onClose}
             title={`Registo #${props.id}`}
             url={`/registo-auditoria/${props.id}`}
+            width={"50%"}
         >
             <Gate show={loading}>
                 <Loader fullDiv />
