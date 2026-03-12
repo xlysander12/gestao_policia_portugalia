@@ -53,7 +53,7 @@ export async function officerActive(force: string, nif: number): Promise<Default
     }
 }
 
-export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: number, end?: number): Promise<DefaultReturn<void>> {
+export async function officerJustificationCreate(force: string, nif: number, type: number, description: string, start: number, end?: number): Promise<DefaultReturn<number>> {
     // * Make sure the provided type is valid
     // Get the types of inactivity
     const inactivityTypes = await getForceInactivityTypes(force);
@@ -78,13 +78,14 @@ export async function officerJustificationCreate(force: string, nif: number, typ
     }
 
     // * Call the repository to create the justification
-    await createOfficerJustification(force, nif, type, description, unixToDate(start), end ? unixToDate(end): undefined);
+    const id = await createOfficerJustification(force, nif, type, description, unixToDate(start), end ? unixToDate(end): undefined);
 
     // Return the result
     return {
         result: true,
         status: 201,
-        message: "Justificação criada com sucesso"
+        message: "Justificação criada com sucesso",
+        data: id
     }
 }
 

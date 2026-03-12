@@ -30,7 +30,7 @@ import Gate from "../../components/Gate/gate.tsx";
 import {ActivityPanel} from "./ActivityPanel.tsx";
 import ManagementBar from "../../components/ManagementBar";
 import {UpdateOfficerRequestBody} from "@portalseguranca/api-types/officers/input.ts";
-import {RequestError, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
+import {RequestError, MODULE} from "@portalseguranca/api-types/index.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import ShareButton from "../../components/ShareButton";
@@ -182,7 +182,7 @@ function OfficerInfo() {
     const [isImportModalOpen, setImportModalOpen] = useState<boolean>(false);
 
     // Handle updates from socket
-    useWebSocketEvent<OfficerSocket>(SOCKET_EVENT.OFFICERS, useCallback((data) => {
+    useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback((data) => {
         // If the update wasn't for the officer being viewed, return
         // If nif is 0, then this update came from an import from Google Sheets
         if (data.nif !== officerNif && data.nif !== 0) return;

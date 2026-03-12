@@ -1,0 +1,29 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    box-sizing: border-box;
+
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+    height: calc(100% - (5.4rem + 10px));
+
+    background-color: var(--portalseguranca-color-background-dark);
+}
+
+.sideBySide {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+    gap: 10px;
+}
+
+.sideBySide > div {
+    flex: 1;
+}

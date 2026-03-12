@@ -26,6 +26,7 @@
     "@react-buddy/ide-toolbox": "^2.4.0",
     "@react-buddy/palette-mui": "^5.0.1",
     "@tiptap/starter-kit": "^3.0.3",
+    "@uiw/react-json-view": "^2.0.0-alpha.41",
     "immer": "^10.1.1",
     "moment": "^2.30.1",
     "moment-duration-format": "^2.3.2",

@@ -25,7 +25,7 @@ import {EventDetailsResponse, ExistingEventSocket, ForceEvent} from "@portalsegu
 import DecisionCard, {MockDecisionCard} from "./DecisionCard.tsx";
 import moment, {Moment} from "moment";
 import {FormControlLabel, Switch} from "@mui/material";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {MODULE, SocketResponse} from "@portalseguranca/api-types";
 import {DecisionModal} from "../index.ts";
 import {useParams} from "react-router-dom";
 import OfficerIdentificationText
@@ -142,7 +142,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         setDecisionModalOpen(true);
     }
 
-    useWebSocketEvent<CeremonyDecisionSocket>(SOCKET_EVENT.CEREMONY_DECISIONS, useCallback((data) => {
+    useWebSocketEvent<CeremonyDecisionSocket>(MODULE.CEREMONY_DECISIONS, useCallback((data) => {
         if (!props.open) return; // Don't do anything if modal is closed
 
         if (data.target !== props.target.nif) return; // Not for this officer
@@ -151,7 +151,7 @@ function DecisionsListModal(props: DecisionsListModalProps) {
         void fetchDecisions(false);
     }, [props.open, props.target.nif, filters, page, ]));
 
-    useWebSocketEvent<SocketResponse | ExistingEventSocket>(SOCKET_EVENT.EVENTS, useCallback(data => {
+    useWebSocketEvent<SocketResponse | ExistingEventSocket>(MODULE.EVENTS, useCallback(data => {
         if (!props.open) return; // Don't do anything if modal is closed
 
         function isNewEvent(data: SocketResponse | ExistingEventSocket): data is SocketResponse {

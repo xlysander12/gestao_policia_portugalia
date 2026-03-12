@@ -11,7 +11,7 @@ import {EventsListResponse, MinifiedEvent} from "@portalseguranca/api-types/even
 import {make_request, RequestMethod} from "../../../../utils/requests.ts";
 import EventModal from "./EventModal.tsx";
 import {useWebSocketEvent} from "../../../../hooks";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {MODULE, SocketResponse} from "@portalseguranca/api-types";
 import {useParams} from "react-router-dom";
 
 type InnerMinifiedEvent = Omit<MinifiedEvent, "id" | "start" | "end"> & {
@@ -58,7 +58,7 @@ function ForceCalendar() {
     }
 
     // Listen for websocket events
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force"), currentInterval.start.unix(), currentInterval.end.unix()]));
+    useWebSocketEvent<SocketResponse>(MODULE.EVENTS, useCallback(() => void fetchEvents(), [localStorage.getItem("force"), currentInterval.start.unix(), currentInterval.end.unix()]));
 
     useEffect(() => {
         const controller = new AbortController();

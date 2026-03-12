@@ -18,7 +18,7 @@ import {DefaultTypography} from "../DefaultComponents";
 import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
 import {OfficerData, OfficerInfoGetResponse} from '@portalseguranca/api-types/officers/output';
-import { SOCKET_EVENT } from '@portalseguranca/api-types';
+import { MODULE } from '@portalseguranca/api-types';
 import ChangePasswordModal from "./modals/change-password.tsx";
 import { AccountSocket } from '@portalseguranca/api-types/account/output';
 
@@ -131,17 +131,17 @@ function Notifications() {
         setMenuAnchor(null);
     }
 
-    useWebSocketEvent(SOCKET_EVENT.ACTIVITY, useCallback(() => {
+    useWebSocketEvent(MODULE.ACTIVITY, useCallback(() => {
         if (loggedUser.intents["activity"]) {
             setNeedsRefresh(true);
         }
     }, [loggedUser.intents["activity"]]));
 
-    useWebSocketEvent(SOCKET_EVENT.EVENTS, useCallback(() => {
+    useWebSocketEvent(MODULE.EVENTS, useCallback(() => {
         setNeedsRefresh(true);
     }, []));
 
-    useWebSocketEvent<AccountSocket>(SOCKET_EVENT.ACCOUNTS, useCallback((data) => {
+    useWebSocketEvent<AccountSocket>(MODULE.ACCOUNTS, useCallback((data) => {
         if (data.nif === loggedUser.info.personal.nif && data.action === "update") setNeedsRefresh(true);
     }, [loggedUser.info.personal.nif]));
 

@@ -3,6 +3,7 @@ import {queryDB} from "../../../../../../utils/db-connector";
 import {OfficerSpecificHoursType} from "@portalseguranca/api-types/officers/activity/output";
 import {RouteFilterType} from "../../../../../routes";
 import {dateToUnix} from "../../../../../../utils/date-handler";
+import {ResultSetHeader} from "mysql2/promise";
 
 export type OfficerHoursEntryType = Omit<OfficerSpecificHoursType, "week_start" | "week_end"> & {
     week_start: Date,
@@ -73,7 +74,8 @@ export async function ensureNoHoursThisWeek(force: string, nif: number, week_sta
 }
 
 export async function insertHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: number) {
-    await queryDB(force, `INSERT INTO officer_hours (officer, week_start, week_end, minutes, submitted_by) VALUES (?, ?, ?, ?, ?)`, [nif, week_start, week_end, minutes, submitted_by]);
+    const result = await queryDB<ResultSetHeader>(force, `INSERT INTO officer_hours (officer, week_start, week_end, minutes, submitted_by) VALUES (?, ?, ?, ?, ?)`, [nif, week_start, week_end, minutes, submitted_by]);
+    return result.insertId;
 }
 
 export async function deleteHoursEntry(force: string, nif: number, id: number): Promise<void> {

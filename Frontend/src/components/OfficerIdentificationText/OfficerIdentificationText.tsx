@@ -12,6 +12,7 @@ type OfficerContextMenuProps = DefaultTypographyProps & {
     prefix?: string
     suffix?: string
     showCallsign?: boolean
+    showNif?: boolean
     hidePatent?: boolean
     disabled?: boolean
 }
@@ -56,6 +57,8 @@ function OfficerIdentificationText(props: OfficerContextMenuProps) {
                     !props.hidePatent ? getObjectFromId(props.officer.patent, getForceData(props.officer.force ?? localStorage.getItem("force")!).patents)!.name : ""
                 } {
                     props.officer.name
+                } {
+                  props.showNif ? `(#${props.officer.nif})` : ""
                 } {
                     props.suffix ? ` ${props.suffix}` : ""
                 }

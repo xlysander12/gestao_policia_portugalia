@@ -15,7 +15,7 @@ import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import AnnouncementModal from "./AnnouncementModal.tsx";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {MODULE} from "@portalseguranca/api-types";
 import {useParams} from "react-router-dom";
 
 type InnerMinifiedAnnouncement = Omit<MinifiedAnnouncement, "author"> & {
@@ -84,7 +84,7 @@ function AnnouncementsPanel() {
     }
 
     // Listen to Socket Events
-    useWebSocketEvent(SOCKET_EVENT.ANNOUNCEMENTS, useCallback(async () => {
+    useWebSocketEvent(MODULE.ANNOUNCEMENTS, useCallback(async () => {
         const list = await fetchAnnouncements(false);
 
         setAnnouncements(list);

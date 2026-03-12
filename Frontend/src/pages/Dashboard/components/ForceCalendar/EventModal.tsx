@@ -22,7 +22,7 @@ import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user
 import {EventType, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/input";
 import {useImmer} from "use-immer";
-import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import HelpIcon from "@mui/icons-material/Help";
 
 type InnerForceEvent = Omit<ForceEvent, "type" | "special_unit" | "author" | "start" | "end" | "assignees"> & {
@@ -227,7 +227,7 @@ function EventModal(props: EventModalProps) {
     }
 
     // Listen for Websocket Events
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.EVENTS, useCallback((data) => {
+    useWebSocketEvent<SocketResponse>(MODULE.EVENTS, useCallback((data) => {
         // If we are creating a new Event, ignore it
         if (props.newEntry) return;
 

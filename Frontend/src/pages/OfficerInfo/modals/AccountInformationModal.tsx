@@ -3,19 +3,21 @@ import {useImmer} from "use-immer";
 import {make_request} from "../../../utils/requests.ts";
 import {Loader} from "../../../components/Loader";
 import modalsStyle from "./officerinfomodals.module.css";
-import {FormControlLabel, Stack, Switch, Typography} from "@mui/material";
+import {FormControlLabel, IconButton, Stack, Switch, Typography} from "@mui/material";
 import {DefaultButton} from "../../../components/DefaultComponents";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../components/Modal";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import {AccountInfo, AccountInfoResponse, AccountSocket} from "@portalseguranca/api-types/account/output";
 import {LoggedUserContext, LoggedUserContextType} from "../../../components/PrivateRoute/logged-user-context.ts";
-import {RequestError, BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types/index.ts";
+import {RequestError, BaseResponse, MODULE} from "@portalseguranca/api-types/index.ts";
 import {toast} from "react-toastify";
 import Gate from "../../../components/Gate/gate.tsx";
 import { ChangeAccountInfoRequestBodyType } from "@portalseguranca/api-types/account/input.ts";
 import {useForceData, useWebSocketEvent} from "../../../hooks";
 import moment, {Moment} from "moment";
+import DefaultLink from "../../../components/DefaultComponents/DefaultLink.tsx";
 
 type InnerAccountInfo = Omit<AccountInfo, "lastUsed"> & {
     lastUsed: Moment | null
@@ -159,14 +161,14 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
     }
 
     // Subscribe to websocket events
-    useWebSocketEvent(SOCKET_EVENT.ACCOUNTS, useCallback((data: AccountSocket) => {
+    useWebSocketEvent(MODULE.ACCOUNTS, useCallback((data: AccountSocket) => {
         // If the event was triggered by the logged user, disregard it
         if (data.by === loggedUserData.info.personal.nif) return;
 
         // If the event isn't about the current officer, disregard it
         if (data.nif !== officerNif) return;
 
-        if (data.action === "update" || data.action === "manage") {
+        if (data.action === "update" || data.action === "manage" || data.action === "add") {
             if (open) // Only show the toast if the modal was open
                 toast.warning("Os detalhes da conta que estavas a visualizar foram alterados");
             void fetchAccountInfo();
@@ -237,7 +239,14 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
                             {!accountInfo.suspended ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
-                        <Typography>Última utilização: {lastUsedString}</Typography>
+                        <Stack alignItems={"center"} direction={"row"} gap={1}>
+                            <Typography>Última utilização: {lastUsedString}</Typography>
+                            <DefaultLink to={`/registo-auditoria?author=${officerNif}`} title={"Ver registo de atividade do Efetivo"}>
+                                <IconButton sx={{padding: 0}}>
+                                    <HistoryOutlinedIcon sx={{color: "var(--portalseguranca-color-accent)"}} />
+                                </IconButton>
+                            </DefaultLink>
+                        </Stack>
                     </div>
                 </ModalSection>
 

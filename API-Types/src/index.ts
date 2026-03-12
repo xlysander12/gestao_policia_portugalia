@@ -2,6 +2,10 @@ export interface BaseResponse {
     message: string
 }
 
+export interface CreationResponse extends BaseResponse {
+    id: number | null
+}
+
 export interface RequestError extends BaseResponse{
     code?: string
     details?: string
@@ -12,7 +16,7 @@ export interface SocketResponse {
     by: number
 }
 
-export enum SOCKET_EVENT {
+export enum MODULE {
     ACCOUNTS = "accounts",
     OFFICERS = "officers",
     ACTIVITY = "activity",

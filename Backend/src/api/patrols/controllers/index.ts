@@ -7,6 +7,7 @@ import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@po
 import {PatrolInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse>) {
     // *  Call the service to get the patrols
@@ -59,7 +60,7 @@ export async function getPatrolController(req: express.Request, res: PatrolInfoA
     });
 }
 
-export async function createPatrolController(req: express.Request, res: APIResponse) {
+export async function createPatrolController(req: express.Request, res: APIResponse<CreationResponse>) {
     const body = req.body as CreatePatrolBody;
 
     // Call the service to create the patrol
@@ -67,7 +68,8 @@ export async function createPatrolController(req: express.Request, res: APIRespo
 
     // Return the result
     res.status(result.status).json({
-        message: result.message
+        message: result.message,
+        id: result.data
     });
 }
 

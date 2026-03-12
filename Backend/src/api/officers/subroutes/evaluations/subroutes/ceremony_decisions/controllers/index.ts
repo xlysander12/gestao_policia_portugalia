@@ -12,6 +12,7 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {CeremonyDecisionAPIResponse} from "../../../../../../../types/response-types";
 import {isQueryParamPresent} from "../../../../../../../utils/filters";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 
 export async function getCeremonyDecisionsController(req: express.Request, res: OfficerInfoAPIResponse<CeremonyDecisionsListResponse>) {
@@ -49,7 +50,7 @@ export function getCeremonyDecisionByIdController(_req: express.Request, res: Ce
 }
 
 
-export async function createCeremonyDecisionController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function createCeremonyDecisionController(req: express.Request, res: OfficerInfoAPIResponse<CreationResponse>) {
     // Get the data from the request body
     const {category, ceremony_event, decision, details} = req.body as CreateCeremonyDecisionBody;
 
@@ -58,7 +59,8 @@ export async function createCeremonyDecisionController(req: express.Request, res
 
     // Send the response
     res.status(result.status).json({
-        message: result.message
+        message: result.message,
+        id: result.data
     });
 }
 

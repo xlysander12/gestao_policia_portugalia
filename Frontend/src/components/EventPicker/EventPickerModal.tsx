@@ -10,7 +10,7 @@ import {make_request, RequestMethod} from "../../utils/requests.ts";
 import moment from "moment";
 import {toast} from "react-toastify";
 import {useWebSocketEvent} from "../../hooks";
-import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import { MODULE } from "@portalseguranca/api-types";
 
 type EventPickerModalProps = {
     open: boolean
@@ -54,7 +54,7 @@ function EventPickerModal(props: EventPickerModalProps) {
         setEvents(props.sortFunction !== undefined ? responseJson.data.sort(props.sortFunction) : responseJson.data);
     }
 
-    useWebSocketEvent(SOCKET_EVENT.EVENTS, useCallback(() => {
+    useWebSocketEvent(MODULE.EVENTS, useCallback(() => {
         void getEvents(false);
     }, []));
 
