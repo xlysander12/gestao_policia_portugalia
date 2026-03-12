@@ -15,7 +15,7 @@ import {accountExistsMiddle} from "../../middlewares";
 import {logToConsole} from "../../utils/logger";
 import {canUserEditAccount} from "../../middlewares/account-exists";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Endpoint to validate a Session and check if the user has the correct permissions
 app.post("/validate-token", validateSessionController);

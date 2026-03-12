@@ -9,7 +9,7 @@ import {
 } from "./controllers";
 import {eventExistsMiddleware, isEventEditableMiddleware} from "../../middlewares/event-exists";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Route to get the list of all events
 app.get("/", getEventsController);

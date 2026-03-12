@@ -2,7 +2,7 @@ import express from "express";
 import {getLastDateController, updateLastDateController} from "./controllers";
 import lastDateFieldExists from "../../../../../middlewares/activity-last-dates";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 app.use("/:field", lastDateFieldExists);
 

@@ -10,7 +10,7 @@ import {
 } from "./controllers";
 import {logToConsole} from "../../utils/logger";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Route to get a list of all existing officers, following optional filters
 app.get("/", getOfficersListController);

@@ -5,6 +5,8 @@ import pc from "picocolors";
 import {createAuditLogEntry} from "../api/audit-logs/repository";
 import {FORCE_HEADER} from "../utils/constants";
 import {MODULE} from "@portalseguranca/api-types";
+import {isQueryError} from "./error-handler";
+import {QueryError} from "mysql2";
 
 function loggerMiddleware(req: express.Request, res: APIResponse, next: NextFunction) {
     res.on("finish", () => {
@@ -45,12 +47,12 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
             res.locals.routeDetails.auditLog.module,
             res.locals.routeDetails.auditLog.action,
             res.locals.routeDetails.auditLog.type,
-            res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
+            res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : null,
             res.statusCode,
             body,
             res.locals.responseBody as Record<string, unknown>
         ).catch((error: unknown) => {
-            logToConsole(pc.red(`Failed to create audit log entry: ${(error as Error).message}\nData: ${JSON.stringify(
+            logToConsole(pc.red(`Failed to create audit log entry: ${isQueryError(error as Error) ? (error as QueryError).stack : (error as Error).message}\nData: ${JSON.stringify(
                 [
                     req.header(FORCE_HEADER)!,
                     res.locals.loggedOfficer,
@@ -58,13 +60,13 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
                     res.locals.routeDetails.auditLog!.module,
                     res.locals.routeDetails.auditLog!.action,
                     res.locals.routeDetails.auditLog!.type,
-                    res.locals.routeDetails.auditLog!.getTarget ? res.locals.routeDetails.auditLog!.getTarget(req, res) : undefined,
+                    res.locals.routeDetails.auditLog!.getTarget ? res.locals.routeDetails.auditLog!.getTarget(req, res) : null,
                     res.statusCode,
-                    body
+                    body,
+                    res.locals.responseBody
                 ]
             )}`));
         });
-
     });
 
     next();

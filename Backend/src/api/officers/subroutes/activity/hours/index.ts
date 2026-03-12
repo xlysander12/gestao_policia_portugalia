@@ -5,7 +5,7 @@ import {
     getOfficerHoursHistoryController, getOfficerLastWeekController
 } from "./controllers";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // * Routes to gather information about the hours of an officer
 // Route to get the list of hours of an officer

@@ -8,7 +8,7 @@ import {
 import {logToConsole} from "../../utils/logger";
 import {announcementEditableMiddle, announcementExistsMiddle} from "../../middlewares/announcement-exists";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Route to get all announcements
 app.get("/", getAnnouncementsController);

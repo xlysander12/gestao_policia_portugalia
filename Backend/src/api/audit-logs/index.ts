@@ -2,7 +2,7 @@ import express from "express";
 import {logToConsole} from "../../utils/logger";
 import {getAuditLogEntryController, listAuditLogsController} from "./controllers";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 app.get("/", listAuditLogsController);
 
