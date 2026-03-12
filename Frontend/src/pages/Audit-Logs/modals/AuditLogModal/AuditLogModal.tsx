@@ -114,12 +114,12 @@ function AuditLogModal(props: AuditLogModalProps) {
             <Gate show={!loading}>
                 <div className={styles.main}>
                     <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Módulo:</DefaultTypography>
-                    <DefaultTypography>{TRANSLATED_MODULES[details?.module ?? 0]}</DefaultTypography>
+                    <DefaultTypography>{TRANSLATED_MODULES[details?.module ?? ""]}</DefaultTypography>
 
                     <Divider flexItem sx={{marginBottom: "10px"}} />
 
                     <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Ação:</DefaultTypography>
-                    <DefaultTypography color={ACTIONS_COLORS[details?.action ?? 0]}>{TRANSLATED_ACTIONS[details?.action ?? 0]}</DefaultTypography>
+                    <DefaultTypography color={ACTIONS_COLORS[details?.action ?? ""]}>{TRANSLATED_ACTIONS[details?.action ?? ""]}</DefaultTypography>
 
                     <Divider flexItem sx={{marginBottom: "10px"}} />
 
