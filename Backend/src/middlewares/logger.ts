@@ -31,34 +31,32 @@ export function auditLoggerMiddleware(req: express.Request, res: APIResponse, ne
         const userIP = (res.req.header("X-Real-IP") ? res.req.header("X-Real-IP"): res.req.socket.remoteAddress) ?? null;
 
         // Store this change in the database
-        try {
-            void createAuditLogEntry(
-                req.header(FORCE_HEADER)!,
-                res.locals.loggedOfficer,
-                userIP,
-                res.locals.routeDetails.auditLog.module,
-                res.locals.routeDetails.auditLog.action,
-                res.locals.routeDetails.auditLog.type,
-                res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
-                res.statusCode,
-                req.body,
-                res.locals.responseBody as Record<string, unknown>
-            );
-        } catch (e) {
-            logToConsole(pc.red(`Failed to create audit log entry: ${(e as Error).message}\nData: ${JSON.stringify(
+        void createAuditLogEntry(
+            req.header(FORCE_HEADER)!,
+            res.locals.loggedOfficer,
+            userIP,
+            res.locals.routeDetails.auditLog.module,
+            res.locals.routeDetails.auditLog.action,
+            res.locals.routeDetails.auditLog.type,
+            res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
+            res.statusCode,
+            req.body,
+            res.locals.responseBody as Record<string, unknown>
+        ).catch((error: unknown) => {
+            logToConsole(pc.red(`Failed to create audit log entry: ${(error as Error).message}\nData: ${JSON.stringify(
                 [
                     req.header(FORCE_HEADER)!,
                     res.locals.loggedOfficer,
                     userIP,
-                    res.locals.routeDetails.auditLog.module,
-                    res.locals.routeDetails.auditLog.action,
-                    res.locals.routeDetails.auditLog.type,
-                    res.locals.routeDetails.auditLog.getTarget ? res.locals.routeDetails.auditLog.getTarget(req, res) : undefined,
+                    res.locals.routeDetails.auditLog!.module,
+                    res.locals.routeDetails.auditLog!.action,
+                    res.locals.routeDetails.auditLog!.type,
+                    res.locals.routeDetails.auditLog!.getTarget ? res.locals.routeDetails.auditLog!.getTarget(req, res) : undefined,
                     res.statusCode,
                     req.body
                 ]
             )}`));
-        }
+        });
 
     });
 
