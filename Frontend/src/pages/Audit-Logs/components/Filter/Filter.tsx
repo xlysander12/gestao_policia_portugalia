@@ -207,7 +207,7 @@ function Filter() {
                         onChange={event => {
                             if (event.target.value === "null") {
                                 setSearchParams(params => {
-                                    params.delete("module");
+                                    params.delete("action");
                                     return params;
                                 });
                                 return;
