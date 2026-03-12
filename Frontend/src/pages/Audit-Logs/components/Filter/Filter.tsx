@@ -49,10 +49,10 @@ function Filter() {
         if (!response.ok) {
             toast.error(responseJson.message);
             setSelectedAuthor(null);
+        } else {
+            setSelectedAuthor(responseJson.data);
+            setLoadingAuthor(false);
         }
-
-        setSelectedAuthor(responseJson.data);
-        setLoadingAuthor(false);
     }
 
     useEffect(() => {
