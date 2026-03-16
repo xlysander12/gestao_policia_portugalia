@@ -304,7 +304,6 @@ const accountRoutes: routesType = {
             PATCH: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["accounts"],
                 body: {
                     type: ChangeAccountInfoRequestBody
                 },
