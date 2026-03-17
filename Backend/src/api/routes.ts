@@ -304,7 +304,6 @@ const accountRoutes: routesType = {
             PATCH: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["accounts"],
                 body: {
                     type: ChangeAccountInfoRequestBody
                 },
@@ -1352,6 +1351,10 @@ const patrolsRoutes: routesType = {
                     unit: {
                         queryFunction: (_, force) => `special_unit = ? AND id LIKE '${force}%'`,
                         valueFunction: (value) => value
+                    },
+                    force: {
+                        queryFunction: (_) => `id LIKE ?`,
+                        valueFunction: value => `${value}%`
                     }
                 }
             },

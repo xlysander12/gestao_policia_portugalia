@@ -20,6 +20,7 @@ export const ListPatrolsQueryParams = rt.Partial({
     unit: rt.String.withConstraint((string) => {
         return !isNaN(parseInt(string));
     }),
+    force: rt.String,
     page: rt.String.withConstraint(string => !isNaN(parseInt(string))),
 });
 export type ListPatrolsQueryParams = rt.Static<typeof ListPatrolsQueryParams>;
