@@ -26,7 +26,7 @@ import {getOfficerFromNif, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
-import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {MODULE} from "@portalseguranca/api-types";
 import {TopHoursModal} from "./modals/TopHoursModal";
 import OfficerIdentificationText from "../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 
@@ -415,7 +415,7 @@ function Activity() {
     }, [nif, type, entry_id]);
 
     // Handle socket updates
-    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, async (data) => {
+    useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, async (data) => {
         // If another data is being loaded, don't update the data
         if (loading) return;
 

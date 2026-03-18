@@ -21,14 +21,17 @@ export async function announcementsHistory(force: string, validFilters: RouteFil
     }
 }
 
-export async function announcementCreate(force: string, loggedUser: InnerOfficerData, data: CreateAnnouncementBody): Promise<DefaultReturn<void>> {
+export async function announcementCreate(force: string, loggedUser: InnerOfficerData, data: CreateAnnouncementBody): Promise<DefaultReturn<number | null>> {
     // If the forces array contains the current force, remove it from the array
     if (data.forces.includes(force)) {
         data.forces = data.forces.filter(e => e !== force);
     }
 
     const forceCheck = await canHaveForce(loggedUser, data.forces);
-    if (!forceCheck.result) return forceCheck.return!;
+    if (!forceCheck.result) return {
+        ...forceCheck.return!,
+        data: null
+    };
 
     // Ensure the expiration date is after the current date
     if (data.expiration !== null && dateToUnix(new Date()) > data.expiration) {
@@ -40,12 +43,13 @@ export async function announcementCreate(force: string, loggedUser: InnerOfficer
     }
 
     // Call the repostitory to update the database
-    await createAnnouncement(force, loggedUser.nif, data.forces, data.tags, data.expiration ? unixToDate(data.expiration) : null, data.title, data.body);
+    const id = await createAnnouncement(force, loggedUser.nif, data.forces, data.tags, data.expiration ? unixToDate(data.expiration) : null, data.title, data.body);
 
     return {
         result: true,
-        status: 200,
-        message: "Operação bem sucedida"
+        status: 201,
+        message: "Operação bem sucedida",
+        data: id
     }
 }
 

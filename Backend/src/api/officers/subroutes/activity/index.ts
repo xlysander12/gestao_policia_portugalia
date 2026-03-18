@@ -4,7 +4,7 @@ import hoursRoutes from "./hours";
 import justificationsRoutes from "./justifications";
 import {logToConsole} from "../../../../utils/logger";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Load the last-dates routes
 app.use("/last-dates", lastDatesRoutes);

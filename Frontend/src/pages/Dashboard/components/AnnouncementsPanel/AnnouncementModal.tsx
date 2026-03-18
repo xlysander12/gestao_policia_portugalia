@@ -35,7 +35,7 @@ import {
     RichTextEditor
 } from "mui-tiptap";
 import StarterKit from "@tiptap/starter-kit";
-import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {BaseResponse, MODULE} from "@portalseguranca/api-types";
 
 
 type InnerAnnouncement = Omit<Announcement, "author" | "id"> & {
@@ -202,7 +202,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
     }
 
     // Socket events
-    useWebSocketEvent<ExistingAnnouncementSocket>(SOCKET_EVENT.ANNOUNCEMENTS, useCallback(async (data) => {
+    useWebSocketEvent<ExistingAnnouncementSocket>(MODULE.ANNOUNCEMENTS, useCallback(async (data) => {
         // If the modal isn't open, ignore the event
         if (!props.open) return;
 

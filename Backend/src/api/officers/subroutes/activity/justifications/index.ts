@@ -11,7 +11,7 @@ import {
 import {officerJustificationExistsMiddle} from "../../../../../middlewares";
 import {isJustificationEditable} from "../../../../../middlewares/officer-justification-exists";
 
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 // Route to get the history of justifications of an officer
 app.get("/", getOfficerJustificationsHistoryController);

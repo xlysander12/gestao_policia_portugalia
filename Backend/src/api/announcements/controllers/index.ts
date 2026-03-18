@@ -11,6 +11,7 @@ import {
 import {AnnouncementInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {CreateAnnouncementBody, EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getAnnouncementsController(req: express.Request, res: APIResponse<AnnouncementsListResponse>) {
     // * Call the service and get the data from it
@@ -55,7 +56,7 @@ export function getAnnouncementController(_req: express.Request, res: Announceme
     });
 }
 
-export async function createAnnouncementController(req: express.Request, res: APIResponse) {
+export async function createAnnouncementController(req: express.Request, res: APIResponse<CreationResponse>) {
     const body = req.body as CreateAnnouncementBody;
 
     // Call the service to create the announcement
@@ -63,7 +64,8 @@ export async function createAnnouncementController(req: express.Request, res: AP
 
     // Return the result
     res.status(result.status).json({
-        message: result.message
+        message: result.message,
+        id: result.data
     });
 }
 

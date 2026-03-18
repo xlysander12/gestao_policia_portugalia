@@ -1,0 +1,29 @@
+import {BaseResponse} from "../index";
+
+export interface MinifiedAuditLogData {
+    id: number
+    nif: number
+    timestamp: number
+    module: string
+    action: string
+    type: string | null
+    target: number | null
+    status_code: number
+}
+
+export interface AuditLogData extends MinifiedAuditLogData {
+    ip_address: string | null
+    details: Record<string, unknown>
+    response: Record<string, unknown>
+}
+
+export interface AuditLogHistoryResponse extends BaseResponse {
+    meta: {
+        pages: number
+    }
+    data: MinifiedAuditLogData[]
+}
+
+export interface AuditLogEntryResponse extends BaseResponse {
+    data: AuditLogData
+}

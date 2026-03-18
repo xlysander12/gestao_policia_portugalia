@@ -6,6 +6,7 @@ import {InnerAnnouncement} from "../../../types/inner-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {EditAnnouncementBody} from "@portalseguranca/api-types/announcements/input";
 import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
+import {ResultSetHeader} from "mysql2/promise";
 
 function getBaseQuery(force: string) {
     // Get all forces that can patrol with this force
@@ -111,8 +112,9 @@ export async function getAnnouncement(force: string, id: string): Promise<InnerA
     };
 }
 
-export async function createAnnouncement(force: string, author: number, forces: string[], tags: string[], expiration: Date | null, title: string, body: string) {
-    await queryDB(force, `INSERT INTO announcements(author, forces, tags, expiration, title, body) VALUES (?, ?, ?, ?, ?, ?)`, [author, JSON.stringify(forces), JSON.stringify(tags), expiration, title, body]);
+export async function createAnnouncement(force: string, author: number, forces: string[], tags: string[], expiration: Date | null, title: string, body: string): Promise<number> {
+    const result = await queryDB<ResultSetHeader>(force, `INSERT INTO announcements(author, forces, tags, expiration, title, body) VALUES (?, ?, ?, ?, ?, ?)`, [author, JSON.stringify(forces), JSON.stringify(tags), expiration, title, body]);
+    return result.insertId;
 }
 
 export async function editAnnouncement(force: string, id: number, changes: EditAnnouncementBody) {

@@ -40,7 +40,7 @@ export async function ceremonyDecisions(force: string, target: InnerOfficerData,
     }
 }
 
-export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony_event: number | null | undefined, decision: number | null | undefined, details: string): Promise<DefaultReturn<null>> {
+export async function createDecision(force: string, target: InnerOfficerData, category: number, ceremony_event: number | null | undefined, decision: number | null | undefined, details: string): Promise<DefaultReturn<number>> {
     // * Check if the selected event is of variant "ceremony"
     // This is only done if a ceremony_event is provided
     if (ceremony_event !== null && ceremony_event !== undefined) {
@@ -90,8 +90,9 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
 
 
     // * Call the repository to appy the decision
+    let id;
     try {
-        await createCeremonyDecision(force, target.nif, category, ceremony_event, decision ?? null, details);
+        id = await createCeremonyDecision(force, target.nif, category, ceremony_event, decision ?? null, details);
     } catch (e) {
         if (isQueryError(e as Error) && (e as QueryError).errno === 1062) { // This means a duplicate entry
             return {
@@ -108,7 +109,8 @@ export async function createDecision(force: string, target: InnerOfficerData, ca
     return {
         result: true,
         status: 201,
-        message: "Decisão criada com sucesso."
+        message: "Decisão criada com sucesso.",
+        data: id
     }
 }
 

@@ -7,7 +7,7 @@ import {
 } from "./controllers";
 import {ceremonyDecisionCanBeViewedMiddleware, ceremonyDecisionExistsMiddleware} from "../../../../../../middlewares/ceremony-decisions";
 
-const app = Router();
+const app = Router({mergeParams: true});
 
 // A User can only see decision of officers they can evaluate
 app.use("/", ceremonyDecisionCanBeViewedMiddleware);

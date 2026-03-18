@@ -9,7 +9,7 @@ import {Loader} from "../Loader";
 import PatrolCard from "./PatrolCard";
 import {useEffect, useState} from "react";
 import { MinifiedPatrolData, PatrolHistoryResponse } from "@portalseguranca/api-types/patrols/output";
-import { RequestError, SOCKET_EVENT } from "@portalseguranca/api-types";
+import { RequestError, MODULE } from "@portalseguranca/api-types";
 import {MinifiedOfficerData, OfficerListResponse } from "@portalseguranca/api-types/officers/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultSearchOption} from "../DefaultComponents/DefaultSearch/types";
@@ -62,7 +62,7 @@ function PatrolPicker(props: PatrolPickerProps) {
     ];
 
     // Handle websocket events
-    useWebSocketEvent(SOCKET_EVENT.PATROLS, async () => {
+    useWebSocketEvent(MODULE.PATROLS, async () => {
         // * Every time a event happens, the page needs to be refreshed
         // Fetch the patrols from the API
         const {patrols, pages} = await fetchPatrols();

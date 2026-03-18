@@ -6,6 +6,7 @@ import officerInfoRoutes from "./officers";
 import patrolsRoutes from "./patrols";
 import eventsRoutes from "./events";
 import announcementsRoutes from "./announcements";
+import auditLogsRoutes from "./audit-logs";
 import {
     assureBodyFields,
     assureRouteBasicInfo,
@@ -17,6 +18,8 @@ import {logToConsole} from "../utils/logger";
 import {websocketBroadcastMiddleware} from "../middlewares/websocket-broadcast";
 import {getAllForces} from "../utils/config-handler";
 import {ensureRowsInTables} from "../utils/db-tester";
+import {auditLoggerMiddleware} from "../middlewares/logger";
+import storeResponse from "../middlewares/store-response";
 
 // Check force's databases
 for (const force of getAllForces()) {
@@ -28,6 +31,12 @@ const apiRoutes = express.Router();
 // * Import Middlewares
 // Middleware to log all requests
 apiRoutes.use(loggerMiddleware);
+
+// Middleware to store the response body in res.locals for later use
+apiRoutes.use(storeResponse);
+
+// Middleware to register audit logs
+apiRoutes.use(auditLoggerMiddleware);
 
 // Middleware to gather the route's information from the routes object
 apiRoutes.use(getRouteDetailsMiddleware);
@@ -62,6 +71,9 @@ apiRoutes.use("/events", eventsRoutes);
 
 // Import Announcements routes
 apiRoutes.use("/announcements", announcementsRoutes);
+
+// Import Audit-Logs routes
+apiRoutes.use("/audit-logs", auditLogsRoutes);
 
 // * Middleware to handle errors
 apiRoutes.use(errorHandlerMiddleware);

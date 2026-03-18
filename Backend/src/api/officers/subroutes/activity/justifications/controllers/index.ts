@@ -19,6 +19,7 @@ import {
 } from "@portalseguranca/api-types/officers/activity/input";
 import {OfficerJustificationAPIResponse} from "../../../../../../types/response-types";
 import {dateToUnix} from "../../../../../../utils/date-handler";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getOfficerJustificationsHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerJustificationsHistoryResponse>) {
     // * Make sure the requesting account has permission to check this info
@@ -73,7 +74,7 @@ export async function getOfficerJustificationDetailsController(req: express.Requ
     });
 }
 
-export async function createOfficerJustificationController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function createOfficerJustificationController(req: express.Request, res: OfficerInfoAPIResponse<CreationResponse>) {
     // * If the logged officer is not the target officer, then the logged officer must have the "activity" intent
     if (res.locals.loggedOfficer.nif !== res.locals.targetOfficer!.nif) {
         if (!(await userHasIntents(res.locals.loggedOfficer.nif, req.header(FORCE_HEADER)!, "activity"))) {
@@ -93,7 +94,8 @@ export async function createOfficerJustificationController(req: express.Request,
 
     // Return the result
     res.status(result.status).json({
-        message: result.message
+        message: result.message,
+        id: result.data
     });
 }
 

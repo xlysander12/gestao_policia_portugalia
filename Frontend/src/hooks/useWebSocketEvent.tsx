@@ -1,9 +1,9 @@
 import {useContext, useEffect} from "react";
 import {WebsocketContext} from "../components/PrivateRoute/websocket-context.ts";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {MODULE, SocketResponse} from "@portalseguranca/api-types";
 import { Socket } from "socket.io-client";
 
-function useWebSocketEvent<DataType extends SocketResponse>(event_name: SOCKET_EVENT, callback: (data: DataType) => void, customSocket?: Socket | null): boolean {
+function useWebSocketEvent<DataType extends SocketResponse>(event_name: MODULE | "*", callback: (data: DataType) => void, customSocket?: Socket | null): boolean {
     // Get the socket from context
     const socket = useContext(WebsocketContext);
 
@@ -14,8 +14,13 @@ function useWebSocketEvent<DataType extends SocketResponse>(event_name: SOCKET_E
         // Getting the will-be-used socket
         const usingSocket = customSocket || socket;
 
-        // Apply the callback to the event
-        usingSocket!.on(event_name, callback);
+        // * Apply the callback to the event
+        // If a single event is being listened, apply the callback to it. Otherwise, apply the callback to all events
+        if (event_name !== "*") {
+            usingSocket!.on(event_name, callback);
+        } else {
+            usingSocket!.onAny(callback);
+        }
 
         return () => {
             if (socket) {

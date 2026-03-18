@@ -29,7 +29,7 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
 import AddEvaluationSection from "./AddEvaluationSection";
-import {BaseResponse, SOCKET_EVENT} from "@portalseguranca/api-types";
+import {BaseResponse, MODULE} from "@portalseguranca/api-types";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import {PatrolPickerModal} from "../../../../components/PatrolPicker";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
@@ -225,7 +225,7 @@ function EvaluationModal(props: EvaluationModalProps) {
         handleClose();
     }
 
-    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback(async (data) => {
+    useWebSocketEvent<EvaluationSocket>(MODULE.EVALUATIONS, useCallback(async (data) => {
         // If this event was triggered by the logged officer, disregard it
         if (data.by === loggedUser.info.personal.nif) return;
 
@@ -614,7 +614,8 @@ function EvaluationModal(props: EvaluationModalProps) {
                 onClose={() => setPatrolPickerModalOpen(false)}
                 filters={[
                     {key: "officers", value: `${evaluationData.author.nif},${evaluationData.target.nif}`},
-                    {key: "after", value: String(forceData.last_ceremony.unix())}
+                    {key: "after", value: String(forceData.last_ceremony.unix())},
+                    {key: "force", value: localStorage.getItem("force")!}
                 ]}
                 callback={handlePatrolAddition}
             />

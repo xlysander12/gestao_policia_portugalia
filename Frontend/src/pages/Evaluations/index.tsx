@@ -32,7 +32,7 @@ import {
     TableRow
 } from "@mui/material";
 import {getObjectFromId} from "../../forces-data-context.ts";
-import {SOCKET_EVENT} from "@portalseguranca/api-types";
+import {MODULE} from "@portalseguranca/api-types";
 import {EvaluationModal} from "./modals";
 import {useNavigate, useParams} from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
@@ -160,7 +160,7 @@ function Evaluations(props: EvaluationsPageProps) {
     }
 
     // Update from the websocket event
-    useWebSocketEvent<EvaluationSocket>(SOCKET_EVENT.EVALUATIONS, useCallback(async (data) => {
+    useWebSocketEvent<EvaluationSocket>(MODULE.EVALUATIONS, useCallback(async (data) => {
         // If the evaluation that changed is about the current selected officer, reload the parameters
         if ((data.target === currentOfficer.nif && !asAuthor) || (data.author === currentOfficer.nif && asAuthor)) {
             await fetchEvaluations(false);

@@ -6,6 +6,7 @@ import {
     MinifiedDecision
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
 import {EditCeremonyDecisionBody} from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
+import {ResultSetHeader} from "mysql2/promise";
 
 export async function getCeremonyDecisions(force: string, target_nif: number, max_category = 100, routeValidFilters?: RouteFilterType, filters?: ReceivedQueryParams, page = 1, entries_per_page = 10): Promise<{
     pages: number
@@ -62,14 +63,15 @@ export async function getCeremonyDecisionById(force: string, target_nif: number,
 }
 
 
-export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number | null, decision: number | null, details: string): Promise<void> {
-    await queryDB(force, `INSERT INTO ceremony_decisions (target, category, ceremony, decision, details) VALUES (?, ?, ?, ?, ?)`, [
+export async function createCeremonyDecision(force: string, target_nif: number, category: number, ceremony_event: number | null, decision: number | null, details: string): Promise<number> {
+    const result = await queryDB<ResultSetHeader>(force, `INSERT INTO ceremony_decisions (target, category, ceremony, decision, details) VALUES (?, ?, ?, ?, ?)`, [
         target_nif,
         category,
         ceremony_event,
         decision,
         details
     ]);
+    return result.insertId;
 }
 
 export async function editCeremonyDecision(force: string, id: number, changes: EditCeremonyDecisionBody): Promise<void> {

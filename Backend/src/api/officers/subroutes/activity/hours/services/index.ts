@@ -57,7 +57,7 @@ export async function lastOfficerHours(force: string, nif: number): Promise<Defa
     }
 }
 
-export async function addOfficerHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: InnerOfficerData): Promise<DefaultReturn<void>> {
+export async function addOfficerHoursEntry(force: string, nif: number, week_start: Date, week_end: Date, minutes: number, submitted_by: InnerOfficerData): Promise<DefaultReturn<number>> {
     // Make sure there already aren't hours for this week and officer
     const isWeekUnique = await ensureNoHoursThisWeek(force, nif, week_start);
     if (!isWeekUnique) {
@@ -65,9 +65,9 @@ export async function addOfficerHoursEntry(force: string, nif: number, week_star
     }
 
     // If there aren't, insert the new hours
-    await insertHoursEntry(force, nif, week_start, week_end, minutes, submitted_by.nif);
+    const id = await insertHoursEntry(force, nif, week_start, week_end, minutes, submitted_by.nif);
 
-    return {result: true, status: 200, message: "Operação bem sucedida"}
+    return {result: true, status: 201, message: "Operação bem sucedida", data: id}
 }
 
 export async function deleteOfficerHoursEntry(force: string, nif: number, id: number): Promise<DefaultReturn<void>> {

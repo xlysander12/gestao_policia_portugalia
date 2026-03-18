@@ -9,7 +9,7 @@ import {
 import evaluationExistsMiddleware, {canCheckEvalsMiddleware} from "../../../../middlewares/evaluations";
 import ceremonydecisions from "./subroutes/ceremony_decisions";
 
-const app = Router();
+const app = Router({mergeParams: true});
 
 // Get the list of Evaluations with an Officer as target
 app.get("/", canCheckEvalsMiddleware, getEvaluationsListController);

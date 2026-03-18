@@ -22,13 +22,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    delete-cancelled-runs:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: 'MercuryTechnologies/delete-cancelled-runs@latest'
-          with:
-              workflow-file: 'main.yml'
-
     backend:
 
         runs-on: ubuntu-latest
@@ -38,7 +31,7 @@ jobs:
                 working-directory: Backend
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Skip Build if PR Merge
               run: |
@@ -49,7 +42,7 @@ jobs:
 
             # Setup the API types directory
             - name: Setup API types
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                 node-version: 22.14.0
                 cache: 'npm'
@@ -59,7 +52,7 @@ jobs:
 
             # Build the backend source
             - name: Build Backend
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: 22.14.0
                   cache: 'npm'
@@ -76,7 +69,7 @@ jobs:
                 working-directory: Frontend
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Skip Build if PR Merge
               run: |
                 if git log -1 --pretty=%B | grep -qE "^Merge pull request #"; then
@@ -86,7 +79,7 @@ jobs:
 
             # Setup the API types directory
             -   name: Setup API types
-                uses: actions/setup-node@v4
+                uses: actions/setup-node@v6
                 with:
                     node-version: 22.14.0
                     cache: 'npm'
@@ -96,7 +89,7 @@ jobs:
 
             # Build the frontend source
             - name: Build Frontend
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: 22.14.0
                   cache: 'npm'

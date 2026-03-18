@@ -6,6 +6,7 @@ import {
 import { ChangeOfficerJustificationBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {paramsTypes, queryDB} from "../../../../../../utils/db-connector";
 import {dateToUnix} from "../../../../../../utils/date-handler";
+import {ResultSetHeader} from "mysql2/promise";
 
 type InnerOfficerMinifiedJustification = Omit<OfficerMinifiedJustification, "start | end | timestamp"> &  {
     start: Date,
@@ -118,9 +119,10 @@ export async function couldOfficerPatrolDueToJustificationInDate(force: string, 
     return true;
 }
 
-export async function createOfficerJustification(force: string, nif: number, type: number, description: string, start: Date, end?: Date): Promise<void> {
+export async function createOfficerJustification(force: string, nif: number, type: number, description: string, start: Date, end?: Date): Promise<number> {
     // Insert into the database
-    await queryDB(force, "INSERT INTO officer_justifications (officer, type, start_date, end_date, description) VALUES (?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?)", [nif, type, dateToUnix(start), end ? dateToUnix(end) : null, description]);
+    const result = await queryDB<ResultSetHeader>(force, "INSERT INTO officer_justifications (officer, type, start_date, end_date, description) VALUES (?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?)", [nif, type, dateToUnix(start), end ? dateToUnix(end) : null, description]);
+    return result.insertId;
 }
 
 export async function updateOfficerJustificationStatus(force: string, nif: number, id: number, approved: boolean, comment: string | undefined, managed_by: number): Promise<void> {

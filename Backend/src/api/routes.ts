@@ -1,30 +1,43 @@
 import {
     ChangeAccountInfoRequestBody,
-    ChangePasswordRequestBody, LoginDiscordRequestBody,
+    ChangePasswordRequestBody,
+    LoginDiscordRequestBody,
     LoginRequestBody,
     ValidateTokenRequestBody
 } from "@portalseguranca/api-types/account/input";
-import { SubmitIssueRequestBody } from "@portalseguranca/api-types/metrics/input";
+import {SubmitIssueRequestBody} from "@portalseguranca/api-types/metrics/input";
 import {
     CreateOfficerRequestBody,
-    DeleteOfficerRequestBody, GetOfficerQueryParams, ListOfficersQueryParams,
+    DeleteOfficerRequestBody,
+    GetOfficerQueryParams,
+    ListOfficersQueryParams,
     UpdateOfficerRequestBody
 } from "@portalseguranca/api-types/officers/input";
 import {
     AddOfficerHoursBody,
     AddOfficerJustificationBody,
-    ChangeOfficerJustificationBody, ListOfficerHoursQueryParams, ListOfficerJustificationsQueryParams,
+    ChangeOfficerJustificationBody,
+    ListOfficerHoursQueryParams,
+    ListOfficerJustificationsQueryParams,
     ManageOfficerJustificationBody,
     UpdateOfficerLastDateBody
 } from "@portalseguranca/api-types/officers/activity/input";
 import {
     OfficerAddSocket,
-    OfficerUpdateSocket,
-    OfficerRestoreSocket,
     OfficerDeleteSocket,
-    OfficerImportSocket
+    OfficerImportSocket,
+    OfficerRestoreSocket,
+    OfficerUpdateSocket
 } from "@portalseguranca/api-types/officers/output";
-import {OfficerLastDateSocket, OfficerAddHoursSocket, OfficerDeleteHoursSocket, OfficerAddJustificationSocket, OfficerUpdateJustificationSocket, OfficerManageJustificationSocket, OfficerDeleteJustificationSocket} from "@portalseguranca/api-types/officers/activity/output";
+import {
+    OfficerAddHoursSocket,
+    OfficerAddJustificationSocket,
+    OfficerDeleteHoursSocket,
+    OfficerDeleteJustificationSocket,
+    OfficerLastDateSocket,
+    OfficerManageJustificationSocket,
+    OfficerUpdateJustificationSocket
+} from "@portalseguranca/api-types/officers/activity/output";
 import {CreatePatrolBody, ListPatrolsQueryParams} from "@portalseguranca/api-types/patrols/input";
 import {isQueryParamPresent, ReceivedQueryParams} from "../utils/filters";
 import {RuntypeBase} from "runtypes/lib/runtype";
@@ -32,15 +45,19 @@ import express from "express";
 import {APIResponse, OfficerInfoAPIResponse} from "../types";
 import {FORCE_HEADER} from "../utils/constants";
 import {
-    AccountInfoAPIResponse, AnnouncementInfoAPIResponse, CeremonyDecisionAPIResponse, EventInfoAPIResponse,
+    AccountInfoAPIResponse,
+    AnnouncementInfoAPIResponse,
+    CeremonyDecisionAPIResponse,
+    EventInfoAPIResponse,
     OfficerEvaluationAPIResponse,
     OfficerJustificationAPIResponse,
     PatrolInfoAPIResponse
 } from "../types/response-types";
-import {SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {CreationResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import {PatrolAddSocket, PatrolDeleteSocket, PatrolUpdateSocket} from "@portalseguranca/api-types/patrols/output";
 import {
-    CreateEvaluationBody, EditEvaluationBody,
+    CreateEvaluationBody,
+    EditEvaluationBody,
     ListAuthoredEvaluationsQueryParams,
     ListEvaluationsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/input";
@@ -51,11 +68,13 @@ import {
 } from "@portalseguranca/api-types/officers/evaluations/output";
 import {paramsTypes} from "../utils/db-connector";
 import {ChangeLastCeremonyRequestBody, ForceTopHoursParams} from "@portalseguranca/api-types/util/input";
-import {AccountDeleteSocket, AccountManageSocket, AccountUpdateSocket} from "@portalseguranca/api-types/account/output";
 import {
-    CreateEventBody, EditEventBody,
-    ListEventsQueryParams
-} from "@portalseguranca/api-types/events/input";
+    AccountDeleteSocket,
+    AccountManageSocket,
+    AccountSocket,
+    AccountUpdateSocket
+} from "@portalseguranca/api-types/account/output";
+import {CreateEventBody, EditEventBody, ListEventsQueryParams} from "@portalseguranca/api-types/events/input";
 import {ExistingEventSocket} from "@portalseguranca/api-types/events/output";
 import {
     CreateAnnouncementBody,
@@ -63,16 +82,21 @@ import {
     ListAnnouncementsQueryParams
 } from "@portalseguranca/api-types/announcements/input";
 import {
-    AnnouncementAddSocket, AnnouncementDeleteSocket, AnnouncementUpdateSocket
+    AnnouncementAddSocket,
+    AnnouncementDeleteSocket,
+    AnnouncementUpdateSocket
 } from "@portalseguranca/api-types/announcements/output";
 import {
-    CreateCeremonyDecisionBody, EditCeremonyDecisionBody,
+    CreateCeremonyDecisionBody,
+    EditCeremonyDecisionBody,
     ListCeremonyDecisionsQueryParams
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/input";
 import {
-    AddCeremonyDecisionSocket, DeleteCeremonyDecisionSocket,
+    AddCeremonyDecisionSocket,
+    DeleteCeremonyDecisionSocket,
     UpdateCeremonyDecisionSocket
 } from "@portalseguranca/api-types/officers/evaluations/ceremony_decisions/output";
+import {ListAuditLogsQueryParams} from "@portalseguranca/api-types/audit-logs/input";
 
 export type methodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -97,10 +121,17 @@ export interface routeMethodType {
     }
     notes?: string,
     broadcast?: {
-        event: SOCKET_EVENT,
+        event: MODULE,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body: (req: express.Request, res: any) => SocketResponse,
         patrol?: boolean
+    }
+    auditLog?: {
+        module: MODULE
+        action: "add" | "update" | "manage" | "delete" | "restore"
+        type?: string
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getTarget?: (req: express.Request, res: any) => number | undefined | null;
     }
 }
 
@@ -183,7 +214,7 @@ const accountRoutes: routesType = {
                     type: ChangePasswordRequestBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACCOUNTS,
+                    event: MODULE.ACCOUNTS,
                     body: (_req: express.Request, res: APIResponse): AccountUpdateSocket => {
                         return {
                             action: "update",
@@ -191,6 +222,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "update",
+                    type: "password_change"
                 }
             }
         }
@@ -204,7 +240,7 @@ const accountRoutes: routesType = {
                 requiresForce: true,
                 intents: ["accounts"],
                 broadcast: {
-                    event: SOCKET_EVENT.ACCOUNTS,
+                    event: MODULE.ACCOUNTS,
                     body: (_req: express.Request, res: AccountInfoAPIResponse): AccountUpdateSocket => {
                         return {
                             action: "update",
@@ -212,6 +248,12 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "update",
+                    type: "password_reset",
+                    getTarget: (_req, res: AccountInfoAPIResponse) => res.locals.targetAccount.nif
                 }
             }
         }
@@ -240,19 +282,33 @@ const accountRoutes: routesType = {
             POST: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["accounts"]
+                intents: ["accounts"],
+                broadcast: {
+                    event: MODULE.ACCOUNTS,
+                    body: (req: express.Request, res: APIResponse): AccountSocket => {
+                        return {
+                            action: "add",
+                            nif: parseInt(req.params.nif),
+                            by: res.locals.loggedOfficer.nif,
+                        }
+                    }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "add",
+                    getTarget: req => parseInt(req.params.nif)
+                }
             },
 
             // Route to update an account's permissions and suspended state
             PATCH: {
                 requiresSession: true,
                 requiresForce: true,
-                intents: ["accounts"],
                 body: {
                     type: ChangeAccountInfoRequestBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACCOUNTS,
+                    event: MODULE.ACCOUNTS,
                     body: (_req: express.Request, res: AccountInfoAPIResponse): AccountManageSocket => {
                         return {
                             action: "manage",
@@ -260,6 +316,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "manage",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
             DELETE: {
@@ -267,7 +328,7 @@ const accountRoutes: routesType = {
                 requiresForce: true,
                 intents: ["accounts"],
                 broadcast: {
-                    event: SOCKET_EVENT.ACCOUNTS,
+                    event: MODULE.ACCOUNTS,
                     body: (_req: express.Request, res: AccountInfoAPIResponse): AccountDeleteSocket => {
                         return {
                             action: "delete",
@@ -275,6 +336,11 @@ const accountRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACCOUNTS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -574,7 +640,7 @@ const officersRoutes: routesType = {
                 requiresForce: true,
                 intents: ["officers"],
                 broadcast: {
-                    event: SOCKET_EVENT.OFFICERS,
+                    event: MODULE.OFFICERS,
                     body: (_req: express.Request, res: APIResponse): OfficerImportSocket => {
                         return {
                             action: "update",
@@ -582,6 +648,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "update",
+                    type: "import"
                 }
             }
         }
@@ -610,7 +681,7 @@ const officersRoutes: routesType = {
                 },
                 notes: "add_officer",
                 broadcast: {
-                    event: SOCKET_EVENT.OFFICERS,
+                    event: MODULE.OFFICERS,
                     body: (req: express.Request, res: APIResponse): OfficerAddSocket => {
                         return {
                             action: "add",
@@ -618,6 +689,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "add",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
 
@@ -630,7 +706,7 @@ const officersRoutes: routesType = {
                     type: UpdateOfficerRequestBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.OFFICERS,
+                    event: MODULE.OFFICERS,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerUpdateSocket => {
                         return {
                             action: "update",
@@ -638,6 +714,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "update",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             },
 
@@ -650,7 +731,7 @@ const officersRoutes: routesType = {
                     type: DeleteOfficerRequestBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.OFFICERS,
+                    event: MODULE.OFFICERS,
                     body: (_req: express.Request, res: OfficerInfoAPIResponse): OfficerDeleteSocket => {
                         return {
                             action: "delete",
@@ -658,6 +739,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
 
@@ -673,7 +759,7 @@ const officersRoutes: routesType = {
                 intents: ["officers"],
                 notes: "restore_officer",
                 broadcast: {
-                    event: SOCKET_EVENT.OFFICERS,
+                    event: MODULE.OFFICERS,
                     body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerRestoreSocket => {
                         return {
                             action: "restore",
@@ -681,6 +767,11 @@ const officersRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.OFFICERS,
+                    action: "restore",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -712,7 +803,7 @@ const activityRoutes: routesType = {
                     type: UpdateOfficerLastDateBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (req: express.Request, res: OfficerInfoAPIResponse): OfficerLastDateSocket => {
                         return {
                             type: "last_date",
@@ -722,6 +813,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "update",
+                    type: "last_date",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -754,7 +851,7 @@ const activityRoutes: routesType = {
                     type: AddOfficerHoursBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddHoursSocket => {
                         return {
                             type: "hours",
@@ -763,6 +860,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "add",
+                    type: "hours",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -786,7 +889,7 @@ const activityRoutes: routesType = {
                 requiresForce: true,
                 intents: ["activity"],
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (req, res: OfficerInfoAPIResponse): OfficerDeleteHoursSocket => {
                         return {
                             type: "hours",
@@ -796,6 +899,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "delete",
+                    type: "hours",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -835,7 +944,7 @@ const activityRoutes: routesType = {
                     type: AddOfficerJustificationBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (_req, res: OfficerInfoAPIResponse): OfficerAddJustificationSocket => {
                         return {
                             type: "justification",
@@ -844,6 +953,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "add",
+                    type: "justification",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -870,7 +985,7 @@ const activityRoutes: routesType = {
                     type: ManageOfficerJustificationBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerManageJustificationSocket => {
                         return {
                             type: "justification",
@@ -880,6 +995,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "manage",
+                    type: "justification",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             PATCH: {
@@ -889,7 +1010,7 @@ const activityRoutes: routesType = {
                     type: ChangeOfficerJustificationBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerUpdateJustificationSocket => {
                         return {
                             type: "justification",
@@ -899,13 +1020,19 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "update",
+                    type: "justification",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
                 requiresSession: true,
                 requiresForce: true,
                 broadcast: {
-                    event: SOCKET_EVENT.ACTIVITY,
+                    event: MODULE.ACTIVITY,
                     body: (_req, res: OfficerJustificationAPIResponse): OfficerDeleteJustificationSocket => {
                         return {
                             type: "justification",
@@ -915,6 +1042,12 @@ const activityRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.ACTIVITY,
+                    action: "delete",
+                    type: "justification",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -960,7 +1093,7 @@ const evaluationsRoutes: routesType = {
                     type: CreateEvaluationBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.EVALUATIONS,
+                    event: MODULE.EVALUATIONS,
                     body: (_, res: OfficerInfoAPIResponse): AddEvaluationSocket => {
                         return {
                             action: "add",
@@ -969,6 +1102,11 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "add",
+                    getTarget: (req) => parseInt(req.params.nif)
                 }
             }
         }
@@ -1022,7 +1160,7 @@ const evaluationsRoutes: routesType = {
                     type: EditEvaluationBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.EVALUATIONS,
+                    event: MODULE.EVALUATIONS,
                     body: (_, res: OfficerEvaluationAPIResponse): UpdateEvaluationSocket => {
                         return {
                             action: "update",
@@ -1032,13 +1170,18 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "update",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
                 requiresSession: true,
                 requiresForce: true,
                 broadcast: {
-                    event: SOCKET_EVENT.EVALUATIONS,
+                    event: MODULE.EVALUATIONS,
                     body: (_, res: OfficerEvaluationAPIResponse): DeleteEvaluationSocket => {
                         return {
                             action: "delete",
@@ -1048,6 +1191,11 @@ const evaluationsRoutes: routesType = {
                             by: res.locals.loggedOfficer.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.EVALUATIONS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -1087,7 +1235,7 @@ const ceremonyDecisionsRoutes: routesType = {
                     type: CreateCeremonyDecisionBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    event: MODULE.CEREMONY_DECISIONS,
                     body: (_req, res: OfficerInfoAPIResponse): AddCeremonyDecisionSocket => {
                         return {
                             action: "add",
@@ -1095,6 +1243,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             target: res.locals.targetOfficer!.nif
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "add",
+                    getTarget: (_req, res: OfficerInfoAPIResponse) => res.locals.targetOfficer?.nif
                 }
             }
         }
@@ -1114,7 +1267,7 @@ const ceremonyDecisionsRoutes: routesType = {
                     type: EditCeremonyDecisionBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    event: MODULE.CEREMONY_DECISIONS,
                     body: (_req, res: CeremonyDecisionAPIResponse): UpdateCeremonyDecisionSocket => {
                         return {
                             action: "update",
@@ -1123,6 +1276,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             id: res.locals.decision.id
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "update",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             },
             DELETE: {
@@ -1130,7 +1288,7 @@ const ceremonyDecisionsRoutes: routesType = {
                 requiresForce: true,
                 intents: ["evaluations"],
                 broadcast: {
-                    event: SOCKET_EVENT.CEREMONY_DECISIONS,
+                    event: MODULE.CEREMONY_DECISIONS,
                     body: (_req, res: CeremonyDecisionAPIResponse): DeleteCeremonyDecisionSocket => {
                         return {
                             action: "delete",
@@ -1139,6 +1297,11 @@ const ceremonyDecisionsRoutes: routesType = {
                             id: res.locals.decision.id
                         }
                     }
+                },
+                auditLog: {
+                    module: MODULE.CEREMONY_DECISIONS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(req.params.id)
                 }
             }
         }
@@ -1188,6 +1351,10 @@ const patrolsRoutes: routesType = {
                     unit: {
                         queryFunction: (_, force) => `special_unit = ? AND id LIKE '${force}%'`,
                         valueFunction: (value) => value
+                    },
+                    force: {
+                        queryFunction: (_) => `id LIKE ?`,
+                        valueFunction: value => `${value}%`
                     }
                 }
             },
@@ -1198,7 +1365,7 @@ const patrolsRoutes: routesType = {
                     type: CreatePatrolBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.PATROLS,
+                    event: MODULE.PATROLS,
                     body: (req, res: APIResponse): PatrolAddSocket => {
                         return {
                             action: "add",
@@ -1207,6 +1374,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
@@ -1223,7 +1395,7 @@ const patrolsRoutes: routesType = {
                 requiresSession: true,
                 requiresForce: true,
                 broadcast: {
-                    event: SOCKET_EVENT.PATROLS,
+                    event: MODULE.PATROLS,
                     body: (_req, res: PatrolInfoAPIResponse): PatrolUpdateSocket => {
                         return {
                             action: "update",
@@ -1233,6 +1405,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "update",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
 
@@ -1241,7 +1418,7 @@ const patrolsRoutes: routesType = {
                 requiresForce: true,
                 intents: ["patrols"],
                 broadcast: {
-                    event: SOCKET_EVENT.PATROLS,
+                    event: MODULE.PATROLS,
                     body: (_req, res: PatrolInfoAPIResponse): PatrolDeleteSocket => {
                         return {
                             action: "delete",
@@ -1251,6 +1428,11 @@ const patrolsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.PATROLS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             }
         }
@@ -1285,7 +1467,7 @@ const eventsRoutes: routesType = {
                     type: CreateEventBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.EVENTS,
+                    event: MODULE.EVENTS,
                     body: (_req, res: APIResponse): SocketResponse => {
                         return {
                             action: "add",
@@ -1293,6 +1475,11 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
@@ -1312,7 +1499,7 @@ const eventsRoutes: routesType = {
                     type: EditEventBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.EVENTS,
+                    event: MODULE.EVENTS,
                     body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
                         return {
                             action: "update",
@@ -1322,13 +1509,18 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "update",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
             DELETE: {
                 requiresSession: true,
                 requiresForce: true,
                 broadcast: {
-                    event: SOCKET_EVENT.EVENTS,
+                    event: MODULE.EVENTS,
                     body: (_req, res: EventInfoAPIResponse): ExistingEventSocket => {
                         return {
                             action: "delete",
@@ -1338,6 +1530,11 @@ const eventsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.EVENTS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             }
         }
@@ -1382,7 +1579,7 @@ const announcementsRoutes: routesType = {
                     type: CreateAnnouncementBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    event: MODULE.ANNOUNCEMENTS,
                     body: (_, res: APIResponse): AnnouncementAddSocket => {
                         return {
                             action: "add",
@@ -1390,6 +1587,11 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "add",
+                    getTarget: (_req, res: APIResponse) => (res.locals.responseBody as CreationResponse).id
                 }
             }
         }
@@ -1408,7 +1610,7 @@ const announcementsRoutes: routesType = {
                     type: EditAnnouncementBody
                 },
                 broadcast: {
-                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    event: MODULE.ANNOUNCEMENTS,
                     body: (_, res: AnnouncementInfoAPIResponse): AnnouncementUpdateSocket => {
                         return {
                             action: "update",
@@ -1418,6 +1620,11 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "update",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
             },
             DELETE: {
@@ -1425,7 +1632,7 @@ const announcementsRoutes: routesType = {
                 requiresForce: true,
                 intents: ["announcements"],
                 broadcast: {
-                    event: SOCKET_EVENT.ANNOUNCEMENTS,
+                    event: MODULE.ANNOUNCEMENTS,
                     body: (_, res: AnnouncementInfoAPIResponse): AnnouncementDeleteSocket => {
                         return {
                             action: "delete",
@@ -1435,7 +1642,70 @@ const announcementsRoutes: routesType = {
                         }
                     },
                     patrol: true
+                },
+                auditLog: {
+                    module: MODULE.ANNOUNCEMENTS,
+                    action: "delete",
+                    getTarget: (req) => parseInt(/\d+/.exec(req.params.id)![0])
                 }
+            }
+        }
+    }
+}
+
+const auditLogsRoutes: routesType = {
+    "/audit-logs$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["accounts"],
+                queryParams: {
+                    type: ListAuditLogsQueryParams
+                },
+                filters: {
+                    after: {
+                        queryFunction: () => `timestamp >= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    before: {
+                        queryFunction: () => `timestamp <= FROM_UNIXTIME(?)`,
+                        valueFunction: (value: string) => value
+                    },
+                    author: {
+                        queryFunction: () => "audit_logs.nif = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    },
+                    module: {
+                        queryFunction: () => "audit_logs.module = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    action: {
+                        queryFunction: () => "audit_logs.action = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    type: {
+                        queryFunction: () => "audit_logs.type = ?",
+                        valueFunction: (value: string) => value
+                    },
+                    target: {
+                        queryFunction: () => "audit_logs.target = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    },
+                    code: {
+                        queryFunction: () => "audit_logs.status_code = ?",
+                        valueFunction: (value: string) => parseInt(value)
+                    }
+                }
+            }
+        }
+    },
+    "/audit-logs/\\d+$": {
+        methods: {
+            GET: {
+                requiresSession: true,
+                requiresForce: true,
+                intents: ["accounts"]
             }
         }
     }
@@ -1454,7 +1724,8 @@ const routes: routesType = {
     ...officersRoutes,
     ...patrolsRoutes,
     ...eventsRoutes,
-    ...announcementsRoutes
+    ...announcementsRoutes,
+    ...auditLogsRoutes
 }
 
 // ! Make sure there are no routes that require a session but don't require a force.

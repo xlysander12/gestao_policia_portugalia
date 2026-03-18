@@ -18,7 +18,7 @@ import {make_request, RequestMethod} from "../../utils/requests.ts";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
 import OfficerList from "../OfficerList";
-import {BaseResponse, SOCKET_EVENT, SocketResponse} from "@portalseguranca/api-types";
+import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import moment, {Moment} from "moment-timezone";
 import {ExistingPatrolSocket, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Gate from "../Gate/gate.tsx";
@@ -209,7 +209,7 @@ function PatrolQuickCreator() {
     }
 
     // Everytime an update to a patrol happens, refresh this component
-    useWebSocketEvent<SocketResponse>(SOCKET_EVENT.PATROLS, useCallback((data) => {
+    useWebSocketEvent<SocketResponse>(MODULE.PATROLS, useCallback((data) => {
         // If the event was triggered by the logged user disregard it
         if (data.by === loggedUser.info.personal.nif) return;
 

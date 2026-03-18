@@ -16,6 +16,7 @@ import {OfficerHoursEntryType} from "../repository";
 import {dateToUnix, unixToDate} from "../../../../../../utils/date-handler";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input";
 import {getForceMinWeekMinutes} from "../../../../../../utils/config-handler";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getOfficerHoursHistoryController(req: express.Request, res: OfficerInfoAPIResponse<OfficerHoursResponse>) {
     // Call the service to get the hours
@@ -87,13 +88,13 @@ export async function getOfficerLastWeekController(req: express.Request, res: Of
     });
 }
 
-export async function addOfficerHoursEntryController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function addOfficerHoursEntryController(req: express.Request, res: OfficerInfoAPIResponse<CreationResponse>) {
     const {week_start, week_end, minutes} = req.body as AddOfficerHoursBodyType;
 
     // Call the service to add the hours
     const result = await addOfficerHoursEntry(req.header(FORCE_HEADER)!, res.locals.targetOfficer!.nif, unixToDate(week_start), unixToDate(week_end), minutes, res.locals.loggedOfficer);
 
-    res.status(result.status).json({message: result.message});
+    res.status(result.status).json({message: result.message, id: result.data});
 }
 
 export async function deleteOfficerGetHoursEntryController(req: express.Request, res: OfficerInfoAPIResponse) {

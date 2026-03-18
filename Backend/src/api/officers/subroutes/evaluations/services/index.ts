@@ -139,7 +139,7 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
     }
 }
 
-export async function createEvaluation(force: string, loggedOfficer: InnerOfficerData, targetOfficer: InnerOfficerData, details: CreateEvaluationBodyType): Promise<DefaultReturn<void>> {
+export async function createEvaluation(force: string, loggedOfficer: InnerOfficerData, targetOfficer: InnerOfficerData, details: CreateEvaluationBodyType): Promise<DefaultReturn<number>> {
     // * If the target officer has a greater patent than the one the logged officer can evaluate, this evaluation cannot be created
     // Get the logged officer's patent data
     const loggedOfficerPatent = await getForcePatents(force, loggedOfficer.patent) as PatentData;
@@ -240,12 +240,13 @@ export async function createEvaluation(force: string, loggedOfficer: InnerOffice
     }
 
     // Apply the data in the repository
-    await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.decision, details.patrol ? undefined : details.timestamp);
+    const id = await addEvaluation(force, loggedOfficer.nif, targetOfficer.nif, details.fields, details.patrol, details.comments, details.decision, details.patrol ? undefined : details.timestamp);
 
     return {
         result: true,
         status: 200,
-        message: "Operação realizada com sucesso"
+        message: "Operação realizada com sucesso",
+        data: id
     }
 }
 

@@ -16,6 +16,7 @@ import {
 import {OfficerEvaluationAPIResponse} from "../../../../../types/response-types";
 import {isQueryParamPresent} from "../../../../../utils/filters";
 import {CreateEvaluationBodyType, EditEvaluationBodyType} from "@portalseguranca/api-types/officers/evaluations/input";
+import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<EvaluationsListResponse>) {
     // Call the service
@@ -81,14 +82,15 @@ export function getEvaluationDataController(_req: express.Request, res: OfficerE
     });
 }
 
-export async function createEvaluationController(req: express.Request, res: OfficerInfoAPIResponse) {
+export async function createEvaluationController(req: express.Request, res: OfficerInfoAPIResponse<CreationResponse>) {
     const body = req.body as CreateEvaluationBodyType;
 
     // Call the service
     const result = await createEvaluation(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!, body);
 
     res.status(result.status).json({
-        message: result.message
+        message: result.message,
+        id: result.data
     });
 }
 

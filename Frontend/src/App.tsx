@@ -34,6 +34,7 @@ import Evaluations from "./pages/Evaluations";
 import moment from 'moment';
 import {DefaultToastContainer} from "./components/DefaultComponents";
 import Gate from "./components/Gate/gate.tsx";
+import {AuditLogs} from "./pages/Audit-Logs";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -317,6 +318,19 @@ function App() {
                             {
                                 path: ":nif/decisoes/:decision_id",
                                 element: <PrivateRoute handleForceChange={handleForceChange} element={<Evaluations showDecisionsOnOpen />}  />
+                            }
+                        ]
+                    },
+                    {
+                        path: "registo-auditoria",
+                        children: [
+                            {
+                                path: "",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<AuditLogs/>}/>
+                            },
+                            {
+                                path: ":id",
+                                element: <PrivateRoute handleForceChange={handleForceChange} element={<AuditLogs/>}/>
                             }
                         ]
                     },

@@ -5,7 +5,7 @@ import {MinifiedPatrolData} from "@portalseguranca/api-types/patrols/output";
 import {dateToUnix} from "../../../utils/date-handler";
 import {InnerPatrolData} from "../../../types/inner-types";
 import { EditPatrolBody } from "@portalseguranca/api-types/patrols/input";
-import {RowDataPacket} from "mysql2/promise";
+import {ResultSetHeader, RowDataPacket} from "mysql2/promise";
 import {getForceDatabase, getForcePatrolForces} from "../../../utils/config-handler";
 
 function splitPatrolId(id: string): [string, number] {
@@ -191,9 +191,10 @@ export async function getOfficerPatrol(force: string, officerNif: number): Promi
     return await getPatrol(force, result[0].id as string);
 }
 
-export async function createPatrol(force: string, registrar: number, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<void> {
+export async function createPatrol(force: string, registrar: number, type: number, specialUnit: number | null, officers: number[], start: Date, end: Date | null, notes: string | null): Promise<number> {
     // Insert the patrol into the database
-    await queryDB(force, `INSERT INTO patrols (type, special_unit, registrar, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`, [type, specialUnit, registrar, JSON.stringify(officers), start, end, notes]);
+    const result = await queryDB<ResultSetHeader>(force, `INSERT INTO patrols (type, special_unit, registrar, officers, start, end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`, [type, specialUnit, registrar, JSON.stringify(officers), start, end, notes]);
+    return result.insertId;
 }
 
 export async function editPatrol(force: string, id: number, changes: EditPatrolBody, canceled?: boolean) {

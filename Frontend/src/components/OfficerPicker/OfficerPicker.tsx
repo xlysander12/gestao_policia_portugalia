@@ -12,7 +12,7 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import ManagementBar from "../ManagementBar";
 import Gate from "../Gate/gate.tsx";
 import {Loader} from "../Loader";
-import { SOCKET_EVENT } from "@portalseguranca/api-types";
+import { MODULE } from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 import {
     FormControlLabel,
@@ -79,11 +79,11 @@ function OfficerPicker({callback, filter = () => true, disabled = false, patrol 
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
     // WebSocket connections
-    useWebSocketEvent(SOCKET_EVENT.OFFICERS, () => {
+    useWebSocketEvent(MODULE.OFFICERS, () => {
         void search(searchFilters, false);
     });
 
-    useWebSocketEvent<OfficerActivitySocket>(SOCKET_EVENT.ACTIVITY, (data) => {
+    useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, (data) => {
         // If the data is not a justification, return
         if (data.type !== "justification") return;
 

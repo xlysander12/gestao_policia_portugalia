@@ -3,7 +3,7 @@ import {submitIssueController, submitSuggestionController} from "./controllers";
 import {logToConsole} from "../../utils/logger";
 
 // Creating the router
-const app = express.Router();
+const app = express.Router({mergeParams: true});
 
 
 app.post("/issue", submitIssueController);
