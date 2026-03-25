@@ -432,6 +432,7 @@ function DecisionModal(props: DecisionModalProps) {
                             <div className={styles.actionsDiv}>
                                 <DefaultButton
                                     fullWidth
+                                    darkTextOnHover
                                     buttonColor={"lightgreen"}
                                     onClick={editDecision}
                                 >Guardar</DefaultButton>
