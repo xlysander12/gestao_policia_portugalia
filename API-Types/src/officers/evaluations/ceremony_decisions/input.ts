@@ -16,7 +16,7 @@ export const CreateCeremonyDecisionBody = rt.Record({
 export type CreateCeremonyDecisionBody = rt.Static<typeof CreateCeremonyDecisionBody>;
 
 export const EditCeremonyDecisionBody = rt.Partial({
-    decision: rt.Number,
+    decision: rt.Union(rt.Number, rt.Null),
     details: rt.String,
 });
 export type EditCeremonyDecisionBody = rt.Static<typeof EditCeremonyDecisionBody>;
