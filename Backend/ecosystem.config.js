@@ -14,6 +14,8 @@ module.exports = {
       script : "./dist/index.js",
       args: [
           "--color"
-      ]
+      ],
+      watch: ["config.json"],
+      ignore_watch: ["node_modules"]
   }]
 }
