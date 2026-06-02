@@ -20,9 +20,13 @@ import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function getEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<EvaluationsListResponse>) {
     // Call the service
-    const result = isQueryParamPresent("page", res.locals.queryParams) ?
-        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams.page)) :
-        await evaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
+    const result = await evaluationsList(
+        req.header(FORCE_HEADER)!,
+        res.locals.loggedOfficer,
+        res.locals.targetOfficer!.nif,
+        res.locals.routeDetails.filters!,
+        res.locals.queryParams,
+        isQueryParamPresent("page", res.locals.queryParams) ? parseInt(res.locals.queryParams.page) : undefined);
 
     // Send the response
     if (!result.result) {

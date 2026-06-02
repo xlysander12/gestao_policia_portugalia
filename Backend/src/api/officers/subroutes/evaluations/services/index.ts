@@ -35,7 +35,7 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     const allEvals = (await getEvaluations(force, requester, target, hasIntent, routeValidFilters, filters, 0)).evaluations;
 
     // Store all grades for each field
-    const field_grades: Record<number | "decision", number[]> = {"decision": []};
+    const field_grades: Record<number | "decision", number[] | undefined> = {"decision": []};
 
     // Loop through all evaluations
     for (const evaluation of allEvals) {
@@ -45,17 +45,14 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
         // Loop through all fields
         for (const field in evaluationData.fields) {
             // If the field doesn't exist in the object, create it
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            if (!field_grades[field]) {
-                field_grades[field] = [];
-            }
+            field_grades[field] ??= [];
 
             // Add the grade to the field
             field_grades[field].push(evaluationData.fields[field].grade);
         }
         
         // Add the decision, if exists
-        if (evaluationData.decision !== null) field_grades.decision.push(evaluationData.decision);
+        if (evaluationData.decision !== null) field_grades.decision!.push(evaluationData.decision);
     }
 
     // Calculate the pondered average for each field
@@ -65,13 +62,13 @@ export async function evaluationsList(force: string, requester: InnerOfficerData
     for (const field in field_grades) {
         // Get the sum of all grades multiplied by their weight (weight = arr.size() - index)
         let sum = 0;
-        for (let i = 0; i < field_grades[field].length; i++) {
-            sum += field_grades[field][i] * (field_grades[field].length - i);
+        for (let i = 0; i < field_grades[field]!.length; i++) {
+            sum += field_grades[field]![i] * (field_grades[field]!.length - i);
         }
 
         // Calculate the sum of all indexes
         let indexesSum = 0;
-        for (let i = 1; i <= field_grades[field].length; i++) {
+        for (let i = 1; i <= field_grades[field]!.length; i++) {
             indexesSum += i;
         }
 
