@@ -14,7 +14,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
     if (filters && !routeValidFilters) throw new Error("routeValidFilters must be present when filters are passed");
 
     // Build the filters query and values
-    const filtersResult = buildFiltersQuery(force, routeValidFilters!, filters, {subquery: all ? "target = ? AND author.patent <= requester.patent" : "target = ? AND author = ?", value: all ? target : [target, requester.nif]});
+    const filtersResult = buildFiltersQuery(force, routeValidFilters!, filters, {subquery: all ? "target = ? AND (requester_patent.max_evaluation_author >= author.patent OR author.nif = requester.nif)" : "target = ? AND author = ?", value: all ? target : [target, requester.nif]});
 
     // Query the database to get the evaluations
     const query = all ? `
@@ -28,6 +28,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             evaluationsV
             JOIN officers author ON evaluationsV.author = author.nif
             JOIN officers requester ON requester.nif = ?
+            JOIN patents requester_patent ON requester.patent = requester_patent.id
         ${filtersResult.query}
         ${page > 0 ?
             `LIMIT ${entries_per_page}
@@ -60,6 +61,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
             evaluationsV
             JOIN officers author ON evaluationsV.author = author.nif
             JOIN officers requester ON requester.nif = ?
+            JOIN patents requester_patent ON requester.patent = requester_patent.id
         ${filtersResult.query}
     ` : `
         SELECT
