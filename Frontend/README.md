@@ -18,8 +18,10 @@ Aplicação web do Portal Segurança, construída com React + TypeScript + Vite.
 
 ## Instalação
 
+Executar a partir da raiz do repositório:
+
 ```bash
-cd ../API-Types && npm ci
+cd API-Types && npm ci
 cd ../Frontend && npm ci
 ```
 

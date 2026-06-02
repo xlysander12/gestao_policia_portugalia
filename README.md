@@ -38,7 +38,7 @@ Sistema completo para gestão operacional das forças policiais (PSP/GNR), com b
 Também pode usar:
 
 ```bash
-cd gestao_policia_portugalia
+cd <repository-root>
 ./deploy.sh -skip
 ```
 

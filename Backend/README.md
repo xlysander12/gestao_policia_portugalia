@@ -19,8 +19,10 @@ API e servidor principal do Portal Segurança, responsável por autenticação, 
 
 ### 1) Dependências
 
+Executar a partir da raiz do repositório:
+
 ```bash
-cd ../API-Types && npm ci
+cd API-Types && npm ci
 cd ../Backend && npm ci
 ```
 
