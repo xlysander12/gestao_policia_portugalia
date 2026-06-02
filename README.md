@@ -28,7 +28,7 @@ Sistema completo para gestão operacional das forças policiais (PSP/GNR), com b
    - Rever `Backend/src/assets/config.sample.json` e ajustar o `Backend/config.json` gerado automaticamente no arranque
    - Garantir os ficheiros `Backend/src/assets/google-creds.json` e `Backend/src/assets/github-issues-app.pem`
 3. Configurar base de dados:
-   - Opção local com Docker: `cd Database && cd "Local Server" && docker compose up -d`
+   - Opção local com Docker: `cd Database/"Local Server" && docker compose up -d`
 4. Build:
    - `cd Backend && npm run build`
    - `cd ../Frontend && npm run build`
