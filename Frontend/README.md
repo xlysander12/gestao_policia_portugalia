@@ -41,6 +41,7 @@ Definidos em `src/utils/constants.ts`:
 - `BASE_WS_URL`: `/portugalia/portalseguranca/ws`
 
 Durante desenvolvimento, o Vite usa proxy para `http://localhost:8080` (API/manual/titles/ws).
+Se necessário, alinhe este valor com `HTTP_PORT` definido no backend.
 
 ## Estrutura principal
 
