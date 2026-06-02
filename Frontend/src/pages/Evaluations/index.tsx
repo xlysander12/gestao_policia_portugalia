@@ -233,7 +233,7 @@ function Evaluations(props: EvaluationsPageProps) {
                         }}
                         filter={(officer) =>
                             officer.nif === loggedUser.info.personal.nif ||
-                            asAuthor && loggedUser.intents.evaluations ? officer.patent <= loggedUser.info.professional.patent.id :
+                            asAuthor && loggedUser.intents.evaluations ? officer.patent <= loggedUser.info.professional.patent.max_evaluation_author :
                                 officer.patent <= loggedUser.info.professional.patent.max_evaluation
                         }
                     />
