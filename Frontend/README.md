@@ -1,30 +1,53 @@
-# React + TypeScript + Vite
+# Frontend - Portal Segurança
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação web do Portal Segurança, construída com React + TypeScript + Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 18
+- TypeScript
+- Vite
+- Material UI
+- Socket.IO Client
 
-## Expanding the ESLint configuration
+## Pré-requisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Node.js 20+
+- npm 10+
+- Backend em execução para funcionalidades completas
 
-- Configure the top-level `parserOptions` property like this:
+## Instalação
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+```bash
+cd /tmp/workspace/xlysander12/gestao_policia_portugalia/API-Types && npm ci
+cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Frontend && npm ci
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Scripts
+
+- `npm run dev` — arranca o frontend em desenvolvimento
+- `npm run build` — build de produção
+- `npm run preview` — pré-visualização local do build
+- `npm run lint` — lint com ESLint
+
+## Endpoints base usados pela app
+
+Definidos em `src/utils/constants.ts`:
+
+- `BASE_URL`: `/portugalia/portalseguranca`
+- `BASE_API_URL`: `/portugalia/portalseguranca/api`
+- `BASE_WS_URL`: `/portugalia/portalseguranca/ws`
+
+Durante desenvolvimento, o Vite usa proxy para `http://localhost:8080` (API/manual/titles/ws).
+
+## Estrutura principal
+
+- `src/pages/` — páginas da aplicação
+- `src/components/` — componentes reutilizáveis
+- `src/hooks/` — hooks React
+- `src/utils/` — utilitários, constantes e camada de requests
+
+## Notas
+
+- O frontend depende de tipos do pacote local `@portalseguranca/api-types`.
+- Em produção, o backend serve o build gerado em `Frontend/dist`.
