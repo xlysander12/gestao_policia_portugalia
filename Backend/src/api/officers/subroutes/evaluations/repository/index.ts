@@ -19,7 +19,7 @@ export async function getEvaluations(force: string, requester: InnerOfficerData,
     // Query the database to get the evaluations
     const query = all ? `
         SELECT 
-            id,
+            evaluationsV.id,
             target, 
             author, 
             decision,
