@@ -13,6 +13,7 @@ export interface MinifiedPatrolData {
 export interface PatrolHistoryResponse extends BaseResponse {
     meta: {
         pages: number
+        total: number
     }
     data: MinifiedPatrolData[]
 }

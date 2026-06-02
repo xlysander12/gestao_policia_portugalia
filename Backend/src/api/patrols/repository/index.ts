@@ -53,8 +53,9 @@ function getBaseQuery(force: string) {
 }
 
 export async function listPatrols(force: string, routeFilters: RouteFilterType, filters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<{
-    patrols: MinifiedPatrolData[],
+    patrols: MinifiedPatrolData[]
     pages: number
+    total: number
 }> {
     // Get the base query
     const base_query = getBaseQuery(force);
@@ -91,7 +92,8 @@ export async function listPatrols(force: string, routeFilters: RouteFilterType, 
     // Return the result
     return {
         patrols: patrols,
-        pages: Math.ceil(totalEntries[0]["COUNT(*)"] / entriesPerPage)
+        pages: Math.ceil(totalEntries[0]["COUNT(*)"] / entriesPerPage),
+        total: totalEntries[0]["COUNT(*)"]
     };
 }
 

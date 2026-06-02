@@ -96,7 +96,8 @@ async function canOfficerBeInPatrol(force: string, officerNif: number, patrolSta
 
 export async function patrolsHistory(force: string, validFilters: RouteFilterType, receivedFilters: ReceivedQueryParams, page = 1, entriesPerPage = 10): Promise<DefaultReturn<{
     patrols: MinifiedPatrolData[],
-    pages: number
+    pages: number,
+    total: number
 }>> {
     // Fetch the patrols from the repository
     const result = await listPatrols(force, validFilters, receivedFilters, page, entriesPerPage);
