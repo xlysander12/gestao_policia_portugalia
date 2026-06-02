@@ -20,25 +20,25 @@ Sistema completo para gestão operacional das forças policiais (PSP/GNR), com b
 ## Setup rápido
 
 1. Instalar dependências:
-   - `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/API-Types && npm ci`
-   - `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Backend && npm ci`
-   - `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Frontend && npm ci`
+   - `cd API-Types && npm ci`
+   - `cd ../Backend && npm ci`
+   - `cd ../Frontend && npm ci`
 2. Configurar backend:
-   - Criar `/tmp/workspace/xlysander12/gestao_policia_portugalia/Backend/.env` (ver `Backend/README.md`)
-   - Rever `/tmp/workspace/xlysander12/gestao_policia_portugalia/Backend/config.json` (é gerado a partir de `src/assets/config.sample.json`)
+   - Criar `Backend/.env` (ver `Backend/README.md`)
+   - Rever `Backend/config.json` (é gerado a partir de `src/assets/config.sample.json`)
    - Garantir os ficheiros `Backend/src/assets/google-creds.json` e `Backend/src/assets/github-issues-app.pem`
 3. Configurar base de dados:
-   - Opção local com Docker: `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Database/Local\ Server && docker compose up -d`
+   - Opção local com Docker: `cd Database/Local\ Server && docker compose up -d`
 4. Build:
-   - `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Backend && npm run build`
-   - `cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Frontend && npm run build`
+   - `cd Backend && npm run build`
+   - `cd ../Frontend && npm run build`
 
 ## Build único com script
 
 Também pode usar:
 
 ```bash
-cd /tmp/workspace/xlysander12/gestao_policia_portugalia
+cd gestao_policia_portugalia
 ./deploy.sh -skip
 ```
 

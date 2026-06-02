@@ -20,13 +20,13 @@ API e servidor principal do Portal Segurança, responsável por autenticação, 
 ### 1) Dependências
 
 ```bash
-cd /tmp/workspace/xlysander12/gestao_policia_portugalia/API-Types && npm ci
-cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Backend && npm ci
+cd ../API-Types && npm ci
+cd ../Backend && npm ci
 ```
 
 ### 2) Variáveis de ambiente
 
-Criar `/tmp/workspace/xlysander12/gestao_policia_portugalia/Backend/.env` com:
+Criar `Backend/.env` com:
 
 - `HTTP_PORT`
 - `GH_APP_ID`

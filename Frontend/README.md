@@ -19,8 +19,8 @@ Aplicação web do Portal Segurança, construída com React + TypeScript + Vite.
 ## Instalação
 
 ```bash
-cd /tmp/workspace/xlysander12/gestao_policia_portugalia/API-Types && npm ci
-cd /tmp/workspace/xlysander12/gestao_policia_portugalia/Frontend && npm ci
+cd ../API-Types && npm ci
+cd ../Frontend && npm ci
 ```
 
 ## Scripts
