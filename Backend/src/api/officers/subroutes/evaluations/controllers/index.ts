@@ -48,9 +48,13 @@ export async function getEvaluationsListController(req: express.Request, res: Of
 
 export async function getAuthoredEvaluationsListController(req: express.Request, res: OfficerInfoAPIResponse<AuthoredEvaluationsListResponse>) {
     // Call the service
-    const result = isQueryParamPresent("page", res.locals.queryParams) ?
-        await authoredEvaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams.page)) :
-        await authoredEvaluationsList(req.header(FORCE_HEADER)!, res.locals.loggedOfficer, res.locals.targetOfficer!.nif, res.locals.routeDetails.filters!, res.locals.queryParams);
+    const result = await authoredEvaluationsList(
+        req.header(FORCE_HEADER)!,
+        res.locals.loggedOfficer,
+        res.locals.targetOfficer!.nif,
+        res.locals.routeDetails.filters!,
+        res.locals.queryParams,
+        isQueryParamPresent("page", res.locals.queryParams) ? parseInt(res.locals.queryParams.page) : undefined);
 
     // Send the response
     if (!result.result) {

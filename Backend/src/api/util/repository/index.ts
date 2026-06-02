@@ -30,6 +30,7 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
             name: patents[0].name as string,
             category: patents[0].category as number,
             max_evaluation: patents[0].max_evaluation as number,
+            max_evaluation_author: patents[0].max_evaluation_author as number,
             leading_char: patents[0].leading_char as string
         };
     }
@@ -42,6 +43,7 @@ export async function getForcePatents(force: string, patent_id?: number): Promis
             name: patent.name as string,
             category: patent.category as number,
             max_evaluation: patent.max_evaluation as number,
+            max_evaluation_author: patent.max_evaluation_author as number,
             leading_char: patent.leading_char as string
         });
     }

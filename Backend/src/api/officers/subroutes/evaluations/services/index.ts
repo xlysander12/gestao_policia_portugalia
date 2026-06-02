@@ -115,7 +115,9 @@ export async function authoredEvaluationsList(force: string, loggedOfficer: Inne
             }
         }
 
-        if (loggedOfficer.patent < author.patent) {
+        const loggedOfficerPatent = await getForcePatents(force, loggedOfficer.patent) as PatentData;
+
+        if (loggedOfficerPatent.max_evaluation_author < author.patent) {
             return {
                 result: false,
                 status: 403,
