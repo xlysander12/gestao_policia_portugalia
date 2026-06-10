@@ -17,9 +17,9 @@ html, body {
   user-select: none;
 }
 
-body {
-  background-color: var(--portalseguranca-color-background-light);
-}
+/*body {*/
+/*  background-color: var(--portalseguranca-color-background-light);*/
+/*}*/
 
 /*::-webkit-scrollbar {*/
 /*  visibility: hidden;*/

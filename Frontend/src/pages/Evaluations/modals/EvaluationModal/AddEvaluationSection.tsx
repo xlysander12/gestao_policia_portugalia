@@ -43,7 +43,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
                     justifyContent: "flex-start"
                 }}
             >
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>
                     Campo de Avaliação:
                 </DefaultTypography>
                 <DefaultSelect
@@ -68,7 +68,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
 
                 <Divider flexItem sx={{marginBottom: "5px"}}/>
 
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>
                     Avaliação:
                 </DefaultTypography>
                 <DefaultSelect
@@ -93,7 +93,7 @@ function AddEvaluationSection(props: AddEvaluationSectionProps) {
 
                 <Divider flexItem sx={{marginBottom: "5px"}}/>
 
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>
                     Observações:
                 </DefaultTypography>
                 <DefaultOutlinedTextField

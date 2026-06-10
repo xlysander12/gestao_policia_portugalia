@@ -130,7 +130,7 @@ function AnnouncementsPanel() {
                         width: "100%"
                     }}
                 >
-                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Pesquisa:</DefaultTypography>
+                    <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Pesquisa:</DefaultTypography>
                     <div
                         style={{
                             boxSizing: "border-box",

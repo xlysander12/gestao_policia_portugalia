@@ -229,17 +229,17 @@ function AccountInformationModal({open, onClose, officerNif, officerFullName}: A
             <>
                 <ModalSection title={"Informações Gerais"}>
                     <div className={modalsStyle.informationInnerSectionDiv}>
-                        <Stack alignItems={"center"} direction={"row"} gap={0.5}>
+                        <Stack direction={"row"}>
                             <Typography>Palavra-passe alterada:</Typography>
                             {!accountInfo.defaultPassword ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
-                        <Stack alignItems={"center"} direction={"row"} gap={0.5}>
+                        <Stack direction={"row"}>
                             <Typography>Conta ativa:</Typography>
                             {!accountInfo.suspended ? <CheckCircleOutlinedIcon sx={{color: "green"}}/> : <CancelOutlinedIcon sx={{color: "red"}}/>}
                         </Stack>
 
-                        <Stack alignItems={"center"} direction={"row"} gap={1}>
+                        <Stack direction={"row"}>
                             <Typography>Última utilização: {lastUsedString}</Typography>
                             <DefaultLink to={`/registo-auditoria?author=${officerNif}`} title={"Ver registo de atividade do Efetivo"}>
                                 <IconButton sx={{padding: 0}}>

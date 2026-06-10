@@ -278,13 +278,13 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                             }}
                         >
                             <Gate show={!props.newEntry}>
-                                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Author:</DefaultTypography>
+                                <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Author:</DefaultTypography>
                                 <DefaultTypography>{getObjectFromId(announcementData.author.patent, getForceData(announcementData.author.force ?? localStorage.getItem("force")!).patents)!.name} {announcementData.author.name}</DefaultTypography>
 
                                 <Divider sx={{marginBottom: "5px"}}/>
                             </Gate>
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Forças:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Forças:</DefaultTypography>
                             <Autocomplete
                                 disabled={!editMode}
                                 multiple
@@ -324,7 +324,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
 
                             <Divider sx={{marginBottom: "5px"}}/>
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tags:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Tags:</DefaultTypography>
                             <Autocomplete
                                 freeSolo
                                 multiple
@@ -362,7 +362,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
 
                             <Divider sx={{marginBottom: "5px"}}/>
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Expira em:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Expira em:</DefaultTypography>
                             <DefaultDateTimePicker
                                 disabled={!editMode}
                                 textWhenDisabled
@@ -377,7 +377,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
 
                             <Divider sx={{marginBottom: "5px"}}/>
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Título:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Título:</DefaultTypography>
                             <DefaultTextField
                                 fullWidth
                                 disabled={!editMode}
@@ -392,7 +392,7 @@ function AnnouncementModal(props: AnnoucencementModalProps) {
                             />
                             <Divider sx={{marginBottom: "5px"}}/>
 
-                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Texto:</DefaultTypography>
+                            <DefaultTypography color={"var(--portalseguranca-color-accent)"} sx={{fontWeight: "bold"}}>Texto:</DefaultTypography>
                             <RichTextEditor
                                 // @ts-expect-error - I don't know
                                 extensions={[StarterKit]}

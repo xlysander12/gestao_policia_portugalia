@@ -22,8 +22,6 @@ import {
     UtilStatusesResponse
 } from "@portalseguranca/api-types/util/output";
 import {Loader} from "./components/Loader";
-import {createTheme, ThemeProvider} from "@mui/material";
-import defaultThemeData from "./theme.ts";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
 import { useImmer } from 'use-immer';
@@ -35,6 +33,7 @@ import moment from 'moment';
 import {DefaultToastContainer} from "./components/DefaultComponents";
 import Gate from "./components/Gate/gate.tsx";
 import {AuditLogs} from "./pages/Audit-Logs";
+import ThemeToggler from "./components/ThemeToggler/ThemeToggler.tsx";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -345,7 +344,6 @@ function App() {
         })
 
 
-    const defaultTheme = createTheme(defaultThemeData);
     return (
         <>
             <Gate show={!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
@@ -354,11 +352,11 @@ function App() {
 
             <Gate show={canLoad && ((force === "" || forceData[force] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <ThemeProvider theme={defaultTheme}>
+                    <ThemeToggler>
                         <ForcesDataContext.Provider value={forceData}>
                             <RouterProvider router={router} />
                         </ForcesDataContext.Provider>
-                    </ThemeProvider>
+                    </ThemeToggler>
                 </LocalizationProvider>
             </Gate>
 
@@ -367,4 +365,4 @@ function App() {
     );
 }
 
-export default App
+export default App;

@@ -19,6 +19,7 @@ import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
 import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
+import Gate from "../Gate/gate.tsx";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -314,8 +315,12 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     return (
         <WebsocketContext.Provider value={socket}>
             <LoggedUserContext.Provider value={loggedUser}>
-                <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
-                <div className={style.contentDiv}>
+                <Gate show={!isLoginPage}>
+                    <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
+                </Gate>
+                <div style={{
+                    height: !isLoginPage ? "calc(100vh - calc(4rem + 13px))" : "100vh",
+                }}>
                     {element}
                 </div>
             </LoggedUserContext.Provider>

@@ -58,18 +58,20 @@ const DefaultOutlinedTextField = (props: DefaultOutlinedTextFieldProps) => {
             variant={"outlined"}
             {...props}
             type={showPassword ? "text" : "password"}
-            InputProps={{
-                ...props.InputProps,
-                endAdornment: props.type === "password" ? (
-                    <InputAdornment position={"end"}>
-                        <IconButton
-                            onClick={() => {setShowPassword((prev) => !prev)}}
-                            edge={"end"}
-                        >
-                            {showPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
-                        </IconButton>
-                    </InputAdornment>
-                ) : props.InputProps?.endAdornment,
+            slotProps={{
+                ...props.slotProps,
+                input: {
+                    endAdornment: props.type === "password" ? (
+                        <InputAdornment position={"end"}>
+                            <IconButton
+                                onClick={() => {setShowPassword((prev) => !prev)}}
+                                edge={"end"}
+                            >
+                                {showPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                            </IconButton>
+                        </InputAdornment>
+                    ) : props.slotProps?.input?.endAdornment,
+                }
             }}
         />
     );
