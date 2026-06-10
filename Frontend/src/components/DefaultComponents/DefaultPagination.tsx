@@ -1,4 +1,4 @@
-import {styled} from "@mui/system";
+import {styled} from "@mui/material/styles";
 import {Pagination, PaginationProps} from "@mui/material";
 
 type DefaultPaginationProps = PaginationProps & {

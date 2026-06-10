@@ -1,5 +1,5 @@
 import {Button, ButtonProps} from "@mui/material";
-import { styled } from "@mui/system";
+import { styled } from "@mui/material/styles";
 
 type DefaultButtonProps = Partial<ButtonProps> & {buttonColor?: string, darkTextOnHover?: boolean};
 

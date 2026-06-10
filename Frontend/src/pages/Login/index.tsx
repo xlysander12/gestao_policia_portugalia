@@ -1,6 +1,6 @@
 import style from "./login.module.css";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {SubmitEvent, useEffect, useState} from "react";
 import {
     Button,
     Checkbox,
@@ -50,14 +50,14 @@ function Login({onLoginCallback}: LoginPageProps) {
 
         // If there's a redirect query param in the URL, redirect the user to that page
         if (searchParams.get("redirect")) {
-            navigate(searchParams.get("redirect")!);
+            void navigate(searchParams.get("redirect")!);
             return;
         }
 
-        navigate("/");
+        void navigate("/");
     }
 
-    const onLogin = async (event?: FormEvent<HTMLFormElement>, discord?: boolean) => {
+    const onLogin = async (event?: SubmitEvent<HTMLFormElement>, discord?: boolean) => {
         // Disable page reload
         event?.preventDefault();
 
@@ -125,10 +125,12 @@ function Login({onLoginCallback}: LoginPageProps) {
     }
 
     // Start login process immediately if the code search param is present and the process hasn't started yet
+    // TODO: Separated page to authenticate using discord
     const code = searchParams.get("code");
     useEffect(() => {
         if (code && !isLoggingInDiscord) {
             isLoggingInDiscord = true;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             void onLogin(undefined, true);
         }
     }, [code, isLoggingInDiscord]);

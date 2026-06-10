@@ -1,6 +1,6 @@
 import {DateTimePicker, DateTimePickerProps} from "@mui/x-date-pickers";
 import { Moment } from "moment";
-import {styled} from "@mui/system";
+import {styled} from "@mui/material/styles";
 import {DefaultTextField} from "./index.ts";
 import {DefaultPickersLayout} from "./DefaultDateCalendar.tsx";
 import moment from "moment/moment";

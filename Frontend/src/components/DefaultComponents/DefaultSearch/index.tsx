@@ -1,7 +1,7 @@
 import {Autocomplete, Popover} from "@mui/material";
 import {DefaultDateCalendar, DefaultOutlinedTextField} from "../index.ts";
 import {useEffect, useRef, useState} from "react";
-import {styled} from "@mui/system";
+import {styled} from "@mui/material/styles";
 import {useImmer} from "use-immer";
 import {Moment} from "moment";
 import {DefaultSearchOption, DefaultSearchProps} from "./types";

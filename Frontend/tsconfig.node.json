@@ -12,6 +12,10 @@
   "include": [
     "vite.config.ts",
     "src/utils/constants.ts",
-      "src/forces-data-context.ts"
+    "src/forces-data-context.ts",
+    "eslint.config.cjs"
+  ],
+  "exclude": [
+    "eslint.config.cjs"
   ]
 }

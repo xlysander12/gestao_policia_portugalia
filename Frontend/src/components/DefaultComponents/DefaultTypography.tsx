@@ -1,5 +1,5 @@
 import {Typography, TypographyProps} from "@mui/material";
-import {styled} from "@mui/system";
+import {styled} from "@mui/material/styles";
 
 export type DefaultTypographyProps = Partial<TypographyProps> & {
     color?: string
