@@ -17,6 +17,7 @@ import {LoginDiscordRequestBody, LoginRequestBodyType} from "@portalseguranca/ap
 import { LoginResponse } from "@portalseguranca/api-types/account/output";
 import DiscordIcon from "../../components/DiscordIcon";
 import {KeyOutlined, PermIdentityOutlined} from "@mui/icons-material";
+import {useMutation} from "@tanstack/react-query";
 
 let isLoggingInDiscord = false;
 
@@ -33,13 +34,37 @@ function Login({onLoginCallback}: LoginPageProps) {
     // Get the theme
     const theme = useTheme();
 
-    // Set the state for the loading
-    const [loading, setLoading] = useState<boolean>(false);
-
     // Set the state for the NIF and password
     const [nif, setNif] = useState<string>(localStorage.getItem("last_login") ? localStorage.getItem("last_login")! : "");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
+
+    const loginMutation = useMutation({
+        mutationFn: ({nif, password, remember}: {nif: string, password: string, remember: boolean}) => login(nif, password, remember),
+
+        onError: (error) => {
+            toast(error.message, {type: "error"});
+            setPassword("");
+        },
+
+        onSuccess: (response) => {
+            // * If the request returned status 200, the login was successful
+            // Set the first force in the local storage
+            localStorage.setItem("force", response.data.forces[0]);
+
+            // Handle the login logic in the App core
+            onLoginCallback(response.data.forces[0]);
+
+            // Clear all existing toasts
+            toast.dismiss();
+
+            // Show toast informing logic successful
+            toast.success("Login realizado com sucesso. A redirecionar...");
+
+            // Redirect
+            redirectAfterLogin();
+        }
+    });
 
     // State for discord login
     const [discordLoginAccepted, setDiscordLoginAccepted] = useState(sessionStorage.getItem("discord_login") === "true");
@@ -57,71 +82,23 @@ function Login({onLoginCallback}: LoginPageProps) {
         void navigate("/");
     }
 
-    const onLogin = async (event?: SubmitEvent<HTMLFormElement>, discord?: boolean) => {
-        // Disable page reload
-        event?.preventDefault();
+    async function login(nif: string, password: string, persistent: boolean) {
+        const response = await make_request("/accounts/login", "POST", {
+            body: {
+                nif: parseInt(nif),
+                password: password,
+                persistent: persistent
+            },
+            redirectToLoginOn401: false
+        });
 
-        // Set the loading state to true
-        setLoading(true);
+        const responseJson: LoginResponse = await response.json();
 
-        // * Make the request to the server
-        let loginResponse: Response;
-        // If the discord login isn't being used, authenticate normally
-        if (!discord) {
-            loginResponse = await make_request<LoginRequestBodyType>("/accounts/login", "POST", {
-                body: {
-                    nif: Number(nif),
-                    password: password,
-                    persistent: remember
-                },
-                redirectToLoginOn401: false
-            });
-        } else { // If discord login is being used, make that request
-            loginResponse = await make_request<LoginDiscordRequestBody>("/accounts/login/discord", "POST", {
-                body: {
-                    code: searchParams.get("code")!
-                },
-                redirectToLoginOn401: false
-            });
+        if (!response.ok) {
+            throw new Error(responseJson.message);
         }
 
-        // Get the data from the response
-        const loginJson = await loginResponse.json() as LoginResponse;
-
-        // If the request didn't return a 200 code, the login was unsuccessful
-        if (!loginResponse.ok) {
-            toast(loginJson.message, {type: "error"});
-            setPassword("");
-            setLoading(false);
-            return;
-        }
-
-        // * If the request returned status 200, the login was successful
-        // Set the first force in the local storage
-        localStorage.setItem("force", loginJson.data.forces[0]);
-
-        // Set the last_login nif in the local storage if the remind be checkbox is checked and the login wasn't with discord
-        if (!discord) {
-            localStorage.setItem("last_login", nif.toString());
-        }
-
-        // Handle the login logic in the App core
-        onLoginCallback(loginJson.data.forces[0]);
-
-        // Clear all existing toasts
-        toast.dismiss();
-
-        // Show toast informing logic successful
-        toast.success("Login realizado com sucesso. A redirecionar...");
-
-        // Redirect the user to the desired page
-        // ! Only make this this way if not authenticating with discord -- Otherwise, use the useEffect below
-        if (!discord) redirectAfterLogin()
-        else {
-            // Set the state of discord login to accepted
-            setDiscordLoginAccepted(true);
-            sessionStorage.setItem("discord_login", "true");
-        }
+        return responseJson;
     }
 
     // Start login process immediately if the code search param is present and the process hasn't started yet
@@ -130,8 +107,6 @@ function Login({onLoginCallback}: LoginPageProps) {
     useEffect(() => {
         if (code && !isLoggingInDiscord) {
             isLoggingInDiscord = true;
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            void onLogin(undefined, true);
         }
     }, [code, isLoggingInDiscord]);
 
@@ -140,11 +115,18 @@ function Login({onLoginCallback}: LoginPageProps) {
         if (discordLoginAccepted) {
             redirectAfterLogin();
         }
-    }, [discordLoginAccepted]);
+    }, [discordLoginAccepted, redirectAfterLogin]);
 
     return (
-        <div className={style.outerLoginDiv} style={{backgroundColor: theme.palette.background.default}}>
-            <form onSubmit={onLogin} style={{height: "100%"}}>
+        <div className={style.outerLoginDiv}>
+            <form
+                onSubmit={(event) => {
+                    event.preventDefault();
+
+                    loginMutation.mutate({nif, password, remember});
+                }}
+                style={{height: "100%"}}
+            >
                 <div className={style.innerLoginDiv}>
                     <Typography
                         color={"textPrimary"}
@@ -180,7 +162,7 @@ function Login({onLoginCallback}: LoginPageProps) {
                             }
                         }}
                         value={nif}
-                        disabled={loading}
+                        disabled={loginMutation.isPending}
                     />
 
                     <TextField
@@ -201,7 +183,7 @@ function Login({onLoginCallback}: LoginPageProps) {
                             }
                         }}
                         value={password}
-                        disabled={loading}
+                        disabled={loginMutation.isPending}
                     />
 
                     <FormControlLabel
@@ -219,14 +201,14 @@ function Login({onLoginCallback}: LoginPageProps) {
                         sx={{
                             margin: "-10px"
                         }}
-                        disabled={loading}
+                        disabled={loginMutation.isPending}
                     />
 
                     <Button
                         variant={"contained"}
                         fullWidth
                         type={"submit"}
-                        disabled={loading}
+                        disabled={loginMutation.isPending}
                         sx={{
                             color: "#fff"
                         }}
