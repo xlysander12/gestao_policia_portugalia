@@ -34,6 +34,7 @@ import {DefaultToastContainer} from "./components/DefaultComponents";
 import Gate from "./components/Gate/gate.tsx";
 import {AuditLogs} from "./pages/Audit-Logs";
 import ThemeToggler from "./components/ThemeToggler/ThemeToggler.tsx";
+import {CssBaseline} from "@mui/material";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -345,23 +346,23 @@ function App() {
 
 
     return (
-        <>
+        <ThemeToggler>
+            <CssBaseline />
+
             <Gate show={!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
                 <Loader fullPage/>
             </Gate>
 
             <Gate show={canLoad && ((force === "" || forceData[force] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <ThemeToggler>
-                        <ForcesDataContext.Provider value={forceData}>
-                            <RouterProvider router={router} />
-                        </ForcesDataContext.Provider>
-                    </ThemeToggler>
+                    <ForcesDataContext.Provider value={forceData}>
+                        <RouterProvider router={router} />
+                    </ForcesDataContext.Provider>
                 </LocalizationProvider>
             </Gate>
 
             <DefaultToastContainer />
-        </>
+        </ThemeToggler>
     );
 }
 
