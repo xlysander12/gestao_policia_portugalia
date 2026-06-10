@@ -59,7 +59,7 @@ module.exports = [
       //   'warn',
       //   { allowConstantExport: true },
       // ],
-      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
       'prefer-const': 'warn',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
