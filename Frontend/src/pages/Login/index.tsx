@@ -1,13 +1,22 @@
 import style from "./login.module.css";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {DefaultButton, DefaultOutlinedTextField} from "../../components/DefaultComponents";
 import React, {FormEvent, useEffect, useState} from "react";
-import {Button, Checkbox, Divider, FormControlLabel} from "@mui/material";
+import {
+    Button,
+    Checkbox,
+    Divider,
+    FormControlLabel,
+    InputAdornment,
+    TextField,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {LoginDiscordRequestBody, LoginRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
 import { LoginResponse } from "@portalseguranca/api-types/account/output";
 import DiscordIcon from "../../components/DiscordIcon";
+import {KeyOutlined, PermIdentityOutlined} from "@mui/icons-material";
 
 let isLoggingInDiscord = false;
 
@@ -20,6 +29,9 @@ function Login({onLoginCallback}: LoginPageProps) {
 
     // Get the search params on login
     const [searchParams] = useSearchParams();
+
+    // Get the theme
+    const theme = useTheme();
 
     // Set the state for the loading
     const [loading, setLoading] = useState<boolean>(false);
@@ -129,35 +141,64 @@ function Login({onLoginCallback}: LoginPageProps) {
     }, [discordLoginAccepted]);
 
     return (
-        <div className={style.outerLoginDiv}>
-            <form onSubmit={onLogin}>
+        <div className={style.outerLoginDiv} style={{backgroundColor: theme.palette.background.default}}>
+            <form onSubmit={onLogin} style={{height: "100%"}}>
                 <div className={style.innerLoginDiv}>
-                    {/*Login form*/}
+                    <Typography
+                        color={"textPrimary"}
+                        variant={"h2"}
+                        sx={{
+                            fontWeight: "bold",
+                            position: "relative",
+                            top: "-8%",
+                            alignSelf: "center"
+                        }}
+                    >
+                        Portal Segurança
+                    </Typography>
 
-                    <DefaultOutlinedTextField
-                        alternateColor
+
+                    <TextField
+                        variant={"outlined"}
                         fullWidth
-                        size={"small"}
-                        label={"NIF"}
+                        placeholder={"NIF"}
                         type={"text"}
                         onChange={(event) => setNif(event.target.value)}
                         required
-                        inputProps={{
-                            pattern: "^[0-9]*$"
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position={"start"}>
+                                        <PermIdentityOutlined color={"disabled"}/>
+                                    </InputAdornment>
+                                )
+                            },
+                            htmlInput: {
+                                pattern: "^[0-9]*$"
+                            }
                         }}
                         value={nif}
                         disabled={loading}
                     />
 
-                    <DefaultOutlinedTextField
-                        alternateColor
+                    <TextField
+                        variant={"outlined"}
                         fullWidth
-                        size={"small"}
-                        label={"Palavra-Passe"}
+                        placeholder={"Password"}
                         type={"password"}
+                        autoComplete={"current-password"}
                         onChange={(event) => setPassword(event.target.value)}
-                        value={password}
                         required
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position={"start"}>
+                                        <KeyOutlined color={"disabled"}/>
+                                    </InputAdornment>
+                                )
+                            }
+                        }}
+                        value={password}
                         disabled={loading}
                     />
 
@@ -166,20 +207,11 @@ function Login({onLoginCallback}: LoginPageProps) {
                             <Checkbox
                                 checked={remember}
                                 onChange={(event) => setRemember(event.target.checked)}
-                                sx={{
-                                    "&.MuiButtonBase-root.MuiCheckbox-root": {
-                                        color: "var(--portalseguranca-color-text-light)",
-
-                                        "&.Mui-checked": {
-                                            color: "var(--portalseguranca-color-accent)"
-                                        }
-                                    }
-                                }}
                             />}
                         label={"Lembrar neste computador"}
                         slotProps={{
                             typography: {
-                                color: "textPrimary"
+                                color: "textSecondary"
                             }
                         }}
                         sx={{
@@ -188,13 +220,17 @@ function Login({onLoginCallback}: LoginPageProps) {
                         disabled={loading}
                     />
 
-                    <DefaultButton
+                    <Button
+                        variant={"contained"}
                         fullWidth
                         type={"submit"}
                         disabled={loading}
+                        sx={{
+                            color: "#fff"
+                        }}
                     >
                         Entrar
-                    </DefaultButton>
+                    </Button>
 
                     <Divider flexItem/>
 
@@ -207,6 +243,7 @@ function Login({onLoginCallback}: LoginPageProps) {
                         }
                         sx={{
                             backgroundColor: "#5865f2",
+                            color: "#fff",
 
                             "&:hover": {
                                 backgroundColor: "#5865f2",

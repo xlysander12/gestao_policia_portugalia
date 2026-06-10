@@ -3,20 +3,17 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: calc(100vh - 4rem);
+    height: 100%;
 }
 
 .innerLoginDiv {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     gap: 20px;
-    background-color: var(--portalseguranca-color-background-dark);
     padding: 15px;
-    width: 25rem;
-    height: fit-content;
-    border-radius: 5px;
-    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.5);
+    width: fit-content;
+    height: 100%;
 }
 
 .loginInput {
