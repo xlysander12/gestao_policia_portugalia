@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import {useState, useMemo} from 'react'
 import './App.css'
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
@@ -24,13 +24,12 @@ import {
 import {Loader} from "./components/Loader";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
-import { useImmer } from 'use-immer';
+import { QueryClient, QueryClientProvider, useQueries, useQuery } from '@tanstack/react-query';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
 import Evaluations from "./pages/Evaluations";
 import moment from 'moment';
-import {DefaultToastContainer} from "./components/DefaultComponents";
 import Gate from "./components/Gate/gate.tsx";
 import {AuditLogs} from "./pages/Audit-Logs";
 import ThemeToggler from "./components/ThemeToggler/ThemeToggler.tsx";
@@ -38,12 +37,11 @@ import {CssBaseline} from "@mui/material";
 import {Bounce, ToastContainer} from "react-toastify";
 
 function App() {
-    const [canLoad, setCanLoad] = useState<boolean>(false);
-    const [force, setForce] = useState<string>(localStorage.getItem("force") || "");
-    const [forceData, setForceData] = useImmer<ForcesDataContext>(useContext(ForcesDataContext));
+    const [currentForce, setcurrentForce] = useState<string>(localStorage.getItem("force") || "");
+    const queryClient = useMemo(() => new QueryClient(), []);
 
     const handleForceChange = (newForce: string) => {
-        setForce(newForce);
+        setcurrentForce(newForce);
         localStorage.setItem("force", newForce);
     }
 
@@ -184,50 +182,44 @@ function App() {
         return forceTempData;
     }
 
-    const updateForceData = async () => {
-        // Make sure the page is loading
-        setCanLoad(false);
-
-        // Get all forces current force can patrol with
-        const patrolForces = await fetchPatrolForces();
-
-        // To the list of forces, add the current force, if not already present
-        if (!patrolForces.includes(force)) {
-            patrolForces.push(force);
-        }
-
-        // For each force, fetch it's data and put it on the state
-        // Create a function to fetch the force's data and append to state
-        async function appendData(force: string) {
-            const result = await fetchForceData(force);
-
-            setForceData(draft => {
-                draft[force] = result
-            })
-        }
-        const promiseList: Promise<unknown>[] = [];
-        for (const forceName of patrolForces) {
-            promiseList.push(appendData(forceName));
-        }
-
-        // Fetch all data form all forces paralely
-        await Promise.all(promiseList);
-
-        // After fetching all forces' data, set the canLoad to true
-        setCanLoad(true);
-    }
-
     const handleLogin = (force: string) => {
-        setForce(force);
+        setcurrentForce(force);
     }
 
-    useEffect(() => {
-        if (localStorage.getItem("force") !== null && !(location.pathname.includes(`${BASE_URL}/erro`))) {
-            void updateForceData();
-        } else {
-            setCanLoad(true);
+    // Use TanStack Query to fetch patrol forces and force-specific data
+    const patrolForcesQuery = useQuery({
+        queryKey: ['patrolForces', currentForce],
+        queryFn: fetchPatrolForces,
+        enabled: localStorage.getItem("force") !== null && !(location.pathname.includes(`${BASE_URL}/erro`))
+    });
+
+    const forcesToFetch = useMemo(() => {
+        const list: string[] = patrolForcesQuery.data ? [...patrolForcesQuery.data] : [];
+        if (currentForce && !list.includes(currentForce)) list.push(currentForce);
+        return list;
+    }, [patrolForcesQuery.data, currentForce]);
+
+    const forceQueries = useQueries({
+        queries: forcesToFetch.map(force => ({
+            queryKey: ['forceData', force],
+            queryFn: () => fetchForceData(force),
+            enabled: !(location.pathname.includes(`${BASE_URL}/erro`))
+        }))
+    });
+
+    const anyPending = patrolForcesQuery.isPending || forceQueries.some(q => q.isPending);
+    const forceData = useMemo<ForcesDataContext>(() => {
+        const fd: ForcesDataContext = {};
+
+        for (let i = 0; i < forcesToFetch.length; i++) {
+            const data = forceQueries[i]?.data;
+            if (data) {
+                fd[forcesToFetch[i]] = data;
+            }
         }
-    }, [force]);
+
+        return fd;
+    }, [forcesToFetch, forceQueries]);
 
     const router = createBrowserRouter(
         [
@@ -347,33 +339,35 @@ function App() {
 
 
     return (
-        <ThemeToggler>
-            <CssBaseline />
+        <QueryClientProvider client={queryClient}>
+            <ThemeToggler>
+                <CssBaseline />
 
-            <Gate show={!canLoad || ((force !== "" && forceData[force] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
-                <Loader fullPage/>
-            </Gate>
+                <Gate show={anyPending || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
+                    <Loader fullPage/>
+                </Gate>
 
-            <Gate show={canLoad && ((force === "" || forceData[force] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
-                <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <ForcesDataContext.Provider value={forceData}>
-                        <RouterProvider router={router} />
-                    </ForcesDataContext.Provider>
-                </LocalizationProvider>
-            </Gate>
+                <Gate show={!anyPending && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
+                    <LocalizationProvider dateAdapter={AdapterMoment}>
+                        <ForcesDataContext.Provider value={forceData}>
+                            <RouterProvider router={router} />
+                        </ForcesDataContext.Provider>
+                    </LocalizationProvider>
+                </Gate>
 
-            <ToastContainer
-                position={"top-right"}
-                autoClose={5000}
-                hideProgressBar={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                pauseOnHover
-                theme={"dark"}
-                transition={Bounce}
-            />
-        </ThemeToggler>
+                <ToastContainer
+                    position={"top-right"}
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    pauseOnHover
+                    theme={"dark"}
+                    transition={Bounce}
+                />
+            </ThemeToggler>
+        </QueryClientProvider>
     );
 }
 
