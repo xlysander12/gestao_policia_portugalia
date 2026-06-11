@@ -11,7 +11,7 @@ function ThemeToggler(props: ThemeTogglerProps) {
         palette: {
             mode: 'dark',
             primary: {
-                main: '#435ebf',
+                main: '#435ebe',
                 contrastText: '#838c9a',
             },
             secondary: {
@@ -27,6 +27,11 @@ function ThemeToggler(props: ThemeTogglerProps) {
                 disabled: '#434358',
             },
         },
+        typography: {
+            fontFamily: [
+                "Nunito"
+            ].join(",")
+        }
     }), []);
 
     return (

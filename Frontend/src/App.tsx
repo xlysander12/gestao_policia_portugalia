@@ -35,6 +35,7 @@ import Gate from "./components/Gate/gate.tsx";
 import {AuditLogs} from "./pages/Audit-Logs";
 import ThemeToggler from "./components/ThemeToggler/ThemeToggler.tsx";
 import {CssBaseline} from "@mui/material";
+import {Bounce, ToastContainer} from "react-toastify";
 
 function App() {
     const [canLoad, setCanLoad] = useState<boolean>(false);
@@ -361,7 +362,17 @@ function App() {
                 </LocalizationProvider>
             </Gate>
 
-            <DefaultToastContainer />
+            <ToastContainer
+                position={"top-right"}
+                autoClose={5000}
+                hideProgressBar={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                pauseOnHover
+                theme={"dark"}
+                transition={Bounce}
+            />
         </ThemeToggler>
     );
 }

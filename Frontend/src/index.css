@@ -1,6 +1,6 @@
 :root {
   /* Toastify Colors */
-  --toastify-color-dark: rgb(51, 51, 51);
+  --toastify-color-dark: #1e1e2d !important;
 
   /* Full Calendar colors */
   --fc-event-bg-color: #2c3e50;
@@ -24,7 +24,7 @@
 }
 
 .Toastify__toast-theme--dark {
-  border: 1px solid black
+  border: 1px solid black;
 }
 
 body {

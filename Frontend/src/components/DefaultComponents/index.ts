@@ -8,4 +8,3 @@ export {default as DefaultDateCalendar} from "./DefaultDateCalendar";
 export {default as DefaultDatePicker} from "./DefaultDatePicker";
 export {default as DefaultDateTimePicker} from "./DefaultDateTimePicker";
 export {default as DefaultSearch} from "./DefaultSearch";
-export {default as DefaultToastContainer} from "./DefaultToastContainer";

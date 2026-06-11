@@ -4,7 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import ScreenSplit from "../ScreenSplit/screen-split.tsx";
 import Gate from "../Gate/gate.tsx";
-import {Divider, Menu, MenuItem, Select, styled} from "@mui/material";
+import {Button, Divider, Menu, MenuItem, Select, styled, useTheme} from "@mui/material";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types/index.ts";
@@ -20,6 +20,8 @@ import LastCeremonyModal from "./modals/LastCeremonyModal.tsx";
 import {BASE_URL} from "../../utils/constants.ts";
 import AuthenticationMethodsModal from "./modals/AuthenticationMethodsModal.tsx";
 import DefaultLink from "../DefaultComponents/DefaultLink.tsx";
+import {ArrowBackIosNew, ArrowBackIosNewOutlined, MenuOutlined} from "@mui/icons-material";
+import Navdrawer from "./components/Navdrawer.tsx";
 
 type CustomLinkProps = {
     to: string
@@ -61,10 +63,12 @@ const ForceSelectStyle = styled(Select)(() => ({
 }))
 
 type NavbarProps = {
-    isLoginPage: boolean
     handleForceChange: (newForce: string) => void
 }
-function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
+function Topbar(props: NavbarProps) {
+    // Get the theme
+    const theme = useTheme();
+
     // Get the logged user's info from context
     const loggedUser = useContext(LoggedUserContext);
 
@@ -84,6 +88,9 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     // Set the state of the confirmation dialog for the logout
     const [isLogoutOpen, setLogoutOpen] = useState<boolean>(false);
 
+    // Drawer state
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
+
     // Modal states
     const [isChangePasswordOpen, setChangePasswordOpen] = useState<boolean>(false);
     const [isFeedbackOpen, setFeedbackOpen] = useState<{open: boolean, type: "error" | "suggestion"}>({open: false, type: "error"});
@@ -94,8 +101,7 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     const [officerPatrol, setOfficerPatrol] = useState<PatrolData | null>(null);
 
     // Set the full name of the officer
-    const fullName = isLoginPage ? "":
-        `${loggedUser.info.professional.patent.name} ${loggedUser.info.personal.name}`;
+    const fullName = `${loggedUser.info.professional.patent.name} ${loggedUser.info.personal.name}`;
 
     const status = {
         color: officerPatrol ? "lightBlue": loggedUser.info.professional.status.color,
@@ -164,88 +170,66 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
             setOfficerPatrol(await getOfficerPatrol());
         }
 
-        if (!isLoginPage) {
-            void exec();
-        }
-    }, [isLoginPage]);
+        void exec();
+    }, []);
 
     return (
         <>
-            <div className={style.mainNavbar} style={!isLoginPage ? {
-                backgroundColor: forceData.colors.base
-            } : undefined}>
+            <div className={style.mainNavbar} style={{backgroundColor: forceData.colors.base}}>
                 <ScreenSplit leftSideComponent={(
                     <div className={style.leftSide}>
                         {/*Add the div that will hold the paths*/}
                         <div className={style.titleDiv}>
-                            <Link
-                                className={style.titleText}
-                                to={"/"}
-                                reloadDocument={isLoginPage}
+                            <Button
+                                variant={"contained"}
+                                color={"primary"}
+                                size={"large"}
+                                startIcon={!isDrawerOpen ? <MenuOutlined/> : <ArrowBackIosNewOutlined/>}
+                                sx={{
+                                    position: "relative",
+
+                                    transform: isDrawerOpen ? "translateX(300px)" : "translateX(0)",
+                                    transition: "transform 225ms cubic-bezier(0, 0, 0.2, 1)",
+
+                                    color: theme.palette.text.primary
+                                }}
+                                onClick={() => setDrawerOpen(true)}
                             >
-                                <Gate show={isLoginPage || !hasTitle}>
-                                    Portal Segurança
-                                </Gate>
-
-                                <Gate show={!isLoginPage && hasTitle}>
-                                    <img
-                                        className={style.titleSvg}
-                                        src={`${BASE_URL}/titles/${localStorage.getItem("force")!}.png`}
-                                        alt={"Retornar à dashboard"}
-                                        onError={() => setHasTitle(false)}
-                                        onLoad={() => setHasTitle(true)}
-                                        style={{
-                                            height: "100%"
-                                        }}
-                                    />
-                                </Gate>
-                            </Link>
+                                Menu
+                            </Button>
                         </div>
-
-                        <Gate show={!isLoginPage}>
-                            <div className={style.navButtonsDiv}>
-                                <CustomLink to={"/efetivos"}>Efetivos</CustomLink>
-                                <CustomLink to={"/patrulhas"}>Patrulhas</CustomLink>
-                                <CustomLink to={"/atividade"}>Atividade</CustomLink>
-                                <Gate show={loggedUser.info.professional.patent.max_evaluation > 0}>
-                                    <CustomLink to={"/avaliacoes"}>Avaliações</CustomLink>
-                                </Gate>
-                            </div>
-                        </Gate>
                     </div>
                 )} leftSidePercentage={"fit-content"}>
                     {/*Div that holds the user info and force selector*/}
-                    <Gate show={!isLoginPage}>
-                        <div className={style.rightSide}>
-                            <div className={style.userInfoDiv} onClick={(event) => {
-                                setAccountMenuOpen(true);
-                                setAccountMenuAnchor(event.currentTarget);
-                            }}>
-                                <DefaultTypography fontSize={"18px"} color={"white"}>{fullName}</DefaultTypography>
-                                <DefaultTypography
-                                    fontSize={"smaller"}
-                                    color={status.color}
-                                >
-                                    {status.name}
-                                </DefaultTypography>
-                            </div>
-
-                            <Notifications />
-
-                            <ForceSelectStyle
-                                value={localStorage.getItem("force")}
-                                onChange={(event) => {
-                                    handleForceChange(event.target.value as string);
-                                }}
+                    <div className={style.rightSide}>
+                        <div className={style.userInfoDiv} onClick={(event) => {
+                            setAccountMenuOpen(true);
+                            setAccountMenuAnchor(event.currentTarget);
+                        }}>
+                            <DefaultTypography fontSize={"18px"} color={"white"}>{fullName}</DefaultTypography>
+                            <DefaultTypography
+                                fontSize={"smaller"}
+                                color={status.color}
                             >
-                                {loggedUser.forces.map((force) => {
-                                    return (
-                                        <MenuItem key={`userforcenavbar${force.name}`} value={force.name} disabled={force.suspended}>{force.name.toUpperCase()}</MenuItem>
-                                    )
-                                })}
-                            </ForceSelectStyle>
+                                {status.name}
+                            </DefaultTypography>
                         </div>
-                    </Gate>
+
+                        <Notifications />
+
+                        <ForceSelectStyle
+                            value={localStorage.getItem("force")}
+                            onChange={(event) => {
+                                props.handleForceChange(event.target.value as string);
+                            }}
+                        >
+                            {loggedUser.forces.map((force) => {
+                                return (
+                                    <MenuItem key={`userforcenavbar${force.name}`} value={force.name} disabled={force.suspended}>{force.name.toUpperCase()}</MenuItem>
+                                )
+                            })}
+                        </ForceSelectStyle>
+                    </div>
                 </ScreenSplit>
             </div>
 
@@ -346,6 +330,8 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
                 </div>
             </Menu>
 
+            <Navdrawer open={isDrawerOpen} onClose={() => setDrawerOpen(false)} />
+
             <LastCeremonyModal open={isLastCeremonyOpen} onClose={() => setLastCeremonyOpen(false)} />
 
             <ChangePasswordModal open={isChangePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
@@ -358,4 +344,4 @@ function Navbar({isLoginPage, handleForceChange}: NavbarProps) {
     );
 }
 
-export default Navbar;
+export default Topbar;
