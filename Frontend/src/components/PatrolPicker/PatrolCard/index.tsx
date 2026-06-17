@@ -6,10 +6,11 @@ import style from "./patrol-card.module.css";
 import {DefaultTypography} from "../../DefaultComponents";
 import {getObjectFromId} from "../../../forces-data-context.ts";
 import Gate from "../../Gate/gate.tsx";
-import {Skeleton} from "@mui/material";
+import {Chip, Divider, IconButton, Skeleton, Typography} from "@mui/material";
 import moment from "moment";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import { MinifiedOfficerData, OfficerInfoGetResponse } from "@portalseguranca/api-types/officers/output";
+import {CalendarMonthOutlined, GroupWorkOutlined, MoreVertOutlined, PeopleAltOutlined} from "@mui/icons-material";
 
 type PatrolCardProps = {
     patrolInfo: MinifiedPatrolData
@@ -99,32 +100,119 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
             callback={() => callback(patrolInfo)}
         >
             <div className={style.patrolCardMain}>
-                <div className={style.patrolCardLeft}>
-                    <DefaultTypography fontSize={"larger"}>
-                        Patrulha #{patrolInfo.id.toUpperCase()} - {patrolInfo.canceled ? "Cancelada": (patrolInfo.end ? "Terminada": "A decorrer...")}
-                    </DefaultTypography>
+                <div className={style.patrolCardSection}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between"
+                    }}>
+                        <Typography>Patrulha #{patrolInfo.id.toUpperCase()}</Typography>
 
-                    <DefaultTypography color={"gray"}>{getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)?.name} {patrolInfo.unit ? ` - ${getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)?.name}`: ""}</DefaultTypography>
-                    <DefaultTypography color={"gray"}>Duração: {patrolInfo.end ? moment.duration(moment.unix(patrolInfo.end).diff(moment.unix(patrolInfo.start))).format("hh[h]mm", {trim: false}): moment.duration(patrolDuration).format("hh:mm:ss", {trim: false})}</DefaultTypography>
-                </div>
-                <div className={style.patrolCardMiddle}>
-                    <Gate show={loading}>
-                        {patrolInfo.officers.map((_, index) => (
-                            index < 4 ? <Skeleton key={`skeleton#${index}`} variant={"text"} width={"100%"} height={"19.5px"} animation={"wave"} />: null
-                        ))}
-                    </Gate>
+                        <Chip
+                            size={"small"}
+                            color={
+                                patrolInfo.canceled
+                                    ? "default"
+                                    : (
+                                        patrolInfo.end
+                                            ? "error"
+                                            : "success"
+                                    )
+                            }
+                            label={
+                                patrolInfo.canceled
+                                    ? "CANCELADA"
+                                    : (
+                                        patrolInfo.end
+                                            ? "TERMINADA"
+                                            : "EM CURSO"
+                                    )
+                            }
+                            sx={{justifySelf: "flex-end", marginRight: "5px"}}
+                        />
+                    </div>
 
-                    <Gate show={!loading}>
-                        {officers.map((officer, index) => (
-                            <DefaultTypography key={`officer#${index}`} color={"gray"} fontSize={"small"}>[{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force).patents)?.name} {officer.name}</DefaultTypography>
-                        ))}
-                        <Gate show={addEtc}>
-                            <DefaultTypography color={"gray"} fontSize={"small"}>...</DefaultTypography>
-                        </Gate>
-                    </Gate>
+                    <Typography color={"textSecondary"}>{getObjectFromId(patrolInfo.type, getForceData(patrolForce).patrol_types)!.name}</Typography>
+                    <Typography color={"textSecondary"}>
+                        Duração: {
+                        patrolInfo.end
+                            ? moment.duration(moment.unix(patrolInfo.end).diff(moment.unix(patrolInfo.start))).format("hh[h]mm", {trim: false})
+                            : moment.duration(patrolDuration).format("hh:mm:ss", {trim: false})}
+                    </Typography>
                 </div>
-                <div className={style.patrolCardRight}>
-                    <DefaultTypography fontSize={"small"} color={"gray"}>{moment.unix(patrolInfo.start).calendar()}</DefaultTypography>
+
+                <Divider flexItem orientation={"vertical"} />
+
+                <div className={style.patrolCardSection} style={{flexDirection: "row", alignItems: "center", gap: "10px"}}>
+                    <CalendarMonthOutlined color={"disabled"}/>
+
+                    <div className={"patrolCardSection"}>
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: "5px"
+                        }}>
+                            <Typography color={"textSecondary"}>Início:</Typography>
+                            <Typography>{moment.unix(patrolInfo.start).format("DD/MM/YYYY HH:mm")}</Typography>
+                        </div>
+
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: "5px"
+                        }}>
+                            <Typography color={"textSecondary"}>Fim:</Typography>
+                            <Typography>{
+                                patrolInfo.end != null
+                                    ? moment.unix(patrolInfo.end).format("DD/MM/YYYY HH:mm")
+                                    : "N/A"
+                            }</Typography>
+                        </div>
+                    </div>
+                </div>
+
+                <Divider flexItem orientation={"vertical"} />
+
+                <div className={style.patrolCardSection}>
+                    <div className={style.titleDiv}>
+                        <GroupWorkOutlined color={"disabled"}/>
+                        <Typography color={"textSecondary"}>Unidade Especial</Typography>
+                    </div>
+                    <Typography>
+                        {
+                            patrolInfo.unit != null
+                            ? getObjectFromId(patrolInfo.unit, getForceData(patrolForce).special_units)!.name
+                            : "N/A"
+                        }
+                    </Typography>
+                </div>
+
+                <Divider flexItem orientation={"vertical"} />
+
+                <div className={style.patrolCardSection}>
+                    <div className={style.titleDiv}>
+                        <PeopleAltOutlined color={"disabled"} />
+                        <Typography color={"textSecondary"}>Membros ({patrolInfo.officers.length})</Typography>
+                    </div>
+                    <Typography>
+                        {
+                            officers.map(officer => {
+                                return (
+                                    <Typography key={officer.nif}>
+                                        [{officer.callsign}] {getObjectFromId(officer.patent, getForceData(officer.force).patents)!.name} {officer.name}
+                                    </Typography>
+                                );
+                            })
+                        }
+                    </Typography>
+                </div>
+
+                <Divider flexItem orientation={"vertical"} />
+
+                <div className={style.patrolCardSection}>
+                    <Typography color={"textSecondary"} sx={{textAlign: "center"}}>Ações</Typography>
+                    <IconButton><MoreVertOutlined /></IconButton>
                 </div>
             </div>
         </InformationCard>

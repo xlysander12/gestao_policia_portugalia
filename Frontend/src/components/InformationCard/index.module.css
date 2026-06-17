@@ -2,7 +2,6 @@
 .informationCardMainDisabled {
     display: flex;
     width: calc(95% - 5px);
-    background-color: var(--portalseguranca-color-background-dark);
     margin: 5px auto;
     padding: 10px;
     border-radius: 10px;

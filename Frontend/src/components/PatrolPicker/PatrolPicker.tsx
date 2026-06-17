@@ -62,6 +62,36 @@ function PatrolPicker(props: PatrolPickerProps) {
         }
     ];
 
+    async function fetchPatrols(showLoading?: boolean, signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number, total: number }> {
+        if (showLoading) {
+            setLoading(true);
+        }
+
+        const result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...currentFilters], signal});
+
+
+        const patrols: PatrolHistoryResponse | RequestError = await result.json();
+
+        if (!result.ok) {
+            toast.error(patrols.message);
+            return {
+                patrols: [],
+                pages: 0,
+                total: 0
+            };
+        }
+
+        if (showLoading) {
+            setLoading(false);
+        }
+
+        return {
+            patrols: (patrols as PatrolHistoryResponse).data,
+            pages: (patrols as PatrolHistoryResponse).meta.pages,
+            total: (patrols as PatrolHistoryResponse).meta.total
+        };
+    }
+
     // Handle websocket events
     useWebSocketEvent(MODULE.PATROLS, async () => {
         // * Every time a event happens, the page needs to be refreshed
@@ -99,36 +129,6 @@ function PatrolPicker(props: PatrolPickerProps) {
         return () => controller.abort();
     }, [page, JSON.stringify(currentFilters)]);
 
-    async function fetchPatrols(showLoading?: boolean, signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number, total: number }> {
-        if (showLoading) {
-            setLoading(true);
-        }
-
-        const result = await make_request("/patrols", "GET", {queryParams: [{key: "page", value: String(page)}, ...currentFilters], signal});
-
-
-        const patrols: PatrolHistoryResponse | RequestError = await result.json();
-
-        if (!result.ok) {
-            toast.error(patrols.message);
-            return {
-                patrols: [],
-                pages: 0,
-                total: 0
-            };
-        }
-
-        if (showLoading) {
-            setLoading(false);
-        }
-
-        return {
-            patrols: (patrols as PatrolHistoryResponse).data,
-            pages: (patrols as PatrolHistoryResponse).meta.pages,
-            total: (patrols as PatrolHistoryResponse).meta.total
-        };
-    }
-
     return (
         <>
             <ManagementBar>
@@ -159,7 +159,7 @@ function PatrolPicker(props: PatrolPickerProps) {
                             }}
                         />
 
-                        <DefaultTypography fontSize={"small"}>Total de resultados: {totalResults}</DefaultTypography>
+                        <DefaultTypography>Total de resultados: {totalResults}</DefaultTypography>
                     </div>
                 </div>
             </ManagementBar>
@@ -182,7 +182,6 @@ function PatrolPicker(props: PatrolPickerProps) {
                 <Gate show={!loading && patrols.length === 0}>
                     <DefaultTypography
                         color={"var(--portalseguranca-color-text-dark)"}
-                        fontSize={"xx-large"}
                         sx={{alignSelf: "center"}}
                     >
                         Sem Registos

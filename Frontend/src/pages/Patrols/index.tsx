@@ -1,5 +1,5 @@
 import ScreenSplit from "../../components/ScreenSplit/screen-split.tsx";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import PatrolInfoModal from "./modals/PatrolInfoModal";
 import {PatrolCreator} from "../../components/PatrolCreator";
 import {useParams} from "react-router-dom";
@@ -11,21 +11,11 @@ function Patrols() {
     // ! This might not be present
     const {patrolId} = useParams();
 
-    const [selectedPatrol, setSelectedPatrol] = useState<string | null>(null);
-    const [patrolInfoModalOpen, setPatrolInfoModalOpen] = useState<boolean>(false);
+    const [selectedPatrol, setSelectedPatrol] = useState<string | null>(patrolId ?? null);
 
     function handleChangeViewedPatrol(patrol: MinifiedPatrolData) {
         setSelectedPatrol(patrol.id);
-        setPatrolInfoModalOpen(true);
     }
-
-    // When the page loads, verify if there's a patrol id in the URL
-    useEffect(() => {
-        if (patrolId) {
-            setSelectedPatrol(patrolId);
-            setPatrolInfoModalOpen(true);
-        }
-    }, [patrolId]);
 
     return (
         <>
@@ -38,7 +28,7 @@ function Patrols() {
                 />
             </ScreenSplit>
 
-            <PatrolInfoModal open={patrolInfoModalOpen} onClose={() => setPatrolInfoModalOpen(false)} id={selectedPatrol} />
+            <PatrolInfoModal open={selectedPatrol != null} onClose={() => setSelectedPatrol(null)} id={selectedPatrol} />
         </>
     )
 }

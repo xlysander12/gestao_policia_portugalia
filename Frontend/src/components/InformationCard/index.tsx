@@ -1,5 +1,6 @@
 import {ReactNode} from "react";
 import style from "./index.module.css"
+import {Box, Paper} from "@mui/material";
 
 type InformationCardProps = {
     statusColor?: string
@@ -12,16 +13,16 @@ function InformationCard({statusColor, callback, disabled, selected, children}: 
     if (selected) disabled = true;
 
     return (
-        <div
+        <Box
             className={disabled ? style.informationCardMainDisabled: style.informationCardMain}
-            style={{
+            sx={{
                 borderColor: statusColor ?? "",
-                backgroundColor: selected ? "var(--portalseguranca-color-hover-dark)" : ""
+                bgcolor: selected ? "var(--portalseguranca-color-hover-dark)" : "background.paper"
             }}
             onClick={callback}
         >
             {children}
-        </div>
+        </Box>
     )
 }
 

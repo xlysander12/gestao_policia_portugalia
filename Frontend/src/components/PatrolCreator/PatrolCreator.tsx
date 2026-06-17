@@ -88,11 +88,11 @@ function PatrolCreator() {
     return (
         <>
             <ManagementBar>
-                <DefaultTypography fontSize={"larger"}>Registar Patrulha</DefaultTypography>
+                <DefaultTypography>Registar Patrulha</DefaultTypography>
             </ManagementBar>
 
             <div className={style.informationsDiv}>
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Tipo de Patrulha:</DefaultTypography>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Tipo de Patrulha:</DefaultTypography>
                 <DefaultSelect
                     disabled={loading}
                     value={newPatrolData.type.id}
@@ -115,7 +115,7 @@ function PatrolCreator() {
 
                 <Divider flexItem sx={{margin: "5px 0 10px 0"}} />
 
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Unidade Especial:</DefaultTypography>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Unidade Especial:</DefaultTypography>
                 <DefaultSelect
                     disabled={!newPatrolData.type.isSpecial || loading}
                     value={newPatrolData.special_unit.id}
@@ -140,54 +140,56 @@ function PatrolCreator() {
 
                 <div className={style.datesDiv}>
                     <div>
-                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Hora de Início:</DefaultTypography>
-                        <DefaultDateTimePicker
-                            disabled={loading}
-                            disableFuture
-                            value={newPatrolData.start}
-                            onChange={(date) => {
-                                setNewPatrolData((draft) => {
-                                    draft.start = date!;
-                                });
-                            }}
-                            slotProps={{
-                                textField: {
-                                    error: !newPatrolData.start.isValid() ||
-                                        newPatrolData.start.isAfter(moment())
-                                }
-                            }}
-                        />
+                        <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Hora de Início:</DefaultTypography>
+                        {/*TODO: Date picker is going bonkers*/}
+                        {/*<DefaultDateTimePicker*/}
+                        {/*    disabled={loading}*/}
+                        {/*    disableFuture*/}
+                        {/*    value={newPatrolData.start}*/}
+                        {/*    onChange={(date: Moment) => {*/}
+                        {/*        setNewPatrolData((draft) => {*/}
+                        {/*            draft.start = date!;*/}
+                        {/*        });*/}
+                        {/*    }}*/}
+                        {/*    slotProps={{*/}
+                        {/*        textField: {*/}
+                        {/*            error: !newPatrolData.start.isValid() ||*/}
+                        {/*                newPatrolData.start.isAfter(moment())*/}
+                        {/*        }*/}
+                        {/*    }}*/}
+                        {/*/>*/}
                     </div>
 
                     <div>
-                        <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Hora de Fim:</DefaultTypography>
-                        <DefaultDateTimePicker
-                            disabled={loading}
-                            disableFuture
-                            clearable
-                            value={newPatrolData.end}
-                            onChange={(date) => {
-                                setNewPatrolData((draft) => {
-                                    draft.end = date;
-                                });
-                            }}
-                            slotProps={{
-                                textField: {
-                                    error: newPatrolData.end !== null &&
-                                        (
-                                            newPatrolData.start > newPatrolData.end ||
-                                            !newPatrolData.end.isValid() ||
-                                            newPatrolData.end.isAfter(moment())
-                                        )
-                                }
-                            }}
-                        />
+                        <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Hora de Fim:</DefaultTypography>
+                        {/*TODO: Date picker is going bonkers*/}
+                        {/*<DefaultDateTimePicker*/}
+                        {/*    disabled={loading}*/}
+                        {/*    disableFuture*/}
+                        {/*    clearable*/}
+                        {/*    value={newPatrolData.end}*/}
+                        {/*    onChange={(date: Moment) => {*/}
+                        {/*        setNewPatrolData((draft) => {*/}
+                        {/*            draft.end = date;*/}
+                        {/*        });*/}
+                        {/*    }}*/}
+                        {/*    slotProps={{*/}
+                        {/*        textField: {*/}
+                        {/*            error: newPatrolData.end !== null &&*/}
+                        {/*                (*/}
+                        {/*                    newPatrolData.start > newPatrolData.end ||*/}
+                        {/*                    !newPatrolData.end.isValid() ||*/}
+                        {/*                    newPatrolData.end.isAfter(moment())*/}
+                        {/*                )*/}
+                        {/*        }*/}
+                        {/*    }}*/}
+                        {/*/>*/}
                     </div>
                 </div>
 
                 <Divider flexItem sx={{margin: "5px 0 10px 0"}} />
 
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Observações:</DefaultTypography>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Observações:</DefaultTypography>
                 <DefaultOutlinedTextField
                     disabled={loading}
                     multiline
@@ -202,7 +204,7 @@ function PatrolCreator() {
 
                 <Divider flexItem sx={{margin: "5px 0 10px 0"}} />
 
-                <DefaultTypography color={"var(--portalseguranca-color-accent)"} fontWeight={"bold"}>Membros:</DefaultTypography>
+                <DefaultTypography color={"var(--portalseguranca-color-accent)"}>Membros:</DefaultTypography>
 
                 <OfficerList
                     disabled={loading}
