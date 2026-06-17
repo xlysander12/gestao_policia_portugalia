@@ -1,8 +1,8 @@
-import {ReactElement, useCallback, useContext, useEffect, useState} from "react";
+import {ReactElement, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useLocation, useNavigate} from "react-router-dom";
-import {LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
-import {Navbar} from "../Topbar";
+import {DEFAULT_LOGGED_USER_CONTEXT, LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
+import {Topbar} from "../Topbar";
 import {
     AccountInfoResponse, AccountSocket,
     UserForcesResponse,
@@ -20,17 +20,17 @@ import moment from "moment";
 import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 import Gate from "../Gate/gate.tsx";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 
 type PrivateRouteProps = {
     element: ReactElement
     handleForceChange: (newForce: string) => void
-    isLoginPage?: boolean
 }
 
-function PrivateRoute({element, handleForceChange, isLoginPage = false}: PrivateRouteProps): ReactElement {
+function PrivateRoute({element, handleForceChange}: PrivateRouteProps): ReactElement {
+    const queryClient = useQueryClient();
+
     // Initialize state
-    const [authorized, setAuthorized] = useState<boolean>(false);
-    const [loggedUser, setLoggedUser] = useState<LoggedUserContextType>(useContext(LoggedUserContext));
     const [socket, setSocket] = useState<Socket | null>(null);
 
     // Initialize navigate and location hooks
@@ -42,44 +42,40 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
 
     const redirectLogin = () => {
         if (location.pathname === "/") {
-            navigate("/login");
+            void navigate("/login");
         } else {
-            navigate("/login?redirect=" + location.pathname);
+            void navigate("/login?redirect=" + location.pathname);
         }
     }
 
-    const checkToken = async (signal?: AbortSignal): Promise<{valid: boolean, nif: number}> => {
+    const checkToken = async (): Promise<number> => {
         // Check if there is a force in the local storage. If there isn't, return to login
         if (!localStorage.getItem("force")) {
             redirectLogin();
-            return {valid: false, nif: 0};
         }
 
         // Since there's a force in local storage, check if the token stored in the cookies is valid for that force
-        const response = await make_request("/accounts/validate-session", "POST", {redirectToLoginOn401: false, signal});
+        const response = await make_request("/accounts/validate-session", "POST", {redirectToLoginOn401: false});
+        const responseJson: ValidateTokenResponse = await response.json();
 
         // If the request returned status 401, the token isn't valid and the user should be redirected to login
         if (response.status === 401) {
-            toast("Sessão inválida. Por favor, faça login novamente.", {
-                type: "error",
-            });
+            toast("Sessão inválida. Por favor, faça login novamente.", {type: "error"});
             redirectLogin();
-
-            return {valid: false, nif: 0};
         }
 
-        return {valid: true, nif: (await response.json() as ValidateTokenResponse).data};
+        return responseJson.data;
     }
 
-    const fetchLoggedUserInfo = async (nif: number, signal?: AbortSignal): Promise<LoggedUserContextType> => {
-        const userResponse = await make_request(`/officers/${nif}`, "GET", {signal});
+    const fetchLoggedUserInfo = async (nif: number): Promise<LoggedUserContextType> => {
+        const userResponse = await make_request(`/officers/${nif}`, "GET");
 
         // Get the data from the response
         const responseJson: OfficerInfoGetResponse = await userResponse.json();
         const userData = responseJson.data as OfficerData;
 
         // Initialize a temp object that will hold the user's information and intents
-        const tempLoggedUser: LoggedUserContextType = loggedUser;
+        const tempLoggedUser: LoggedUserContextType = DEFAULT_LOGGED_USER_CONTEXT;
 
         // Fill the temp object with the data from the response
         tempLoggedUser.info = {
@@ -110,7 +106,7 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         
 
         // Fetch the user's intents
-        const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET", {signal});
+        const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");
         const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
         tempLoggedUser.intents = accountInfoData.data.intents;
 
@@ -121,88 +117,63 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
         }
 
         // Fetch all forces the user belongs to
-        const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET", {signal});
+        const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET");
         const accountForcesData = (await accountForcesResponse.json()) as UserForcesResponse;
         tempLoggedUser.forces = accountForcesData.data.forces;
 
         return tempLoggedUser;
     }
 
-    const updateValues = async (checkAuth = true, showLoading = true, signal?: AbortSignal) => {
-        // First, set the authorized state to false, if required
-        if (checkAuth && showLoading) {
-            setAuthorized(false);
-        }
+    // Query to check the validity of the token
+    const tokenValidation = useQuery({
+        queryKey: ["validateToken"],
+        queryFn: checkToken,
+        refetchInterval: 60000, // Refetch every 60 seconds to keep the session alive and check for expiration
+        retry: false
+    });
 
-        let nif = loggedUser.info.personal.nif;
+    const loggedNif = tokenValidation.data!;
 
-        // Checking if the token is valid
-        if (checkAuth) {
-            const result = await checkToken(signal);
+    // Query to fetch the logged user's information, which depends on the token being valid (nif being set)
+    const userInfoQuery = useQuery({
+        queryKey: ["loggedUserInfo", loggedNif],
+        queryFn: () => fetchLoggedUserInfo(loggedNif),
+        enabled: !!loggedNif
+    });
 
-            if (!result.valid) return; // Redirecting to login page is handled by the upper function
-
-            // Set the nif to the one fetched from the token validation
-            nif = result.nif;
-        }
-
-
-        // Fetch the Logged User's information
-        const userInfo = await fetchLoggedUserInfo(nif, signal);
-
-        // Set the logged user with the data fetched
-        setLoggedUser({...userInfo});
-
-        // Since the token is valid for the force, redirect the user to the requested page
-        if (checkAuth && showLoading) {
-            setAuthorized(true);
-        }
-    }
+    const loggedUser = userInfoQuery.data!;
 
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback(data => {
-        if (data.nif === loggedUser.info.personal.nif || data.nif === 0) { // If nif is 0, all users were affected
-            void updateValues(false);
+        if (data.nif === loggedNif || data.nif === 0) { // If nif is 0, all users were affected
+            void queryClient.invalidateQueries({
+                queryKey: ["loggedUserInfo", loggedNif]
+            });
         }
-    }, [socket?.id, loggedUser.info.personal.nif]), socket);
+    }, [socket?.id, loggedNif]), socket);
 
     useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, useCallback(data => {
         if (data.type !== "justification") return;
 
-        if (data.nif !== loggedUser.info.personal.nif) return;
+        if (data.nif !== loggedNif) return;
 
         if (data.action === "add") return;
 
-        void updateValues(false);
-    }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
+        void queryClient.invalidateQueries({
+            queryKey: ["loggedUserInfo", loggedNif]
+        });
+    }, [socket?.id, loggedNif, socket]), socket);
 
     useWebSocketEvent<AccountSocket>(MODULE.ACCOUNTS, useCallback((data) => {
-        if (data.nif !== loggedUser.info.personal.nif) return;
+        if (data.nif !== loggedNif) return;
 
-        void updateValues(true, false);
-    }, [socket?.id, loggedUser.info.personal.nif, socket]), socket);
-
-    // When the component mounts and when the page changes, also check if the user is logged in and has permission to access the page
-    useEffect(() => {
-        // Create Abort Controller
-        const controller = new AbortController();
-        const signal = controller.signal;
-
-        // Call the function to check the authentication only if we're not in the login page
-        if (!isLoginPage) {
-            void updateValues(true, true, signal);
-        }
-
-        return () => {
-            controller.abort();
-        }
-    }, [element]);
+        void queryClient.invalidateQueries({
+            queryKey: ["loggedUserInfo", loggedNif]
+        });
+    }, [socket?.id, loggedNif, socket]), socket);
 
     // Create the websocket connection when not in the login page
     useEffect(() => {
-        if (isLoginPage) return;
-        
-        
         // Create socket
         const newSocket = io({
             path: "/portugalia/portalseguranca/ws",
@@ -304,9 +275,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
                 window.removeEventListener("online", onOnline);
             }
         }
-    }, [isLoginPage]);
+    }, []);
 
-    if (!authorized && !isLoginPage) {
+    if (userInfoQuery.isPending) {
         return (
             <Loader fullPage/>
         );
@@ -315,11 +286,9 @@ function PrivateRoute({element, handleForceChange, isLoginPage = false}: Private
     return (
         <WebsocketContext.Provider value={socket}>
             <LoggedUserContext.Provider value={loggedUser}>
-                <Gate show={!isLoginPage}>
-                    <Navbar isLoginPage={isLoginPage} handleForceChange={handleForceChange}/>
-                </Gate>
+                <Topbar handleForceChange={handleForceChange}/>
                 <div style={{
-                    height: !isLoginPage ? "calc(100vh - calc(4rem + 13px))" : "100vh",
+                    height: "calc(100vh - calc(4rem + 13px))",
                 }}>
                     {element}
                 </div>

@@ -37,11 +37,10 @@ import {CssBaseline} from "@mui/material";
 import {Bounce, ToastContainer} from "react-toastify";
 
 function App() {
-    const [currentForce, setcurrentForce] = useState<string>(localStorage.getItem("force") || "");
-    const queryClient = useMemo(() => new QueryClient(), []);
+    const [currentForce, setCurrentForce] = useState<string>(localStorage.getItem("force") || "");
 
     const handleForceChange = (newForce: string) => {
-        setcurrentForce(newForce);
+        setCurrentForce(newForce);
         localStorage.setItem("force", newForce);
     }
 
@@ -183,7 +182,7 @@ function App() {
     }
 
     const handleLogin = (force: string) => {
-        setcurrentForce(force);
+        setCurrentForce(force);
     }
 
     // Use TanStack Query to fetch patrol forces and force-specific data
@@ -207,7 +206,7 @@ function App() {
         }))
     });
 
-    const anyPending = patrolForcesQuery.isPending || forceQueries.some(q => q.isPending);
+    const anyLoading = patrolForcesQuery.isLoading || forceQueries.some(q => q.isLoading);
     const forceData = useMemo<ForcesDataContext>(() => {
         const fd: ForcesDataContext = {};
 
@@ -228,7 +227,7 @@ function App() {
                 children: [
                     {
                         path: "/login",
-                        element: <PrivateRoute element={<Login onLoginCallback={handleLogin}/>} handleForceChange={handleForceChange} isLoginPage/>
+                        element: <Login onLoginCallback={handleLogin}/>
                     },
                     {
                         path: "/",
@@ -339,35 +338,33 @@ function App() {
 
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <ThemeToggler>
-                <CssBaseline />
+        <ThemeToggler>
+            <CssBaseline />
 
-                <Gate show={anyPending || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
-                    <Loader fullPage/>
-                </Gate>
+            <Gate show={anyLoading || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
+                <Loader fullPage/>
+            </Gate>
 
-                <Gate show={!anyPending && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
-                    <LocalizationProvider dateAdapter={AdapterMoment}>
-                        <ForcesDataContext.Provider value={forceData}>
-                            <RouterProvider router={router} />
-                        </ForcesDataContext.Provider>
-                    </LocalizationProvider>
-                </Gate>
+            <Gate show={!anyLoading && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <ForcesDataContext.Provider value={forceData}>
+                        <RouterProvider router={router} />
+                    </ForcesDataContext.Provider>
+                </LocalizationProvider>
+            </Gate>
 
-                <ToastContainer
-                    position={"top-right"}
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    pauseOnHover
-                    theme={"dark"}
-                    transition={Bounce}
-                />
-            </ThemeToggler>
-        </QueryClientProvider>
+            <ToastContainer
+                position={"top-right"}
+                autoClose={5000}
+                hideProgressBar={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                pauseOnHover
+                theme={"dark"}
+                transition={Bounce}
+            />
+        </ThemeToggler>
     );
 }
 

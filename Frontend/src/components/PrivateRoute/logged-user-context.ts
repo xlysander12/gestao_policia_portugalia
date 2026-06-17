@@ -36,7 +36,7 @@ export type LoggedUserContextType = {
     forces: UserForce[]
 }
 
-export const LoggedUserContext = createContext<LoggedUserContextType>({
+export const DEFAULT_LOGGED_USER_CONTEXT: LoggedUserContextType = {
     info: {
         personal: {
             name: "",
@@ -79,4 +79,6 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
         evaluations: false
     },
     forces: []
-});
+}
+
+export const LoggedUserContext = createContext<LoggedUserContextType>(DEFAULT_LOGGED_USER_CONTEXT);
