@@ -13,6 +13,7 @@ import { RequestError, MODULE } from "@portalseguranca/api-types";
 import {MinifiedOfficerData, OfficerListResponse } from "@portalseguranca/api-types/officers/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultSearchOption} from "../DefaultComponents/DefaultSearch/types";
+import {Pagination} from "@mui/material";
 
 export type PatrolPickerProps = {
     callback: (patrol: MinifiedPatrolData) => void
@@ -131,39 +132,6 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     return (
         <>
-            <ManagementBar>
-                <div className={style.managementBarMain}>
-                    <div className={style.searchDiv}>
-                        <DefaultSearch
-                            fullWidth
-                            disabled={loading}
-                            placeholder={"Pesquisar por patrulha"}
-                            // limitTags={2}
-                            callback={(options) => {
-                                setCurrentFilters(options);
-                            }}
-                            options={SEARCH_OPTIONS}
-                        />
-                    </div>
-
-                    <div className={style.paginationDiv}>
-                        <DefaultPagination
-                            variant={"outlined"}
-                            size={"large"}
-                            showFirstButton
-                            count={totalPages}
-                            page={page}
-                            onChange={(_e, value) => setPage(value)}
-                            sx={{
-                                marginTop: "19.5px" // TODO: This is sketchy as fuck
-                            }}
-                        />
-
-                        <DefaultTypography>Total de resultados: {totalResults}</DefaultTypography>
-                    </div>
-                </div>
-            </ManagementBar>
-
             <div className={style.patrolsList}>
                 <Gate show={loading}>
                     <Loader fullDiv />
@@ -188,6 +156,12 @@ function PatrolPicker(props: PatrolPickerProps) {
                     </DefaultTypography>
                 </Gate>
             </div>
+
+            <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+            />
         </>
     );
 }
