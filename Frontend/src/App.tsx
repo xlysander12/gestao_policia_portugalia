@@ -40,8 +40,8 @@ function App() {
     const [currentForce, setCurrentForce] = useState<string>(localStorage.getItem("force") || "");
 
     const handleForceChange = (newForce: string) => {
-        setCurrentForce(newForce);
         localStorage.setItem("force", newForce);
+        setCurrentForce(newForce);
     }
 
     const fetchPatrolForces = async () => {
@@ -189,7 +189,8 @@ function App() {
     const patrolForcesQuery = useQuery({
         queryKey: ['patrolForces', currentForce],
         queryFn: fetchPatrolForces,
-        enabled: localStorage.getItem("force") !== null && !(location.pathname.includes(`${BASE_URL}/erro`))
+        enabled: localStorage.getItem("force") !== null && !(location.pathname.includes(`${BASE_URL}/erro`)),
+        staleTime: Infinity
     });
 
     const forcesToFetch = useMemo(() => {
@@ -202,11 +203,12 @@ function App() {
         queries: forcesToFetch.map(force => ({
             queryKey: ['forceData', force],
             queryFn: () => fetchForceData(force),
-            enabled: !(location.pathname.includes(`${BASE_URL}/erro`))
+            enabled: !(location.pathname.includes(`${BASE_URL}/erro`)),
+            staleTime: Infinity
         }))
     });
 
-    const anyLoading = patrolForcesQuery.isLoading || forceQueries.some(q => q.isLoading);
+    const anyFetching = patrolForcesQuery.isFetching || forceQueries.some(q => q.isFetching);
     const forceData = useMemo<ForcesDataContext>(() => {
         const fd: ForcesDataContext = {};
 
@@ -341,11 +343,11 @@ function App() {
         <ThemeToggler>
             <CssBaseline />
 
-            <Gate show={anyLoading || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
+            <Gate show={anyFetching || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
                 <Loader fullPage/>
             </Gate>
 
-            <Gate show={!anyLoading && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
+            <Gate show={!anyFetching && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
                     <ForcesDataContext.Provider value={forceData}>
                         <RouterProvider router={router} />
