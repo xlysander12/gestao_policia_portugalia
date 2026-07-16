@@ -107,7 +107,7 @@ function PatrolCard({patrolInfo, callback}: PatrolCardProps) {
                         alignItems: "center",
                         justifyContent: "space-between"
                     }}>
-                        <Typography>Patrulha #{patrolInfo.id.toUpperCase()}</Typography>
+                        <Typography>#{patrolInfo.id.toUpperCase()}</Typography>
 
                         <Chip
                             size={"small"}
