@@ -1,10 +1,10 @@
 import InformationCard from "../../../../../components/InformationCard";
 import {InnerMinifiedDecision} from "./DecisionsListModal.tsx";
-import {getObjectFromId} from "../../../../../forces-data-context.ts";
 import {useForceData} from "../../../../../hooks";
 import styles from "./card-styles.module.css";
 import {DefaultTypography} from "../../../../../components/DefaultComponents";
 import moment from "moment";
+import { getObjectFromId } from "../../../../../utils/misc.ts";
 
 type DecisionCardProps = {
     callback: () => void

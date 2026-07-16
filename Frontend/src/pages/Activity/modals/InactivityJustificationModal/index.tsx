@@ -9,7 +9,6 @@ import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Mo
 import {make_request} from "../../../../utils/requests.ts";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {BaseResponse, RequestError, MODULE} from "@portalseguranca/api-types/index.ts";
 import style from "./index.module.css";
@@ -27,7 +26,7 @@ import {
     ChangeOfficerJustificationBodyType,
     ManageOfficerJustificationBodyType
 } from "@portalseguranca/api-types/officers/activity/input.ts";
-import {getOfficerFromNif} from "../../../../utils/misc.ts";
+import {getObjectFromId, getOfficerFromNif} from "../../../../utils/misc.ts";
 import HelpIcon from "@mui/icons-material/Help";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import moment, {Moment} from "moment";

@@ -4,8 +4,8 @@ import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output"
 import {DefaultTypography} from "../DefaultComponents";
 import {DefaultTypographyProps} from "../DefaultComponents/DefaultTypography.tsx";
 import {useForceData} from "../../hooks";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import DefaultLink from "../DefaultComponents/DefaultLink.tsx";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type OfficerContextMenuProps = DefaultTypographyProps & {
     officer: MinifiedOfficerData

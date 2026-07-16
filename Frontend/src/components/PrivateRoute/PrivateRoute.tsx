@@ -15,12 +15,12 @@ import style from "./private-route.module.css";
 import {io, Socket} from "socket.io-client";
 import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
 import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 import Gate from "../Gate/gate.tsx";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type PrivateRouteProps = {
     element: ReactElement

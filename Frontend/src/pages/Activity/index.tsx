@@ -17,12 +17,11 @@ import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
 import InformationCard from "../../components/InformationCard";
 import {Skeleton, Typography} from "@mui/material";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "./modals";
 import {DefaultButton, DefaultTypography} from "../../components/DefaultComponents";
 import {useParams} from "react-router-dom";
 import moment, {Moment} from "moment"
-import {getOfficerFromNif, toHoursAndMinutes} from "../../utils/misc.ts";
+import {getObjectFromId, getOfficerFromNif, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityTypeData} from "@portalseguranca/api-types/util/output";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";

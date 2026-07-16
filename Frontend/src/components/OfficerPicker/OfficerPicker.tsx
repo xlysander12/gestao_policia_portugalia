@@ -7,7 +7,6 @@ import {
     OfficerListResponse
 } from "@portalseguranca/api-types/officers/output";
 import InformationCard from "../InformationCard";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import ManagementBar from "../ManagementBar";
 import Gate from "../Gate/gate.tsx";
@@ -22,6 +21,7 @@ import {
     Switch
 } from "@mui/material";
 import TuneIcon from '@mui/icons-material/Tune';
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type OfficerCardProps = {
     name: string

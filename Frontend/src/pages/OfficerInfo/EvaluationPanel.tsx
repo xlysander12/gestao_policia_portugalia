@@ -14,7 +14,7 @@ import Gate from "../../components/Gate/gate.tsx";
 import {DefaultTypography} from "../../components/DefaultComponents";
 import { MODULE } from "@portalseguranca/api-types";
 import { EvaluationDecision } from "@portalseguranca/api-types/util/output";
-import {getObjectFromId} from "../../forces-data-context.ts";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type EvaluationsNumberPairProps = {
     nif: number

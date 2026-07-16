@@ -3,7 +3,6 @@ import style from "../../pages/Patrols/patrols.module.css";
 import {DefaultPagination, DefaultSearch, DefaultTypography} from "../DefaultComponents";
 import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import Gate from "../Gate/gate.tsx";
 import {Loader} from "../Loader";
 import PatrolCard from "./PatrolCard";
@@ -14,6 +13,7 @@ import {MinifiedOfficerData, OfficerListResponse } from "@portalseguranca/api-ty
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import {DefaultSearchOption} from "../DefaultComponents/DefaultSearch/types";
 import {Pagination} from "@mui/material";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 export type PatrolPickerProps = {
     callback: (patrol: MinifiedPatrolData) => void

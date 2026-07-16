@@ -10,12 +10,12 @@ import {
 import {DefaultButton} from "../../components/DefaultComponents";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {OfficerUnit} from "@portalseguranca/api-types/officers/output";
 import {useImmer} from "use-immer";
 import Gate from "../../components/Gate/gate.tsx";
 import {SpecialUnitData, SpecialUnitRoleData} from "@portalseguranca/api-types/util/output";
 import {useForceData} from "../../hooks";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 const TableSelectStyle = {
     "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {

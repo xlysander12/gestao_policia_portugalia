@@ -11,7 +11,6 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {useImmer} from "use-immer";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {make_request, RequestMethod} from "../../utils/requests.ts";
@@ -22,6 +21,7 @@ import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import moment, {Moment} from "moment-timezone";
 import {ExistingPatrolSocket, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import Gate from "../Gate/gate.tsx";
+import { getObjectFromId } from "../../utils/misc.ts";
 
 type InnerPatrolType = {
     id: string

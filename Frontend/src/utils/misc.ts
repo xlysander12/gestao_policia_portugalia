@@ -27,3 +27,13 @@ export async function getOfficerFromNif(nif: number, signal?: AbortSignal): Prom
 
     return (responseJson as OfficerInfoGetResponse).data;
 }
+
+export function getObjectFromId<T extends {id: number | string}>(id: number | string, array: T[]): T | null {
+    for (const object of array) {
+        if (object.id === id) {
+            return object;
+        }
+    }
+
+    return null;
+}

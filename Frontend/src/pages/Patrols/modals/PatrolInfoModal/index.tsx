@@ -16,13 +16,13 @@ import {
     DefaultTypography
 } from "../../../../components/DefaultComponents";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {Divider} from "@mui/material";
 import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/output";
 import {EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
 import {BaseResponse, RequestError, MODULE} from "@portalseguranca/api-types";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import OfficerList from "../../../../components/OfficerList";
+import {getObjectFromId} from "../../../../utils/misc.ts";
 
 type InnerOfficerData = MinifiedOfficerData & {
     force: string

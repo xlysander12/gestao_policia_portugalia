@@ -4,13 +4,13 @@ import {make_request} from "../../../utils/requests.ts";
 import InformationCard from "../../InformationCard";
 import style from "./patrol-card.module.css";
 import {DefaultTypography} from "../../DefaultComponents";
-import {getObjectFromId} from "../../../forces-data-context.ts";
 import Gate from "../../Gate/gate.tsx";
 import {Chip, Divider, IconButton, Skeleton, Typography} from "@mui/material";
 import moment from "moment";
 import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import { MinifiedOfficerData, OfficerInfoGetResponse } from "@portalseguranca/api-types/officers/output";
 import {CalendarMonthOutlined, GroupWorkOutlined, MoreVertOutlined, PeopleAltOutlined} from "@mui/icons-material";
+import { getObjectFromId } from "../../../utils/misc.ts";
 
 type PatrolCardProps = {
     patrolInfo: MinifiedPatrolData

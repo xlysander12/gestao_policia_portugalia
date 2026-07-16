@@ -1,4 +1,4 @@
-import {useState, useMemo} from 'react'
+import {useState, useMemo, useEffect} from 'react'
 import './App.css'
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {BASE_URL} from "./utils/constants.ts";
@@ -6,7 +6,6 @@ import {Dashboard} from "./pages/Dashboard";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 import OfficerInfo from "./pages/OfficerInfo";
-import {ForcesDataContext, ForceData} from "./forces-data-context.ts";
 import {make_request} from "./utils/requests.ts";
 import {
     UtilColorsResponse,
@@ -24,7 +23,7 @@ import {
 import {Loader} from "./components/Loader";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
-import { QueryClient, QueryClientProvider, useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
@@ -35,14 +34,19 @@ import {AuditLogs} from "./pages/Audit-Logs";
 import ThemeToggler from "./components/ThemeToggler/ThemeToggler.tsx";
 import {CssBaseline} from "@mui/material";
 import {Bounce, ToastContainer} from "react-toastify";
+import {CurrentForce} from "./contexts/current-force.ts";
+import {ForceData, ForcesData} from "./contexts/forces-data.ts";
 
 function App() {
     const [currentForce, setCurrentForce] = useState<string>(localStorage.getItem("force") || "");
 
     const handleForceChange = (newForce: string) => {
-        localStorage.setItem("force", newForce);
         setCurrentForce(newForce);
     }
+
+    useEffect(() => {
+        localStorage.setItem("force", currentForce);
+    }, [currentForce]);
 
     const fetchPatrolForces = async () => {
         const response = await make_request("/util/patrol-forces", "GET");
@@ -181,10 +185,6 @@ function App() {
         return forceTempData;
     }
 
-    const handleLogin = (force: string) => {
-        setCurrentForce(force);
-    }
-
     // Use TanStack Query to fetch patrol forces and force-specific data
     const patrolForcesQuery = useQuery({
         queryKey: ['patrolForces', currentForce],
@@ -203,14 +203,13 @@ function App() {
         queries: forcesToFetch.map(force => ({
             queryKey: ['forceData', force],
             queryFn: () => fetchForceData(force),
-            enabled: !(location.pathname.includes(`${BASE_URL}/erro`)),
-            staleTime: Infinity
+            enabled: !(location.pathname.includes(`${BASE_URL}/erro`))
         }))
     });
 
-    const anyFetching = patrolForcesQuery.isFetching || forceQueries.some(q => q.isFetching);
-    const forceData = useMemo<ForcesDataContext>(() => {
-        const fd: ForcesDataContext = {};
+    const anyLoading = patrolForcesQuery.isLoading || forceQueries.some(q => q.isLoading);
+    const forceData = useMemo<ForcesData>(() => {
+        const fd: ForcesData = {};
 
         for (let i = 0; i < forcesToFetch.length; i++) {
             const data = forceQueries[i]?.data;
@@ -229,7 +228,7 @@ function App() {
                 children: [
                     {
                         path: "/login",
-                        element: <Login onLoginCallback={handleLogin}/>
+                        element: <Login onLoginCallback={handleForceChange}/>
                     },
                     {
                         path: "/",
@@ -339,21 +338,26 @@ function App() {
         })
 
 
+    if (anyLoading || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))) {
+        return (
+            <ThemeToggler>
+                <CssBaseline />
+                <Loader fullPage/>
+            </ThemeToggler>
+        );
+    }
+
     return (
         <ThemeToggler>
             <CssBaseline />
 
-            <Gate show={anyFetching || ((currentForce !== "" && forceData[currentForce] === undefined) && !location.pathname.includes(`${BASE_URL}/erro`))}>
-                <Loader fullPage/>
-            </Gate>
-
-            <Gate show={!anyFetching && ((currentForce === "" || forceData[currentForce] !== undefined) || location.pathname.includes(`${BASE_URL}/erro`))}>
-                <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <ForcesDataContext.Provider value={forceData}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <CurrentForce.Provider value={currentForce} key={currentForce}>
+                    <ForcesData.Provider value={forceData}>
                         <RouterProvider router={router} />
-                    </ForcesDataContext.Provider>
-                </LocalizationProvider>
-            </Gate>
+                    </ForcesData.Provider>
+                </CurrentForce.Provider>
+            </LocalizationProvider>
 
             <ToastContainer
                 position={"top-right"}

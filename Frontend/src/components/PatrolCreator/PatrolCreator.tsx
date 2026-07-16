@@ -13,7 +13,6 @@ import {PatrolTypeData, SpecialUnitData} from "@portalseguranca/api-types/util/o
 import { MinifiedOfficerData } from "@portalseguranca/api-types/officers/output";
 import moment, {Moment} from "moment";
 import {useImmer} from "use-immer";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {useContext, useState} from "react";
 import {LoggedUserContext} from "../PrivateRoute/logged-user-context.ts";
 import {make_request} from "../../utils/requests.ts";
@@ -21,6 +20,7 @@ import { CreatePatrolBody } from "@portalseguranca/api-types/patrols/input.ts";
 import {toast} from "react-toastify";
 import OfficerList from "../OfficerList";
 import { BaseResponse } from "@portalseguranca/api-types";
+import { getObjectFromId } from "../../utils/misc.ts";
 
 type InnerNewPatrolType = {
     type: PatrolTypeData

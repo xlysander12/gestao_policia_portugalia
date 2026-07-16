@@ -15,12 +15,12 @@ import useSound from "use-sound";
 import notification_sound1 from "../../assets/notification_sound1.mp3"
 import Gate from "../Gate/gate.tsx";
 import {DefaultTypography} from "../DefaultComponents";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import moment from "moment";
 import {OfficerData, OfficerInfoGetResponse} from '@portalseguranca/api-types/officers/output';
 import { MODULE } from '@portalseguranca/api-types';
 import ChangePasswordModal from "./modals/change-password.tsx";
 import { AccountSocket } from '@portalseguranca/api-types/account/output';
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type InnerActivityNotification = Omit<ActivityNotification, "officer"> & {
     officer: OfficerData

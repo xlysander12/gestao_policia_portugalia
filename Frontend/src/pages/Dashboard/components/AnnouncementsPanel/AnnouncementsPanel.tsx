@@ -11,12 +11,12 @@ import {Loader} from "../../../../components/Loader";
 import cardStyles from "./card.module.css";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {PLACEHOLDER_OFFICER_DATA} from "../../../../utils/constants.ts";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import AnnouncementModal from "./AnnouncementModal.tsx";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import {MODULE} from "@portalseguranca/api-types";
 import {useParams} from "react-router-dom";
+import {getObjectFromId} from "../../../../utils/misc.ts";
 
 type InnerMinifiedAnnouncement = Omit<MinifiedAnnouncement, "author"> & {
     author: MinifiedOfficerData

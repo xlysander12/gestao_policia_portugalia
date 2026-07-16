@@ -7,7 +7,6 @@ import {Divider, MenuItem} from "@mui/material";
 import ScreenSplit from "../../components/ScreenSplit/screen-split";
 import {LoggedUserContext} from "../../components/PrivateRoute/logged-user-context.ts";
 import {useParams} from "react-router-dom";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {toast} from "react-toastify";
 import {useImmer} from "use-immer";
 import {
@@ -35,6 +34,7 @@ import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import ShareButton from "../../components/ShareButton";
 import EvaluationPanel from "./EvaluationPanel.tsx";
+import { getObjectFromId } from "../../utils/misc.ts";
 
 
 type InformationPairProps = {

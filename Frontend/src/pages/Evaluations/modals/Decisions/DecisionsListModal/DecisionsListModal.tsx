@@ -1,6 +1,5 @@
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {Modal} from "../../../../../components/Modal";
-import {getObjectFromId} from "../../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../../hooks";
 import {useCallback, useEffect, useState} from "react";
 import {
@@ -30,6 +29,7 @@ import {DecisionModal} from "../index.ts";
 import {useParams} from "react-router-dom";
 import OfficerIdentificationText
     from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
+import {getObjectFromId} from "../../../../../utils/misc.ts";
 
 export type InnerMinifiedDecision = Omit<MinifiedDecision, "ceremony_event" | "target"> & {
     ceremony_event: Omit<ForceEvent, "start"> & {start: Moment} | null

@@ -15,7 +15,6 @@ import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Mo
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {DefaultButton, DefaultDateTimePicker, DefaultTextField, DefaultTypography} from "../../../../components/DefaultComponents";
-import {ForcesDataContext, getObjectFromId} from "../../../../forces-data-context.ts";
 import {Autocomplete, Divider} from "@mui/material";
 import {useImmer} from "use-immer";
 import {
@@ -36,6 +35,7 @@ import {
 } from "mui-tiptap";
 import StarterKit from "@tiptap/starter-kit";
 import {BaseResponse, MODULE} from "@portalseguranca/api-types";
+import { getObjectFromId } from "../../../../utils/misc.ts";
 
 
 type InnerAnnouncement = Omit<Announcement, "author" | "id"> & {
@@ -60,8 +60,7 @@ type AnnoucencementModalProps = {
 function AnnouncementModal(props: AnnoucencementModalProps) {
     // * Get Force Data
     // Get forces list
-    const forces = Object.keys(useContext(ForcesDataContext));
-    const [_, getForceData] = useForceData();
+    const [_, getForceData, forces] = useForceData();
 
     // Get logged user from context
     const loggedUser = useContext(LoggedUserContext);

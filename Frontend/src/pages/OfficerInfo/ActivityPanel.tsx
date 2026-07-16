@@ -13,9 +13,8 @@ import {
     OfficerSpecificHoursResponse
 } from "@portalseguranca/api-types/officers/activity/output";
 import {UpdateOfficerLastDateBodyType} from "@portalseguranca/api-types/officers/activity/input";
-import {toHoursAndMinutes} from "../../utils/misc.ts";
+import {getObjectFromId, toHoursAndMinutes} from "../../utils/misc.ts";
 import {InactivityJustificationModal, WeekHoursRegistryModal} from "../Activity/modals";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment, {Moment} from "moment";
 import SaveIcon from '@mui/icons-material/Save';

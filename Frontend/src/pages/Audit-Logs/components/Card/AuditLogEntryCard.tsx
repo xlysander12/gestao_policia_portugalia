@@ -6,11 +6,11 @@ import {useEffect, useMemo, useState} from "react";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {make_request, RequestMethod} from "../../../../utils/requests.ts";
 import {MODULE} from "@portalseguranca/api-types";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData} from "../../../../hooks";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
 import {ACTIONS_COLORS, isTargetOfficer, PLACEHOLDER_OFFICER_DATA} from "../../constants.ts";
+import {getObjectFromId} from "../../../../utils/misc.ts";
 
 type AuditLogEntryCardProps = {
     entry: InnerMinifiedAuditLogData

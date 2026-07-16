@@ -29,17 +29,7 @@ export type ForceData = {
     special_unit_roles: SpecialUnitRoleData[]
 }
 
-export type ForcesDataContext = {
+export type ForcesData = {
     [force: string]: ForceData
 }
-export const ForcesDataContext = createContext<ForcesDataContext>({});
-
-export function getObjectFromId<T extends {id: number | string}>(id: number | string, array: T[]): T | null {
-    for (const object of array) {
-        if (object.id === id) {
-            return object;
-        }
-    }
-
-    return null;
-}
+export const ForcesData = createContext<ForcesData>({});

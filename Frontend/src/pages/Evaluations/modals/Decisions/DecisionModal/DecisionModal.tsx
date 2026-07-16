@@ -1,6 +1,5 @@
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../../components/Modal";
 import {InnerMinifiedDecision} from "../DecisionsListModal/DecisionsListModal.tsx";
-import {getObjectFromId} from "../../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../../hooks";
 import {MinifiedOfficerData} from "@portalseguranca/api-types/officers/output";
 import {
@@ -33,6 +32,7 @@ import {EventPickerModal} from "../../../../../components/EventPicker";
 import OfficerIdentificationText from "../../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
 import ClearIcon from "@mui/icons-material/Clear";
 import EventModal from "../../../../Dashboard/components/ForceCalendar/EventModal.tsx";
+import {getObjectFromId} from "../../../../../utils/misc.ts";
 
 type InnerDecision = Omit<CeremonyDecision, "ceremony_event"> & {
     ceremony_event: MinifiedEvent | null

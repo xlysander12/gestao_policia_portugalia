@@ -1,6 +1,5 @@
 import styles from "./evaluation-modal.module.css";
 import {ConfirmationDialog, Modal, ModalSection} from "../../../../components/Modal";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import {useCallback, useContext, useEffect, useState} from "react";
 import Gate from "../../../../components/Gate/gate.tsx";
@@ -34,6 +33,7 @@ import { MinifiedPatrolData } from "@portalseguranca/api-types/patrols/output";
 import {PatrolPickerModal} from "../../../../components/PatrolPicker";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
 import OfficerIdentificationText from "../../../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
+import { getObjectFromId } from "../../../../utils/misc.ts";
 
 type InnerEvaluation = Omit<Evaluation, "target" | "author" | "timestamp"> & {
     target: MinifiedOfficerData

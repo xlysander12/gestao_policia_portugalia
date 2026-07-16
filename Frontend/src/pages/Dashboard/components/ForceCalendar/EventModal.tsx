@@ -15,7 +15,6 @@ import {
     DefaultTypography
 } from "../../../../components/DefaultComponents";
 import {Divider, MenuItem, Stack, Tooltip} from "@mui/material";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import {useForceData, useWebSocketEvent} from "../../../../hooks";
 import OfficerList from "../../../../components/OfficerList";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
@@ -24,6 +23,7 @@ import {CreateEventBody, EditEventBody} from "@portalseguranca/api-types/events/
 import {useImmer} from "use-immer";
 import {BaseResponse, MODULE, SocketResponse} from "@portalseguranca/api-types";
 import HelpIcon from "@mui/icons-material/Help";
+import {getObjectFromId} from "../../../../utils/misc.ts";
 
 type InnerForceEvent = Omit<ForceEvent, "type" | "special_unit" | "author" | "start" | "end" | "assignees"> & {
     type: EventType

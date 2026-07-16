@@ -11,7 +11,6 @@ import Gate from "../../../../components/Gate/gate.tsx";
 import {Loader} from "../../../../components/Loader";
 import {OfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {LoggedUserContext} from "../../../../components/PrivateRoute/logged-user-context.ts";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import style from "./index.module.css";
 import {Divider, Typography} from "@mui/material";
 import {
@@ -24,7 +23,7 @@ import {useImmer} from "use-immer";
 import { AddOfficerHoursBodyType } from "@portalseguranca/api-types/officers/activity/input.ts";
 import {useForceData} from "../../../../hooks";
 import moment, {Moment} from "moment";
-import {toHoursAndMinutes} from "../../../../utils/misc.ts";
+import {getObjectFromId, toHoursAndMinutes} from "../../../../utils/misc.ts";
 
 type InnerOfficerHoursType = Omit<OfficerSpecificHoursType, "week_start" | "week_end"> & {
     week_start: Moment | null,

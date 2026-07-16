@@ -1,7 +1,6 @@
 import styles from "./evaluation-card.module.css";
 import { MinifiedEvaluation } from "@portalseguranca/api-types/officers/evaluations/output";
 import InformationCard from "../../../../components/InformationCard";
-import {getObjectFromId} from "../../../../forces-data-context.ts";
 import { useForceData } from "../../../../hooks/index.ts";
 import {MinifiedOfficerData, OfficerInfoGetResponse} from "@portalseguranca/api-types/officers/output";
 import {useEffect, useState} from "react";
@@ -11,6 +10,7 @@ import {DefaultTypography} from "../../../../components/DefaultComponents";
 import Gate from "../../../../components/Gate/gate.tsx";
 import {Skeleton} from "@mui/material";
 import moment from "moment";
+import { getObjectFromId } from "../../../../utils/misc.ts";
 
 type EvaluationCardProps = {
     evaluation: MinifiedEvaluation

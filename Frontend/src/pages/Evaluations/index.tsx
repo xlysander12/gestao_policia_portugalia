@@ -31,13 +31,13 @@ import {
     TableHead,
     TableRow
 } from "@mui/material";
-import {getObjectFromId} from "../../forces-data-context.ts";
 import {MODULE} from "@portalseguranca/api-types";
 import {EvaluationModal} from "./modals";
 import {useNavigate, useParams} from "react-router-dom";
 import ShareButton from "../../components/ShareButton";
 import {DecisionsListModal} from "./modals/Decisions";
 import OfficerIdentificationText from "../../components/OfficerIdentificationText/OfficerIdentificationText.tsx";
+import {getObjectFromId} from "../../utils/misc.ts";
 
 type EvaluationsPageProps = {
     asAuthor?: boolean
