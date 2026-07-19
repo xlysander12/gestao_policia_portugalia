@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Start Local DB" type="docker-deploy" factoryName="docker-compose.yml" server-name="Local Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="composeProjectName" value="portalseguranca" />
+        <option name="sourceFilePath" value="Database/Local Server/compose.yml" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
