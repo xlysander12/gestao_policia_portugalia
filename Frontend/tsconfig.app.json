@@ -21,13 +21,14 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Custom Paths */
+    "paths": {
+      "@api/*": ["src/api/*"]
+    }
   },
   "include": [
-    "src",
-    "src/forces-data-context.ts"
-  ],
-  "paths": {
-    "@api/*": ["src/api/*"],
-  }
+    "src"
+  ]
 }

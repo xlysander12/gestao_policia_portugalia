@@ -1,33 +1,31 @@
-import {ReactElement, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import {ReactElement, useCallback, useEffect, useState} from "react";
 import {make_request} from "../../utils/requests";
 import {useLocation, useNavigate} from "react-router-dom";
 import {DEFAULT_LOGGED_USER_CONTEXT, LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
 import {Topbar} from "../Topbar";
 import {
     AccountInfoResponse, AccountSocket,
-    UserForcesResponse,
-    ValidateTokenResponse
+    UserForcesResponse
 } from "@portalseguranca/api-types/account/output";
 import {Loader} from "../Loader";
 import {toast} from "react-toastify";
 import {OfficerData, OfficerInfoGetResponse, OfficerSocket} from "@portalseguranca/api-types/officers/output";
-import style from "./private-route.module.css";
 import {io, Socket} from "socket.io-client";
 import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
 import moment from "moment";
 import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
-import Gate from "../Gate/gate.tsx";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {getObjectFromId} from "../../utils/misc.ts";
+import {validateSession} from "@api/accounts";
 
 type PrivateRouteProps = {
     element: ReactElement
     handleForceChange: (newForce: string) => void
 }
 
-function PrivateRoute({element, handleForceChange}: PrivateRouteProps): ReactElement {
+function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
     const queryClient = useQueryClient();
 
     // Initialize state
@@ -40,31 +38,12 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps): ReactEle
     // Get the force's data from Context
     const [forceData] = useForceData();
 
-    const redirectLogin = () => {
+    function redirectLogin() {
         if (location.pathname === "/") {
             void navigate("/login");
         } else {
             void navigate("/login?redirect=" + location.pathname);
         }
-    }
-
-    const checkToken = async (): Promise<number> => {
-        // Check if there is a force in the local storage. If there isn't, return to login
-        if (!localStorage.getItem("force")) {
-            redirectLogin();
-        }
-
-        // Since there's a force in local storage, check if the token stored in the cookies is valid for that force
-        const response = await make_request("/accounts/validate-session", "POST", {redirectToLoginOn401: false});
-        const responseJson: ValidateTokenResponse = await response.json();
-
-        // If the request returned status 401, the token isn't valid and the user should be redirected to login
-        if (response.status === 401) {
-            toast("Sessão inválida. Por favor, faça login novamente.", {type: "error"});
-            redirectLogin();
-        }
-
-        return responseJson.data;
     }
 
     const fetchLoggedUserInfo = async (nif: number): Promise<LoggedUserContextType> => {
@@ -126,51 +105,50 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps): ReactEle
 
     // Query to check the validity of the token
     const tokenValidation = useQuery({
-        queryKey: ["validateToken"],
-        queryFn: checkToken,
+        queryKey: validateSession().queryKeys,
+        queryFn: validateSession().queryfn,
         refetchInterval: 60000, // Refetch every 60 seconds to keep the session alive and check for expiration
         retry: false
     });
 
-    const loggedNif = tokenValidation.data!;
 
     // Query to fetch the logged user's information, which depends on the token being valid (nif being set)
     const userInfoQuery = useQuery({
-        queryKey: ["loggedUserInfo", loggedNif],
-        queryFn: () => fetchLoggedUserInfo(loggedNif),
-        enabled: !!loggedNif
+        queryKey: ["loggedUserInfo", tokenValidation.data?.data],
+        queryFn: () => fetchLoggedUserInfo(tokenValidation.data!.data),
+        enabled: !tokenValidation.error
     });
 
     const loggedUser = userInfoQuery.data!;
 
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback(data => {
-        if (data.nif === loggedNif || data.nif === 0) { // If nif is 0, all users were affected
+        if (data.nif === tokenValidation.data?.data || data.nif === 0) { // If nif is 0, all users were affected
             void queryClient.invalidateQueries({
-                queryKey: ["loggedUserInfo", loggedNif]
+                queryKey: ["loggedUserInfo", tokenValidation.data!.data]
             });
         }
-    }, [socket?.id, loggedNif]), socket);
+    }, [tokenValidation.data, queryClient]), socket);
 
     useWebSocketEvent<OfficerActivitySocket>(MODULE.ACTIVITY, useCallback(data => {
         if (data.type !== "justification") return;
 
-        if (data.nif !== loggedNif) return;
+        if (data.nif !== tokenValidation.data?.data) return;
 
         if (data.action === "add") return;
 
         void queryClient.invalidateQueries({
-            queryKey: ["loggedUserInfo", loggedNif]
+            queryKey: ["loggedUserInfo", tokenValidation.data.data]
         });
-    }, [socket?.id, loggedNif, socket]), socket);
+    }, [tokenValidation.data, queryClient]), socket);
 
     useWebSocketEvent<AccountSocket>(MODULE.ACCOUNTS, useCallback((data) => {
-        if (data.nif !== loggedNif) return;
+        if (data.nif !== tokenValidation.data?.data) return;
 
         void queryClient.invalidateQueries({
-            queryKey: ["loggedUserInfo", loggedNif]
+            queryKey: ["loggedUserInfo", tokenValidation.data.data]
         });
-    }, [socket?.id, loggedNif, socket]), socket);
+    }, [tokenValidation.data, queryClient]), socket);
 
     // Create the websocket connection when not in the login page
     useEffect(() => {
@@ -277,10 +255,16 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps): ReactEle
         }
     }, []);
 
-    if (userInfoQuery.isPending) {
+    if (userInfoQuery.isPending || tokenValidation.isPending) {
         return (
             <Loader fullPage/>
         );
+    }
+
+    if (tokenValidation.error) {
+        toast("Sessão inválida. Por favor, faça login novamente.", {type: "error"});
+        redirectLogin();
+        return null;
     }
 
     return (

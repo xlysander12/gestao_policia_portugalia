@@ -3,12 +3,13 @@ import {QueryBundle} from "./types.ts";
 import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
 import {make_request, RequestMethod} from "../utils/requests.ts";
 
-function validateSession(data?: ValidateTokenRequestBodyType): QueryBundle {
+export function validateSession(data?: ValidateTokenRequestBodyType): QueryBundle<ValidateTokenResponse> {
     return {
         queryKeys: ["validateSession"],
-        queryfn: async (): Promise<ValidateTokenResponse> => {
-            const response = await make_request<ValidateTokenRequestBodyType>(`/api/accounts/validate-session`, RequestMethod.POST, {
-                body: data
+        queryfn: async () => {
+            const response = await make_request<ValidateTokenRequestBodyType>(`/accounts/validate-session`, RequestMethod.POST, {
+                body: data,
+                redirectToLoginOn401: false
             });
 
             if (!response.ok) {

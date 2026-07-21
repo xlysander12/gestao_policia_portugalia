@@ -25,8 +25,8 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           "@portalseguranca/api-types": path.resolve(__dirname, "../API-Types/src"),
+          "@api": path.resolve(__dirname, "./src/api"),
       }
     },
     base: BASE_URL,
