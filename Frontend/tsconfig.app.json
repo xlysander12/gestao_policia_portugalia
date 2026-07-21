@@ -26,5 +26,8 @@
   "include": [
     "src",
     "src/forces-data-context.ts"
-  ]
+  ],
+  "paths": {
+    "@api/*": ["src/api/*"],
+  }
 }
