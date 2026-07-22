@@ -18,7 +18,8 @@ import {MODULE} from "@portalseguranca/api-types";
 import { OfficerActivitySocket } from "@portalseguranca/api-types/officers/activity/output";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {getObjectFromId} from "../../utils/misc.ts";
-import {validateSession} from "@api/accounts";
+import {getAccountData, getAccountForces, validateSession} from "@api/accounts";
+import {getOfficerData} from "@api/officers";
 
 type PrivateRouteProps = {
     element: ReactElement
@@ -114,18 +115,28 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
 
     // Query to fetch the logged user's information, which depends on the token being valid (nif being set)
     const userInfoQuery = useQuery({
-        queryKey: ["loggedUserInfo", tokenValidation.data?.data],
-        queryFn: () => fetchLoggedUserInfo(tokenValidation.data!.data),
+        queryKey: getOfficerData(tokenValidation.data?.data).queryKeys,
+        queryFn: getOfficerData(tokenValidation.data?.data).queryfn,
         enabled: !tokenValidation.error
     });
 
-    const loggedUser = userInfoQuery.data!;
+    const accountDataQuery = useQuery({
+        queryKey: getAccountData(tokenValidation.data?.data).queryKeys,
+        queryFn: getAccountData(tokenValidation.data?.data).queryfn,
+        enabled: !tokenValidation.error
+    });
+
+    const accountForcesQuery = useQuery({
+        queryKey: getAccountForces(tokenValidation.data?.data).queryKeys,
+        queryFn: getAccountForces(tokenValidation.data?.data).queryfn,
+        enabled: !tokenValidation.error
+    });
 
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback(data => {
         if (data.nif === tokenValidation.data?.data || data.nif === 0) { // If nif is 0, all users were affected
             void queryClient.invalidateQueries({
-                queryKey: ["loggedUserInfo", tokenValidation.data!.data]
+                queryKey: getOfficerData(tokenValidation.data?.data).queryKeys
             });
         }
     }, [tokenValidation.data, queryClient]), socket);
@@ -138,7 +149,7 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
         if (data.action === "add") return;
 
         void queryClient.invalidateQueries({
-            queryKey: ["loggedUserInfo", tokenValidation.data.data]
+            queryKey: getOfficerData(tokenValidation.data?.data).queryKeys
         });
     }, [tokenValidation.data, queryClient]), socket);
 
@@ -146,7 +157,7 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
         if (data.nif !== tokenValidation.data?.data) return;
 
         void queryClient.invalidateQueries({
-            queryKey: ["loggedUserInfo", tokenValidation.data.data]
+            queryKey: getOfficerData(tokenValidation.data?.data).queryKeys
         });
     }, [tokenValidation.data, queryClient]), socket);
 
@@ -269,7 +280,32 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
 
     return (
         <WebsocketContext.Provider value={socket}>
-            <LoggedUserContext.Provider value={loggedUser}>
+            <LoggedUserContext.Provider value={{
+                info: {
+                    personal: {
+                        name: userInfoQuery.data?.data.name,
+                        nif: userInfoQuery.data?.data.nif,
+                        discord: (userInfoQuery.data?.data as OfficerData).discord,
+                        steam: (userInfoQuery.data?.data as OfficerData).steam,
+                        phone: (userInfoQuery.data?.data as OfficerData).phone,
+                        iban: (userInfoQuery.data?.data as OfficerData).iban,
+                        kms: (userInfoQuery.data?.data as OfficerData).kms
+                    },
+                    professional: {
+                        patent: userInfoQuery.data?.data.patent,
+                        callsign: userInfoQuery.data?.data.callsign,
+                        status: userInfoQuery.data?.data.status,
+                        entry_date: (userInfoQuery.data?.data as OfficerData).entry_date,
+                        promotion_date: (userInfoQuery.data?.data as OfficerData).promotion_date,
+                        special_units: (userInfoQuery.data?.data as OfficerData).special_units.map((unit) => {
+                            return {
+                                unit: getObjectFromId(unit.id, forceData.special_units)!,
+                                role: getObjectFromId(unit.role, forceData.special_unit_roles)!
+                            };
+                        })
+                    }
+                }
+            }}>
                 <Topbar handleForceChange={handleForceChange}/>
                 <div style={{
                     height: "calc(100vh - calc(4rem + 13px))",

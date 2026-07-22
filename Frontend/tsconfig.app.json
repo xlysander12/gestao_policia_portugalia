@@ -25,6 +25,7 @@
 
     /* Custom Paths */
     "paths": {
+      "@portalseguranca/api-types/*": ["../API-Types/src/*"],
       "@api/*": ["src/api/*"]
     }
   },
