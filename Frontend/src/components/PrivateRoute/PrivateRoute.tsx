@@ -39,13 +39,13 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
     // Get the force's data from Context
     const [forceData] = useForceData();
 
-    function redirectLogin() {
+    const redirectLogin = useCallback(() => {
         if (location.pathname === "/") {
             void navigate("/login");
         } else {
             void navigate("/login?redirect=" + location.pathname);
         }
-    }
+    }, [location.pathname, navigate]);
 
     const fetchLoggedUserInfo = async (nif: number): Promise<LoggedUserContextType> => {
         const userResponse = await make_request(`/officers/${nif}`, "GET");
@@ -267,17 +267,21 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
         }
     }, []);
 
+    // Redirect to login if the token is invalid
+    useEffect(() => {
+        if (tokenValidation.isError) {
+            toast("Sessão inválida. Por favor, faça login novamente.", {type: "error"});
+            redirectLogin();
+        }
+    }, [tokenValidation.isError, redirectLogin]);
+
     if ([tokenValidation, userInfoQuery, accountForcesQuery, accountDataQuery].some(q => q.isLoading)) {
         return (
             <Loader fullPage/>
         );
     }
 
-    if (tokenValidation.error) {
-        toast("Sessão inválida. Por favor, faça login novamente.", {type: "error"});
-        redirectLogin();
-        return null;
-    }
+    if (tokenValidation.isError) return null;
 
     return (
         <WebsocketContext.Provider value={socket}>
