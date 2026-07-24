@@ -1,6 +1,6 @@
 import style from "./login.module.css";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import React, {SubmitEvent, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Button,
     Checkbox,
@@ -11,13 +11,12 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {make_request} from "../../utils/requests.ts";
 import {toast} from "react-toastify";
-import {LoginDiscordRequestBody, LoginRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
-import { LoginResponse } from "@portalseguranca/api-types/account/output";
+import {LoginRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
 import DiscordIcon from "../../components/DiscordIcon";
 import {KeyOutlined, PermIdentityOutlined} from "@mui/icons-material";
 import {useMutation} from "@tanstack/react-query";
+import {login} from "@api/accounts.ts";
 
 let isLoggingInDiscord = false;
 
@@ -40,7 +39,7 @@ function Login({onLoginCallback}: LoginPageProps) {
     const [remember, setRemember] = useState(false);
 
     const loginMutation = useMutation({
-        mutationFn: ({nif, password, remember}: {nif: string, password: string, remember: boolean}) => login(nif, password, remember),
+        mutationFn: (body: LoginRequestBodyType) => login(body).queryfn(),
 
         onError: (error) => {
             toast(error.message, {type: "error"});
@@ -48,7 +47,6 @@ function Login({onLoginCallback}: LoginPageProps) {
         },
 
         onSuccess: (response) => {
-            // * If the request returned status 200, the login was successful
             // Set the first force in the local storage
             localStorage.setItem("force", response.data.forces[0]);
 
@@ -82,24 +80,6 @@ function Login({onLoginCallback}: LoginPageProps) {
         void navigate("/");
     }
 
-    async function login(nif: string, password: string, persistent: boolean) {
-        const response = await make_request("/accounts/login", "POST", {
-            body: {
-                nif: parseInt(nif),
-                password: password,
-                persistent: persistent
-            },
-            redirectToLoginOn401: false
-        });
-
-        const responseJson: LoginResponse = await response.json();
-
-        if (!response.ok) {
-            throw new Error(responseJson.message);
-        }
-
-        return responseJson;
-    }
 
     // Start login process immediately if the code search param is present and the process hasn't started yet
     // TODO: Separated page to authenticate using discord
@@ -123,7 +103,11 @@ function Login({onLoginCallback}: LoginPageProps) {
                 onSubmit={(event) => {
                     event.preventDefault();
 
-                    loginMutation.mutate({nif, password, remember});
+                    loginMutation.mutate({
+                        nif: parseInt(nif),
+                        password,
+                        persistent: remember
+                    });
                 }}
                 style={{height: "100%"}}
             >

@@ -1,10 +1,10 @@
 import {
-    AccountInfoResponse,
+    AccountInfoResponse, LoginResponse,
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
 import {QueryBundle} from "./types.ts";
-import {ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
+import {LoginRequestBodyType, ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
 import {make_request, RequestMethod} from "../utils/requests.ts";
 
 export function validateSession(data?: ValidateTokenRequestBodyType): QueryBundle<ValidateTokenResponse> {
@@ -47,6 +47,25 @@ export function getAccountForces(nif: number): QueryBundle<UserForcesResponse> {
         queryfn: async () => {
             const response = await make_request(`/accounts/${nif}/forces`, RequestMethod.GET);
             const responseJson = await response.json() as UserForcesResponse;
+
+            if (!response.ok) {
+                throw new Error(responseJson.message);
+            }
+
+            return responseJson;
+        }
+    }
+}
+
+export function login(body: LoginRequestBodyType): QueryBundle<LoginResponse> {
+    return {
+        queryKeys: ["login"],
+        queryfn: async () => {
+            const response = await make_request(`/accounts/login`, RequestMethod.POST, {
+                body,
+                redirectToLoginOn401: false
+            });
+            const responseJson = await response.json() as LoginResponse;
 
             if (!response.ok) {
                 throw new Error(responseJson.message);
