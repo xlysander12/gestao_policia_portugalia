@@ -1,15 +1,11 @@
 import {ReactElement, useCallback, useEffect, useState} from "react";
-import {make_request} from "../../utils/requests";
 import {useLocation, useNavigate} from "react-router-dom";
-import {DEFAULT_LOGGED_USER_CONTEXT, LoggedUserContext, LoggedUserContextType} from "./logged-user-context.ts";
+import {LoggedUserContext} from "./logged-user-context.ts";
 import {Topbar} from "../Topbar";
-import {
-    AccountInfoResponse, AccountSocket,
-    UserForcesResponse
-} from "@portalseguranca/api-types/account/output";
+import {AccountSocket} from "@portalseguranca/api-types/account/output";
 import {Loader} from "../Loader";
 import {toast} from "react-toastify";
-import {OfficerData, OfficerInfoGetResponse, OfficerSocket} from "@portalseguranca/api-types/officers/output";
+import {OfficerData, OfficerSocket} from "@portalseguranca/api-types/officers/output";
 import {io, Socket} from "socket.io-client";
 import {WebsocketContext} from "./websocket-context.ts";
 import {useForceData, useWebSocketEvent} from "../../hooks";
@@ -46,63 +42,6 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
             void navigate("/login?redirect=" + location.pathname);
         }
     }, [location.pathname, navigate]);
-
-    const fetchLoggedUserInfo = async (nif: number): Promise<LoggedUserContextType> => {
-        const userResponse = await make_request(`/officers/${nif}`, "GET");
-
-        // Get the data from the response
-        const responseJson: OfficerInfoGetResponse = await userResponse.json();
-        const userData = responseJson.data as OfficerData;
-
-        // Initialize a temp object that will hold the user's information and intents
-        const tempLoggedUser: LoggedUserContextType = DEFAULT_LOGGED_USER_CONTEXT;
-
-        // Fill the temp object with the data from the response
-        tempLoggedUser.info = {
-            personal: {
-                name: userData.name,
-                nif: userData.nif,
-                phone: userData.phone,
-                iban: userData.iban,
-                kms: userData.kms,
-                discord: userData.discord,
-                steam: userData.steam
-            },
-
-            professional: {
-                patent: getObjectFromId(userData.patent, forceData.patents)!,
-                callsign: userData.callsign ?? "",
-                status: getObjectFromId(userData.status, forceData.statuses)!,
-                entry_date: moment.unix(userData.entry_date),
-                promotion_date: userData.promotion_date ? moment.unix(userData.promotion_date) : null,
-                special_units: userData.special_units.map((unit) => {
-                    return {
-                        unit: getObjectFromId(unit.id, forceData.special_units)!,
-                        role: getObjectFromId(unit.role, forceData.special_unit_roles)!
-                    };
-                })
-            }
-        }
-        
-
-        // Fetch the user's intents
-        const accountInfoResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}`, "GET");
-        const accountInfoData = (await accountInfoResponse.json()) as AccountInfoResponse;
-        tempLoggedUser.intents = accountInfoData.data.intents;
-
-        // Piggy-back the last request to check their authentication methods
-        tempLoggedUser.authentication = {
-            password: accountInfoData.data.password_login,
-            discord: accountInfoData.data.discord_login
-        }
-
-        // Fetch all forces the user belongs to
-        const accountForcesResponse = await make_request(`/accounts/${tempLoggedUser.info.personal.nif}/forces`, "GET");
-        const accountForcesData = (await accountForcesResponse.json()) as UserForcesResponse;
-        tempLoggedUser.forces = accountForcesData.data.forces;
-
-        return tempLoggedUser;
-    }
 
     // Query to check the validity of the token
     const tokenValidation = useQuery({
