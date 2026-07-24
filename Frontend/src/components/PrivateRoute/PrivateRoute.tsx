@@ -115,28 +115,29 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
 
     // Query to fetch the logged user's information, which depends on the token being valid (nif being set)
     const userInfoQuery = useQuery({
-        queryKey: getOfficerData(tokenValidation.data?.data).queryKeys,
-        queryFn: getOfficerData(tokenValidation.data?.data).queryfn,
-        enabled: !tokenValidation.error
+        queryKey: getOfficerData(tokenValidation.data?.data ?? 0).queryKeys,
+        queryFn: getOfficerData(tokenValidation.data?.data ?? 0).queryfn,
+        enabled: !tokenValidation.error || !tokenValidation.isLoading
+
     });
 
     const accountDataQuery = useQuery({
-        queryKey: getAccountData(tokenValidation.data?.data).queryKeys,
-        queryFn: getAccountData(tokenValidation.data?.data).queryfn,
-        enabled: !tokenValidation.error
+        queryKey: getAccountData(tokenValidation.data?.data ?? 0).queryKeys,
+        queryFn: getAccountData(tokenValidation.data?.data ?? 0).queryfn,
+        enabled: !tokenValidation.error || !tokenValidation.isLoading
     });
 
     const accountForcesQuery = useQuery({
-        queryKey: getAccountForces(tokenValidation.data?.data).queryKeys,
-        queryFn: getAccountForces(tokenValidation.data?.data).queryfn,
-        enabled: !tokenValidation.error
+        queryKey: getAccountForces(tokenValidation.data?.data ?? 0).queryKeys,
+        queryFn: getAccountForces(tokenValidation.data?.data ?? 0).queryfn,
+        enabled: !tokenValidation.error || !tokenValidation.isLoading
     });
 
     // Add the Socket Event listener for the logged user's data
     useWebSocketEvent<OfficerSocket>(MODULE.OFFICERS, useCallback(data => {
         if (data.nif === tokenValidation.data?.data || data.nif === 0) { // If nif is 0, all users were affected
             void queryClient.invalidateQueries({
-                queryKey: getOfficerData(tokenValidation.data?.data).queryKeys
+                queryKey: getOfficerData(tokenValidation.data?.data ?? 0).queryKeys
             });
         }
     }, [tokenValidation.data, queryClient]), socket);
@@ -266,7 +267,7 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
         }
     }, []);
 
-    if (userInfoQuery.isPending || tokenValidation.isPending) {
+    if ([tokenValidation, userInfoQuery, accountForcesQuery, accountDataQuery].some(q => q.isLoading)) {
         return (
             <Loader fullPage/>
         );
@@ -283,27 +284,33 @@ function PrivateRoute({element, handleForceChange}: PrivateRouteProps) {
             <LoggedUserContext.Provider value={{
                 info: {
                     personal: {
-                        name: userInfoQuery.data?.data.name,
-                        nif: userInfoQuery.data?.data.nif,
-                        discord: (userInfoQuery.data?.data as OfficerData).discord,
-                        steam: (userInfoQuery.data?.data as OfficerData).steam,
-                        phone: (userInfoQuery.data?.data as OfficerData).phone,
-                        iban: (userInfoQuery.data?.data as OfficerData).iban,
-                        kms: (userInfoQuery.data?.data as OfficerData).kms
+                        name: userInfoQuery.data!.data.name,
+                        nif: userInfoQuery.data!.data.nif,
+                        discord: (userInfoQuery.data!.data as OfficerData).discord,
+                        steam: (userInfoQuery.data!.data as OfficerData).steam,
+                        phone: (userInfoQuery.data!.data as OfficerData).phone,
+                        iban: (userInfoQuery.data!.data as OfficerData).iban,
+                        kms: (userInfoQuery.data!.data as OfficerData).kms
                     },
                     professional: {
-                        patent: userInfoQuery.data?.data.patent,
-                        callsign: userInfoQuery.data?.data.callsign,
-                        status: userInfoQuery.data?.data.status,
-                        entry_date: (userInfoQuery.data?.data as OfficerData).entry_date,
-                        promotion_date: (userInfoQuery.data?.data as OfficerData).promotion_date,
-                        special_units: (userInfoQuery.data?.data as OfficerData).special_units.map((unit) => {
+                        patent: getObjectFromId(userInfoQuery.data!.data.patent, forceData.patents)!,
+                        callsign: userInfoQuery.data!.data.callsign!,
+                        status: getObjectFromId(userInfoQuery.data!.data.status, forceData.statuses)!,
+                        entry_date: moment.unix((userInfoQuery.data!.data as OfficerData).entry_date),
+                        promotion_date: (userInfoQuery.data!.data as OfficerData).promotion_date !== null ? moment.unix((userInfoQuery.data!.data as OfficerData).promotion_date!): null,
+                        special_units: (userInfoQuery.data!.data as OfficerData).special_units.map((unit) => {
                             return {
                                 unit: getObjectFromId(unit.id, forceData.special_units)!,
                                 role: getObjectFromId(unit.role, forceData.special_unit_roles)!
                             };
                         })
                     }
+                },
+                forces: accountForcesQuery.data!.data.forces,
+                intents: accountDataQuery.data!.data.intents,
+                authentication: {
+                    password: accountDataQuery.data!.data.password_login,
+                    discord: accountDataQuery.data!.data.discord_login
                 }
             }}>
                 <Topbar handleForceChange={handleForceChange}/>
