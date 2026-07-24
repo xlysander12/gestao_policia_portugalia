@@ -23,7 +23,7 @@ import {
 import {Loader} from "./components/Loader";
 import Activity from "./pages/Activity";
 import Patrols from "./pages/Patrols";
-import { useQueries, useQuery } from '@tanstack/react-query';
+import {useQueries, useQuery, useQueryClient} from '@tanstack/react-query';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import UnexpectedError from "./pages/UnexpectedError";
@@ -38,10 +38,13 @@ import {CurrentForce} from "./contexts/current-force.ts";
 import {ForceData, ForcesData} from "./contexts/forces-data.ts";
 
 function App() {
+    const queryClient = useQueryClient();
+
     const [currentForce, setCurrentForce] = useState<string>(localStorage.getItem("force") || "");
 
     const handleForceChange = (newForce: string) => {
         setCurrentForce(newForce);
+        queryClient.clear();
     }
 
     useEffect(() => {
