@@ -24,6 +24,7 @@
     "@mui/material": "^9.1.0",
     "@mui/x-date-pickers": "^9.4.0",
     "@portalseguranca/api-types": "file:../API-Types/src",
+    "@tanstack/react-form": "^1.33.2",
     "@tanstack/react-query": "^5.101.0",
     "@tiptap/core": "^3.26.0",
     "@tiptap/extension-heading": "^3.26.0",
