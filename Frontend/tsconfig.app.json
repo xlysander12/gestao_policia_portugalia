@@ -24,8 +24,9 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Custom Paths */
+    "baseUrl": ".",
     "paths": {
-      "@portalseguranca/api-types/*": ["../API-Types/src/*"],
+      // "@portalseguranca/api-types/*": ["../API-Types/src/*"],
       "@api/*": ["src/api/*"]
     }
   },
