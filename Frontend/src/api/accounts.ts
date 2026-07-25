@@ -1,11 +1,13 @@
 import {
-    AccountInfoResponse, LoginResponse,
+    AccountInfoResponse,
+    LoginResponse,
     UserForcesResponse,
     ValidateTokenResponse
 } from "@portalseguranca/api-types/account/output";
 import {QueryBundle} from "./types.ts";
 import {LoginRequestBodyType, ValidateTokenRequestBodyType} from "@portalseguranca/api-types/account/input.ts";
 import {make_request, RequestMethod} from "../utils/requests.ts";
+import {BaseResponse} from "@portalseguranca/api-types";
 
 export function validateSession(data?: ValidateTokenRequestBodyType): QueryBundle<ValidateTokenResponse> {
     return {
@@ -66,6 +68,25 @@ export function login(body: LoginRequestBodyType): QueryBundle<LoginResponse> {
                 redirectToLoginOn401: false
             });
             const responseJson = await response.json() as LoginResponse;
+
+            if (!response.ok) {
+                throw new Error(responseJson.message);
+            }
+
+            return responseJson;
+        }
+    }
+}
+
+// TODO: Discord login
+
+
+export function logout(): QueryBundle<BaseResponse> {
+    return {
+        queryKeys: ["logout"],
+        queryfn: async () => {
+            const response = await make_request("/accounts/logout", RequestMethod.POST);
+            const responseJson = await response.json() as BaseResponse;
 
             if (!response.ok) {
                 throw new Error(responseJson.message);
