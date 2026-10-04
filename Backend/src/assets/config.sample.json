@@ -20,6 +20,7 @@
             "isPromotion": "($oldpatent !== $newpatent) || ($oldstatus === 1 && $newstatus === 4) || ($oldstatus === 3 && $newstatus === 4)",
             "minimum_week_minutes": 300,
             "hub": {
+                "type": "google",
                 "id": "12E4q5-fDNi6B0Os0wf_llqt9cnRTGKpWXMznmZ9xoZ8",
                 "sheetName": "HUB PSP",
                 "ranges": {

@@ -9,6 +9,7 @@ const DatabaseType = rt.Record({
 });
 
 const ForceHubRt = rt.Record({
+    type: rt.Union(rt.Literal("google"), rt.Literal("nextcloud")),
     id: rt.String,
     sheetName: rt.String,
     ranges: rt.Record({

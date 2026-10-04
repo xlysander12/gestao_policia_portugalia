@@ -39,6 +39,7 @@ export function getForceHubDetails(force: string) {
     }
 
     return {
+        type: forceConfig.hub.type,
         id: forceConfig.hub.id,
         sheet: forceConfig.hub.sheetName
     };

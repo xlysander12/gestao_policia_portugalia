@@ -166,7 +166,7 @@ export async function officerPatrol(force: string, officerNif: number): Promise<
     return {result: true, status: 200, message: "Operação concluida com sucesso", data: result};
 }
 
-async function convertHubValues(force: string, patent: string, status: string, entry_date: string, promotion_date: string, phone: string, kms: string, discord: string, nif?: string) {
+async function convertHubValues(force: string, patent: string, status: string, entry_date: string | Date, promotion_date: string | Date, phone: string, kms: string, discord: string, nif?: string) {
     // Convert Patent
     const outPatent = ((await getForcePatents(force)) as PatentData[]).find((existingPatent) => existingPatent.name === patent.trim());
 
@@ -174,16 +174,28 @@ async function convertHubValues(force: string, patent: string, status: string, e
     const outStatus = (await getForceStatuses(force)).find((existingStatus) => existingStatus.name === status.trim());
 
     // Convert the entry date
-    // This date is in the DD/MM/YYYY format
-    const entry_date_split = entry_date.split("/");
-    const outEntry_date = dateToUnix(new Date(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`));
+    // This date is in the DD/MM/YYYY format if a string, otherwise, assume Date object
+    let outEntry_date;
+    if (typeof entry_date === "string") {
+        const entry_date_split = entry_date.split("/");
+        outEntry_date = dateToUnix(new Date(`${entry_date_split[2]}-${entry_date_split[1]}-${entry_date_split[0]}`));
+    } else {
+        outEntry_date = dateToUnix(entry_date);
+    }
+
 
     // Convert the promotion date
-    // This date is in the DD/MM/YYYY format
-    const promotion_date_split = promotion_date.split("/");
-    const outPromotion_date = promotion_date_split.length === 1 ?
-        undefined :
-        dateToUnix(new Date(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`));
+    // This date is in the DD/MM/YYYY format if a string, otherwise, assume Date object
+    let outPromotion_date;
+    if (typeof promotion_date === "string") {
+        const promotion_date_split = promotion_date.split("/");
+        const outPromotion_date = promotion_date_split.length === 1 ?
+            undefined :
+            dateToUnix(new Date(`${promotion_date_split[2]}-${promotion_date_split[1]}-${promotion_date_split[0]}`));
+    } else {
+        outPromotion_date = dateToUnix(promotion_date);
+    }
+
 
     // Convert the phone number
     const outPhone = String(phone).replace(/\D/g, ''); // Remove all non-numeric characters
@@ -303,9 +315,9 @@ export async function importOfficers(force: string): Promise<DefaultReturn<{impo
         return {result: false, status: 422, message: "Esta ação não é suportada por esta força."};
     }
 
-    const {id, sheet} = getForceHubDetails(force)!;
+    const {type, id, sheet} = getForceHubDetails(force)!;
 
-    const rows = await getSheetValues(id, sheet);
+    const rows = await getSheetValues(type, id, sheet);
 
     // If no rows are present, return a 404 status code
     if (!rows) {
