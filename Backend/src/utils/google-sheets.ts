@@ -81,7 +81,7 @@ async function getNextcloudSheetsValues(url: string, sheetName: string) {
     }
 
     // Replace all "nulls" for empty strings
-    sheet.data = sheet.data.map(row => row.map(cell => cel-l === null ? "" : cell));
+    sheet.data = sheet.data.map(row => row.map(cell => cell === null ? "" : cell));
 
     return sheet.data;
 }
