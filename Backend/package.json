@@ -51,7 +51,8 @@
     "read-excel-file": "^9.3.10",
     "runtypes": "^6.7.0",
     "serve-index": "^1.9.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "undici": "^8.11.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
