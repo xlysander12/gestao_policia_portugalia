@@ -27,6 +27,7 @@ function PatrolPicker(props: PatrolPickerProps) {
 
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(10);
+    const [totalResults, setTotalResults] = useState<number>(0);
 
     // Search options constant
     const SEARCH_OPTIONS: DefaultSearchOption[] = [
@@ -82,11 +83,12 @@ function PatrolPicker(props: PatrolPickerProps) {
 
         const execute = async () => {
             // Fetch the patrols from the API
-            const {patrols, pages} = await fetchPatrols(true, signal);
+            const {patrols, pages, total} = await fetchPatrols(true, signal);
 
             // Set the patrols and set loading to false
             setPatrols(patrols);
             setTotalPages(pages);
+            setTotalResults(total)
             if (page > pages) {
                 setPage(1);
             }
@@ -97,7 +99,7 @@ function PatrolPicker(props: PatrolPickerProps) {
         return () => controller.abort();
     }, [page, JSON.stringify(currentFilters)]);
 
-    async function fetchPatrols(showLoading?: boolean, signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number }> {
+    async function fetchPatrols(showLoading?: boolean, signal?: AbortSignal): Promise<{ patrols: MinifiedPatrolData[], pages: number, total: number }> {
         if (showLoading) {
             setLoading(true);
         }
@@ -111,7 +113,8 @@ function PatrolPicker(props: PatrolPickerProps) {
             toast.error(patrols.message);
             return {
                 patrols: [],
-                pages: 0
+                pages: 0,
+                total: 0
             };
         }
 
@@ -121,7 +124,8 @@ function PatrolPicker(props: PatrolPickerProps) {
 
         return {
             patrols: (patrols as PatrolHistoryResponse).data,
-            pages: (patrols as PatrolHistoryResponse).meta.pages
+            pages: (patrols as PatrolHistoryResponse).meta.pages,
+            total: (patrols as PatrolHistoryResponse).meta.total
         };
     }
 
@@ -150,7 +154,12 @@ function PatrolPicker(props: PatrolPickerProps) {
                             count={totalPages}
                             page={page}
                             onChange={(_e, value) => setPage(value)}
+                            sx={{
+                                marginTop: "19.5px" // TODO: This is sketchy as fuck
+                            }}
                         />
+
+                        <DefaultTypography fontSize={"small"}>Total de resultados: {totalResults}</DefaultTypography>
                     </div>
                 </div>
             </ManagementBar>

@@ -11,6 +11,7 @@ export interface PatentData {
     name: string
     category: number
     max_evaluation: number
+    max_evaluation_author: number
     leading_char: string
 }
 

@@ -1,9 +1,9 @@
 import express from "express";
-import {APIResponse, DefaultReturn} from "../../../types";
+import {APIResponse} from "../../../types";
 import {patrolCreate, patrolDelete, patrolEdit, patrolsHistory, sortPatrolOfficers} from "../services";
 import {FORCE_HEADER} from "../../../utils/constants";
 import {isQueryParamPresent} from "../../../utils/filters";
-import {MinifiedPatrolData, PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
+import {PatrolHistoryResponse, PatrolInfoResponse} from "@portalseguranca/api-types/patrols/output";
 import {PatrolInfoAPIResponse} from "../../../types/response-types";
 import {dateToUnix} from "../../../utils/date-handler";
 import {CreatePatrolBody, EditPatrolBody} from "@portalseguranca/api-types/patrols/input";
@@ -11,17 +11,13 @@ import {CreationResponse} from "@portalseguranca/api-types";
 
 export async function listPatrolsController(req: express.Request, res: APIResponse<PatrolHistoryResponse>) {
     // *  Call the service to get the patrols
-    let result: DefaultReturn<{
-        patrols: MinifiedPatrolData[],
-        pages: number
-    }>;
+    const result = await patrolsHistory(
+        req.header(FORCE_HEADER)!,
+        res.locals.routeDetails.filters!,
+        res.locals.queryParams,
+        isQueryParamPresent("page", res.locals.queryParams) ? parseInt(res.locals.queryParams.page) : undefined
+    );
 
-    // Check if there is a page parameter
-    if (isQueryParamPresent("page", res.locals.queryParams)) {
-        result = await patrolsHistory(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams, parseInt(res.locals.queryParams.page));
-    } else {
-        result = await patrolsHistory(req.header(FORCE_HEADER)!, res.locals.routeDetails.filters!, res.locals.queryParams);
-    }
 
     // Return the result of the service
     if (!result.result) {
@@ -34,6 +30,7 @@ export async function listPatrolsController(req: express.Request, res: APIRespon
     res.status(result.status).json({
         meta: {
             pages: result.data!.pages,
+            total: result.data!.total
         },
         message: result.message,
         data: result.data!.patrols

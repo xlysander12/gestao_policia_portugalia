@@ -1,6 +1,6 @@
 {
   "name": "@portalseguranca/backend",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "",
   "main": "src/main.ts",
   "scripts": {
@@ -15,7 +15,6 @@
     "start": "pm2 start ecosystem.config.js",
     "restart": "pm2 restart ecosystem.config.js --update-env",
     "test": "jest --watch",
-
     "migrate": "ts-node scripts/db-migrate.ts",
     "rollback": "ts-node scripts/db-rollback.ts",
     "test-migrate": "knex migrate:latest --env test"
@@ -49,9 +48,11 @@
     "pino": "^9.9.0",
     "pino-pretty": "^13.1.1",
     "pm2": "^6.0.8",
+    "read-excel-file": "^9.3.10",
     "runtypes": "^6.7.0",
     "serve-index": "^1.9.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "undici": "^8.11.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
@@ -74,6 +75,8 @@
     "typescript-eslint": "^8.29.0"
   },
   "knex": {
-    "require": ["ts-node/register"]
+    "require": [
+      "ts-node/register"
+    ]
   }
 }

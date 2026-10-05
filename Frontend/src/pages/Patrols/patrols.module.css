@@ -17,9 +17,10 @@
 
 .paginationDiv {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-end;
-    align-items: center;
+    align-items: flex-end;
+    gap: 2px;
     height: 100%;
     flex: 0 0 auto;
 }

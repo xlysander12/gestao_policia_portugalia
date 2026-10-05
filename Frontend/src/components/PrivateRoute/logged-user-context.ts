@@ -52,6 +52,7 @@ export const LoggedUserContext = createContext<LoggedUserContextType>({
                 id: 0,
                 name: "",
                 max_evaluation: 0,
+                max_evaluation_author: 0,
                 leading_char: "",
                 category: 1
             },
